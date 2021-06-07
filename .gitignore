@@ -2,6 +2,7 @@
 node_modules
 /dist
 /config/localdev.js
+/certs
 
 # local env files
 .env.local
