@@ -13,7 +13,7 @@ let config = {
 };
 
 // Подключает сертификаты, если они обнаружены
-if(fs.lstatSync(__dirname + '/certs').isDirectory()) {
+if(false && fs.lstatSync(__dirname + '/certs').isDirectory()) {
     config.devServer = {
         http2: true,
         https: {
