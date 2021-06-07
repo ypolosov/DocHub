@@ -5,8 +5,8 @@ export default {
         "branch": "dev" // Ветка в которой размещен корневой манифест
     },
     "oauth" : {
-        "APP_ID": "Application token from gitlab", // Идентификатор приложения в GitLab
-        "CLIENT_SECRET": "Client secret from gitlab", // Секрет приложения  в GitLab
+        "APP_ID": "Application token from gitlab ", // Идентификатор приложения в GitLab
+        "CLIENT_SECRET": "Client secret from gitlab ", // Секрет приложения  в GitLab
         "REQUESTED_SCOPES": "read_repository+api"
     }
 }
