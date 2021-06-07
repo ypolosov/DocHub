@@ -24,7 +24,9 @@ window.Vuex = storage;
 storage.dispatch('init');
 
 // eslint-disable-next-line no-console
-console.log('!!!!!!!!!!!!!');
+// console.info(config);
+// eslint-disable-next-line no-debugger
+// debugger;
 
 new Vue(Object.assign({
   el: '#app',

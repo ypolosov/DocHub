@@ -1,4 +1,4 @@
-import config from '../config'
+import config from '../../config'
 import cookie from 'vue-cookie';
 import GitHelper from '../helpers/gitlab'
 const axios = require('axios');

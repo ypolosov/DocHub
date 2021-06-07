@@ -7,7 +7,7 @@ import Main from '../components/Main'
 
 Vue.use(Router)
 
-import config from '../config'
+import config from '../../config'
 import consts from '../consts'
 
 let middleware = (route) => {

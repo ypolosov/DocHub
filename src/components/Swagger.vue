@@ -12,7 +12,7 @@
 
 <script>
     import SwaggerUI from "swagger-ui";
-    import config from "../config";
+    import config from "../../config";
 
     export default {
         name: 'Swagger',

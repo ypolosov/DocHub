@@ -90,7 +90,7 @@
 </template>
 
 <script>
-    import config from '../config';
+    import config from '../../config';
     import consts from '../consts'
 
     export default {
