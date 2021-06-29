@@ -1,24 +1,26 @@
 import config from '../../config'
 import cookie from 'vue-cookie';
 import GitHelper from '../helpers/gitlab'
-const axios = require('axios');
-
-let reload_manifest_request = null;
-
+import parser from '../helpers/manifest_parser';
 import Vue from 'vue';
+
+const axios = require('axios');
 
 export default {
     state: {
         access_token: null,
         available_projects: {},
+        docsStructure: { nodes: {} },
         docs: {},
+        presentations: { nodes: {}, components: {} },
+        components: {},
         selected_doc: null,
         diff_format: 'line-by-line',
         last_changes: {},
     },
 
     mutations: {
-        setAccessToken (state, value) {
+        setAccessToken(state, value) {
             state.access_token = value;
             cookie.set('git_access_token', value, 1);
         },
@@ -26,25 +28,60 @@ export default {
             state.diff_format = value;
             cookie.set('diff_format', value, 1);
         },
-        clearDocs (state) {
+        clearDocs(state) {
             state.docs = {};
+            state.docsStructure = { nodes: {} };
         },
-        appendDocs (state, value) {
-            state.docs = Object.assign(value, state.docs);
+        appendDoc(state, value) {
+            // Добавляем документ в индекс
+            state.docs = Object.assign({[value.id]: value.content}, state.docs);
+
+            // Добавляем документ в навигацию
+            const nodes = value.content.location.split('/');
+            let curNode = state.docsStructure;
+            nodes.map((node, index) => {
+                curNode = curNode.nodes[node] || (curNode.nodes[node] = { nodes: {} });
+                if (nodes.length - 1 === index) {
+                    curNode.doc = value.content;
+                }
+            });
+            state.docsStructure = Object.assign({}, state.docsStructure);
         },
-        clearAvailableProjects (state) {
+        clearComponents(state) {
+            state.components = {};
+        },
+        appendComponent(state, value) {
+            state.components = Object.assign(value, state.components);
+        },
+        clearPresentations(state) {
+            state.presentations = { nodes: {}, components: {} };
+        },
+        appendPresentation(state, value) {
+            const nodes = value.context.split('/');
+            let curNode = state.presentations;
+            nodes.map((node) => {
+                curNode = node === 'global'
+                    ? state.presentations
+                    : curNode.nodes[node] || (curNode.nodes[node] = { nodes: {}, components: {} })
+                ;
+                curNode.components[value.id] = value;
+            });
+
+            state.presentations = Object.assign({}, state.presentations);
+        },
+        clearAvailableProjects(state) {
             state.available_projects = {};
         },
-        appendAvailableProjects (state, value) {
+        appendAvailableProjects(state, value) {
             Vue.set(state.available_projects, value.id, value);
         },
-        setSelectedDocument (state, value) {
+        setSelectedDocument(state, value) {
             state.selected_doc = value;
         },
-        clearLastChanges (state) {
+        clearLastChanges(state) {
             state.last_changes = {};
         },
-        appendLastChanges (state, value) {
+        appendLastChanges(state, value) {
             Vue.set(state.last_changes, value.id, value.payload);
         },
 
@@ -54,7 +91,7 @@ export default {
         // Action for init store
         init(context) {
             const access_token = cookie.get('git_access_token');
-            if(access_token) {
+            if (access_token) {
                 context.commit('setAccessToken', access_token);
                 context.dispatch('reloadAll');
             }
@@ -75,9 +112,9 @@ export default {
 
         // Search and set document by URI
         selectDocumentByURI(context, uri) {
-            for(let key in context.state.docs) {
+            for (let key in context.state.docs) {
                 let document = context.state.docs[key];
-                if(document.uri.toString() === uri) {
+                if (document.uri.toString() === uri) {
                     context.dispatch('selectDocument', document);
                     break;
                 }
@@ -91,7 +128,7 @@ export default {
 
         // Reload root manifest
         updateLastChanges(context) {
-            let request = new function() {
+            let request = new function () {
                 this.terminate = false;
                 this.projects_tasks = {};
 
@@ -99,12 +136,12 @@ export default {
                     axios({
                         method: 'get',
                         url: GitHelper.commitsListURI(doc.project_id, doc.branch, 1, doc.source, 1),
-                        headers: { 'Authorization': `Bearer ${context.state.access_token}` }
+                        headers: {'Authorization': `Bearer ${context.state.access_token}`}
                     })
                         .then((response) => {
-                            if(!this.terminate) {
+                            if (!this.terminate) {
                                 context.commit('appendLastChanges', {
-                                    id : doc.id,
+                                    id: doc.id,
                                     payload: response.data
                                 });
                             }
@@ -116,9 +153,9 @@ export default {
                 }
             };
 
-            for(let id in context.state.docs) {
+            for (let id in context.state.docs) {
                 let doc = context.state.docs[id];
-                if(doc.transport.toLowerCase() === 'gitlab') {
+                if ((doc.transport || '').toLowerCase() === 'gitlab') {
                     request.loadLastChange(doc);
                 }
             }
@@ -126,98 +163,24 @@ export default {
 
         // Reload root manifest
         reloadRootManifest(context) {
-            let request_counter = 0;
-            context.commit('clearDocs');
-            let request = new function() {
-                this.terminate = false;
-                this.projects_tasks = {};
-
-                this.loadProject = (project_id) => {
-                    this.projects_tasks[project_id] = axios({
-                        method: 'get',
-                        url: GitHelper.projectSingleURI(project_id),
-                        headers: { 'Authorization': `Bearer ${context.state.access_token}` }
-                    })
-                        .then((response) => {
-                            if(!this.terminate) {
-                                context.commit('appendAvailableProjects', response.data);
-                            }
-                        });
-                };
-
-                this.import = (project_id, branch) => {
-                    ++request_counter;
-                    axios({
-                        method: 'get',
-                        url: GitHelper.makeFileURI(
-                            project_id,
-                            'dochub.json',
-                            branch,
-                            'raw'
-                        ),
-                        headers: { 'Authorization': `Bearer ${context.state.access_token}` }
-                    })
-                    .then((response) => {
-                        if(!this.terminate) {
-                            try {
-                                if ('imports' in response.data) {
-                                    response.data.imports.map((item) => {
-                                        this.import(item.project_id, item.branch);
-                                    });
-                                }
-                                if ('docs' in response.data) {
-                                    //Make URI of resource
-                                    let docs = response.data.docs;
-                                    for(let key in docs) {
-                                        let doc = docs[key];
-                                        doc.id = key;
-                                        switch (doc.transport.toUpperCase()) {
-                                            case "HTTP":
-                                                doc.uri = new URL(doc.source);
-                                                break;
-                                            default:
-                                                doc.uri = GitHelper.makeFileURI(
-                                                    doc.project_id,
-                                                    doc.source,
-                                                    doc.branch,
-                                                    'raw'
-                                                );
-                                                //Get project info
-                                                if(!this.projects_tasks[project_id]) {
-                                                    this.loadProject(doc.project_id);
-                                                }
-                                        }
-                                    }
-                                    context.commit('appendDocs', response.data.docs);
-                                }
-                            } catch (e) {
-                                // eslint-disable-next-line no-console
-                                console.error(`'Can not import manifest.`, e);
-                            }
-                        }
-                    })
-                    .catch((error) => {
-                        // eslint-disable-next-line no-console
-                        console.error(error);
-                    })
-                    .finally(() => {
-                        if(--request_counter <= 0) {
-                            context.dispatch('updateLastChanges');
-                        }
-                    });
+            parser.import(
+                `gitlab:${config.root_manifest.project_id}:${config.root_manifest.branch}@dochub.json`,
+                (action, data) => {
+                    switch (action) {
+                        case 'component':
+                            context.commit('appendComponent', {
+                                [data.id]: data.content
+                            });
+                            break;
+                        case 'presentation':
+                            context.commit('appendPresentation', data);
+                            break;
+                        case 'doc':
+                            context.commit('appendDoc', data);
+                            break;
+                    }
                 }
-
-                this.stop = () => {
-                    this.terminate = true;
-                }
-            };
-
-            if(reload_manifest_request)
-                reload_manifest_request.stop();
-
-            request.import(config.root_manifest.project_id, config.root_manifest.branch);
-
-            reload_manifest_request = request;
+            );
         }
     }
 };

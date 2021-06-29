@@ -29,8 +29,12 @@ storage.dispatch('init');
 // debugger;
 
 new Vue(Object.assign({
-  el: '#app',
-  router,
-  vuetify: new Vuetify(),
-  store: new Vuex.Store(gitlab)
+    el: '#app',
+    router,
+    vuetify: new Vuetify({
+        icons: {
+            iconfont: 'mdi', // default - only for display purposes
+        },
+    }),
+    store: new Vuex.Store(gitlab)
 }, Root));

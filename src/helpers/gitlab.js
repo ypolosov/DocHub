@@ -5,7 +5,9 @@ export default {
         let hashParams = {};
         let a = /\+/g,  // Regex for replacing addition symbol with a space
             r = /([^&;=]+)=?([^&;]*)/g,
-            d = function (s) { return decodeURIComponent(s.replace(a, " ")); },
+            d = function (s) {
+                return decodeURIComponent(s.replace(a, " "));
+            },
             e = r.exec(hash);
 
         if (e) {
@@ -62,5 +64,5 @@ export default {
             + (branch ? `?ref=${branch}` : '')
             , config.gitlab_server
         );
-    },
+    }
 };
