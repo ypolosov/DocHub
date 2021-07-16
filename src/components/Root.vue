@@ -45,7 +45,10 @@
           class="grey lighten-4"
       >
         <template v-for="(item, i) in menu">
-          <v-list-item :key="i" :style="{'padding-left': '' + (item.level * 8) + 'px'}">
+          <v-list-item
+              :key="i" :style="{'padding-left': '' + (item.level * 8) + 'px'}"
+              @click="item.handle && item.handle(item)"
+          >
             <v-list-item-action>
               <v-icon v-if="item.level == 0">home</v-icon>
               <v-icon v-else>{{item.icon}}</v-icon>
@@ -68,9 +71,14 @@
 export default {
   name: 'Root',
   methods: {
-    onClickArchitecture() {
-      this.$router.push({ name: 'C4Context' });
+    onClickArchContext(item) {
+      this.$router.push(item.rout);
     },
+
+    onClickDoc(item) {
+      this.$router.push(item.rout);
+    },
+
     goDiffView() {
       this.$router.push({
         name: 'conditions',
@@ -107,11 +115,23 @@ export default {
       const expand = (nodes, level) => {
         for (const id in nodes) {
           const node = nodes[id];
-          menu.push({
+          const item = {
             icon: node.doc ? node.doc.icon || 'settings' : 'folder_open',
             title: id,
             level
-          });
+          };
+
+          if (node.doc) {
+            item.handle = this.onClickDoc;
+            item.rout = {
+              name: 'swagger',
+                  params: {
+                source: btoa(node.doc.source)
+              }
+            };
+          }
+
+          menu.push(item);
           Object.keys(node.nodes).length && expand(node.nodes, level + 1);
         }
       };
@@ -124,35 +144,38 @@ export default {
       const presentations = this.$store.state.presentations;
       const menu = [{
         mode: 'arch',
+        handle: this.onClickArchContext,
         title: 'Архитектура',
         level: 0,
         rout: {
-          name: 'architecture',
+          name: 'schema',
           params: {
             context: btoa('global')
           }
         }
       }];
-
-      const expand = (nodes, level) => {
+      const expand = (nodes, level, path) => {
         for (const id in nodes) {
           const node = nodes[id];
+          const currPath = path.length ? `${path}/${id}` : id;
+          const context = this.$store.state.contexts[currPath];
           menu.push({
+            handle: this.onClickArchContext,
             icon: 'mdi-file-tree',
-            title: id,
+            title: context ? context.title || id : id,
             level,
             rout: {
-              name: 'architecture',
+              name: 'schema',
               params: {
-                context: btoa('id')
+                context: btoa(currPath)
               }
             }
           });
-          Object.keys(node.nodes).length && expand(node.nodes, level + 1);
+          Object.keys(node.nodes).length && expand(node.nodes, level + 1, currPath);
         }
       };
 
-      expand(presentations.nodes, 1);
+      expand(presentations.nodes, 1, '');
 
       return menu;
     },

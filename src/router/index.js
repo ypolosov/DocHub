@@ -6,13 +6,14 @@ import DiffViewer from '../components/DiffViewer'
 import Main from '../components/Main'
 import config from '../../config'
 import consts from '../consts'
-import C4Context from "../components/Architecture/C4Context";
+import Schema from "../components/Architecture/Schema";
+import Component from "../components/Architecture/Component";
 
 Vue.use(Router)
 
 let middleware = (route) => {
     // eslint-disable-next-line no-undef
-    Vuex.dispatch('selectDocumentByURI', atob(route.params.source));
+    // Vuex.dispatch('selectDocumentByURI', atob(route.params.source));
     return route.params
 }
 
@@ -59,9 +60,19 @@ export default new Router({
             props: middleware
         },
         {
-            name: 'C4Context',
-            path: '/C4Context',
-            component: C4Context
+            name: 'schema',
+            query:{
+                name:'focus'
+            },
+            path: '/schema/:context',
+            component: Schema,
+            props: middleware
+        },
+        {
+            name: 'schema',
+            path: '/schema/:context/components/:component',
+            component: Component,
+            props: middleware
         },
     ]
 })

@@ -16,24 +16,32 @@ export default {
     parseComponents(components, baseURI, callback) {
         for (const id in components) {
             if (typeof components[id] === 'string') {
-                requests.request(requests.makeURIByBaseURI(components[id], baseURI)).then((response) => {
+                const componentURI = requests.makeURIByBaseURI(components[id], baseURI);
+                requests.request(componentURI).then((response) => {
                     const component = {
                         id,
-                        content: response.data
+                        content: typeof response.data === "string" ? JSON.parse(response.data) : response.data,
+                        location: componentURI
                     };
                     callback('component', component);
                     this.parseComponent(component, baseURI, callback);
                 })
                     // eslint-disable-next-line no-console
-                    .catch((e) => console.error(e));
+                    .catch((e) => console.error(e, componentURI));
             } else {
                 const component = {
                     id,
-                    content: components[id]
+                    content: components[id],
+                    location: baseURI
                 };
                 callback('component', component);
                 this.parseComponent(component, baseURI, callback);
             }
+        }
+    },
+    parseContexts(contexts, baseURI, callback) {
+        for (const id in contexts) {
+            callback('context', {id, content: contexts[id]});
         }
     },
     parseDocs(docs, baseURI, callback) {
@@ -52,6 +60,7 @@ export default {
     import(uri, callback) {
         requests.request(uri).then((response) => {
             for (const section in response.data) {
+                const data = response.data[section];
                 switch (section) {
                     case 'imports':
                         response.data.imports.map((importUri) => {
@@ -59,10 +68,13 @@ export default {
                         });
                         break;
                     case 'components':
-                        this.parseComponents(response.data.components, uri, callback);
+                        this.parseComponents(data, uri, callback);
+                        break;
+                    case 'contexts':
+                        this.parseContexts(data, uri, callback);
                         break;
                     case 'docs':
-                        this.parseDocs(response.data.docs, uri, callback);
+                        this.parseDocs(data, uri, callback);
                         break;
                     default:
                         throw `Error manifest section [${section}] at ${response.config.url}`

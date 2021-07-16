@@ -13,6 +13,7 @@ export default {
         docsStructure: { nodes: {} },
         docs: {},
         presentations: { nodes: {}, components: {} },
+        contexts: {},
         components: {},
         selected_doc: null,
         diff_format: 'line-by-line',
@@ -51,7 +52,14 @@ export default {
             state.components = {};
         },
         appendComponent(state, value) {
-            state.components = Object.assign(value, state.components);
+            const component = state.components[value.id]
+                ? Object.assign(value.content, state.components[value.id])
+                : value.content;
+
+            !component.locations && (component.locations = []);
+            component.locations.push(value.location);
+
+            state.components = Object.assign({ [value.id]: component }, state.components);
         },
         clearPresentations(state) {
             state.presentations = { nodes: {}, components: {} };
@@ -68,6 +76,12 @@ export default {
             });
 
             state.presentations = Object.assign({}, state.presentations);
+        },
+        clearContexts(state) {
+            state.contexts = {};
+        },
+        appendContext(state, value) {
+            state.contexts = Object.assign( {[value.id]: value.content}, state.contexts);
         },
         clearAvailableProjects(state) {
             state.available_projects = {};
@@ -168,12 +182,13 @@ export default {
                 (action, data) => {
                     switch (action) {
                         case 'component':
-                            context.commit('appendComponent', {
-                                [data.id]: data.content
-                            });
+                            context.commit('appendComponent', data);
                             break;
                         case 'presentation':
                             context.commit('appendPresentation', data);
+                            break;
+                        case 'context':
+                            context.commit('appendContext', data);
                             break;
                         case 'doc':
                             context.commit('appendDoc', data);
