@@ -57,14 +57,15 @@ export default {
             });
         }
     },
-    import(uri, callback) {
+    import(uri, callback, subimport) {
+        !subimport && callback('begin');
         requests.request(uri).then((response) => {
             for (const section in response.data) {
                 const data = response.data[section];
                 switch (section) {
                     case 'imports':
                         response.data.imports.map((importUri) => {
-                            this.import(requests.makeURIByBaseURI(importUri, uri), callback);
+                            this.import(requests.makeURIByBaseURI(importUri, uri), callback, true);
                         });
                         break;
                     case 'components':
@@ -83,5 +84,6 @@ export default {
         })
             // eslint-disable-next-line no-console
             .catch((e) => console.error(e));
+        !subimport && callback('end');
     }
 };

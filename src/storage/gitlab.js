@@ -8,6 +8,7 @@ const axios = require('axios');
 
 export default {
     state: {
+        is_reloading: false,
         access_token: null,
         available_projects: {},
         docsStructure: { nodes: {} },
@@ -21,6 +22,9 @@ export default {
     },
 
     mutations: {
+        setIsReloading(state, value) {
+            state.is_reloading = value;
+        },
         setAccessToken(state, value) {
             state.access_token = value;
             cookie.set('git_access_token', value, 1);
@@ -181,6 +185,9 @@ export default {
                 `gitlab:${config.root_manifest.project_id}:${config.root_manifest.branch}@dochub.json`,
                 (action, data) => {
                     switch (action) {
+                        case 'begin':
+                            context.commit('setIsReloading', true);
+                            break;
                         case 'component':
                             context.commit('appendComponent', data);
                             break;
@@ -192,6 +199,9 @@ export default {
                             break;
                         case 'doc':
                             context.commit('appendDoc', data);
+                            break;
+                        case 'end':
+                            context.commit('setIsReloading', false);
                             break;
                     }
                 }
