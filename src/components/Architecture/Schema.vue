@@ -16,6 +16,7 @@
 <script>
 
 import plantUML from '../../helpers/plantuml'
+import DSL from '!!raw-loader!./../../assets/dsl.txt'
 
 export default {
   name: 'Schema',
@@ -23,45 +24,69 @@ export default {
     toID(id) {
       return id.replaceAll('@', '_').replaceAll('-', '_');
     },
-    makeRef(type, id, title) {
-      const url = (new URL(`/schema/${this.context}/components/${btoa(id)}`, location.origin)).toString();
+    isFocused(id) {
+      return this.focusIDs.indexOf(id) >= 0;
+    },
+    makeRef(type, id, title, context) {
+      const url = (() => {
+        switch (type) {
+          case 'context':
+            return (new URL(`/schema/${this.context}`, location.origin)).toString();
+          case 'component':
+            return (new URL(`/schema/${this.context}/components/${btoa(id)}`, location.origin)).toString();
+          case 'aspect':
+            return (new URL(`/schema/${this.context}/components/${btoa(context.componentID)}/aspect/${btoa(id)}`, location.origin)).toString();
+        }
+      })();
       return `[[${url} ${title || id}]]`;
     }
   },
   computed: {
+    contextID () {
+      return atob(this.context);
+    },
+    aspectID () {
+      return atob(this.aspect);
+    },
+    focusIDs () {
+      return (this.focus && atob(this.focus).split(';')) || [];
+    },
     isPreparing () {
       return this.$store.state.is_reloading;
     },
     svgURL() {
+      // eslint-disable-next-line no-console
       const namespaces = {};
       const connections = {};
 
       const components = this.$store.state.components;
-      const contextID = atob(this.context);
-      const isSelfContext = contextID === 'self';
-      const focusID = this.focus ? this.toID(atob(this.focus)) : null;
-      const context = this.$store.state.contexts[contextID];
+      const aspects = this.$store.state.aspects;
+      const context = this.contextID ? this.$store.state.contexts[this.contextID] : null;
+
       for (const id in components) {
         const componentId = this.toID(id);
-
-        // Если анализируем себя, пропускаем все кроме компонента в фокусе
-        if (isSelfContext && (componentId !== focusID))
-          continue;
-
         const component = components[id];
 
-        (component.presentations || []).map((presentation) => {
-          if (!isSelfContext && ([].concat(presentation.contexts || ['global']).indexOf(contextID) < 0))
-            return;
+        // Если анализируем себя, пропускаем все кроме компонента в фокусе
+        if ((this.contextID === 'self') && !this.isFocused(id))
+          continue;
 
+        // Если казан аспект, отражаем только компоненты включенные в него
+        if (['all'].concat(component.aspects || []).indexOf(this.aspectID) < 0)
+          continue;
+
+        // Разбираем представления компонента в контекстах
+        (component.presentations || []).map((presentation) => {
+          if (['self'].concat(presentation.contexts || ['global']).indexOf(this.contextID) < 0)
+            return;
           const namespace = id.split('@')[0];
           !namespaces[namespace] && (namespaces[namespace] = {});
-          if (!namespaces[namespace][componentId]) {
-            namespaces[namespace][componentId] = Object.assign({
-              id,
-              shape: component.shape || presentation.shape || 'component'
-            }, components[id])
-          }
+          namespaces[namespace][componentId] = Object.assign(
+              namespaces[namespace][componentId]
+              || {
+                id,
+                shape: component.shape || presentation.shape || 'component'
+              }, components[id]);
 
           (presentation.requires || []).map((require) => {
             const namespace = require.id.split('@')[0];
@@ -80,21 +105,33 @@ export default {
         });
       }
 
-      let uml = '@startuml\n';
-      if (focusID) {
-        uml += 'skinparam useBetaStyle true\n';
-        uml += '<style>\n.focus * {\nBackgroundColor Red\nFontColor White\nRoundCorner 10\n}\n</style>\n';
-      }
-      context && (uml += `title ${context.title || contextID}\n`);
+      let uml = `@startuml\n${DSL}\n`;
+      context && (uml += `title ${this.makeRef('context', this.contextID, context.title)}\n`);
 
       for (const namespace in namespaces) {
         uml += `cloud "${namespace}" {\n`;
-        const components = namespaces[namespace];
-        for (const id in components) {
-          const component = components[id];
+        for (const id in namespaces[namespace]) {
+          const component = namespaces[namespace][id];
           const title = this.makeRef('component', component.id, component.title);
-          uml += `${component.shape} "${title}" as ${id}`;
-          focusID === id && (uml += ' <<focus>>');
+          if (component.aspects) {
+            uml += `${component.shape} ${id}`;
+            this.isFocused(component.id) && (uml += ' <<focused>>');
+            const aspectList = [];
+            component.aspects.map((aspectID) => {
+              let aspectTitle = this.makeRef(
+                  'aspect',
+                  aspectID,
+                  aspects[aspectID] && aspects[aspectID].title || aspectID,
+                  {componentID: component.id}
+              );
+              aspectTitle = this.isFocused(aspectID) ? `<b>${aspectTitle}</b>` : aspectTitle;
+              aspectList.push(aspectTitle);
+            });
+            aspectList.length && (uml += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n]`);
+          } else {
+            uml += `${component.shape} "${title}" as ${id}`;
+            this.isFocused(component.id) && (uml += ' <<focus>>');
+          }
           uml += '\n';
         }
         uml += `}\n`;
@@ -111,8 +148,21 @@ export default {
     }
   },
   props: {
-    context: String,
-    focus: String
+    // Контекст отображения схемы
+    context:{
+      type: String,
+      default: btoa('self') // По умолчанию контекст "личный"
+    },
+    // Аспект отображения
+    aspect:{
+      type: String,
+      default: btoa('all') // По умолчанию рассматриваются все аспекты
+    },
+    // ID элемент фокуса
+    focus: {
+      type: String,
+      default: null // По фокуса нет
+    }
   },
   data() {
     return {

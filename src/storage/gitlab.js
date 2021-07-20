@@ -14,6 +14,7 @@ export default {
         docsStructure: { nodes: {} },
         docs: {},
         presentations: { nodes: {}, components: {} },
+        aspects: {},
         contexts: {},
         components: {},
         selected_doc: null,
@@ -52,40 +53,29 @@ export default {
             });
             state.docsStructure = Object.assign({}, state.docsStructure);
         },
+        clearAspects(state) {
+            state.aspects = {};
+        },
+        setAspects(state, value) {
+            state.aspects = value;
+        },
         clearComponents(state) {
             state.components = {};
         },
-        appendComponent(state, value) {
-            const component = state.components[value.id]
-                ? Object.assign(value.content, state.components[value.id])
-                : value.content;
-
-            !component.locations && (component.locations = []);
-            component.locations.push(value.location);
-
-            state.components = Object.assign({ [value.id]: component }, state.components);
+        setComponents(state, value) {
+            state.components = value;
         },
         clearPresentations(state) {
             state.presentations = { nodes: {}, components: {} };
         },
-        appendPresentation(state, value) {
-            const nodes = value.context.split('/');
-            let curNode = state.presentations;
-            nodes.map((node) => {
-                curNode = node === 'global'
-                    ? state.presentations
-                    : curNode.nodes[node] || (curNode.nodes[node] = { nodes: {}, components: {} })
-                ;
-                curNode.components[value.id] = value;
-            });
-
-            state.presentations = Object.assign({}, state.presentations);
+        setPresentations(state, value) {
+            state.presentations = value;
         },
         clearContexts(state) {
             state.contexts = {};
         },
-        appendContext(state, value) {
-            state.contexts = Object.assign( {[value.id]: value.content}, state.contexts);
+        setContexts(state, value) {
+            state.contexts = value;
         },
         clearAvailableProjects(state) {
             state.available_projects = {};
@@ -181,6 +171,12 @@ export default {
 
         // Reload root manifest
         reloadRootManifest(context) {
+            const cache = {
+                aspects: {},
+                contexts: {},
+                components: {},
+                presentations: { nodes: {}, components: {} },
+            };
             parser.import(
                 `gitlab:${config.root_manifest.project_id}:${config.root_manifest.branch}@dochub.json`,
                 (action, data) => {
@@ -188,19 +184,51 @@ export default {
                         case 'begin':
                             context.commit('setIsReloading', true);
                             break;
-                        case 'component':
-                            context.commit('appendComponent', data);
+                        case 'aspect': {
+                            const aspect = cache.aspects[data.id]
+                                ? Object.assign(data.content, cache.aspects[data.id])
+                                : data.content;
+                            !aspect.locations && (aspect.locations = []);
+                            data.location && aspect.locations.push(data.location);
+                            !aspect.components && (aspect.components = []);
+                            data.component && aspect.components.push(data.component);
+                            cache.aspects = Object.assign(cache.aspects, {[data.id]: aspect});
                             break;
-                        case 'presentation':
-                            context.commit('appendPresentation', data);
+                        }
+                        case 'component': {
+                            const component = cache.components[data.id]
+                                ? Object.assign(cache.content, cache.components[data.id])
+                                : data.content;
+
+                            !component.locations && (component.locations = []);
+                            component.locations.push(data.location);
+
+                            cache.components = Object.assign(cache.components, {[data.id]: component},);
                             break;
+                        }
+                        case 'presentation': {
+                            const nodes = data.context.split('/');
+                            let curNode = cache.presentations;
+                            nodes.map((node) => {
+                                curNode = node === 'global'
+                                    ? cache.presentations
+                                    : curNode.nodes[node] || (curNode.nodes[node] = {nodes: {}, components: {}})
+                                ;
+                                curNode.components[data.id] = data;
+                            });
+                            break;
+                        }
                         case 'context':
-                            context.commit('appendContext', data);
+                            cache.contexts[data.id] = data.content;
                             break;
                         case 'doc':
                             context.commit('appendDoc', data);
                             break;
                         case 'end':
+                            context.commit('setContexts', cache.contexts);
+                            context.commit('setPresentations', cache.presentations);
+                            context.commit('setComponents', cache.components);
+                            context.commit('setAspects', cache.aspects);
                             context.commit('setIsReloading', false);
                             break;
                     }

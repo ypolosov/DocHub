@@ -1,7 +1,43 @@
 import requests from './requests';
 
+let reqCounter = null;
+
 export default {
+    // Определяет тип значения.
+    // Если сзначение ялвяется ссылкой, загружает объект по ссылке
+    parseNode (node, baseURI, callback) {
+        if (typeof node === 'string') {
+            const URI = requests.makeURIByBaseURI(node, baseURI);
+            reqCounter++;
+            requests.request(URI).then((response) => {
+                callback({
+                    content: typeof response.data === "string" ? JSON.parse(response.data) : response.data,
+                    location: URI
+                });
+            })
+            // eslint-disable-next-line no-console
+            .catch((e) => console.error(e, URI))
+            .finally(() => reqCounter--)
+        } else {
+            callback({
+                content: node,
+                location: baseURI
+            });
+        }
+    },
+
+    // Разбираем аспекты
+    parseAspects(aspects, baseURI, callback) {
+        for (const id in aspects) {
+            this.parseNode(aspects[id], baseURI,(node) => {
+                callback('aspect', Object.assign({ id : id}, node));
+            });
+        }
+    },
+
+    // Разбираем компонент
     parseComponent(component, baseURI, callback) {
+        // Разбираем контексты представления компонента
         (component.content.presentations || []).map((presentation) => {
             (presentation.contexts || ['global']).map((context) => {
                 callback('presentation', {
@@ -12,38 +48,35 @@ export default {
                 });
             });
         });
+        // Разбираем аспекты участия компонента
+        (component.content.aspects || []).map((aspectID) => {
+            callback('aspect', {
+                id: aspectID,
+                content: {},
+                component: component.id
+            });
+        });
     },
+
+    // Разбираем список компонентов
     parseComponents(components, baseURI, callback) {
         for (const id in components) {
-            if (typeof components[id] === 'string') {
-                const componentURI = requests.makeURIByBaseURI(components[id], baseURI);
-                requests.request(componentURI).then((response) => {
-                    const component = {
-                        id,
-                        content: typeof response.data === "string" ? JSON.parse(response.data) : response.data,
-                        location: componentURI
-                    };
-                    callback('component', component);
-                    this.parseComponent(component, baseURI, callback);
-                })
-                    // eslint-disable-next-line no-console
-                    .catch((e) => console.error(e, componentURI));
-            } else {
-                const component = {
-                    id,
-                    content: components[id],
-                    location: baseURI
-                };
+            this.parseNode(components[id], baseURI,(node) => {
+                const component = Object.assign({ id : id}, node);
                 callback('component', component);
                 this.parseComponent(component, baseURI, callback);
-            }
+            });
         }
     },
+
+    // Разбираем список контекстов
     parseContexts(contexts, baseURI, callback) {
         for (const id in contexts) {
             callback('context', {id, content: contexts[id]});
         }
     },
+
+    // Разбираем список документов
     parseDocs(docs, baseURI, callback) {
         for(const id in docs) {
             const doc = docs[id];
@@ -57,16 +90,35 @@ export default {
             });
         }
     },
+
+    // Подключение манифеста
     import(uri, callback, subimport) {
-        !subimport && callback('begin');
+        if (!subimport) {
+            reqCounter = 0;
+            let watcher = setInterval(() => {
+                if (reqCounter === 0) {
+                    callback('end');
+                    reqCounter = null;
+                    clearInterval(watcher);
+                }
+            })
+            callback('begin');
+        }
+
+        reqCounter++;
         requests.request(uri).then((response) => {
             for (const section in response.data) {
                 const data = response.data[section];
                 switch (section) {
+                    case 'namespaces':
+                        break;
                     case 'imports':
                         response.data.imports.map((importUri) => {
                             this.import(requests.makeURIByBaseURI(importUri, uri), callback, true);
                         });
+                        break;
+                    case 'aspects':
+                        this.parseAspects(data, uri, callback);
                         break;
                     case 'components':
                         this.parseComponents(data, uri, callback);
@@ -82,8 +134,8 @@ export default {
                 }
             }
         })
-            // eslint-disable-next-line no-console
-            .catch((e) => console.error(e));
-        !subimport && callback('end');
+        // eslint-disable-next-line no-console
+        .catch((e) => console.error(e))
+        .finally(() => reqCounter--);
     }
 };
