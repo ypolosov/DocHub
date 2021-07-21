@@ -43,6 +43,7 @@
 
 import Schema from './Schema';
 import requests from '../../helpers/requests';
+import entity from "../../helpers/entity";
 
 export default {
   name: 'Aspect',
@@ -51,7 +52,7 @@ export default {
   },
   methods: {
     goToLink(link) {
-      window.location = requests.makeURL(link);
+      window.location = requests.makeURL(link).url;
     }
   },
   computed: {
@@ -68,28 +69,7 @@ export default {
       return btoa(`${this.componentID};${this.aspectID}`);
     },
     summary () {
-      const result =[
-          {
-            title: 'Идентификатор',
-            content: this.aspectID
-          }
-      ];
-
-      if (this.$store.state.aspects[this.aspectID]) {
-        const aspect = this.$store.state.aspects[this.aspectID];
-        aspect.title && result.push({
-              title: 'Наименование',
-              content: aspect.title
-            });
-        aspect.locations.map((location) => {
-          result.push({
-            title: 'Размещение',
-            content: location,
-            link: location
-          });
-        });
-      }
-      return result;
+      return entity.buildSummary('aspect', this.aspectID) ;
     },
     selectedContext () {
       return btoa(this.selectedContextID);

@@ -35,6 +35,10 @@ export default {
         return gitlab_server.hostname === uri_server.hostname
     },
 
+    projectLanguagesURI(ProjectID) {
+        return new URL(`/api/v4/projects/${ProjectID}/languages`, config.gitlab_server);
+    },
+
     projectsListURI(page) {
         return new URL(`/api/v4/projects?simple=1&page=${page}`, config.gitlab_server);
     },
@@ -56,9 +60,9 @@ export default {
             , config.gitlab_server);
     },
 
-    makeFileURI(app_id, source, branch, view_type) {
+    makeFileURI(projectID, source, branch, view_type) {
         return new URL(
-            `/api/v4/projects/${app_id}/repository/files/`
+            `/api/v4/projects/${projectID}/repository/files/`
             + encodeURIComponent(source)
             + (view_type ? `/${view_type}` : '')
             + (branch ? `?ref=${branch}` : '')

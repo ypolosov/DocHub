@@ -19,9 +19,9 @@ window.Vue = Vue;
 Vue.prototype.$axios = Axios;
 Vuex.Store.prototype.$axios = Axios;
 
-let storage = new Vuex.Store(gitlab);
-window.Vuex = storage;
-storage.dispatch('init');
+let store = new Vuex.Store(gitlab);
+window.Vuex = store;
+store.dispatch('init');
 
 // eslint-disable-next-line no-console
 // console.info(config);
@@ -36,5 +36,5 @@ new Vue(Object.assign({
             iconfont: 'mdi', // default - only for display purposes
         },
     }),
-    store: new Vuex.Store(gitlab)
+    store
 }, Root));

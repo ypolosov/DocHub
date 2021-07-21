@@ -1,24 +1,50 @@
 import requests from './requests';
+import gitlab from "./gitlab";
 
 let reqCounter = null;
+let touchProjects = {};
 
 export default {
-    // Определяет тип значения.
-    // Если сзначение ялвяется ссылкой, загружает объект по ссылке
+    // Детектит обращение к проектам
+    touchProjects (location, callback) {
+        const projectID = requests.getGitLabProjectID(location);
+        let URI;
+        if (projectID && !touchProjects[projectID]) {
+            touchProjects[projectID] = {};
+            URI = gitlab.projectLanguagesURI(projectID);
+            reqCounter++;
+            requests.request(URI).then((response) => {
+                callback('project/languages', {
+                    projectID: projectID,
+                    content: typeof response.data === "string" ? JSON.parse(response.data) : response.data,
+                });
+            })
+                // eslint-disable-next-line no-console
+                .catch((e) => console.error(e, URI))
+                .finally(() => reqCounter--)
+        }
+    },
+
     parseNode (node, baseURI, callback) {
+        // Определяет тип значения.
+        // Если значение ялвяется ссылкой, загружает объект по ссылке
         if (typeof node === 'string') {
             const URI = requests.makeURIByBaseURI(node, baseURI);
             reqCounter++;
             requests.request(URI).then((response) => {
+                this.touchProjects(URI, callback);
                 callback({
                     content: typeof response.data === "string" ? JSON.parse(response.data) : response.data,
-                    location: URI
+                    location: URI,
+                    source: response.config.source
                 });
             })
             // eslint-disable-next-line no-console
             .catch((e) => console.error(e, URI))
             .finally(() => reqCounter--)
         } else {
+            // Иначе парсим
+            this.touchProjects(baseURI, callback);
             callback({
                 content: node,
                 location: baseURI
@@ -43,7 +69,7 @@ export default {
                 callback('presentation', {
                     id: component.id,
                     context: context,
-                    shape: presentation.shape || '@component',
+                    entity: presentation.entity || '@component',
                     requires: presentation.requires
                 });
             });
@@ -76,6 +102,11 @@ export default {
         }
     },
 
+    // Разбираем список форм
+    parseForms(forms, baseURI, callback) {
+        forms.map((form) => callback('form', form));
+    },
+
     // Разбираем список документов
     parseDocs(docs, baseURI, callback) {
         for(const id in docs) {
@@ -95,6 +126,7 @@ export default {
     import(uri, callback, subimport) {
         if (!subimport) {
             reqCounter = 0;
+            touchProjects = {};
             let watcher = setInterval(() => {
                 if (reqCounter === 0) {
                     callback('end');
@@ -106,10 +138,16 @@ export default {
         }
 
         reqCounter++;
+        this.touchProjects(uri, callback);
         requests.request(uri).then((response) => {
             for (const section in response.data) {
                 const data = response.data[section];
                 switch (section) {
+                    case 'technologies':
+                        break;
+                    case 'forms':
+                        this.parseForms(data, uri, callback);
+                        break;
                     case 'namespaces':
                         break;
                     case 'imports':

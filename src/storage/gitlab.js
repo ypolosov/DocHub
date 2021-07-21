@@ -8,17 +8,34 @@ const axios = require('axios');
 
 export default {
     state: {
+        // Признак загрузки данных
         is_reloading: false,
+        // Токен досутпа в GitLab
         access_token: null,
+        // Доступные проекты GitLab
         available_projects: {},
+        // Струкутар документов
         docsStructure: { nodes: {} },
-        docs: {},
-        presentations: { nodes: {}, components: {} },
-        aspects: {},
-        contexts: {},
-        components: {},
+        // Выбранный документ
         selected_doc: null,
+        // Документы
+        docs: {},
+        // Представления
+        presentations: { nodes: {}, components: {} },
+        // Архитектурные аспекты
+        aspects: {},
+        // Поля форм сущностей
+        fields: {},
+        // Контексты рассмотрения
+        contexts: {},
+        // Компоненты
+        components: {},
+        // Проекты
+        projects: {},
+        // Используемые технологии
+        technologies: { sections: {}, items: {} },
         diff_format: 'line-by-line',
+        // Последние изменения
         last_changes: {},
     },
 
@@ -33,10 +50,6 @@ export default {
         setDiffFormat(state, value) {
             state.diff_format = value;
             cookie.set('diff_format', value, 1);
-        },
-        clearDocs(state) {
-            state.docs = {};
-            state.docsStructure = { nodes: {} };
         },
         appendDoc(state, value) {
             // Добавляем документ в индекс
@@ -53,41 +66,29 @@ export default {
             });
             state.docsStructure = Object.assign({}, state.docsStructure);
         },
-        clearAspects(state) {
-            state.aspects = {};
-        },
         setAspects(state, value) {
             state.aspects = value;
-        },
-        clearComponents(state) {
-            state.components = {};
         },
         setComponents(state, value) {
             state.components = value;
         },
-        clearPresentations(state) {
-            state.presentations = { nodes: {}, components: {} };
-        },
         setPresentations(state, value) {
             state.presentations = value;
-        },
-        clearContexts(state) {
-            state.contexts = {};
         },
         setContexts(state, value) {
             state.contexts = value;
         },
-        clearAvailableProjects(state) {
-            state.available_projects = {};
+        setFields(state, value) {
+            state.fields = value;
+        },
+        setProjects(state, value) {
+            state.projects = value;
         },
         appendAvailableProjects(state, value) {
             Vue.set(state.available_projects, value.id, value);
         },
         setSelectedDocument(state, value) {
             state.selected_doc = value;
-        },
-        clearLastChanges(state) {
-            state.last_changes = {};
         },
         appendLastChanges(state, value) {
             Vue.set(state.last_changes, value.id, value.payload);
@@ -172,9 +173,11 @@ export default {
         // Reload root manifest
         reloadRootManifest(context) {
             const cache = {
+                projects: {},
                 aspects: {},
                 contexts: {},
                 components: {},
+                fields: {},
                 presentations: { nodes: {}, components: {} },
             };
             parser.import(
@@ -184,6 +187,18 @@ export default {
                         case 'begin':
                             context.commit('setIsReloading', true);
                             break;
+                        case 'project/languages':
+                            cache.projects[data.projectID] = cache.projects[data.projectID] || { languages: {} };
+                            cache.projects[data.projectID].languages = Object.assign(
+                                cache.projects[data.projectID].languages, data.content
+                            );
+                            break;
+                        case 'form': {
+                            data.entity && data.fields && data.entity.map((entity) => {
+                                cache.fields[entity] = Object.assign(data.fields, cache.fields[entity]);
+                            });
+                            break;
+                        }
                         case 'aspect': {
                             const aspect = cache.aspects[data.id]
                                 ? Object.assign(data.content, cache.aspects[data.id])
@@ -192,6 +207,7 @@ export default {
                             data.location && aspect.locations.push(data.location);
                             !aspect.components && (aspect.components = []);
                             data.component && aspect.components.push(data.component);
+                            aspect.id = data.id;
                             cache.aspects = Object.assign(cache.aspects, {[data.id]: aspect});
                             break;
                         }
@@ -199,10 +215,9 @@ export default {
                             const component = cache.components[data.id]
                                 ? Object.assign(cache.content, cache.components[data.id])
                                 : data.content;
-
                             !component.locations && (component.locations = []);
                             component.locations.push(data.location);
-
+                            component.id = data.id;
                             cache.components = Object.assign(cache.components, {[data.id]: component},);
                             break;
                         }
@@ -225,10 +240,12 @@ export default {
                             context.commit('appendDoc', data);
                             break;
                         case 'end':
+                            context.commit('setProjects', cache.projects);
+                            context.commit('setAspects', cache.aspects);
+                            context.commit('setFields', cache.fields);
                             context.commit('setContexts', cache.contexts);
                             context.commit('setPresentations', cache.presentations);
                             context.commit('setComponents', cache.components);
-                            context.commit('setAspects', cache.aspects);
                             context.commit('setIsReloading', false);
                             break;
                     }

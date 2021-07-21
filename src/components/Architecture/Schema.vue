@@ -85,7 +85,7 @@ export default {
               namespaces[namespace][componentId]
               || {
                 id,
-                shape: component.shape || presentation.shape || 'component'
+                entity: component.entity || presentation.entity || 'component'
               }, components[id]);
 
           (presentation.requires || []).map((require) => {
@@ -96,7 +96,7 @@ export default {
             if (!namespaces[namespace][requireId]) {
               namespaces[namespace][requireId] = {
                 id: require.id,
-                shape: components[require.id] ? components[require.id].shape || 'component' : 'component',
+                entity: components[require.id] ? components[require.id].entity || 'component' : 'component',
                 title: (components[require.id] && components[require.id].title) || require.id,
               }
             }
@@ -114,8 +114,8 @@ export default {
           const component = namespaces[namespace][id];
           const title = this.makeRef('component', component.id, component.title);
           if (component.aspects) {
-            uml += `${component.shape} ${id}`;
-            this.isFocused(component.id) && (uml += ' <<focused>>');
+            uml += `${component.entity} ${id}`;
+            this.isFocused(component.id) && (uml += ' <<focus>>');
             const aspectList = [];
             component.aspects.map((aspectID) => {
               let aspectTitle = this.makeRef(
@@ -129,7 +129,7 @@ export default {
             });
             aspectList.length && (uml += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n]`);
           } else {
-            uml += `${component.shape} "${title}" as ${id}`;
+            uml += `${component.entity} "${title}" as ${id}`;
             this.isFocused(component.id) && (uml += ' <<focus>>');
           }
           uml += '\n';

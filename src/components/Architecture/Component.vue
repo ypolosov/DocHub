@@ -43,6 +43,7 @@
 
 import Schema from './Schema';
 import requests from '../../helpers/requests';
+import entity from "../../helpers/entity";
 
 export default {
   name: 'Component',
@@ -51,7 +52,7 @@ export default {
   },
   methods: {
     goToLink(link) {
-      window.location = requests.makeURL(link);
+      window.location = requests.makeURL(link).url;
     }
   },
   computed: {
@@ -59,28 +60,7 @@ export default {
       return atob(this.component);
     },
     summary () {
-      const result =[
-          {
-            title: 'Идентификатор',
-            content: this.componentID
-          }
-      ];
-
-      if (this.$store.state.components[this.componentID]) {
-        const component = this.$store.state.components[this.componentID];
-        result.push({
-              title: 'Наименование',
-              content: component.title
-            });
-        component.locations.map((location) => {
-          result.push({
-            title: 'Размещение',
-            content: location,
-            link: location
-          });
-        });
-      }
-      return result;
+      return entity.buildSummary('component', this.componentID);
     },
     contextBtoa() {
       return btoa(this.contexts[this.currentContext].id);

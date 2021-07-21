@@ -3,6 +3,25 @@ import gitlab from './gitlab';
 import config from "../../config";
 
 export default {
+    getGitLabProjectID (uri) {
+        let result = undefined;
+        // Анализируем URI
+        try {
+            let url = new URL(uri);
+            // Если ссылка на gitlab
+            if (url.protocol === 'gitlab:') {
+                let segments = url.pathname.split('@');
+                if (segments.length === 2) {
+                    let gilab_params = segments[0].split(':');
+                    if (gilab_params.length === 2)
+                        result = gilab_params[0];
+                }
+            }
+        } catch (e) {
+            return undefined;
+        }
+        return result;
+    },
     makeURIByBaseURI(uri, baseURI) {
         let result;
         // Анализируем URI
@@ -53,16 +72,23 @@ export default {
                         throw `Error in URI ${uri}! Incorrect project id and branch`
                     }
 
-                    result = gitlab.makeFileURI(
-                        gilab_params[0], // Application ID
-                        segments[1], // Путь к файлу
-                        gilab_params[1], // Бранч
-                        'raw'
-                    );
+                    result = {
+                        type: 'gitlab',
+                        projectID: gilab_params[0],
+                        url: gitlab.makeFileURI(
+                            gilab_params[0], // Application ID
+                            segments[1], // Путь к файлу
+                            gilab_params[1], // Бранч
+                            'raw'
+                        )
+                    }
                 }
                 // В ином случае считаем, что ничего делать не нужно
             } else {
-                result = uri;
+                result = {
+                    type: 'web',
+                    url
+                };
             }
         } catch (e) {
             // Если возникла ошибка, считаем путь относительным
@@ -72,13 +98,14 @@ export default {
             let slices = baseURI.split('/');
             result = this.makeURL(slices.slice(0, slices.length - 1) + '/' + uri);
         }
-        return result.toString();
+        return result;
     },
 
     request(uri, baseURI, axios_params) {
         let params = Object.assign({}, axios_params);
-        params.url = this.makeURL(uri, baseURI);
-        if ((new URL(params.url)).host === (new URL(config.gitlab_server)).host) {
+        params.source = this.makeURL(uri, baseURI);
+        params.url = params.source.url.toString();
+        if (params.source.url.host === (new URL(config.gitlab_server)).host) {
             if (!params.headers) params.headers = {};
             // eslint-disable-next-line no-undef
             params.headers['Authorization'] = `Bearer ${Vuex.state.access_token}`;
