@@ -10,6 +10,8 @@ import Schema from "../components/Architecture/Schema";
 import Component from "../components/Architecture/Component";
 import Aspect from "../components/Architecture/Aspect";
 
+import Context from "../components/Architecture/Context";
+
 Vue.use(Router)
 
 let middleware = (route) => {
@@ -70,15 +72,21 @@ export default new Router({
             props: middleware
         },
         {
-            name: 'schema',
+            name: 'component',
             path: '/schema/:context/components/:component',
             component: Component,
             props: middleware
         },
         {
-            name: 'schema',
+            name: 'aspect',
             path: '/schema/:context/components/:component/aspect/:aspect',
             component: Aspect,
+            props: middleware
+        },
+        {
+            name: 'aspect',
+            path: '/architect/contexts/*',
+            component: Context,
             props: middleware
         },
     ]

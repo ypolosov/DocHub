@@ -1,6 +1,36 @@
-const axios = require('axios');
+import axios  from  'axios';
 import gitlab from './gitlab';
 import config from "../../config";
+import YAML from 'yaml'
+
+
+// Add a request interceptor
+
+axios.interceptors.request.use(function (params) {
+    if ((new URL(params.url)).host === (new URL(config.gitlab_server)).host) {
+        if (!params.headers) params.headers = {};
+        // eslint-disable-next-line no-undef
+        params.headers['Authorization'] = `Bearer ${Vuex.state.access_token}`;
+    }
+    return params;
+}, function (error) {
+    return Promise.reject(error);
+});
+
+
+axios.interceptors.response.use(function (response) {
+    if (typeof response.data === 'string' ) {
+        const url = response.config.url.toLowerCase();
+        if (url.indexOf('.json/raw') >= 0)
+            response.data = JSON.parse(response.data);
+        else if (url.indexOf('.yaml/raw') >= 0)
+            response.data = YAML.parse(response.data);
+    }
+    return response;
+}, function (error) {
+    // Do something with request error
+    return Promise.reject(error);
+});
 
 export default {
     getGitLabProjectID (uri) {
@@ -105,11 +135,6 @@ export default {
         let params = Object.assign({}, axios_params);
         params.source = this.makeURL(uri, baseURI);
         params.url = params.source.url.toString();
-        if (params.source.url.host === (new URL(config.gitlab_server)).host) {
-            if (!params.headers) params.headers = {};
-            // eslint-disable-next-line no-undef
-            params.headers['Authorization'] = `Bearer ${Vuex.state.access_token}`;
-        }
         return axios(params);
     }
 };

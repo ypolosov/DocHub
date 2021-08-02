@@ -12,6 +12,8 @@ export default {
         is_reloading: false,
         // Токен досутпа в GitLab
         access_token: null,
+        // Обобщенный манифест
+        manifest: {},
         // Доступные проекты GitLab
         available_projects: {},
         // Струкутар документов
@@ -40,6 +42,10 @@ export default {
     },
 
     mutations: {
+        setManifest(state, value) {
+            state.manifest = value;
+        },
+
         setIsReloading(state, value) {
             state.is_reloading = value;
         },
@@ -106,6 +112,7 @@ export default {
             }
             let diff_format = cookie.get('diff_format');
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
+            parser.onReloaded = (parser) => context.commit('setManifest', parser.manifest);
         },
 
         // Need to call when gitlab takes callback's rout with oauth code
@@ -213,7 +220,7 @@ export default {
                         }
                         case 'component': {
                             const component = cache.components[data.id]
-                                ? Object.assign(cache.content, cache.components[data.id])
+                                ? Object.assign(data.content, cache.components[data.id])
                                 : data.content;
                             !component.locations && (component.locations = []);
                             component.locations.push(data.location);

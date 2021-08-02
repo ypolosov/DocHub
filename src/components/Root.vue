@@ -29,36 +29,13 @@
       </v-app-bar-nav-icon>
       <v-toolbar-title style="cursor: pointer" @click="$router.push({name: 'main'})">DocHub</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon title="Стравнить" @click="goDiffView">
+      <v-btn icon title="Стравнить">
         <v-icon>mdi-call-split</v-icon>
       </v-btn>
     </v-app-bar>
 
-    <v-navigation-drawer
-        v-model="drawer"
-        app
-        clipped
-        color="grey lighten-4"
-    >
-      <v-list
-          dense
-          class="grey lighten-4"
-      >
-        <template v-for="(item, i) in menu">
-          <v-list-item
-              :key="i" :style="{'padding-left': '' + (item.level * 8) + 'px'}"
-              @click="item.handle && item.handle(item)"
-          >
-            <v-list-item-action>
-              <v-icon v-if="item.level == 0">home</v-icon>
-              <v-icon v-else>{{item.icon}}</v-icon>
-            </v-list-item-action>
-            <v-subheader>
-              {{ item.title }}
-            </v-subheader>
-          </v-list-item>
-        </template>
-      </v-list>
+    <v-navigation-drawer v-model="drawer" app clipped color="grey lighten-4">
+      <Menu></Menu>
     </v-navigation-drawer>
     <v-content>
       <router-view/>
@@ -68,123 +45,12 @@
 
 <script>
 
+import Menu from "./Menu";
+
 export default {
   name: 'Root',
-  methods: {
-    onClickArchContext(item) {
-      this.$router.push(item.rout);
-    },
-
-    onClickDoc(item) {
-      this.$router.push(item.rout);
-    },
-
-    goDiffView() {
-      this.$router.push({
-        name: 'conditions',
-        params: {
-          source: btoa(this.$store.state.selected_doc.uri),
-          target: btoa(null)
-        }
-      });
-    },
-
-    isItemSelected(item) {
-      let selected_doc = this.$store.state.selected_doc;
-      return selected_doc && selected_doc.uri && selected_doc.uri.toString() === item.data.uri.toString();
-    },
-
-    onClickMenuItem(item) {
-      this.$store.dispatch('selectDocument', item.data);
-      this.$router.push({
-        name: 'swagger',
-        params: {
-          source: btoa(item.data.uri)
-        }
-      });
-    },
-
-    // Build menu's tree by manifest
-    buildMenuDocs() {
-      const docs = this.$store.state.docsStructure;
-      const menu = [{
-        icon: 'home',
-        title: 'Контракты',
-        level: 0
-      }];
-      const expand = (nodes, level) => {
-        for (const id in nodes) {
-          const node = nodes[id];
-          const item = {
-            icon: node.doc ? node.doc.icon || 'settings' : 'folder_open',
-            title: id,
-            level
-          };
-
-          if (node.doc) {
-            item.handle = this.onClickDoc;
-            item.rout = {
-              name: 'swagger',
-                  params: {
-                source: btoa(node.doc.source)
-              }
-            };
-          }
-
-          menu.push(item);
-          Object.keys(node.nodes).length && expand(node.nodes, level + 1);
-        }
-      };
-
-      expand(docs.nodes, 1);
-      return menu;
-    },
-
-    buildMenuArchitecture() {
-      const presentations = this.$store.state.presentations;
-      const menu = [{
-        mode: 'arch',
-        handle: this.onClickArchContext,
-        title: 'Архитектура',
-        level: 0,
-        rout: {
-          name: 'schema',
-          params: {
-            context: btoa('global')
-          }
-        }
-      }];
-      const expand = (nodes, level, path) => {
-        for (const id in nodes) {
-          const node = nodes[id];
-          const currPath = path.length ? `${path}/${id}` : id;
-          const context = this.$store.state.contexts[currPath];
-          menu.push({
-            handle: this.onClickArchContext,
-            icon: 'mdi-file-tree',
-            title: context ? context.title || id : id,
-            level,
-            rout: {
-              name: 'schema',
-              params: {
-                context: btoa(currPath)
-              }
-            }
-          });
-          Object.keys(node.nodes).length && expand(node.nodes, level + 1, currPath);
-        }
-      };
-
-      expand(presentations.nodes, 1, '');
-
-      return menu;
-    },
-
-  },
-  computed: {
-    menu() {
-      return this.buildMenuArchitecture().concat(this.buildMenuDocs());
-    },
+  components: {
+    Menu
   },
   data() {
     return {
