@@ -3,8 +3,7 @@
     <v-row dense>
       <v-col cols="12">
         <v-card>
-          {{contextID}}
-          <schema></schema>
+          <schema :schema="schema"></schema>
         </v-card>
       </v-col>
     </v-row>
@@ -12,18 +11,20 @@
 </template>
 
 <script>
-import Schema from './Schema';
+import Schema from '../Schema/Schema';
+import jsonata from 'jsonata';
+import manifest_parser from "../../manifest/manifest_parser";
+import query from "../../manifest/query";
 
 export default {
   name: 'Context',
   components: {
     Schema
   },
-  methods: {
-  },
   computed: {
-    contextID () {
-      return this.$route.params.pathMatch;
+    schema () {
+      return jsonata(query.context(this.context))
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
     }
   },
   props: {
@@ -31,7 +32,6 @@ export default {
   },
   data() {
     return {
-      selectedContextID_: null
     };
   }
 };

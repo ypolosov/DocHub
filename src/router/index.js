@@ -72,21 +72,22 @@ export default new Router({
             props: middleware
         },
         {
-            name: 'component',
-            path: '/schema/:context/components/:component',
-            component: Component,
-            props: middleware
-        },
-        {
             name: 'aspect',
             path: '/schema/:context/components/:component/aspect/:aspect',
             component: Aspect,
             props: middleware
         },
+
         {
-            name: 'aspect',
-            path: '/architect/contexts/*',
+            name: 'contexts',
+            path: '/architect/contexts/:context',
             component: Context,
+            props: middleware
+        },
+        {
+            name: 'component',
+            path: '/architect/components/:component',
+            component: Component,
             props: middleware
         },
     ]

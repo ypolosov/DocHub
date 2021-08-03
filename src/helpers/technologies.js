@@ -7,34 +7,30 @@
 // }.component['sberuslugi@spt_chat' in aspects].%
 // *[$type($)='string'].%
 /*
-[
+(
+    $MANIFEST := $;
+    $CONTEXT_ID := 'sberuslugi/c2c';
+    $CONTEXT := $lookup($MANIFEST.contexts, $CONTEXT_ID);
     {
-        'title': 'Архитектура',
-        'route': 'architect'
-    },
-    {
-        'title': 'Контектсты',
-        'route': 'architect/contexts'
-    },
-        contexts.$spread().{
+        "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
+        "components": components.$spread().{
+            "id": $keys()[0],
             "title": $.*.title,
-            "route": 'architect/contexts/' & $keys()[0]
-    },
-    {
-        'title': 'Аспекты',
-        'route': 'architect/aspects'
-    },
-    aspects.$spread().{
-        "title": $.*.title,
-        "route": 'architect/aspects/' & $keys()[0]
-    },
-    {
-        'title': 'Документы',
-        'route': 'docs'
-    },
-    docs.$spread().{
-        "title": $.*.description,
-        "route": 'docs/' & $keys()[0]
+            "entity": $.*.entity,
+            "contexts": $distinct($.*.presentations.contexts),
+            "requires": [$distinct($.*.presentations.requires).(
+                $COMPONENT := $lookup($MANIFEST.components, $.id);
+                {
+                "id": $.id,
+                "title": $COMPONENT.title ? $COMPONENT.title : $.title,
+                "entity": $COMPONENT.entity ? $COMPONENT.entity : "component"
+            })],
+            "aspects": $.*.aspects.$spread().(
+                $ASPECT := $lookup($MANIFEST.aspects, $);
+                {
+                "id": $,
+                "title": $ASPECT.title ? $ASPECT.title : $
+            })
+        }[$CONTEXT_ID in contexts]
     }
-]
-*/
+)*/

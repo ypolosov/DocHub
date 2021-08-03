@@ -31,7 +31,7 @@
                 {{ context.title }}
               </v-tab>
             </v-tabs>
-            <schema :context="contextBtoa" :focus="component"></schema>
+            <schema :schema="schema"></schema>
           </v-card-text>
         </v-card>
       </v-col>
@@ -41,55 +41,44 @@
 
 <script>
 
-import Schema from './Schema';
-import requests from '../../helpers/requests';
-import entity from "../../helpers/entity";
+import Schema from '../Schema/Schema';
+import jsonata from "jsonata";
+import query from "../../manifest/query";
+import manifest_parser from "../../manifest/manifest_parser";
 
 export default {
-  name: 'Component',
+  name: 'Component_',
   components: {
     Schema
   },
   methods: {
-    goToLink(link) {
-      window.location = requests.makeURL(link).url;
+    goToLink() {
+
     }
   },
   computed: {
-    componentID () {
-      return atob(this.component);
-    },
-    summary () {
-      return entity.buildSummary('component', this.componentID);
-    },
-    contextBtoa() {
-      return btoa(this.contexts[this.currentContext].id);
-    },
-    contexts () {
-      const contexts = {};
-      const component = this.$store.state.components[this.componentID] || {};
-      component.presentations && component.presentations.map((presentation) => {
-        presentation.contexts && presentation.contexts.map((context) => {
-          contexts[context] = (this.$store.state.contexts[context] && this.$store.state.contexts[context].title) || context;
-        });
-      });
-
-      const result = [{
-          id: 'self',
-          title: 'Self'
-      }];
-      for (const context in contexts) {
-        result.push({
-          id: context,
-          title: contexts[context]
-        });
+    schema () {
+      if (this.currentContext === 0) {
+        return jsonata(query.component(this.component))
+            .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
+      } else {
+        return jsonata(query.context(this.contexts[this.currentContext].id))
+            .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
       }
-      return result;
+    },
+    contexts() {
+      return [{
+        id: 'self',
+        title: 'SELF'
+      }].concat(jsonata(query.contextsForComponent(this.component))
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]));
+    },
+    summary() {
+      return []
     }
   },
   props: {
-    context: String,
-    component: String,
+    component: String
   },
   data() {
     return {

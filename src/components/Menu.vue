@@ -10,7 +10,7 @@
               <template v-else>chevron_right</template>
             </v-icon>
           </v-list-item-action>
-          <v-list-item-action>
+          <v-list-item-action v-if="item.icon">
             <v-icon>{{item.icon}}</v-icon>
           </v-list-item-action>
           <v-subheader class="menu-item-header" @click="onClickMenuItem(item)">
@@ -24,7 +24,8 @@
 <script>
 
 import jsonata from 'jsonata';
-import manifest_parser from "../helpers/manifest_parser";
+import manifest_parser from "../manifest/manifest_parser";
+import query from "../manifest/query";
 
 export default {
   name: 'Menu',
@@ -35,7 +36,7 @@ export default {
         this.isRouting = false;
         clearInterval(timer);
       }
-    }, 50)
+    }, 100)
   },
   methods: {
     isMenuItemSelected (item) {
@@ -88,59 +89,7 @@ export default {
 
     treeMenu () {
       const result = { items: {} };
-      (jsonata(`
-        (
-            $MANIFEST := $;
-            [
-                {
-                    "title": 'Архитектура',
-                    "route": 'architect',
-                    "expand": true,
-                    "icon": 'home'
-                },
-                {
-                    "title": "Контексты",
-                    "route": 'architect/contexts',
-                    "icon": 'location_searching'
-                },
-                {
-                    "title": "Аспекты",
-                    "route": 'architect/aspects',
-                    "icon": 'visibility'
-                },
-                {
-                    "title": 'Документы',
-                    "route": 'docs',
-                    "expand": true,
-                    "icon": 'description'
-                },
-                contexts.$spread().(
-                    $CONTEXT := $lookup($MANIFEST.contexts, $keys()[0]);
-                    {
-                      "title": $CONTEXT.title,
-                      "route": 'architect/contexts/' & $keys()[0],
-                      "icon": $CONTEXT.icon ? $CONTEXT.icon : ''
-                    }
-                ),
-                aspects.$spread().{
-                    "title": $.*.title,
-                    "icon": $.*.icon ? $.*.icon : '',
-                    "route": 'architect/aspects/' & $keys()[0]
-                },
-                docs.$spread().{
-                    "title": $.*.description,
-                    "route": 'docs/' & $keys()[0],
-                    "location": 'docs/' & $.*.location,
-                    "icon": $.*.icon ? $.*.icon : ''
-                }
-            ]
-        ).{
-            "title": title,
-            "route": '/' & route,
-            "icon": icon,
-            "location": location ? location : route
-        }
-      `).evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []).map((item) => {
+      (jsonata(query.menu()).evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []).map((item) => {
         const location = item.location.split('/');
         let node = result;
         let key = null;
