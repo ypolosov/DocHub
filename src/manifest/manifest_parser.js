@@ -28,37 +28,53 @@ export default {
     // Журнал объединений
     margeMap: [],
     // Итоговый манифест
-    manifest: {},
+    manifest: null,
+    // Сохраняет в карте склеивания данные
+    pushToMargeMap(path, source, location) {
+        this.margeMap.push({
+            path: path || '/',
+            source: JSON.stringify(source),
+            location
+        });
+        if (typeof source === 'object') {
+            for (const key in source) {
+                this.pushToMargeMap(`${path || ''}/${key}`, source[key], location);
+            }
+        }
+    },
     // Склеивание манифестов
-    // distanation - Объект с которым происходит объединение. Низкий приоритете.
+    // destination - Объект с которым происходит объединение. Низкий приоритете.
     // source - Объект с которым происходит объединение. Высокий приоритете.
-    // location - Размещение объекта source (сточник изменений)
+    // location - Размещение объекта source (источник изменений)
     // path - Путь к объекту
     merge(destination, source, location, path) {
         let result;
-        if (Array.isArray(source)) {
+        if (destination === undefined) {
+            result = JSON.parse(JSON.stringify(source));
+            this.pushToMargeMap(path, result, location);
+        } else if (Array.isArray(source)) {
             if (Array.isArray(destination)) {
                 result = JSON.parse(JSON.stringify(destination)).concat(JSON.parse(JSON.stringify(source)));
             } else {
                 result = JSON.parse(JSON.stringify(source));
             }
+            this.pushToMargeMap(path, result, location);
         } else if (typeof source === 'object') {
             result = JSON.parse(JSON.stringify(destination));
             typeof result !== 'object' && (result = {});
             for (const id in source) {
+                const keyPath = `${path || ''}/${id}`;
                 if (result[id]) {
                     result[id] = this.merge(result[id], source[id], location, `${path || ''}/${id}`);
                 } else {
                     result[id] = JSON.parse(JSON.stringify(source[id]));
+                    this.pushToMargeMap(keyPath, result[id], location)
                 }
             }
         } else {
             result = JSON.parse(JSON.stringify(source));
+            this.pushToMargeMap(path, result, location);
         }
-        this.margeMap.push({
-            path,
-            source: JSON.stringify(result)
-        });
         return result;
     },
 
@@ -145,7 +161,7 @@ export default {
             // Определяем режим манифеста
             // eslint-disable-next-line no-unused-vars
             const mode = manifest.mode || this.MODE_AS_IS;
-            this.manifest[mode] = this.merge(this.manifest[mode] || {}, manifest, uri);
+            this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
             for (const section in this.manifest[mode]) {
                 ['forms', 'namespaces', 'aspects', 'docs', 'contexts'].indexOf(section) >= 0

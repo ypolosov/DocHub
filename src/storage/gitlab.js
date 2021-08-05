@@ -14,6 +14,8 @@ export default {
         access_token: null,
         // Обобщенный манифест
         manifest: {},
+        // Источники данных манифеста
+        sources: [],
         // Доступные проекты GitLab
         available_projects: {},
         // Проекты
@@ -26,6 +28,11 @@ export default {
     mutations: {
         setManifest(state, value) {
             state.manifest = value;
+        },
+        setSources(state, value) {
+            // eslint-disable-next-line no-console
+            console.info('>>>>>>>>>>', value);
+            state.sources = value;
         },
         setIsReloading(state, value) {
             state.is_reloading = value;
@@ -55,6 +62,7 @@ export default {
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
             parser.onReloaded = (parser) => {
                 context.commit('setManifest', parser.manifest);
+                context.commit('setSources', parser.margeMap);
                 context.commit('setIsReloading', false);
             };
             parser.onStartReload = () => {

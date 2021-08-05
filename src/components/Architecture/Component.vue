@@ -12,7 +12,7 @@
               <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
                 <v-list-item-content  @click="goToLink(item.link)">
                   <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
-                  <v-list-item-title v-text="item.content"></v-list-item-title>
+                  <v-list-item-title v-html="item.content"></v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list>
@@ -45,6 +45,7 @@ import Schema from '../Schema/Schema';
 import jsonata from "jsonata";
 import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
+import requests from "../../helpers/requests";
 
 export default {
   name: 'Component_',
@@ -57,6 +58,10 @@ export default {
     }
   },
   computed: {
+    sourceLocations() {
+      return jsonata(query.locationsForComponent(this.component))
+          .evaluate(this.$store.state.sources) || [];
+    },
     schema () {
       if (this.currentContext === 0) {
         return jsonata(query.component(this.component))
@@ -71,10 +76,17 @@ export default {
         id: 'self',
         title: 'SELF'
       }].concat(jsonata(query.contextsForComponent(this.component))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]));
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
     },
     summary() {
-      return []
+      return (jsonata(query.summaryForComponent(this.component))
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [])
+          .concat([{
+            title: 'Размещение',
+            content: this.sourceLocations.map((location) =>
+              `<a href="${requests.makeURL(location).url}" target="_blank">${location}</a>`
+            ).join('</br>')
+          }])
     }
   },
   props: {

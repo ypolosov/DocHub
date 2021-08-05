@@ -9,8 +9,8 @@ import consts from '../consts'
 import Schema from "../components/Architecture/Schema";
 import Component from "../components/Architecture/Component";
 import Aspect from "../components/Architecture/Aspect";
-
 import Context from "../components/Architecture/Context";
+import Radar from "../components/Techradar/Main";
 
 Vue.use(Router)
 
@@ -88,6 +88,18 @@ export default new Router({
             name: 'component',
             path: '/architect/components/:component',
             component: Component,
+            props: middleware
+        },
+        {
+            name: 'radar',
+            path: '/techradar',
+            component: Radar,
+            props: middleware
+        },
+        {
+            name: 'radar-section',
+            path: '/techradar/:section',
+            component: Radar,
             props: middleware
         },
     ]

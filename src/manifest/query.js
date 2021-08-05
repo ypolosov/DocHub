@@ -94,21 +94,10 @@ const MENU_QUERY = `
             "route": 'techradar',
             "icon": 'track_changes'
         },
-        {
-            "title": 'Инфраструктура',
-            "route": 'techradar/infra'
-        },
-        {
-            "title": 'Языки и фреймворки',
-            "route": 'techradar/langs'
-        },
-        {
-            "title": 'Данные',
-            "route": 'techradar/data'
-        },
-        {
-            "title": 'Интсрументы',
-            "route": 'techradar/tools'
+        technologies.sections.$spread().{
+            "title": $.*.title,
+            "route": 'techradar/' & $keys()[0],
+            "location": 'techradar/' & $.*.title
         }
     ]
 ).{
@@ -132,7 +121,76 @@ const CONTEXTS_QUERY = `
 )
 `;
 
+const SUMMARY_COMPONENT_QUERY = `
+(
+    $COMPONENT_ID := '{%COMPONENT%}';
+    $MANIFEST := $;
+    $lookup(components, $COMPONENT_ID).(
+        $COMPONENT := $;
+        $ENTYTY := entity;
+        $FORM := $MANIFEST.forms[$ENTYTY in entity].fields;
+        $FIELDS := $append([
+            {
+                "title": "Идентификатор",
+                "content": $COMPONENT_ID,
+                "field": "id",
+                "required": true
+            },
+            {
+                "title": "Название",
+                "content": title,
+                "field": "title",
+                "required": true
+            }
+        ], $FORM.$spread().{
+            "title": $.*.title,
+            "required": $.*.required,
+            "content": $lookup($COMPONENT, $keys()[0]),
+            "field": $keys()[0]
+        });
+    )
+)
+`;
+
+const COMPONENT_LOCATIONS_QUERY = `
+(
+    $COMPONENT_ID := '{%COMPONENT%}';
+    [$distinct($[$substring(path, 0, $length($COMPONENT_ID) + 13) = '/components/' & $COMPONENT_ID & '/'].location)]
+)
+`;
+
+const TECHNOLOGIES_QUERY = `
+(
+    $MANIFEST := $;
+    $distinct(components.*.technologies).(
+        $TECHKEY := $;
+        $TECHNOLOGY := $lookup($MANIFEST.technologies.items, $);
+        $TECHNOLOGY := $TECHNOLOGY ? $TECHNOLOGY : 
+            $MANIFEST.technologies.items.*.$[$TECHKEY in aliases];
+        $TECHNOLOGY := $TECHNOLOGY ? $TECHNOLOGY : {
+            "section": "UNKNOWN",
+            "title": "Не определено"
+        }; 
+        $SECTION := $lookup($MANIFEST.technologies.sections, $TECHNOLOGY.section);
+        {
+            "label": $,
+            "key": $,
+            "hint": $TECHNOLOGY.title,
+            "link": $TECHNOLOGY.link,
+            "section" : {
+                "key": $TECHNOLOGY.section,
+                "title": $SECTION.title ? $SECTION.title : "Не определено"
+            }
+        }
+    )
+)
+`;
+
 export default {
+    // Меню
+    menu () {
+        return MENU_QUERY;
+    },
     // Запрос по контексту
     context(context) {
         return SCHEMA_QUERY
@@ -149,8 +207,16 @@ export default {
     contextsForComponent(component) {
         return CONTEXTS_QUERY.replaceAll("{%COMPONENT%}", component)
     },
-    // Меню
-    menu () {
-        return MENU_QUERY;
+    // Сводка по компоненту
+    summaryForComponent(component) {
+        return SUMMARY_COMPONENT_QUERY.replaceAll("{%COMPONENT%}", component)
+    },
+    // Определение размещения манифестов описывающих компонент
+    locationsForComponent(component) {
+        return COMPONENT_LOCATIONS_QUERY.replaceAll("{%COMPONENT%}", component)
+    },
+    // Сбор информации об использованых технологиях
+    collectTechnologies() {
+        return TECHNOLOGIES_QUERY;
     }
 }
