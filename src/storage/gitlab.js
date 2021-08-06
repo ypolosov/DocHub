@@ -3,6 +3,9 @@ import cookie from 'vue-cookie';
 import GitHelper from '../helpers/gitlab'
 import parser from '../manifest/manifest_parser';
 import Vue from 'vue';
+import query from "../manifest/query";
+import jsonata from "jsonata";
+import manifest_parser from "../manifest/manifest_parser";
 
 const axios = require('axios');
 
@@ -14,6 +17,8 @@ export default {
         access_token: null,
         // Обобщенный манифест
         manifest: {},
+        // Выявленные Проблемы
+        problems: [],
         // Источники данных манифеста
         sources: [],
         // Доступные проекты GitLab
@@ -30,8 +35,6 @@ export default {
             state.manifest = value;
         },
         setSources(state, value) {
-            // eslint-disable-next-line no-console
-            console.info('>>>>>>>>>>', value);
             state.sources = value;
         },
         setIsReloading(state, value) {
@@ -47,6 +50,9 @@ export default {
         },
         appendLastChanges(state, value) {
             Vue.set(state.last_changes, value.id, value.payload);
+        },
+        setProblems(state, value) {
+            state.problems = value;
         },
     },
 
@@ -64,6 +70,8 @@ export default {
                 context.commit('setManifest', parser.manifest);
                 context.commit('setSources', parser.margeMap);
                 context.commit('setIsReloading', false);
+                context.commit('setProblems', jsonata(query.problems())
+                    .evaluate(parser.manifest[manifest_parser.MODE_AS_IS]) || []);
             };
             parser.onStartReload = () => {
                 context.commit('setIsReloading', true);
@@ -135,6 +143,11 @@ export default {
         // Reload root manifest
         reloadRootManifest() {
             parser.import(`gitlab:${config.root_manifest.project_id}:${config.root_manifest.branch}@dochub.json`);
+        },
+
+        // Регистрация проблемы
+        registerProblem(context, problem) {
+            context.commit('appendProblem', problem);
         }
     }
 };

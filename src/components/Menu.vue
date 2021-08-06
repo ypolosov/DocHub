@@ -1,7 +1,9 @@
 <template>
     <v-list dense class="grey lighten-4" v-model="selected">
       <template v-for="(item, i) in menu">
-        <v-list-item :class="{ 'menu-item' : true, 'menu-item-selected': isMenuItemSelected(item) }"
+        <v-list-item
+            v-if="(item.route !== '/problems') || (problems.length)"
+            :class="{ 'menu-item' : true, 'menu-item-selected': isMenuItemSelected(item) }"
             :key="i" :style="{'padding-left': '' + (item.level * 8) + 'px'}"
         >
           <v-list-item-action class="menu-item-action">
@@ -13,7 +15,18 @@
           <v-list-item-action v-if="item.icon">
             <v-icon>{{item.icon}}</v-icon>
           </v-list-item-action>
-          <v-subheader class="menu-item-header" @click="onClickMenuItem(item)">
+          <v-subheader
+              v-if="item.route === '/problems'"
+              class="menu-item-header error--text"
+              @click="onClickMenuItem(item)"
+          >
+            {{ item.title }} ({{ problems.length }})
+          </v-subheader>
+          <v-subheader
+              v-else
+              class="menu-item-header"
+              @click="onClickMenuItem(item)"
+          >
             {{ item.title }}
           </v-subheader>
         </v-list-item>
@@ -60,6 +73,9 @@ export default {
     },
   },
   computed: {
+    problems() {
+      return this.$store.state.problems;
+    },
     menu () {
       const result = [];
       const expand = (node, location) => {

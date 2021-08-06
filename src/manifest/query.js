@@ -98,6 +98,11 @@ const MENU_QUERY = `
             "title": $.*.title,
             "route": 'techradar/' & $keys()[0],
             "location": 'techradar/' & $.*.title
+        },
+        {
+            "title": 'Проблемы',
+            "route": 'problems',
+            "icon": 'report_problem'
         }
     ]
 ).{
@@ -186,6 +191,120 @@ const TECHNOLOGIES_QUERY = `
 )
 `;
 
+const TECHNOLOGY_QUERY = `
+(
+    $MANIFEST := $;
+    $TECH_ID := '{%TECH_ID%}';
+    $TECHNOLOGY := $lookup(technologies.items, $TECH_ID);
+    $TECHNOLOGY := $TECHNOLOGY ? $TECHNOLOGY : technologies.items.*[$TECH_ID in aliases];
+    $COMPONENTS := [$distinct([
+            $MANIFEST.components.*[$TECH_ID in technologies].%, 
+            $TECHNOLOGY.aliases.(
+                $ALIAS := $;
+                $MANIFEST.components.*[$ALIAS in technologies].%;
+            )
+        ]).$spread().{
+            "id": $keys()[0],
+            "title": *.title,
+            "entity": *.entity ? *.entity : "component",
+            "contexts": [*.presentations.contexts.$spread().(
+                $CONTEXT := $lookup($MANIFEST.contexts, $);
+                {
+                    "id": $,
+                    "title": $CONTEXT.title ? $CONTEXT.title : $
+                }
+            )],
+            "technologies": [*.technologies]
+        }[$TECH_ID in technologies]];
+    $CONTEXTS := $distinct($COMPONENTS.contexts);
+    {
+        'title': $TECHNOLOGY.title,
+        'link': $TECHNOLOGY.link,
+        'aliases': $TECHNOLOGY.aliases,
+        'components': $COMPONENTS,
+        'contexts': $CONTEXTS
+    }
+)
+`;
+
+const PROBLEMS_QUERY = `
+(
+    $MANIFEST := $;
+    $LOST_COMPONENTS := [
+        components.$spread().{
+            "problem": 'Компонент вне контекста',
+            "id": $keys()[0],
+            "title": *.title,
+            "route": '/architect/components/' & $keys()[0],
+            "presentations": $.*.presentations.contexts
+        }.presentations.(
+            $exists($lookup($MANIFEST.contexts, $)) ? undefined : %
+        )
+    ];
+    $EMPTY_CONTEXTS := [
+        contexts.$spread().(
+            $KEY := $keys()[0];
+            $COMPONENTS := $MANIFEST.components.*.presentations[$KEY in contexts];
+            $exists($COMPONENTS) ? undefined : {
+                "problem": "Пустые контексты",
+                "id": $KEY,
+                "title": *.title,
+                "route": '/architect/contexts/' & $KEY
+            }
+        )
+    ];
+    $UNDEFINED_CONTEXTS := [
+        components.$spread().(
+            $KEY := $keys()[0];
+            $COMPONENT := $;
+            $CONTEXTS := *.presentations.contexts[$not($exists($lookup($MANIFEST.contexts, $)))];
+            $CONTEXTS.{
+                "problem": "Неизвестные контексты",
+                "title": $ & " в компоненте " & $COMPONENT.*.title & " [" & $KEY & "]",
+                "route": '/architect/components/' & $KEY
+            }
+        )
+    ];
+    $UNDEFINED_NAMESPACES := 
+    [
+        aspects.$spread().{
+            "id": $keys()[0],
+            "route": "/architect/aspects/" & $keys()[0],
+            "title": *.location,
+            "namespace": $split($keys()[0], "@")[0],
+            "entity": "аспекте"
+        },
+        contexts.$spread().{
+            "id": $keys()[0],
+            "route": "/architect/contexts/" & $keys()[0],
+            "title": *.location,
+            "namespace": $split($keys()[0], "@")[0],
+            "entity": "контексте"
+        },
+        components.$spread().{
+            "id": $keys()[0],
+            "route": "architect/components/" & $keys()[0],
+            "title": title,
+            "namespace": $split($keys()[0], "@")[0],
+            "entity": "компоненте"
+        }
+    ].(
+        $exists($lookup($MANIFEST.namespaces, namespace)) ? undefined :
+        {
+            "problem": 'Область имен отсутвует',
+            "route": route,
+            "title": namespace & " в " & entity & " " & title & " [" & id & "]"
+        }
+    );
+    [
+        $distinct($UNDEFINED_CONTEXTS),
+        $distinct($LOST_COMPONENTS),
+        $distinct($EMPTY_CONTEXTS),
+        $distinct($UNDEFINED_NAMESPACES)
+    ]
+)
+`;
+
 export default {
     // Меню
     menu () {
@@ -215,8 +334,16 @@ export default {
     locationsForComponent(component) {
         return COMPONENT_LOCATIONS_QUERY.replaceAll("{%COMPONENT%}", component)
     },
-    // Сбор информации об использованых технологиях
+    // Сбор информации об использованных технологиях
     collectTechnologies() {
         return TECHNOLOGIES_QUERY;
+    },
+    // Карточка технологии
+    summaryForTechnology(technology) {
+        return TECHNOLOGY_QUERY.replaceAll("{%TECH_ID%}", technology);
+    },
+    // Выявление проблем
+    problems() {
+        return PROBLEMS_QUERY;
     }
 }

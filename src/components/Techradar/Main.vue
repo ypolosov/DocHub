@@ -10,7 +10,10 @@
             {{section.section.title}}
             <ul class="section-record">
               <li v-for="record in section.items" :key="record.index">
-                {{record.index ? `${record.index}: `: ''}} {{record.item.key}}
+                <router-link
+                    :to="`/technology/${record.item.key}`">
+                    {{record.index ? `${record.index}: `: ''}} {{record.item.key}}
+                </router-link>
               </li>
             </ul>
           </li>

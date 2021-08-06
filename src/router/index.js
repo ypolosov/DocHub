@@ -11,6 +11,8 @@ import Component from "../components/Architecture/Component";
 import Aspect from "../components/Architecture/Aspect";
 import Context from "../components/Architecture/Context";
 import Radar from "../components/Techradar/Main";
+import Technology from "../components/Techradar/Technology";
+import Problems from "../components/Problems/Problems";
 
 Vue.use(Router)
 
@@ -100,6 +102,18 @@ export default new Router({
             name: 'radar-section',
             path: '/techradar/:section',
             component: Radar,
+            props: middleware
+        },
+        {
+            name: 'technology',
+            path: '/technology/:technology',
+            component: Technology,
+            props: middleware
+        },
+        {
+            name: 'problems',
+            path: '/problems',
+            component: Problems,
             props: middleware
         },
     ]
