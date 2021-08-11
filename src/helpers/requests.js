@@ -132,11 +132,6 @@ export default {
     },
 
     request(uri, baseURI, axios_params) {
-        if (uri === 'gitlab:21:master@app/Core/Docs/Architecture/app/Core/Docs/Architecture/Aspects/chat_c2c.json') {
-            // todo ТУТ КАКАЯ-ТО ШЛЯПА С baseURI
-            // eslint-disable-next-line no-debugger
-            // debugger;
-        }
         let params = Object.assign({}, axios_params);
         params.source = this.makeURL(uri, baseURI);
         params.url = params.source.url.toString();

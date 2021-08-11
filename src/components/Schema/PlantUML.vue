@@ -1,5 +1,5 @@
 <template>
-  <div v-html="svg">
+  <div v-html="svg" class="plantuml-schema">
   </div>
 </template>
 
@@ -27,12 +27,17 @@ export default {
         ref.onclick = this.onClickRef;
       }
     },
+    prepareSVG() {
+      const svg = this.$el.querySelectorAll('svg');
+      svg[0].style = null;
+      this.bindHREF();
+    },
     reloadSVG() {
       axios({
         url: plantUML.svgURL(this.uml)
       }).then((response) => {
         this.svg = response.data.toString();
-        this.$nextTick(() => this.bindHREF());
+        this.$nextTick(() => this.prepareSVG());
       }).catch((error) => {
         // eslint-disable-next-line no-console
         console.error(error);
@@ -55,6 +60,11 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+
+svg {
+  max-width: 100%;
+  height: auto;
+}
 
 </style>

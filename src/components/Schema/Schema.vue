@@ -1,5 +1,5 @@
 <template>
-  <plantuml
+  <plantuml class="plantuml-schema"
       :uml = "uml"
   ></plantuml>
 </template>
@@ -70,12 +70,12 @@ export default {
         // Разбираем архитектурные пространства
         for (const namespaceID in structure.namespaces) {
           const namespace = structure.namespaces[namespaceID];
-          uml += `cloud "${namespace.title}" {\n`;
+          uml += `rectangle "${namespace.title}" {\n`;
           // Формируем компоненты
           for (const componentID in namespace.components) {
             const component = namespace.components[componentID];
             const title = this.makeRef('component', component.id, component.title);
-            if (component.aspects) {
+            if (component.aspects && component.aspects.length) {
               uml += `${component.entity} ${this.toID(component.id)}`;
               const aspectList = [];
               component.aspects.map((aspect) => {
@@ -93,8 +93,8 @@ export default {
         }
         // Строим связи
         for (const connection in structure.connections) {
-          const require = structure.connections[connection];
-          uml += `${connection}: "${require.title}"\n`
+          // const require = structure.connections[connection];
+          uml += `${connection}: ""\n` //${require.title}
         }
       }
       uml += '@enduml';
@@ -114,5 +114,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

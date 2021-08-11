@@ -9,6 +9,8 @@ export default {
     onReloaded: null,
     // Запущена перезагрузка манифеста
     onStartReload: null,
+    // События по ошибкам (ошибки запросов)
+    onError: null,
     // Счетчик запросов
     reqCounter : 0,
     incReqCounter() {
@@ -99,9 +101,9 @@ export default {
     // Если свойство содержит ссылку, загружает объект
     // data - Значение свойства
     // path - пусть к совйству от корня манифеста
-    expandProperty (path, baseURI) {
-        const data = this.getManifestContext(path).data;
-        // Если значение ялвяется ссылкой, загружает объект по ссылке
+    expandProperty (data, path, baseURI) {
+        // const data = this.getManifestContext(path).data;
+        // Если значение является ссылкой, загружает объект по ссылке
         if (typeof data === 'string') {
             const URI = requests.makeURIByBaseURI(data, baseURI);
             this.incReqCounter();
@@ -110,17 +112,23 @@ export default {
                 context.node[context.property] = response.data;
                 this.touchProjects(URI);
             })
-                // eslint-disable-next-line no-console
-                .catch((e) => console.error(e, `>>>>>>>>>>>> ${URI}`))
+                .catch((e) => {
+                    // eslint-disable-next-line no-console
+                    console.error(e, `Ошибка запроса [${URI}]`, e);
+                    this.onError && this.onError('net', {
+                        uri: URI,
+                        error: e
+                    });
+                })
                 .finally(() => this.decReqCounter())
         }
     },
     // Разбираем сущности
     // path - путь к перечислению сущьностей (ключ -> объект)
-    parseEntity(path, baseURI) {
-        const context = this.getManifestContext(path);
-        for (const key in context.data) {
-            this.expandProperty(`${path}/${encodeURIComponent(key)}`, baseURI);
+    parseEntity(context, path, baseURI) {
+        // const context = this.getManifestContext(path);
+        for (const key in context) {
+            this.expandProperty(context[key], `${path}/${encodeURIComponent(key)}`, baseURI);
         }
     },
 
@@ -139,7 +147,14 @@ export default {
                 });
             })
                 // eslint-disable-next-line no-console
-                .catch((e) => console.error(e, URI))
+                .catch((e) => {
+                    // eslint-disable-next-line no-console
+                    console.error(e, `Ошибка запроса [${URI}]`, e);
+                    this.onError && this.onError('net', {
+                        uri: URI,
+                        error: e
+                    });
+                })
                 .finally(() => this.decReqCounter())
         }
     },
@@ -163,9 +178,9 @@ export default {
             const mode = manifest.mode || this.MODE_AS_IS;
             this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
-            for (const section in this.manifest[mode]) {
-                ['forms', 'namespaces', 'aspects', 'docs', 'contexts'].indexOf(section) >= 0
-                && section !== 'imports' && this.parseEntity(`${mode}/${section}`, uri);
+            for (const section in manifest) {
+                ['forms', 'namespaces', 'aspects', 'docs', 'contexts', 'components'].indexOf(section) >= 0
+                && section !== 'imports' && this.parseEntity(manifest[section],`${mode}/${section}`, uri);
             }
 
             // Подключаем манифесты
@@ -174,7 +189,14 @@ export default {
             });
         })
         // eslint-disable-next-line no-console
-        .catch((e) => console.error(e))
+        .catch((e) => {
+            // eslint-disable-next-line no-console
+            console.error(e, `Ошибка запроса [${uri}]`, e);
+            this.onError && this.onError('net', {
+                uri,
+                error: e
+            });
+        })
         .finally(() => {
             this.decReqCounter();
         });

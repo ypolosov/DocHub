@@ -8,9 +8,12 @@
     <ul v-if="problems.length" style="margin-top: 16px">
       <template v-for="problem in problems[currentTab].problems">
         <li :key="problem.route">
-          <router-link
+          <router-link v-if="!problem.target"
               :to="problem.route">{{problem.title}}
           </router-link>
+          <a v-else :href="problem.route" :target="problem.target">
+            {{problem.title}}
+          </a>
         </li>
       </template>
     </ul>

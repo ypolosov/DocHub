@@ -1,4 +1,5 @@
 skinparam useBetaStyle true
+'left to right direction
 skinparam {
     HyperLinkColor #000
 	wrapWidth 200
@@ -8,8 +9,8 @@ skinparam {
 	roundCorner 10
 	'linetype ortho
 	'linetype polyline
-	'nodesep 100
-	'ranksep 100
+	nodesep 50
+	ranksep 50
 	shadowing false
 	padding 2
 }

@@ -51,8 +51,9 @@ export default {
         appendLastChanges(state, value) {
             Vue.set(state.last_changes, value.id, value.payload);
         },
-        setProblems(state, value) {
-            state.problems = value;
+        appendProblems(state, value) {
+            state.problems = jsonata("$distinct($)")
+                .evaluate(JSON.parse(JSON.stringify(state.problems.concat(value))));
         },
     },
 
@@ -70,12 +71,20 @@ export default {
                 context.commit('setManifest', parser.manifest);
                 context.commit('setSources', parser.margeMap);
                 context.commit('setIsReloading', false);
-                context.commit('setProblems', jsonata(query.problems())
+                context.commit('appendProblems', jsonata(query.problems())
                     .evaluate(parser.manifest[manifest_parser.MODE_AS_IS]) || []);
             };
             parser.onStartReload = () => {
                 context.commit('setIsReloading', true);
             }
+            parser.onError = (action, data) => {
+                context.commit('appendProblems', [{
+                    problem: "Сетевые ошибки",
+                    route: data.error.config.url,
+                    target: "_blank",
+                    title: `${data.uri} [${data.error}]`
+                }]);
+            };
         },
 
         // Need to call when gitlab takes callback's rout with oauth code

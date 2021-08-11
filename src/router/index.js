@@ -6,7 +6,6 @@ import DiffViewer from '../components/DiffViewer'
 import Main from '../components/Main'
 import config from '../../config'
 import consts from '../consts'
-import Schema from "../components/Architecture/Schema";
 import Component from "../components/Architecture/Component";
 import Aspect from "../components/Architecture/Aspect";
 import Context from "../components/Architecture/Context";
@@ -65,22 +64,6 @@ export default new Router({
             props: middleware
         },
         {
-            name: 'schema',
-            query:{
-                name:'focus'
-            },
-            path: '/schema/:context',
-            component: Schema,
-            props: middleware
-        },
-        {
-            name: 'aspect',
-            path: '/schema/:context/components/:component/aspect/:aspect',
-            component: Aspect,
-            props: middleware
-        },
-
-        {
             name: 'contexts',
             path: '/architect/contexts/:context',
             component: Context,
@@ -90,6 +73,12 @@ export default new Router({
             name: 'component',
             path: '/architect/components/:component',
             component: Component,
+            props: middleware
+        },
+        {
+            name: 'aspect',
+            path: '/architect/aspects/:aspect',
+            component: Aspect,
             props: middleware
         },
         {

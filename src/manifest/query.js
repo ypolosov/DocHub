@@ -33,12 +33,12 @@ const SCHEMA_QUERY = `
                         }
                     }
                 )],
-                "aspects": $.*.aspects.$spread().(
+                "aspects": [$.*.aspects.$spread().(
                     $ASPECT := $lookup($MANIFEST.aspects, $);
                     {
                     "id": $,
                     "title": $ASPECT.title ? $ASPECT.title : $
-                })
+                })]
             }
         )][{%CONDITIONS%}]^(order)[]
     }
@@ -113,7 +113,7 @@ const MENU_QUERY = `
 }
 `;
 
-const CONTEXTS_QUERY = `
+const CONTEXTS_QUERY_FOR_COMPONENT = `
 (
     $MANIFEST := $;
     $distinct($lookup(components, '{%COMPONENT%}').*.contexts).(
@@ -160,7 +160,63 @@ const SUMMARY_COMPONENT_QUERY = `
 const COMPONENT_LOCATIONS_QUERY = `
 (
     $COMPONENT_ID := '{%COMPONENT%}';
-    [$distinct($[$substring(path, 0, $length($COMPONENT_ID) + 13) = '/components/' & $COMPONENT_ID & '/'].location)]
+    [$distinct($[$substring(path, 0, $length($COMPONENT_ID) + 12) = '/components/' & $COMPONENT_ID].location)]
+)
+`;
+
+const SUMMARY_ASPECT_QUERY = `
+(
+    $ASPECT_ID := '{%ASPECT%}';
+    $MANIFEST := $;
+    $lookup(aspects, $ASPECT_ID).(
+        $ASPECT := $;
+        $FORM := $MANIFEST.forms["aspect" in entity].fields;
+        $FIELDS := $append([
+            {
+                "title": "Идентификатор",
+                "content": $ASPECT_ID,
+                "field": "id",
+                "required": true
+            },
+            {
+                "title": "Название",
+                "content": title,
+                "field": "title",
+                "required": true
+            }
+        ], $FORM.$spread().{
+            "title": $.*.title,
+            "required": $.*.required,
+            "content": $lookup($ASPECT, $keys()[0]),
+            "field": $keys()[0]
+        });
+    )
+)
+`;
+
+const ASPECT_LOCATIONS_QUERY = `
+(
+    $ASPECT_ID := '{%ASPECT%}';
+    [$distinct($[$substring(path, 0, $length($ASPECT_ID) + 9) = '/aspects/' & $ASPECT_ID].location)]
+)
+`;
+
+const CONTEXTS_QUERY_FOR_ASPECT = `
+(
+    $MANIFEST := $;
+    components.$spread().(
+        $COMPONENT_ID := $keys()[0];
+        $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
+        $COMPONENT['{%ASPECT%}' in aspects] ? 
+        (
+            $COMPONENT.*.contexts.(
+                $CONTEXT := $lookup($MANIFEST.contexts, $);
+                {
+                "id": $,
+                "title": $CONTEXT.title ? $CONTEXT.title : $
+            })
+        ) : undefined
+    )
 )
 `;
 
@@ -291,16 +347,47 @@ const PROBLEMS_QUERY = `
     ].(
         $exists($lookup($MANIFEST.namespaces, namespace)) ? undefined :
         {
-            "problem": 'Область имен отсутвует',
+            "problem": 'Область имен отсутствует',
             "route": route,
             "title": namespace & " в " & entity & " " & title & " [" & id & "]"
         }
     );
+    $UNDEFINED_COMPONENT := 
+        [
+            components.$spread().(
+                $COMPONENT_ID := $keys()[0];
+                $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
+                $COMPONENT.presentations.requires[$not($exists($lookup($MANIFEST.components, id)))].(
+                    id ?
+                    {
+                        "problem": 'Компоненты не описаны',
+                        'route': '/architect/components/' & $COMPONENT_ID,
+                        "title": "Зависимость [" & id & "] не описана для компонента " & $COMPONENT_ID
+                    } : undefined
+                )
+            )
+        ];
+    $UNDEFINED_ASPECT := 
+        [
+            components.$spread().(
+                $COMPONENT_ID := $keys()[0];
+                $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
+                $COMPONENT.aspects.(
+                    $lookup($MANIFEST.aspects, $) ? undefined :                     {
+                        "problem": 'Аспекты не определены',
+                        'route': '/architect/aspects/' & $,
+                        "title": "Аспект не описан [" & $ & "]"
+                    }
+                )
+            )
+        ];
     [
         $distinct($UNDEFINED_CONTEXTS),
         $distinct($LOST_COMPONENTS),
         $distinct($EMPTY_CONTEXTS),
-        $distinct($UNDEFINED_NAMESPACES)
+        $distinct($UNDEFINED_NAMESPACES),
+        $distinct($UNDEFINED_COMPONENT),
+        $distinct($UNDEFINED_ASPECT)
     ]
 )
 `;
@@ -324,7 +411,7 @@ export default {
     },
     // Запрос контекстов в которых встречается компонент
     contextsForComponent(component) {
-        return CONTEXTS_QUERY.replaceAll("{%COMPONENT%}", component)
+        return CONTEXTS_QUERY_FOR_COMPONENT.replaceAll("{%COMPONENT%}", component)
     },
     // Сводка по компоненту
     summaryForComponent(component) {
@@ -333,6 +420,24 @@ export default {
     // Определение размещения манифестов описывающих компонент
     locationsForComponent(component) {
         return COMPONENT_LOCATIONS_QUERY.replaceAll("{%COMPONENT%}", component)
+    },
+    // Запрос по аспекту
+    aspect(aspect, context) {
+        return SCHEMA_QUERY
+            .replaceAll("{%CONTEXT_ID%}", context || 'self')
+            .replaceAll("{%CONDITIONS%}", `'${aspect}' in aspects.id`)
+    },
+    // Сводка по аспекту
+    summaryForAspect(aspect) {
+        return SUMMARY_ASPECT_QUERY.replaceAll("{%ASPECT%}", aspect)
+    },
+    // Определение размещения манифестов описывающих аспект
+    locationsForAspect(aspect) {
+        return ASPECT_LOCATIONS_QUERY.replaceAll("{%ASPECT%}", aspect)
+    },
+    // Запрос контекстов в которых встречается компонент
+    contextsForAspects(aspect) {
+        return CONTEXTS_QUERY_FOR_ASPECT.replaceAll("{%ASPECT%}", aspect)
     },
     // Сбор информации об использованных технологиях
     collectTechnologies() {
