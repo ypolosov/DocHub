@@ -16,7 +16,7 @@ export default {
   },
   methods: {
     onClickRef(event) {
-      const url = new URL(event.currentTarget.href.baseVal);
+      const url = new URL(event.currentTarget.href.baseVal, window.location);
       this.$router.push({ path: url.pathname});
       return false;
     },

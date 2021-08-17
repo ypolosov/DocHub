@@ -2,6 +2,7 @@
   <div>
     <swagger v-if="isContract" :document="document"></swagger>
     <plantuml v-if="isPlantUML"  :document="document"></plantuml>
+    <doc-markdown v-if="isMarkdown"  :document="document"></doc-markdown>
   </div>
 </template>
 
@@ -10,12 +11,14 @@
 import Swagger from "./DocSwagger";
 import Plantuml from "./DocPlantUML";
 import manifest_parser from "../../manifest/manifest_parser";
+import DocMarkdown from "./DocMarkdown";
 
 export default {
   name: 'Doc',
   components: {
     Plantuml,
-    Swagger
+    Swagger,
+    DocMarkdown
   },
   mounted() {
   },
@@ -34,6 +37,9 @@ export default {
     isPlantUML() {
       return this.docType === 'plantuml';
     },
+    isMarkdown () {
+      return this.docType === 'markdown';
+    }
   },
   props: {
     document: String
