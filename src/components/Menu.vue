@@ -1,5 +1,5 @@
 <template>
-    <v-list dense class="grey lighten-4" v-model="selected">
+    <v-list dense class="grey lighten-4">
       <template v-for="(item, i) in menu">
         <v-list-item
             v-if="(item.route !== '/problems') || (problems.length)"
@@ -43,13 +43,6 @@ import query from "../manifest/query";
 export default {
   name: 'Menu',
   mounted () {
-    // После загрузки отключаем переход при навигации
-    const timer = setInterval(() => {
-      if (!this.$store.state.is_reloading) {
-        this.isRouting = false;
-        clearInterval(timer);
-      }
-    }, 100)
   },
   methods: {
     isMenuItemSelected (item) {
@@ -57,11 +50,9 @@ export default {
     },
     onClickMenuExpand(item) {
       this.$set(this.expands, item.location, !this.expands[item.location]);
-      this.isRouting = false;
     },
 
     onClickMenuItem(item) {
-      this.selected = item.route;
       if (item.route)
         this.$router.push({ path: item.route });
       else
@@ -117,8 +108,7 @@ export default {
         node.title = item.title;
         node.route = item.route;
         node.icon = item.icon;
-
-        if (this.isRouting && (node.route === this.currentRoute)) {
+        if (node.route === this.currentRoute) {
           this.$nextTick(() => {
             let subLocation = null;
             location.map((item) => {
@@ -131,19 +121,17 @@ export default {
       });
 
       return result;
-    },
-
-    currentRoute () {
-      return this.selected || window.location.pathname;
+    }
+  },
+  watch: {
+    $route (to) {
+      this.currentRoute = to.fullPath;
     }
   },
   data() {
     return {
-      // Выбранный элемент меню
-      selected: null,
-      // Переход по роуту
-      isRouting: true,
       // Открытые пункты меню
+      currentRoute: window.location.pathname,
       expands: {
         architect: true,
         docs: true

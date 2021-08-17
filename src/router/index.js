@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Swagger from '../components/Swagger'
+import Doc from "../components/Docs/Doc";
 import Conditions from '../components/Conditions'
 import DiffViewer from '../components/DiffViewer'
 import Main from '../components/Main'
@@ -46,12 +46,6 @@ export default new Router({
             component: Main,
         },
         {
-            name: 'swagger',
-            path: '/swagger/:source',
-            component: Swagger,
-            props: middleware
-        },
-        {
             name: 'conditions',
             path: '/diff/:source/:target',
             component: Conditions,
@@ -61,6 +55,12 @@ export default new Router({
             name: 'diff',
             path: '/diff/:source/:target/:mode',
             component: DiffViewer,
+            props: middleware
+        },
+        {
+            name: 'doc',
+            path: '/docs/:document',
+            component: Doc,
             props: middleware
         },
         {

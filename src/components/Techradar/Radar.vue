@@ -199,11 +199,6 @@ export default {
 
 <style scoped>
 
-.section {
-  padding: 0;
-  height: 40vh;
-}
-
 svg circle.ring-arc-0 {
   stroke: none;
   fill: #bababa;

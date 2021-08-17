@@ -2,22 +2,39 @@
   <v-container fluid class="lighten-4">
     <v-row dense>
       <v-col cols="4">
-        <v-card>
-          <v-card-title>
-            <v-icon left>settings</v-icon>
-            <span class="title">Сводка</span>
-          </v-card-title>
-          <v-card-text class="headline font-weight-bold">
-            <v-list>
-              <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
-                <v-list-item-content  @click="goToLink(item.link)">
-                  <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
-                  <v-list-item-title v-html="item.content"></v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </v-card-text>
-        </v-card>
+        <v-row dense>
+          <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                <v-icon left>settings</v-icon>
+                <span class="title">Сводка</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <v-list>
+                  <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
+                    <v-list-item-content  @click="goToLink(item.link)">
+                      <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
+                      <v-list-item-title v-html="item.content"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="12">
+            <v-card>
+              <v-card-title>
+                <v-icon left>description</v-icon>
+                <span class="title">Документы</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <docs-tree :entity="component"></docs-tree>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
       </v-col>
       <v-col cols="8">
         <v-card v-if="contexts.length">
@@ -46,11 +63,13 @@ import jsonata from "jsonata";
 import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
 import requests from "../../helpers/requests";
+import DocsTree from "../Docs/DocsTree";
 
 export default {
   name: 'Component_',
   components: {
-    Schema
+    Schema,
+    DocsTree
   },
   methods: {
     goToLink() {

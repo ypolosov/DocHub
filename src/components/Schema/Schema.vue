@@ -27,6 +27,8 @@ export default {
             return (new URL(`architect/components/${id}`, location.origin)).toString();
           case 'aspect':
             return (new URL(`architect/aspects/${id}`, location.origin)).toString();
+          case 'contract':
+            return (new URL(`docs/${id}`, location.origin)).toString();
         }
       })();
       return `[[${url} ${title || id}]]`;
@@ -64,7 +66,7 @@ export default {
     uml () {
       let uml = `@startuml\n${DSL}\n`;
       if(this.schema) {
-        uml += `title ${this.makeRef('context', this.schema.id, this.schema.title)}\n`;
+        uml += `title  "${this.makeRef('context', this.schema.id, this.schema.title)}"\n`;
         // Готовим структуру схемы для рендеринга
         const structure = this.makeSchemeStructure();
         // Разбираем архитектурные пространства
@@ -93,8 +95,9 @@ export default {
         }
         // Строим связи
         for (const connection in structure.connections) {
-          // const require = structure.connections[connection];
-          uml += `${connection}: ""\n` //${require.title}
+          const contract = structure.connections[connection].contract;
+          const title = contract ? this.makeRef('contract', contract.id, contract.location.split('/').pop()) : '';
+          uml += `${connection}: "${title}"\n`
         }
       }
       uml += '@enduml';

@@ -34,7 +34,6 @@ export default {
     }
   },
   mounted() {
-    // eslint-disable-next-line no-debugger
     let hash = GitHelper.parseHashParams(this.$route.hash.substr(1));
     if ('access_token' in hash) {
       this.$store.dispatch('onReceivedOAuthToken', hash.access_token);

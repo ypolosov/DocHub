@@ -64,10 +64,6 @@ export default {
     },
     schema () {
       if (this.currentContext === 0) {
-        // eslint-disable-next-line no-console
-        console.info(query.aspect(this.aspect));
-        // eslint-disable-next-line no-debugger
-        debugger;
         return jsonata(query.aspect(this.aspect))
             .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
       } else {

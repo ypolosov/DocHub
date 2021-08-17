@@ -126,7 +126,7 @@ export default {
                 throw `Error in base URI ${uri}! Base URI is empty.`
             }
             let slices = baseURI.split('/');
-            result = this.makeURL(slices.slice(0, slices.length - 1) + '/' + uri);
+            result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri);
         }
         return result;
     },

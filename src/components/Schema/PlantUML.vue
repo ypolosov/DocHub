@@ -27,12 +27,24 @@ export default {
         ref.onclick = this.onClickRef;
       }
     },
+    rebuildLinks() {
+      const refs = this.$el.querySelectorAll('[href]');
+      for (let i = 0; i < refs.length; i++) {
+        const ref = refs[i];
+        ref.onclick = this.onClickRef;
+      }
+    },
     prepareSVG() {
       const svg = this.$el.querySelectorAll('svg');
       svg[0].style = null;
       this.bindHREF();
     },
     reloadSVG() {
+      if (!this.uml) {
+        this.svg = '';
+        return;
+      }
+
       axios({
         url: plantUML.svgURL(this.uml)
       }).then((response) => {
@@ -62,7 +74,7 @@ export default {
 
 <style>
 
-svg {
+.plantuml-schema svg {
   max-width: 100%;
   height: auto;
 }

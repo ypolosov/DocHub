@@ -100,7 +100,7 @@ export default {
     // Декомпозирует свойство манифеста
     // Если свойство содержит ссылку, загружает объект
     // data - Значение свойства
-    // path - пусть к совйству от корня манифеста
+    // path - пусть к свойству от корня манифеста
     expandProperty (data, path, baseURI) {
         // const data = this.getManifestContext(path).data;
         // Если значение является ссылкой, загружает объект по ссылке
@@ -109,7 +109,7 @@ export default {
             this.incReqCounter();
             requests.request(URI).then((response) => {
                 const context = this.getManifestContext(path);
-                context.node[context.property] = response.data;
+                context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
                 this.touchProjects(URI);
             })
                 .catch((e) => {
@@ -124,7 +124,7 @@ export default {
         }
     },
     // Разбираем сущности
-    // path - путь к перечислению сущьностей (ключ -> объект)
+    // path - путь к перечислению сущностей (ключ -> объект)
     parseEntity(context, path, baseURI) {
         // const context = this.getManifestContext(path);
         for (const key in context) {

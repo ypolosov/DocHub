@@ -23,11 +23,6 @@ let store = new Vuex.Store(gitlab);
 window.Vuex = store;
 store.dispatch('init');
 
-// eslint-disable-next-line no-console
-// console.info(config);
-// eslint-disable-next-line no-debugger
-// debugger;
-
 new Vue(Object.assign({
     el: '#app',
     router,

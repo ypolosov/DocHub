@@ -23,6 +23,7 @@ const SCHEMA_QUERY = `
                     $COMPONENT := $lookup($MANIFEST.components, $.id);
                     $NAMESPACE_ID := $split($.id, "@")[0];
                     $NAMESPACE := $lookup($MANIFEST.namespaces, $NAMESPACE_ID);
+                    $CONTRACT := $lookup($MANIFEST.docs, $.contract);
                     {
                         "id": $.id,
                         "title": $COMPONENT.title ? $COMPONENT.title : $.title,
@@ -30,7 +31,11 @@ const SCHEMA_QUERY = `
                         "namespace": {
                                 "id": $NAMESPACE_ID,
                                 "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $NAMESPACE_ID
-                        }
+                        },
+                        "contract": $CONTRACT ? {
+                            "id": $.contract, 
+                            "location": $CONTRACT.location
+                        } : undefined
                     }
                 )],
                 "aspects": [$.*.aspects.$spread().(
@@ -154,6 +159,22 @@ const SUMMARY_COMPONENT_QUERY = `
             "field": $keys()[0]
         });
     )
+)
+`;
+
+const DOCUMENTS_FOR_ENTITY_QUERY = `
+(
+    $COMPONENT_ID := '{%ENTITY%}';
+    $MANIFEST := $;
+    docs.$spread().(
+        $LINK := "/docs/" & $keys()[0];
+        [$[$COMPONENT_ID in *.subjects]
+            {
+                "location": *.location,
+                "title": *.description,
+                "link": $LINK
+            }]
+    )^(location);
 )
 `;
 
@@ -450,5 +471,9 @@ export default {
     // Выявление проблем
     problems() {
         return PROBLEMS_QUERY;
-    }
+    },
+    // Документы для сущности
+    docsForEntity(entity) {
+        return DOCUMENTS_FOR_ENTITY_QUERY.replaceAll("{%ENTITY%}", entity);
+    },
 }

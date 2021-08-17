@@ -6,40 +6,51 @@
     <div
         style="width: 100%; min-height: 100vh"
         id="swagger"
+        v-if="this.url"
     ></div>
   </v-container>
 </template>
 
 <script>
 import SwaggerUI from "swagger-ui";
-import config from "../../config";
+import config from "../../../config";
+import manifest_parser from "../../manifest/manifest_parser";
+import docs from "../../helpers/docs";
 
 export default {
   name: 'Swagger',
   mounted() {
     this.swaggerRender();
   },
-  watch: {
-    source() {
-      this.swaggerRender();
-    }
-  },
   methods: {
     swaggerRender() {
-      SwaggerUI({
-        dom_id: '#swagger',
-        url: atob(this.source),
-        deepLinking: true,
-        requestInterceptor: (request) => {
-          if ((new URL(request.url)).host === (new URL(config.gitlab_server)).host) {
-            request.headers['Authorization'] = `Bearer ${this.$store.state.access_token}`;
+      if (this.url) {
+        SwaggerUI({
+          dom_id: '#swagger',
+          url: this.url,
+          deepLinking: true,
+          requestInterceptor: (request) => {
+            if ((new URL(request.url)).host === (new URL(config.gitlab_server)).host) {
+              request.headers['Authorization'] = `Bearer ${this.$store.state.access_token}`;
+            }
           }
-        }
-      })
+        })
+      }
+    }
+  },
+  computed: {
+    manifest() {
+      return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
+    },
+    url () {
+      // eslint-disable-next-line vue/no-async-in-computed-properties
+      setTimeout(() => this.swaggerRender(), 50);
+      const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
+      return profile ? docs.urlFromProfile(profile) : '';
     }
   },
   props: {
-    source: String
+    document: String
   },
   data() {
     return {};
