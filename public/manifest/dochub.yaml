@@ -1,0 +1,72 @@
+# Манифест описывающий сам DocHub
+namespaces:
+    - dochub:
+          title: DocHub
+    - gitlab:
+        title: GitLab
+components:  # Архитектурные компоненты
+    dochub$front:   # Идентификатор компонента
+        title: Интерфейс\nпользователя  # Название компонента
+        entity: component               # Сущность компонента из PlantUML (https://plantuml.com/ru/deployment-diagram)
+        technologies:   # Используемые технологии
+          - JavaScript
+          - VUEJS2
+          - Chrome
+          - Firefox
+          - Safari
+        presentations:  # Представление компонента
+            - contexts: # В каких контекстах компонент представлен
+                  - dochub$main # Идентификатор контекста
+              requires: # Зависимость компонента от других компонентов
+                  - id: gitlab$oauth # Идентификатор компонента
+                    title: OAuth\nавторизация
+                  - id: gitlab$api
+                    title: Gitlab API
+    dochub$user:
+        title: Пользователь
+        entity: actor
+        presentations:
+            - contexts:
+                  - dochub$main
+              requires:
+                  - id: dochub$front
+    gitlab$oauth:
+        title: GitLab\nАторизация
+        entity: component
+        technologies:
+          - GitLab
+    gitlab$api:
+        title: GitLab\nAPI
+        entity: component
+        technologies:
+          - GitLab
+        presentations:
+          - contexts:
+              - dochub$main
+            requires:
+              - id: gitlab$repository
+    gitlab$repository:
+        title: Репозиторий
+        entity: database
+contexts:   # Контексты представления архитектурных компонентов
+    dochub$main:
+        title: Общая архитектура DocHub     # Название контекста
+        location: DocHub/Общая архитектура  # Размещение документа в дереве навигации
+docs:       # Документы
+    dochub_conception: # Идентификатор документа
+        icon: lightbulb_outline     # Иконка, которы будет отображаться в дереве навигации
+        location: DocHub/Концепция  # Размещение документа в дереве навигации
+        description: Концепция управления архитектурой  # Краткое описание сути документа
+        type: markdown              # Тип документа (OpenAPI / markdown / PlantUML)
+        subjects:                   # К какой сущности документ имеет отношения
+            - dochub$front          # Идентификатор сущности
+        source: ../docs/archops.md  # Путь к документу (относительный)
+    dochub_sequence:
+      icon: settings_ethernet
+      location: DocHub/Взаимодействие
+      description: Диаграмма взаимодействия
+      type: PlantUML
+      subjects:
+        - dochub$front
+        - gitlab$api
+      source: ../docs/sequence.puml

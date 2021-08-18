@@ -7,7 +7,7 @@ const SCHEMA_QUERY = `
         "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
         "id": $CONTEXT_ID,
         "components": [components.$spread().(
-            $NAMESPACE_ID := $split($keys()[0], "@")[0];
+            $NAMESPACE_ID := $split($keys()[0], "$")[0];
             $NAMESPACE := $lookup($MANIFEST.namespaces, $NAMESPACE_ID);
             {
                 "order": $NAMESPACE_ID & ":" & $keys()[0],
@@ -21,7 +21,7 @@ const SCHEMA_QUERY = `
                 "contexts": $distinct($.*.presentations.contexts),
                 "requires": [$distinct($.*.presentations.requires).(
                     $COMPONENT := $lookup($MANIFEST.components, $.id);
-                    $NAMESPACE_ID := $split($.id, "@")[0];
+                    $NAMESPACE_ID := $split($.id, "$")[0];
                     $NAMESPACE := $lookup($MANIFEST.namespaces, $NAMESPACE_ID);
                     $CONTRACT := $lookup($MANIFEST.docs, $.contract);
                     {
@@ -168,12 +168,13 @@ const DOCUMENTS_FOR_ENTITY_QUERY = `
     $MANIFEST := $;
     docs.$spread().(
         $LINK := "/docs/" & $keys()[0];
+        $COMPONENT_ID in *.subjects ?
         [$[$COMPONENT_ID in *.subjects]
             {
                 "location": *.location,
                 "title": *.description,
                 "link": $LINK
-            }]
+            }] : undefined;
     )^(location);
 )
 `;
@@ -348,21 +349,21 @@ const PROBLEMS_QUERY = `
             "id": $keys()[0],
             "route": "/architect/aspects/" & $keys()[0],
             "title": *.location,
-            "namespace": $split($keys()[0], "@")[0],
+            "namespace": $split($keys()[0], "$")[0],
             "entity": "аспекте"
         },
         contexts.$spread().{
             "id": $keys()[0],
             "route": "/architect/contexts/" & $keys()[0],
             "title": *.location,
-            "namespace": $split($keys()[0], "@")[0],
+            "namespace": $split($keys()[0], "$")[0],
             "entity": "контексте"
         },
         components.$spread().{
             "id": $keys()[0],
             "route": "architect/components/" & $keys()[0],
             "title": title,
-            "namespace": $split($keys()[0], "@")[0],
+            "namespace": $split($keys()[0], "$")[0],
             "entity": "компоненте"
         }
     ].(

@@ -11,8 +11,6 @@ export default {
             result = profile.source;
         } else {
             const source = requests.makeURL(profile.source, baseURI);
-            // eslint-disable-next-line no-debugger
-            debugger;
             result = source.url;
         }
         return result ? result.toString() : '';

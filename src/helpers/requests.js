@@ -23,7 +23,7 @@ axios.interceptors.response.use(function (response) {
         const url = response.config.url.toLowerCase();
         if (url.indexOf('.json/raw') >= 0)
             response.data = JSON.parse(response.data);
-        else if (url.indexOf('.yaml/raw') >= 0)
+        else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
             response.data = YAML.parse(response.data);
     }
     return response;
@@ -78,7 +78,7 @@ export default {
                 }
             } else {
                 let slices = baseURI.split('/');
-                result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri);
+                result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri).url;
             }
         }
         return result.toString();

@@ -4,7 +4,7 @@
     <markdown
         v-if="this.markdown"
         style="padding: 12px"
-        toc
+        toc :breaks="false"
         v-on:toc-rendered="tocRendered"
         v-on:rendered="rendered"
     >
@@ -87,7 +87,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 
 .space {
   padding: 24px;
@@ -95,6 +95,53 @@ export default {
 
 .toc {
   margin-bottom: 24px;
+}
+
+pre {
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  color: #333;
+  word-break: break-all;
+  word-wrap: break-word;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  overflow: auto;
+}
+
+code[class*="language-"], pre[class*="language-"] {
+  color: black;
+  font-weight: 300;
+  background: none;
+  text-shadow: 0 1px white;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+  padding: 0;
+  font-size: inherit;
+  border-radius: 0;
+}
+
+.toc-anchor {
+  display: none;
+}
+
+code[class*="language-"]::before, pre[class*="language-"]::before {
+  content: none !important;
 }
 
 </style>

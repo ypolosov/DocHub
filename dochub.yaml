@@ -1,0 +1,10 @@
+# Манифест описывающий сам DocHub
+docs:
+    publicapi:
+        icon: lightbulb_outline
+        location: DocHub/Концепция
+        description: Концепция управления архитектурой
+        type: markdown
+        subjects:
+            - dochub$
+        source: /docs/archops.md

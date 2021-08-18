@@ -166,6 +166,12 @@ export default {
             this.margeMap = [];
             touchProjects = {};
             this.incReqCounter();
+
+            // Подключаем манифест самого DocHub
+            // eslint-disable-next-line no-constant-condition
+            if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y') {
+                this.import(requests.makeURIByBaseURI('manifest/dochub.yaml', window.origin + '/'), true);
+            }
         }
 
         this.incReqCounter();
