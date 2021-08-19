@@ -1,13 +1,5 @@
 <template>
-  <v-container fluid class="lighten-4">
-    <v-row dense>
-      <v-col cols="12">
-        <v-card>
-          <schema :schema="schema"></schema>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+    <schema :schema="schema"></schema>
 </template>
 
 <script>

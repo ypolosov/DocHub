@@ -10,18 +10,24 @@ import router from './router';
 import VueCookie from 'vue-cookie';
 
 import gitlab from './storage/gitlab';
+import DocHubDoc from "./components/Docs/DocHubDoc";
+import Context from "./components/Architecture/DocHubContext";
+
+window.Vue = Vue;
 
 Vue.use(Vuex);
 Vue.use(Vuetify);
 Vue.use(VueCookie);
 
-window.Vue = Vue;
 Vue.prototype.$axios = Axios;
 Vuex.Store.prototype.$axios = Axios;
 
 let store = new Vuex.Store(gitlab);
 window.Vuex = store;
 store.dispatch('init');
+
+Vue.component('dochub-doc', DocHubDoc);
+Vue.component('dochub-context', Context);
 
 new Vue(Object.assign({
     el: '#app',

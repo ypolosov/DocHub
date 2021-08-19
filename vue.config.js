@@ -2,6 +2,7 @@ const fs = require('fs');
 
 // Дефолтная конфигурация dev-сервера
 let config = {
+    runtimeCompiler: true,
     devServer: {
         /*
         allowedHosts: [

@@ -14,7 +14,7 @@ import manifest_parser from "../../manifest/manifest_parser";
 import DocMarkdown from "./DocMarkdown";
 
 export default {
-  name: 'Doc',
+  name: 'document',
   components: {
     Plantuml,
     Swagger,

@@ -5,25 +5,39 @@
         v-if="this.markdown"
         style="padding: 12px"
         toc :breaks="false"
+        :html="true"
+        v-show="false"
         v-on:toc-rendered="tocRendered"
         v-on:rendered="rendered"
     >
       {{this.markdown}}
     </markdown>
+    <final-markdown v-if="showDocument && outHTML" :template="outHTML"></final-markdown>
   </div>
 </template>
 
 <script>
-
 import docs from "../../helpers/docs";
 import requests from "../../helpers/requests";
 import manifest_parser from "../../manifest/manifest_parser";
 import markdown from 'vue-markdown';
+import DocMarkdownObject from "./DocHubObject";
 
 export default {
   name: 'DocMarkdown',
   components: {
-    markdown
+    markdown,
+    finalMarkdown: {
+      components: {
+        "dochub-object": DocMarkdownObject
+      },
+      props: {
+        template: String
+      },
+      created () {
+        this.$options.template = `<div>${this.template}</div>`;
+      }
+    }
   },
   mounted() {
     this.refresh();
@@ -34,12 +48,19 @@ export default {
       this.$router.push({ path: url.pathname});
       return false;
     },
-    rendered() {
+    rendered(outHtml) {
+      if (this.outHTML !== outHtml) {
+        this.outHTML = outHtml;
+        this.showDocument = false;
+        this.$nextTick(() => this.showDocument = true);
+      }
+      /*
       const refs = this.$el.querySelectorAll('[href]');
       for (let i = 0; i < refs.length; i++) {
         const ref = refs[i];
         ref.onclick = this.onClickRef;
       }
+      */
     },
     tocRendered (tocHTML) {
       this.toc = tocHTML;
@@ -80,14 +101,21 @@ export default {
   },
   data() {
     return {
+      showDocument: false,
       toc: '',
-      markdown: ''
+      markdown: '',
+      outHTML: ''
     };
   }
 };
 </script>
 
 <style>
+
+.dochub-object {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
 
 .space {
   padding: 24px;
@@ -140,7 +168,9 @@ code[class*="language-"], pre[class*="language-"] {
   display: none;
 }
 
-code[class*="language-"]::before, pre[class*="language-"]::before {
+code[class*="language-"]::before, pre[class*="language-"]::before,
+code[class*="language-"]::after, pre[class*="language-"]::after
+{
   content: none !important;
 }
 
