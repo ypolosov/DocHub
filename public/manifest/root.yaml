@@ -1,3 +1,6 @@
 # Манифест описывающий сам DocHub
 imports:
-  - dochub.yaml
+  - components.yaml
+  - contexts.yaml
+  - docs.yaml
+  - namespaces.yaml

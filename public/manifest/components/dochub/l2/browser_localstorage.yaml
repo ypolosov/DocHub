@@ -1,0 +1,9 @@
+title: LocalStorage
+entity: database
+technologies:
+  - Chrome
+  - Firefox
+  - Safari
+presentations:
+  - contexts:
+      - dochub$c4level2

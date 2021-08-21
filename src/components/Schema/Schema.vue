@@ -97,9 +97,9 @@ export default {
         for (const connectionId in structure.connections) {
           const connection = structure.connections[connectionId];
           const contract = connection.contract;
-          const title = contract
+          const title = connection.link_title || (contract
               ? this.makeRef('contract', contract.id, contract.location.split('/').pop())
-              : connection.title || '';
+              : '');
           uml += `${connectionId}: "${title}"\n`
         }
       }

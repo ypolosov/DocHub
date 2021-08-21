@@ -1,0 +1,7 @@
+title: PlantUML\nrender\nserver
+entity: rectangle
+technologies:
+  - PluntUML
+presentations:
+  - contexts:
+      - dochub$c4level1

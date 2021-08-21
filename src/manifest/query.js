@@ -26,7 +26,8 @@ const SCHEMA_QUERY = `
                     $CONTRACT := $lookup($MANIFEST.docs, $.contract);
                     {
                         "id": $.id,
-                        "title": $COMPONENT.title ? $COMPONENT.title : $.title,
+                        "title": $COMPONENT.title ? $COMPONENT.title : $.id,
+                        "link_title": $.title,
                         "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
                         "namespace": {
                                 "id": $NAMESPACE_ID,

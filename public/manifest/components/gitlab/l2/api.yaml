@@ -1,0 +1,9 @@
+title: GitLab\nAPI
+entity: component
+technologies:
+  - GitLab
+presentations:
+  - contexts:
+      - dochub$c4level2
+    requires:
+      - id: gitlab$repository

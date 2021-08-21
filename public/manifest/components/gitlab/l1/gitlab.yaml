@@ -1,0 +1,10 @@
+title: GitLab
+entity: rectangle
+technologies:
+  - GitLab
+presentations:
+  - contexts:
+      - dochub$c4level1
+    requires:
+      - id: dochub$user
+        title: Развитие архитектуры

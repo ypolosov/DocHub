@@ -1,0 +1,9 @@
+title: Axios
+entity: component
+technologies:
+  - JavaScript
+presentations:
+  - contexts:
+      - dochub$c4level3
+    requires:
+      - id: gitlab$api
