@@ -1,6 +1,7 @@
 <template>
   <plantuml class="plantuml-schema"
       :uml = "uml"
+      :postrender = "postrender"
   ></plantuml>
 </template>
 
@@ -15,8 +16,49 @@ export default {
     "plantuml" : PlantUML
   },
   methods: {
-    toID(id) {
-      return id.replaceAll('$', '_').replaceAll('-', '_');
+    createSVGElement(tag) {
+      return document.createElementNS("http://www.w3.org/2000/svg", tag);
+    },
+    postrender (svg) {
+      // Строим надписи на связях
+      let prefix = 0;
+      let defs = svg.querySelectorAll('defs')[0];
+      if (!defs) {
+        defs = this.createSVGElement('defs');
+        svg.insertAfter(0, defs);
+      }
+      for (const linkId in this.structure.links) {
+        const link = this.structure.links[linkId];
+        const selector = (() => {
+          const isBack = link.direction.slice(0, 1) === '<';
+          const isTo = link.direction.slice(-1) === '>';
+          if (isBack && isTo) return `path[id^='${link.linkFrom}-${link.linkTo}']`;
+          else if (isBack) return `path[id^='${link.linkFrom}-backto-${link.linkTo}']`;
+          else return `path[id^='${link.linkFrom}-to-${link.linkTo}']`;
+        })();
+        //const selector = `path[id^='${link.linkFrom}'][id$='${link.linkTo}']`
+        const linkPath = svg.querySelectorAll(selector)[0];
+        if (linkPath) {
+          const defPathID = `def_${prefix++}_${linkPath.id}`;
+          const path = this.createSVGElement('path');
+          path.setAttribute('id',defPathID);
+          path.setAttribute('d',linkPath.getAttribute('d'));
+          defs.appendChild(path);
+
+          const title = this.createSVGElement('text');
+          title.classList.add('schema-link-title');
+          title.setAttribute('text-anchor', 'middle');
+          title.setAttribute('dy', -4);
+
+          const titlePath = this.createSVGElement('textPath');
+          titlePath.setAttribute("href", `#${defPathID}`);
+          titlePath.setAttribute("startOffset", '50%');
+          titlePath.textContent = link.link_title;
+
+          title.appendChild(titlePath);
+          svg.appendChild(title);
+        }
+      }
     },
     makeRef(type, id, title) {
       const url = (() => {
@@ -32,12 +74,14 @@ export default {
         }
       })();
       return `[[${url} ${title || id}]]`;
-    },
-    makeSchemeStructure() {
+    }
+  },
+  computed: {
+    structure() {
       // Структура схемы
       const structure = {
         namespaces: {},
-        connections: {}
+        links: {}
       };
 
       // Размещает компонент в структуре схемы
@@ -53,22 +97,21 @@ export default {
         // Разбираем компонент
         expandComponent(component, true);
         // Разбираем зависимости компонента
-        (component.requires || []).map((require) => {
-          expandComponent(require, false);
-          structure.connections[`[${this.toID(component.id)}] -- [${this.toID(require.id)}]`] = require;
+        (component.links || []).map((link) => {
+          expandComponent(link, false);
+          structure.links[`[${component.id}] ${link.direction} [${link.id}]`] =
+              Object.assign(link, { linkFrom: component.id, linkTo: link.id});
         });
       });
 
       return structure;
-    }
-  },
-  computed: {
+    },
     uml () {
       let uml = `@startuml\n${DSL}\n`;
       if(this.schema) {
         uml += `title  "${this.makeRef('context', this.schema.id, this.schema.title)}"\n`;
         // Готовим структуру схемы для рендеринга
-        const structure = this.makeSchemeStructure();
+        const structure = this.structure;
         // Разбираем архитектурные пространства
         for (const namespaceID in structure.namespaces) {
           const namespace = structure.namespaces[namespaceID];
@@ -78,7 +121,7 @@ export default {
             const component = namespace.components[componentID];
             const title = this.makeRef('component', component.id, component.title);
             if (component.aspects && component.aspects.length) {
-              uml += `${component.entity} ${this.toID(component.id)}`;
+              uml += `${component.entity} ${component.id}`;
               const aspectList = [];
               component.aspects.map((aspect) => {
                 let aspectTitle = this.makeRef('aspect', aspect.id, aspect.title);
@@ -86,7 +129,7 @@ export default {
               });
               aspectList.length && (uml += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n]`);
             } else {
-              uml += `${component.entity} "${title}" as ${this.toID(component.id)}`;
+              uml += `${component.entity} "${title}" as [${component.id}]`;
             }
 
             uml += `\n`
@@ -94,13 +137,16 @@ export default {
           uml += `}\n`
         }
         // Строим связи
-        for (const connectionId in structure.connections) {
-          const connection = structure.connections[connectionId];
-          const contract = connection.contract;
-          const title = connection.link_title || (contract
+        for (const linkId in structure.links) {
+          uml += `${linkId}: "                               "\n`
+          /*
+          const link = structure.links[linkId];
+          const contract = link.contract;
+          const title = link.link_title || (contract
               ? this.makeRef('contract', contract.id, contract.location.split('/').pop())
               : '');
-          uml += `${connectionId}: "${title}"\n`
+          uml += `${linkId}: "${title}"\n`
+          */
         }
       }
       uml += '@enduml';
@@ -119,5 +165,11 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
+
+  .schema-link-title {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
 </style>

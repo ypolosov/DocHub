@@ -5,6 +5,7 @@ technologies:
 presentations:
   - contexts:
       - dochub$c4level1
-    requires:
+    links:
       - id: dochub$user
+        direction: '<-->'
         title: Развитие архитектуры

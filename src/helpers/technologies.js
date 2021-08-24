@@ -18,7 +18,7 @@
             "title": $.*.title,
             "entity": $.*.entity,
             "contexts": $distinct($.*.presentations.contexts),
-            "requires": [$distinct($.*.presentations.requires).(
+            "links": [$distinct($.*.presentations.links).(
                 $COMPONENT := $lookup($MANIFEST.components, $.id);
                 {
                 "id": $.id,

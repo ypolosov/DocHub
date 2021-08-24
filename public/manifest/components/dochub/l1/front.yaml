@@ -9,10 +9,16 @@ technologies:       # Используемые технологии
 presentations:  # Представление компонента
   - contexts: # В каких контекстах компонент представлен
       - dochub$c4level1 # Идентификатор контекста
-    requires: # Зависимость компонента от других компонентов
+    links: # Зависимость компонента от других компонентов
       - id: gitlab$gitlab # Идентификатор компонента
+        direction: '<--'
         title: Манифесты и документы
       - id: plantuml$server
-        title: Рендер схем
+        direction: '-->'
+        title: PlantUML
+      - id: plantuml$server
+        direction: '<-'
+        title: Схема SVG
       - id: dochub$user
+        direction: '->'
         title: Просмотр

@@ -9,9 +9,12 @@ technologies:
 presentations:
   - contexts:
       - dochub$c4level2
-    requires:
+    links:
       - id: dochub$browser
+        title: Кэш манифестов, cookies
+        direction: '<-->'
       - id: dochub$user
+        title: Просмотр
       - id: gitlab$api
       - id: gitlab$oauth
       - id: plantuml$server

@@ -6,5 +6,5 @@ technologies:
 presentations:
   - contexts:
       - dochub$c4level3
-    requires:
+    links:
       - id: dochub$vuetifyjs

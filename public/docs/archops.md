@@ -172,7 +172,7 @@ presentations:  # Представления компонента
   - contexts:   # В каких контекстах компонент представлен
       - company$general
       - company$application
-    requires:   # Зависимости компонента от других компонентов
+    links:   # Зависимости компонента от других компонентов
       - id: company$services # Идентификатор компонента
       - id: company$full_text_searcher
       - id: company$cache_service

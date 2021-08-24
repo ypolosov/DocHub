@@ -7,5 +7,7 @@ technologies:
 presentations:
   - contexts:
       - dochub$c4level2
-    requires:
+    links:
       - id: dochub$browser_localstorage
+        title: Кэш манифестов
+        direction: <-->

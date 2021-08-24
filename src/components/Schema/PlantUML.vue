@@ -35,9 +35,12 @@ export default {
       }
     },
     prepareSVG() {
-      const svg = this.$el.querySelectorAll('svg');
-      svg[0].style = null;
-      this.bindHREF();
+      const svg = this.$el.querySelectorAll('svg')[0];
+      if (svg) {
+        svg.style = null;
+        this.bindHREF();
+        if (this.postrender) this.postrender(svg);
+      }
     },
     reloadSVG() {
       if (!this.uml) {
@@ -62,7 +65,8 @@ export default {
     }
   },
   props: {
-    uml: String
+    uml: String,          // PlantUML диаграмма
+    postrender: Function, // POST обработчик
   },
   data() {
     return {

@@ -19,7 +19,7 @@ const SCHEMA_QUERY = `
                         "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $NAMESPACE_ID
                 },
                 "contexts": $distinct($.*.presentations.contexts),
-                "requires": [$distinct($.*.presentations.requires).(
+                "links": [$distinct($.*.presentations.links).(
                     $COMPONENT := $lookup($MANIFEST.components, $.id);
                     $NAMESPACE_ID := $split($.id, "$")[0];
                     $NAMESPACE := $lookup($MANIFEST.namespaces, $NAMESPACE_ID);
@@ -27,6 +27,7 @@ const SCHEMA_QUERY = `
                     {
                         "id": $.id,
                         "title": $COMPONENT.title ? $COMPONENT.title : $.id,
+                        "direction": $.direction ? $.direction : '--', 
                         "link_title": $.title,
                         "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
                         "namespace": {
@@ -380,7 +381,7 @@ const PROBLEMS_QUERY = `
             components.$spread().(
                 $COMPONENT_ID := $keys()[0];
                 $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
-                $COMPONENT.presentations.requires[$not($exists($lookup($MANIFEST.components, id)))].(
+                $COMPONENT.presentations.links[$not($exists($lookup($MANIFEST.components, id)))].(
                     id ?
                     {
                         "problem": 'Компоненты не описаны',
