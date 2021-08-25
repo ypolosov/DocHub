@@ -8,17 +8,17 @@ technologies:       # Используемые технологии
   - Safari
 presentations:  # Представление компонента
   - contexts: # В каких контекстах компонент представлен
-      - dochub$c4level1 # Идентификатор контекста
+      - dochub.c4level1 # Идентификатор контекста
     links: # Зависимость компонента от других компонентов
-      - id: gitlab$gitlab # Идентификатор компонента
+      - id: gitlab.gitlab # Идентификатор компонента
         direction: '<--'
         title: Манифесты и документы
-      - id: plantuml$server
+      - id: plantuml.server
         direction: '-->'
         title: PlantUML
-      - id: plantuml$server
+      - id: plantuml.server
         direction: '<-'
         title: Схема SVG
-      - id: dochub$user
+      - id: dochub.user
         direction: '->'
         title: Просмотр

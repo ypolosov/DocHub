@@ -5,7 +5,11 @@ technologies:
   - VUE2
 presentations:
   - contexts:
-      - dochub$c4level3
+      - dochub.c4level3
     links:
-      - id: dochub$router
-      - id: gitlab$oauth
+      - id: dochub.router
+        title: OAuth токен
+        direction: -->
+      - id: gitlab.oauth
+        title: OAuth авторизация GitLab
+        direction: <-->

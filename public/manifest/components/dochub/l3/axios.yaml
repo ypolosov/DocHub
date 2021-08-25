@@ -4,6 +4,15 @@ technologies:
   - JavaScript
 presentations:
   - contexts:
-      - dochub$c4level3
+      - dochub.c4level3
+      - dochub.manifest_build
     links:
-      - id: gitlab$api
+      - id: gitlab.api
+        title: Манифесты, документы
+        direction: <--
+      - id: plantuml.server
+        title: SVG
+        direction: <--
+      - id: plantuml.server
+        title: PlantUML
+        direction: -->

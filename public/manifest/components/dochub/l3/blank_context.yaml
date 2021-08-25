@@ -5,7 +5,11 @@ technologies:
   - VUE2
 presentations:
   - contexts:
-      - dochub$c4level3
+      - dochub.c4level3
     links:
-      - id: dochub$workspace
-      - id: dochub$jsonata
+      - id: dochub.workspace
+        title: Представление
+        direction: -->
+      - id: dochub.jsonata
+        title: Сводка, размещение и т.п.
+        direction: <--

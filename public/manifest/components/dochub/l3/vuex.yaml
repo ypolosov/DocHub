@@ -3,8 +3,8 @@ entity: component
 technologies:
   - JavaScript
   - VUE2
+  - VUEX
 presentations:
   - contexts:
-      - dochub$c4level3
-    links:
-      - id: dochub$vue2
+      - dochub.c4level3
+      - dochub.manifest_build

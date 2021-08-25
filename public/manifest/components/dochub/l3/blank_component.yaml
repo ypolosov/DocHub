@@ -1,4 +1,4 @@
-title: Vuetifyjs
+title: Карточка\nкомпонента
 entity: component
 technologies:
   - JavaScript
@@ -7,9 +7,9 @@ presentations:
   - contexts:
       - dochub.c4level3
     links:
-      - id: dochub.router
+      - id: dochub.workspace
         title: Представление
         direction: -->
-      - id: dochub.router
-        title: Параметры
+      - id: dochub.jsonata
+        title: Сводка, размещение и т.п.
         direction: <--

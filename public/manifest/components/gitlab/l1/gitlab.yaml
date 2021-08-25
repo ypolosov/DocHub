@@ -4,8 +4,8 @@ technologies:
   - GitLab
 presentations:
   - contexts:
-      - dochub$c4level1
+      - dochub.c4level1
     links:
-      - id: dochub$user
+      - id: dochub.user
         direction: '<-->'
         title: Развитие архитектуры

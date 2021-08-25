@@ -5,7 +5,7 @@ docs:       # Документы
         description: Концепция управления архитектурой  # Краткое описание сути документа
         type: markdown              # Тип документа (OpenAPI / markdown / PlantUML)
         subjects:                   # К какой сущности документ имеет отношения
-            - dochub$front          # Идентификатор сущности
+            - dochub.front          # Идентификатор сущности
         source: ../docs/archops.md  # Путь к документу (относительный)
     dochub_sequence:
       icon: settings_ethernet
@@ -13,6 +13,6 @@ docs:       # Документы
       description: Диаграмма взаимодействия
       type: PlantUML
       subjects:
-        - dochub$front
-        - gitlab$api
+        - dochub.front
+        - gitlab.api
       source: ../docs/sequence.puml

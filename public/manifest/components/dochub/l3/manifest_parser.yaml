@@ -5,7 +5,12 @@ technologies:
   - VUE2
 presentations:
   - contexts:
-      - dochub$c4level3
+      - dochub.c4level3
+      - dochub.manifest_build
     links:
-      - id: dochub$vuex
-      - id: dochub$axios
+      - id: dochub.vuex
+        title: Комплексный манифест
+        direction: -->
+      - id: dochub.axios
+        title: Манифесты
+        direction: <--

@@ -5,7 +5,23 @@ technologies:
   - VUE2
 presentations:
   - contexts:
-      - dochub$c4level3
+      - dochub.c4level3
     links:
-      - id: dochub$workspace
-      - id: dochub$jsonata
+      - id: dochub.workspace
+        title: Представление
+        direction: -->
+      - id: dochub.blank_context
+        title: Интеграция в документ
+        direction: <--
+      - id: dochub.markdown
+        title: Рендер документа
+        direction: <-->
+      - id: dochub.swagger
+        title: Рендер контракта
+        direction: <-->
+      - id: dochub.axios
+        title: Документы markdown
+        direction: <---
+      - id: dochub.axios
+        title: Рендер PlantUML
+        direction: <--->

@@ -5,7 +5,11 @@ technologies:
   - VUE2
 presentations:
   - contexts:
-      - dochub$c4level3
+      - dochub.c4level3
     links:
-      - id: dochub$vuetifyjs
-      - id: dochub$jsonata
+      - id: dochub.vuetifyjs
+        title: Представление
+        direction: -->
+      - id: dochub.jsonata
+        title: Меню
+        direction: <--

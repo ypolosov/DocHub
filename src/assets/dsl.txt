@@ -1,5 +1,4 @@
 skinparam useBetaStyle true
-left to right direction
 skinparam {
     HyperLinkColor #000
 	wrapWidth 200
