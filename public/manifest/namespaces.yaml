@@ -6,3 +6,5 @@ namespaces:
         title: GitLab
     - plantuml:
           title: PlantUML сервер
+    - web:
+          title: WEB-ресурсы

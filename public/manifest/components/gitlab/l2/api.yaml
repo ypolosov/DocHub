@@ -2,11 +2,7 @@ title: GitLab\nAPI
 entity: component
 technologies:
   - GitLab
-presentations:
-  - contexts:
-      - dochub.c4level2
-      - dochub.manifest_build
-    links:
-      - id: gitlab.repository
-        direction: <--
-        title: Файлы манифестов, документы
+links:
+  - id: gitlab.repository
+    direction: <--
+    title: Файлы манифестов, документы

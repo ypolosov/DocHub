@@ -6,28 +6,28 @@ technologies:
   - Chrome
   - Firefox
   - Safari
-presentations:
-  - contexts:
-      - dochub.c4level2
-    links:
-      - id: dochub.browser
-        title: Кэш манифестов, cookies
-        direction: <-->
-      - id: dochub.user
-        title: Просмотр
-        direction: -->
-      - id: gitlab.api
-        direction: <--
-        title: Манифесты, документы
-      - id: gitlab.oauth
-        direction: -->
-        title: Авторизация GitLab
-      - id: gitlab.oauth
-        direction: <--
-        title: Токен авторизации
-      - id: plantuml.server
-        direction: ->
-        title: PlantUML
-      - id: plantuml.server
-        direction: <-
-        title: SVG
+links:
+  - id: dochub.browser
+    title: Кэш манифестов, cookies
+    direction: <-->
+  - id: dochub.user
+    title: Просмотр
+    direction: -->
+  - id: gitlab.api
+    direction: <--
+    title: Манифесты, документы
+  - id: gitlab.oauth
+    direction: -->
+    title: Авторизация GitLab
+  - id: gitlab.oauth
+    direction: <--
+    title: Токен авторизации
+  - id: web.web
+    direction: <---
+    title: Манифесты, документы
+  - id: plantuml.server
+    direction: ->
+    title: PlantUML
+  - id: plantuml.server
+    direction: <-
+    title: SVG

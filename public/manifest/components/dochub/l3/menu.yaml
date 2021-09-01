@@ -3,13 +3,10 @@ entity: component
 technologies:
   - JavaScript
   - VUE2
-presentations:
-  - contexts:
-      - dochub.c4level3
-    links:
-      - id: dochub.vuetifyjs
-        title: Представление
-        direction: -->
-      - id: dochub.jsonata
-        title: Меню
-        direction: <--
+links:
+  - id: dochub.router
+    title: Представление
+    direction: -->
+  - id: dochub.jsonata
+    title: Меню
+    direction: <--

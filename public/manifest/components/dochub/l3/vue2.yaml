@@ -3,9 +3,6 @@ entity: component
 technologies:
   - JavaScript
   - VUE2
-presentations:
-  - contexts:
-      - dochub.c4level3
-    links:
-      - id: dochub.user
-        direction: ->
+links:
+  - id: dochub.user
+    direction: ->

@@ -8,8 +8,8 @@ skinparam {
 	roundCorner 10
 	'linetype ortho
 	'linetype polyline
-	nodesep 50
-	ranksep 50
+	nodesep 70
+	ranksep 70
 	shadowing false
 	padding 2
 }

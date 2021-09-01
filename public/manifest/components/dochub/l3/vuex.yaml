@@ -4,7 +4,3 @@ technologies:
   - JavaScript
   - VUE2
   - VUEX
-presentations:
-  - contexts:
-      - dochub.c4level3
-      - dochub.manifest_build

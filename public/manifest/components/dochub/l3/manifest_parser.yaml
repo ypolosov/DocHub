@@ -3,14 +3,14 @@ entity: component
 technologies:
   - JavaScript
   - VUE2
-presentations:
-  - contexts:
-      - dochub.c4level3
-      - dochub.manifest_build
-    links:
-      - id: dochub.vuex
-        title: Комплексный манифест
-        direction: -->
-      - id: dochub.axios
-        title: Манифесты
-        direction: <--
+  - Axios
+links:
+  - id: dochub.vuex
+    title: Комплексный манифест
+    direction: -->
+  - id: gitlab.api
+    title: Манифесты
+    direction: <--
+  - id: web.web
+    title: Манифесты
+    direction: <-l-

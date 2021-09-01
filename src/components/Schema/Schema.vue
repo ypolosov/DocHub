@@ -104,6 +104,10 @@ export default {
     }
   },
   computed: {
+    extraLinks() {
+      return !('extra' in this.schema) || (this.schema.extra !== false);
+    },
+
     structure() {
       // Структура схемы
       const structure = {
@@ -112,20 +116,20 @@ export default {
       };
 
       // Размещает компонент в структуре схемы
-      const expandComponent = (component, override) => {
+      const expandComponent = (component, extra) => {
         const namespace = component.namespace;
         const namespaces = structure.namespaces;
         !namespaces[namespace.id] && (namespaces[namespace.id] = Object.assign(namespace, {components: {}}));
-        if (override || !namespaces[namespace.id].components[component.id])
-          namespaces[namespace.id].components[component.id] = component;
+        if (!extra || !namespaces[namespace.id].components[component.id])
+          namespaces[namespace.id].components[component.id] = Object.assign({extra}, component);
       }
 
       (this.schema.components || []).map((component) => {
         // Разбираем компонент
-        expandComponent(component, true);
+        expandComponent(component, false);
         // Разбираем зависимости компонента
         (component.links || []).map((link) => {
-          expandComponent(link, false);
+          expandComponent(link, true);
           structure.links[`[${component.id}] ${link.direction} [${link.id}]`] =
               Object.assign(link, { linkFrom: component.id, linkTo: link.id});
         });
@@ -137,6 +141,13 @@ export default {
       let uml = `@startuml\n${DSL}\n`;
       this.orientation === 'horizontal' && (uml += 'left to right direction\n');
       if(this.schema) {
+        if (this.schema.uml) {
+          if (typeof this.schema.uml === 'string') {
+            return this.schema.uml;
+          } else if (this.schema.uml.before) {
+            uml += this.schema.uml.before + '\n';
+          }
+        }
         uml += `title  "${this.makeRef('context', this.schema.id, this.schema.title)}"\n`;
         // Готовим структуру схемы для рендеринга
         const structure = this.structure;
@@ -147,6 +158,8 @@ export default {
           // Формируем компоненты
           for (const componentID in namespace.components) {
             const component = namespace.components[componentID];
+            if (!this.extraLinks && component.extra)
+              continue;
             const title = this.makeRef('component', component.id, component.title);
             if (component.aspects && component.aspects.length) {
               uml += `${component.entity} ${component.id}`;
@@ -166,16 +179,14 @@ export default {
         }
         // Строим связи
         for (const linkId in structure.links) {
-          uml += `${linkId}: "                               "\n`
-          /*
           const link = structure.links[linkId];
-          const contract = link.contract;
-          const title = link.link_title || (contract
-              ? this.makeRef('contract', contract.id, contract.location.split('/').pop())
-              : '');
-          uml += `${linkId}: "${title}"\n`
-          */
+          if (this.extraLinks || (
+              structure.namespaces[link.namespace.id]
+              && structure.namespaces[link.namespace.id].components[link.id]
+              && !structure.namespaces[link.namespace.id].components[link.id].extra
+          )) uml += `${linkId}: "                               "\n`
         }
+        this.schema.uml && this.schema.uml.after && (uml += this.schema.uml.after + '\n');
       }
       uml += '@enduml';
       // eslint-disable-next-line no-console
@@ -196,6 +207,7 @@ export default {
   },
   data() {
     return {
+      rawUML: null
     };
   }
 };

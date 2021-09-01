@@ -2,24 +2,30 @@ const SCHEMA_QUERY = `
 (
     $MANIFEST := $;
     $CONTEXT_ID := '{%CONTEXT_ID%}';
+    $LOCATION := '{%LOCATION%}';
     $CONTEXT := $CONTEXT_ID = 'self' ? {"title": "Собственный"} : $lookup($MANIFEST.contexts, $CONTEXT_ID);
     {
         "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
         "id": $CONTEXT_ID,
+        "uml": $CONTEXT.uml,
+        "extra": $CONTEXT."extra-links",
         "components": [components.$spread().(
+            $COMPONENT_ID := $keys()[0];
             $NAMESPACE_ID := $split($keys()[0], ".")[0];
             $NAMESPACE := $lookup($MANIFEST.namespaces, $NAMESPACE_ID);
             {
                 "order": $NAMESPACE_ID & ":" & $keys()[0],
-                "id": $keys()[0],
+                "id": $COMPONENT_ID,
                 "title": $.*.title,
                 "entity": $.*.entity,
                 "namespace": {
                         "id": $NAMESPACE_ID,
                         "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $NAMESPACE_ID
                 },
-                "contexts": $distinct($.*.presentations.contexts),
-                "links": [$distinct($.*.presentations.links).(
+                "contexts": $distinct(
+                    $MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].$keys()[0]
+                ),
+                "links": [$distinct($.*.links).(
                     $COMPONENT := $lookup($MANIFEST.components, $.id);
                     $NAMESPACE_ID := $split($.id, ".")[0];
                     $NAMESPACE := $lookup($MANIFEST.namespaces, $NAMESPACE_ID);

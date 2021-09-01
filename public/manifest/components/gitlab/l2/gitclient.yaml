@@ -1,0 +1,11 @@
+title: git client
+entity: component
+technologies:
+  - Git
+links:
+  - id: dochub.user
+    direction: <-
+    title: Развитие
+  - id: gitlab.api
+    direction: <-l->
+    title: Развитие

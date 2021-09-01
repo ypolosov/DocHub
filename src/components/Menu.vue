@@ -125,7 +125,7 @@ export default {
   },
   watch: {
     $route (to) {
-      this.currentRoute = to.fullPath;
+      this.currentRoute = to.path;
     }
   },
   data() {

@@ -1,8 +1,8 @@
 @startuml
 title Диаграмма взаимодействия DocHub
-actor "[[/architect/components/dochub$user Пользователь]]" as user
-participant "[[/architect/components/dochub$front DocHub]]" as DocHub
-participant "[[/architect/components/gitlab$api GitLab]]" as GitLab
+actor "[[/architect/components/dochub.user Пользователь]]" as user
+participant "[[/architect/components/dochub.front DocHub]]" as DocHub
+participant "[[/architect/components/gitlab.api GitLab]]" as GitLab
 group Авторизация
     user -> DocHub: Вход
     DocHub -> DocHub: Авторизован?
@@ -12,7 +12,7 @@ group Авторизация
 end
 group Загрузка манифестов
     DocHub -> GitLab: Запрос корневого манифеста
-    database "[[/architect/components/gitlab$repository Репозиторий]]" as repo
+    database "[[/architect/components/gitlab.repository Репозиторий]]" as repo
     GitLab <- repo: Корневой манифест
     GitLab -> DocHub: Корневой манифест
     DocHub -> DocHub: Обработка манифеста

@@ -11,7 +11,8 @@ import VueCookie from 'vue-cookie';
 
 import gitlab from './storage/gitlab';
 import DocHubDoc from "./components/Docs/DocHubDoc";
-import Context from "./components/Architecture/DocHubContext";
+import Context from "./components/Architecture/Context";
+import Anchor from "./components/Tools/Anchor";
 
 window.Vue = Vue;
 
@@ -28,6 +29,7 @@ store.dispatch('init');
 
 Vue.component('dochub-doc', DocHubDoc);
 Vue.component('dochub-context', Context);
+Vue.component('dochub-anchor', Anchor);
 
 new Vue(Object.assign({
     el: '#app',

@@ -8,7 +8,7 @@ import config from '../../config'
 import consts from '../consts'
 import Component from "../components/Architecture/Component";
 import Aspect from "../components/Architecture/Aspect";
-import Context from "../components/Architecture/DocHubContext";
+import Context from "../components/Architecture/Context";
 import Radar from "../components/Techradar/Main";
 import Technology from "../components/Techradar/Technology";
 import Problems from "../components/Problems/Problems";

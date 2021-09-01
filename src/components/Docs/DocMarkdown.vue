@@ -1,5 +1,6 @@
 <template>
   <div class="space">
+    <dochub-anchor id=""></dochub-anchor>
     <div class="toc" v-html="toc"></div>
     <markdown
         v-if="this.markdown"
@@ -44,6 +45,9 @@ export default {
   },
   methods: {
     onClickRef(event) {
+      const href = event.currentTarget.href;
+      if (href.substr(0, 1) === '#')
+        return true;
       const url = new URL(event.currentTarget.href, window.location);
       this.$router.push({ path: url.pathname});
       return false;
@@ -52,7 +56,11 @@ export default {
       if (this.outHTML !== outHtml) {
         this.outHTML = outHtml;
         this.showDocument = false;
-        this.$nextTick(() => this.showDocument = true);
+        this.$nextTick(() => {
+          this.showDocument = true;
+          window.location.hash && setTimeout(() => window.location.href = window.location.hash, 50);
+        });
+        this.markdown = null;
       }
       /*
       const refs = this.$el.querySelectorAll('[href]');

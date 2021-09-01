@@ -1,12 +1,12 @@
 # Манифест описывающий сам DocHub
 components:  # Архитектурные компоненты
     dochub.front: components/dochub/l1/front.yaml  # Файл описания компонента
+    web.web: components/dochub/l1/web.yaml
     dochub.user: components/dochub/user.yaml
     dochub.browser: components/dochub/l2/browser.yaml
     dochub.browser_localstorage: components/dochub/l2/browser_localstorage.yaml
     dochub.spa: components/dochub/l2/spa.yaml
     dochub.vue2: components/dochub/l3/vue2.yaml
-    dochub.vuetifyjs: components/dochub/l3/vuetifyjs.yaml
     dochub.router: components/dochub/l3/router.yaml
     dochub.vuex: components/dochub/l3/vuex.yaml
     dochub.menu: components/dochub/l3/menu.yaml
@@ -19,8 +19,8 @@ components:  # Архитектурные компоненты
     dochub.swagger: components/dochub/l3/swagger.yaml
     dochub.blank_component: components/dochub/l3/blank_component.yaml
     dochub.blank_doc: components/dochub/l3/blank_doc.yaml
-    dochub.axios: components/dochub/l3/axios.yaml
     dochub.oauth: components/dochub/l3/oauth.yaml
+    gitlab.gitclient: components/gitlab/l2/gitclient.yaml
     gitlab.gitlab: components/gitlab/l1/gitlab.yaml
     gitlab.oauth: components/gitlab/l2/oauth.yaml
     gitlab.api: components/gitlab/l2/api.yaml

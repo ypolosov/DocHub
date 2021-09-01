@@ -1,6 +1,4 @@
 title: GitLab\nАторизация
 entity: component
-contexts:
-  - dochub.c4level2
 technologies:
   - GitLab

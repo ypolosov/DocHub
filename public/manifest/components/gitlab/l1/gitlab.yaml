@@ -2,10 +2,7 @@ title: GitLab
 entity: rectangle
 technologies:
   - GitLab
-presentations:
-  - contexts:
-      - dochub.c4level1
-    links:
-      - id: dochub.user
-        direction: '<-->'
-        title: Развитие архитектуры
+links:
+  - id: dochub.user
+    direction: '<--'
+    title: Развитие архитектуры
