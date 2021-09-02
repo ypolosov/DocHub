@@ -63,20 +63,12 @@ export default {
           .evaluate(this.$store.state.sources) || [];
     },
     schema () {
-      if (this.currentContext === 0) {
-        return jsonata(query.aspect(this.aspect))
-            .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
-      } else {
-        return jsonata(query.context(this.contexts[this.currentContext].id))
-            .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
-      }
+      return jsonata(query.context(this.contexts[this.currentContext].id))
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
     },
     contexts() {
-      return [{
-        id: 'self',
-        title: 'SELF'
-      }].concat(jsonata(query.contextsForAspects(this.aspect))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
+      return jsonata(query.contextsForAspects(this.aspect))
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [];
     },
     summary() {
       return (jsonata(query.summaryForAspect(this.aspect))

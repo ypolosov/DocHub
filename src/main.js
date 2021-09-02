@@ -13,6 +13,7 @@ import gitlab from './storage/gitlab';
 import DocHubDoc from "./components/Docs/DocHubDoc";
 import Context from "./components/Architecture/Context";
 import Anchor from "./components/Tools/Anchor";
+import Aspect from "./components/Architecture/Aspect";
 
 window.Vue = Vue;
 
@@ -29,6 +30,7 @@ store.dispatch('init');
 
 Vue.component('dochub-doc', DocHubDoc);
 Vue.component('dochub-context', Context);
+Vue.component('dochub-aspect', Aspect);
 Vue.component('dochub-anchor', Anchor);
 
 new Vue(Object.assign({

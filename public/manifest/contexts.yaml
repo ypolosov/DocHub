@@ -25,7 +25,7 @@ contexts:   # Контексты представления архитектур
         title: Компонентная архитектура DocHub
         location: DocHub/Компонентная архитектура
         uml:
-            before: >
+            $before: >
                 skinparam {
                     'linetype ortho
                     nodesep  50
@@ -62,8 +62,8 @@ contexts:   # Контексты представления архитектур
         title: Парсинг манифестов
         location: DocHub/Компонентная архитектура/Парсинг манифестов
         extra-links: false # Указывает, что не нужно отображать компоненты явно не указанные в контексте
-        uml: # Позволяет осуществить вставку PlantUML кода. before - до, ofter - после схемы
-            before: >
+        uml: # Позволяет осуществить вставку PlantUML кода. $before - до, $ofter - после схемы
+            $before: >
                 skinparam {
                     nodesep  100
                     ranksep  100
@@ -87,5 +87,6 @@ contexts:   # Контексты представления архитектур
             - gitlab.repository
     dochub.sequence:
         title: Диаграмма взаимодействия DocHub
+        icon: settings_ethernet
         location: DocHub/Диаграмма взаимодействия
         uml: ../docs/sequence.puml

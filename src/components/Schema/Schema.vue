@@ -144,8 +144,8 @@ export default {
         if (this.schema.uml) {
           if (typeof this.schema.uml === 'string') {
             return this.schema.uml;
-          } else if (this.schema.uml.before) {
-            uml += this.schema.uml.before + '\n';
+          } else if (this.schema.uml.$before) {
+            uml += this.schema.uml.$before + '\n';
           }
         }
         uml += `title  "${this.makeRef('context', this.schema.id, this.schema.title)}"\n`;
@@ -186,7 +186,7 @@ export default {
               && !structure.namespaces[link.namespace.id].components[link.id].extra
           )) uml += `${linkId}: "                               "\n`
         }
-        this.schema.uml && this.schema.uml.after && (uml += this.schema.uml.after + '\n');
+        this.schema.uml && this.schema.uml.$after && (uml += this.schema.uml.$after + '\n');
       }
       uml += '@enduml';
       // eslint-disable-next-line no-console

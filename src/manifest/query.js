@@ -234,19 +234,20 @@ const ASPECT_LOCATIONS_QUERY = `
 const CONTEXTS_QUERY_FOR_ASPECT = `
 (
     $MANIFEST := $;
+    [$distinct(
     components.$spread().(
         $COMPONENT_ID := $keys()[0];
         $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
         $COMPONENT['{%ASPECT%}' in aspects] ? 
         (
-            $COMPONENT.*.contexts.(
-                $CONTEXT := $lookup($MANIFEST.contexts, $);
+            [$MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].(
                 {
-                "id": $,
-                "title": $CONTEXT.title ? $CONTEXT.title : $
-            })
+                    "id": $keys()[0],
+                    "title": *.title
+                }
+            )];
         ) : undefined
-    )
+    ))];
 )
 `;
 

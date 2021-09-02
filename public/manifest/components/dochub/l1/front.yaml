@@ -6,6 +6,14 @@ technologies:       # Используемые технологии
   - Chrome
   - Firefox
   - Safari
+aspects:            # Аспекты, которе реализует компонент
+  - gitlab.auth
+  - manifest.parsing
+  - dochub.contexts
+  - dochub.aspects
+  - dochub.docs
+  - dochub.radar
+  - dochub.navigation
 links: # Зависимость компонента от других компонентов
   - id: gitlab.gitlab # Идентификатор компонента
     direction: '<--'

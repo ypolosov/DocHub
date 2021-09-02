@@ -1,2 +1,4 @@
 title: Репозиторий
 entity: database
+aspects:
+  - manifest.storage

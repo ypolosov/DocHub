@@ -1,5 +1,7 @@
 title: LocalStorage
 entity: database
+aspects:
+  - dochub.cache
 technologies:
   - Chrome
   - Firefox

@@ -1,18 +1,17 @@
 docs:       # Документы
     dochub_conception: # Идентификатор документа
         icon: lightbulb_outline     # Иконка, которы будет отображаться в дереве навигации
-        location: DocHub/Концепция  # Размещение документа в дереве навигации
-        description: Концепция управления архитектурой  # Краткое описание сути документа
+        location: DocHub/Руководство  # Размещение документа в дереве навигации
+        description: Пользовательское руководство DocHub  # Краткое описание сути документа
         type: markdown              # Тип документа (OpenAPI / markdown / PlantUML)
         subjects:                   # К какой сущности документ имеет отношения
             - dochub.front          # Идентификатор сущности
         source: ../docs/archops.md  # Путь к документу (относительный)
-    dochub_sequence:
-      icon: settings_ethernet
-      location: DocHub/Взаимодействие
-      description: Диаграмма взаимодействия
-      type: PlantUML
+    config:
+      icon: settings
+      location: DocHub/Конфригурирование
+      description: Конфигурирование DocHub
+      type: markdown
       subjects:
         - dochub.front
-        - gitlab.api
-      source: ../docs/sequence.puml
+      source: ../docs/config.md

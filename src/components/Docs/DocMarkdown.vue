@@ -5,7 +5,8 @@
     <markdown
         v-if="this.markdown"
         style="padding: 12px"
-        toc :breaks="false"
+        toc
+        :breaks="false"
         :html="true"
         v-show="false"
         v-on:toc-rendered="tocRendered"
@@ -14,6 +15,15 @@
       {{this.markdown}}
     </markdown>
     <final-markdown v-if="showDocument && outHTML" :template="outHTML"></final-markdown>
+    <v-progress-circular
+        :size="64"
+        :width="7"
+        style="left: 50%; top: 50%; position: absolute; margin-left: -32px; margin-top: -32px;"
+        v-else
+        :value="60"
+        color="primary"
+        indeterminate
+    ></v-progress-circular>
   </div>
 </template>
 
@@ -36,7 +46,7 @@ export default {
         template: String
       },
       created () {
-        this.$options.template = `<div>${this.template}</div>`;
+        this.$options.template = `<div class="markdown-document">${this.template}</div>`;
       }
     }
   },
@@ -78,14 +88,19 @@ export default {
         this.markdown = '';
         return;
       }
-      requests.request(this.url).then((response) => {
-        this.markdown = response.data.toString();
-      })
-      // eslint-disable-next-line no-console
-      .catch((e) => {
+      this.outHTML = '';
+      this.showDocument = false;
+      this.toc = '';
+      setTimeout(() => {
+        requests.request(this.url).then((response) => {
+          this.markdown = response.data.toString();
+        })
         // eslint-disable-next-line no-console
-        console.error(e, `Ошибка запроса [${this.url}]`, e);
-      });
+        .catch((e) => {
+          // eslint-disable-next-line no-console
+          console.error(e, `Ошибка запроса [${this.url}]`, e);
+        });
+      }, 50);
     }
   },
   watch: {
@@ -127,6 +142,8 @@ export default {
 
 .space {
   padding: 24px;
+  position: relative;
+  min-height: 100vh;
 }
 
 .toc {
@@ -180,6 +197,22 @@ code[class*="language-"]::before, pre[class*="language-"]::before,
 code[class*="language-"]::after, pre[class*="language-"]::after
 {
   content: none !important;
+}
+
+.markdown-document table {
+  border: solid #ccc 1px;
+}
+
+.markdown-document table td {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.markdown-document table thead th {
+  background: rgb(52, 149, 219);
+  color: #fff;
+  height: 40px;
+  padding: 0;
 }
 
 </style>

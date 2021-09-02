@@ -6,6 +6,14 @@ technologies:
   - Chrome
   - Firefox
   - Safari
+aspects:
+  - gitlab.auth
+  - manifest.parsing
+  - dochub.contexts
+  - dochub.aspects
+  - dochub.docs
+  - dochub.navigation
+  - dochub.radar
 links:
   - id: dochub.browser
     title: Кэш манифестов, cookies

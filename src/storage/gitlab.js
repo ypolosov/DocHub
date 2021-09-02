@@ -6,6 +6,7 @@ import Vue from 'vue';
 import query from "../manifest/query";
 import jsonata from "jsonata";
 import manifest_parser from "../manifest/manifest_parser";
+import requests from "../helpers/requests";
 
 const axios = require('axios');
 
@@ -151,7 +152,7 @@ export default {
 
         // Reload root manifest
         reloadRootManifest() {
-            parser.import(`gitlab:${config.root_manifest.project_id}:${config.root_manifest.branch}@dochub.json`);
+            parser.import(requests.makeURIByBaseURI(config.root_manifest, window.origin + '/'));
         },
 
         // Регистрация проблемы

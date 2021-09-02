@@ -1,28 +1,27 @@
+const config = {};
 
-if(!process.env.VUE_APP_DOCHUB_GITLAB_URL)
-    throw 'Not specified the URL of the GitLab (VUE_APP_DOCHUB_GITLAB_URL)';
+if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
+    // eslint-disable-next-line no-console
+    console.warn('Not specified the URL of the GitLab (VUE_APP_DOCHUB_GITLAB_URL)');
+    config.oauth = false;
+} else {
+    if(!process.env.VUE_APP_DOCHUB_CLIENT_SECRET)
+        throw 'Not specified the application secret at GitLab (VUE_APP_DOCHUB_CLIENT_SECRET)';
 
-if(!process.env.VUE_APP_DOCHUB_MANIFEST_PROJECT_ID)
-    throw 'Not specified the root project ID (VUE_APP_DOCHUB_MANIFEST_PROJECT_ID)';
+    if(!process.env.VUE_APP_DOCHUB_ROOT_MANIFEST)
+        throw 'Not specified the URL of the root manifest (VUE_APP_DOCHUB_ROOT_MANIFEST)';
 
-if(!process.env.VUE_APP_DOCHUB_MANIFEST_PROJECT_BRANCH)
-    throw 'Not specified the branch of root project (VUE_APP_DOCHUB_MANIFEST_PROJECT_BRANCH)';
-
-if(!process.env.VUE_APP_DOCHUB_APP_ID)
-    throw 'Not specified the application ID at GitLab (VUE_APP_DOCHUB_APP_ID)';
-
-if(!process.env.VUE_APP_DOCHUB_CLIENT_SECRET)
-    throw 'Not specified the application secret at GitLab (VUE_APP_DOCHUB_CLIENT_SECRET)';
-
-export default {
-    "gitlab_server": process.env.VUE_APP_DOCHUB_GITLAB_URL,
-    "root_manifest" : {
-        "project_id": process.env.VUE_APP_DOCHUB_MANIFEST_PROJECT_ID,
-        "branch": process.env.VUE_APP_DOCHUB_MANIFEST_PROJECT_BRANCH
-    },
-    "oauth" : {
+    config.gitlab_server = process.env.VUE_APP_DOCHUB_GITLAB_URL;
+    config.oauth = {
         "APP_ID": process.env.VUE_APP_DOCHUB_APP_ID,
         "CLIENT_SECRET": process.env.VUE_APP_DOCHUB_CLIENT_SECRET,
         "REQUESTED_SCOPES": "read_repository+api"
     }
 }
+
+if(!process.env.VUE_APP_DOCHUB_APP_ID)
+    throw 'Not specified the application ID at GitLab (VUE_APP_DOCHUB_APP_ID)';
+
+config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST;
+
+export default config;

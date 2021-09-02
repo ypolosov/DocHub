@@ -2,6 +2,8 @@ title: git client
 entity: component
 technologies:
   - Git
+aspects:
+  - git.client
 links:
   - id: dochub.user
     direction: <-
