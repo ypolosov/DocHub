@@ -178,6 +178,7 @@ export default {
         this.touchProjects(uri, () => false);
         requests.request(uri).then((response) => {
             const manifest = typeof response.data === 'object' ? response.data : JSON.parse(response.data);
+            if (!manifest) return;
 
             // Определяем режим манифеста
             // eslint-disable-next-line no-unused-vars

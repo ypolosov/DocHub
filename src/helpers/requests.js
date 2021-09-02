@@ -7,7 +7,7 @@ import YAML from 'yaml'
 // Add a request interceptor
 
 axios.interceptors.request.use(function (params) {
-    if ((new URL(params.url)).host === (new URL(config.gitlab_server)).host) {
+    if (config.gitlab_server && ((new URL(params.url)).host === (new URL(config.gitlab_server)).host)) {
         if (!params.headers) params.headers = {};
         // eslint-disable-next-line no-undef
         params.headers['Authorization'] = `Bearer ${Vuex.state.access_token}`;

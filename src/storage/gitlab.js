@@ -81,7 +81,7 @@ export default {
             parser.onError = (action, data) => {
                 context.commit('appendProblems', [{
                     problem: "Сетевые ошибки",
-                    route: data.error.config.url,
+                    route: (data.error.config || {url: data.uri}).url,
                     target: "_blank",
                     title: `${data.uri} [${data.error}]`
                 }]);
