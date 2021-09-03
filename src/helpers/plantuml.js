@@ -33,6 +33,6 @@ export default {
         // eslint-disable-next-line no-undef
         let compressor = new Zopfli.RawDeflate(arr);
         let compressed = compressor.compress();
-        return "http://www.plantuml.com/plantuml/svg/" + this.encode64_(compressed);
+        return `${window.location.protocol}//www.plantuml.com/plantuml/svg/` + this.encode64_(compressed);
     }
 };

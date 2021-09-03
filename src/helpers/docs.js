@@ -10,7 +10,7 @@ export default {
         } else if (transport === 'http') {
             result = profile.source;
         } else {
-            const source = requests.makeURL(profile.source, baseURI);
+            const source = requests.makeURL(profile.source, baseURI || (window.origin + '/'));
             result = source.url;
         }
         return result ? result.toString() : '';

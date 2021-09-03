@@ -1,7 +1,7 @@
 <template>
   <div class="space">
     <dochub-anchor id=""></dochub-anchor>
-    <div class="toc" v-html="toc"></div>
+    <div v-if="toc" class="toc" v-html="toc"></div>
     <markdown
         v-if="this.markdown"
         style="padding: 12px"
@@ -62,6 +62,7 @@ export default {
       this.$router.push({ path: url.pathname});
       return false;
     },
+    // eslint-disable-next-line no-unused-vars
     rendered(outHtml) {
       if (this.outHTML !== outHtml) {
         this.outHTML = outHtml;
@@ -72,15 +73,10 @@ export default {
         });
         this.markdown = null;
       }
-      /*
-      const refs = this.$el.querySelectorAll('[href]');
-      for (let i = 0; i < refs.length; i++) {
-        const ref = refs[i];
-        ref.onclick = this.onClickRef;
-      }
-      */
     },
     tocRendered (tocHTML) {
+      // eslint-disable-next-line no-debugger
+      debugger;
       this.toc = tocHTML;
     },
     refresh() {
@@ -213,6 +209,23 @@ code[class*="language-"]::after, pre[class*="language-"]::after
   color: #fff;
   height: 40px;
   padding: 0;
+}
+
+.markdown-document h1,
+.markdown-document h2,
+.markdown-document h3,
+.markdown-document h4,
+.markdown-document h5 {
+  margin-top: 36px;
+  margin-bottom: 18px;
+}
+
+.markdown-document h1:first-child {
+  margin-top: 12px;
+}
+
+.markdown-document ul {
+  margin-bottom: 18px;
 }
 
 </style>

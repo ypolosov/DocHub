@@ -1,14 +1,8 @@
 <template>
-  <v-container
-      fluid
-      class="grey lighten-4 fill-height"
-  >
     <div
-        style="width: 100%; min-height: 100vh"
-        id="swagger"
+        :id="id"
         v-if="this.url"
     ></div>
-  </v-container>
 </template>
 
 <script>
@@ -26,11 +20,11 @@ export default {
     swaggerRender() {
       if (this.url) {
         SwaggerUI({
-          dom_id: '#swagger',
+          dom_id: `#${this.id}`,
           url: this.url,
-          deepLinking: true,
+          // deepLinking: true,
           requestInterceptor: (request) => {
-            if ((new URL(request.url)).host === (new URL(config.gitlab_server)).host) {
+            if (config.gitlab_server && ((new URL(request.url)).host === (new URL(config.gitlab_server)).host)) {
               request.headers['Authorization'] = `Bearer ${this.$store.state.access_token}`;
             }
           }
@@ -46,14 +40,20 @@ export default {
       // eslint-disable-next-line vue/no-async-in-computed-properties
       setTimeout(() => this.swaggerRender(), 50);
       const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
-      return profile ? docs.urlFromProfile(profile) : '';
+      return profile ?
+          docs.urlFromProfile(profile,
+              (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
+          )
+          : '';
     }
   },
   props: {
     document: String
   },
   data() {
-    return {};
+    return {
+      id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`
+    };
   }
 };
 </script>

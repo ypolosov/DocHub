@@ -14,6 +14,9 @@ import DocHubDoc from "./components/Docs/DocHubDoc";
 import Context from "./components/Architecture/Context";
 import Anchor from "./components/Tools/Anchor";
 import Aspect from "./components/Architecture/Aspect";
+import Component from "./components/Architecture/Component";
+import Technology from "./components/Techradar/Technology";
+import Radar from "./components/Techradar/Main";
 
 window.Vue = Vue;
 
@@ -30,8 +33,11 @@ store.dispatch('init');
 
 Vue.component('dochub-doc', DocHubDoc);
 Vue.component('dochub-context', Context);
+Vue.component('dochub-component', Component);
 Vue.component('dochub-aspect', Aspect);
 Vue.component('dochub-anchor', Anchor);
+Vue.component('dochub-technology', Technology);
+Vue.component('dochub-radar', Radar);
 
 new Vue(Object.assign({
     el: '#app',

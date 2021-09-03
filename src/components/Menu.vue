@@ -12,9 +12,6 @@
               <template v-else>chevron_right</template>
             </v-icon>
           </v-list-item-action>
-          <v-list-item-action v-if="item.icon">
-            <v-icon>{{item.icon}}</v-icon>
-          </v-list-item-action>
           <v-subheader
               v-if="item.route === '/problems'"
               class="menu-item-header error--text"
@@ -29,6 +26,9 @@
           >
             {{ item.title }}
           </v-subheader>
+          <v-list-item-action class="menu-item-action menu-item-ico" v-if="item.icon">
+            <v-icon>{{item.icon}}</v-icon>
+          </v-list-item-action>
         </v-list-item>
       </template>
     </v-list>
@@ -144,6 +144,8 @@ export default {
 <style scoped>
   .menu-item {
     min-height: 20px !important;
+    margin-top: 2px;
+    margin-bottom: 2px;
   }
 
   .menu-item-action {
@@ -151,8 +153,14 @@ export default {
     margin: 2px !important;
   }
 
+  .menu-item-ico {
+    position: absolute;
+    right: 4px;
+  }
+
   .menu-item-header {
     line-height: 14px;
+    height: 32px !important;
     cursor: pointer;
   }
 

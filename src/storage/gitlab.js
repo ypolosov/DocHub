@@ -64,8 +64,8 @@ export default {
             const access_token = cookie.get('git_access_token');
             if (access_token) {
                 context.commit('setAccessToken', access_token);
-                context.dispatch('reloadAll');
             }
+            context.dispatch('reloadAll');
             let diff_format = cookie.get('diff_format');
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
             parser.onReloaded = (parser) => {
