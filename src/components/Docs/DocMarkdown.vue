@@ -65,7 +65,7 @@ export default {
     // eslint-disable-next-line no-unused-vars
     rendered(outHtml) {
       if (this.outHTML !== outHtml) {
-        this.outHTML = outHtml;
+        this.outHTML = outHtml.replaceAll('<img ', '<dochub-object ');
         this.showDocument = false;
         this.$nextTick(() => {
           this.showDocument = true;
