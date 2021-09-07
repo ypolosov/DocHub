@@ -17,6 +17,7 @@ import Aspect from "./components/Architecture/Aspect";
 import Component from "./components/Architecture/Component";
 import Technology from "./components/Techradar/Technology";
 import Radar from "./components/Techradar/Main";
+import PlantUML from "./components/Schema/PlantUML";
 
 window.Vue = Vue;
 
@@ -38,6 +39,7 @@ Vue.component('dochub-aspect', Aspect);
 Vue.component('dochub-anchor', Anchor);
 Vue.component('dochub-technology', Technology);
 Vue.component('dochub-radar', Radar);
+Vue.component('dochub-plantuml', PlantUML);
 
 new Vue(Object.assign({
     el: '#app',
