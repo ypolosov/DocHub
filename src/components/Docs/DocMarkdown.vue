@@ -218,13 +218,16 @@ code[class*="language-"]::after, pre[class*="language-"]::after
 .markdown-document h5 {
   margin-top: 36px;
   margin-bottom: 18px;
+  clear:both;
 }
 
 .markdown-document h1:first-child {
   margin-top: 12px;
 }
 
-.markdown-document ul {
+.markdown-document ul,
+.markdown-document ol
+{
   margin-bottom: 18px;
 }
 
