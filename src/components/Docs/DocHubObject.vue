@@ -6,6 +6,7 @@
     <dochub-component v-if="isComponent" :component="srcStruct.subject" :alt="alt"></dochub-component>
     <dochub-technology v-if="isTechnology" :technology="srcStruct.subject" :alt="alt"></dochub-technology>
     <dochub-radar v-if="isRadar" :section="srcStruct.subject" :alt="alt"></dochub-radar>
+    <dochub-anchor v-if="isAnchor" :id="srcStruct.subject" :name="srcStruct.subject"></dochub-anchor>
     <img v-if="isImage" :src="srcStruct.subject" :alt="alt"/>
   </div>
 </template>
@@ -32,6 +33,9 @@ export default {
     },
     isRadar() {
       return this.srcStruct.type.toLowerCase() === 'radar';
+    },
+    isAnchor () {
+      return this.srcStruct.type.toLowerCase() === 'anchor';
     },
     isImage() {
       return this.srcStruct.type.toLowerCase() === 'image';
