@@ -7,7 +7,7 @@
         style="padding: 12px"
         toc
         :breaks="false"
-        :html="true"
+        :html="false"
         v-show="false"
         v-on:toc-rendered="tocRendered"
         v-on:rendered="rendered"

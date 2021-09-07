@@ -29,9 +29,6 @@ if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
     }
 }
 
-if(!process.env.VUE_APP_DOCHUB_ROOT_MANIFEST)
-    throw 'Not specified the URL of the root manifest (VUE_APP_DOCHUB_ROOT_MANIFEST)';
-
-config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST;
+config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
 
 export default config;
