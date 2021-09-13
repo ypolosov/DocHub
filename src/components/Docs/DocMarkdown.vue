@@ -75,8 +75,6 @@ export default {
       }
     },
     tocRendered (tocHTML) {
-      // eslint-disable-next-line no-debugger
-      debugger;
       this.toc = tocHTML;
     },
     refresh() {

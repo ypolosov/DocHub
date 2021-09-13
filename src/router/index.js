@@ -35,6 +35,8 @@ export default new Router({
                         + '&' + Math.floor(Math.random() * 10000)
                         , config.gitlab_server
                     );
+                } else {
+                    window.location = new URL('/main', window.origin)
                 }
             }
         },
