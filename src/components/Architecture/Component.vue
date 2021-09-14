@@ -1,10 +1,10 @@
 <template>
-  <v-container fluid class="lighten-4">
-    <v-row dense>
-      <v-col cols="4">
-        <v-row dense>
-          <v-col cols="12">
-            <v-card>
+  <v-container grid-list-xl fluid>
+    <v-layout wrap>
+      <v-flex xs12 md4 d-flex style="min-width: 480px">
+        <v-layout wrap>
+          <v-container grid-list-xl fluid>
+            <v-card class="card-item" xs12 md12>
               <v-card-title>
                 <v-icon left>settings</v-icon>
                 <span class="title">Сводка</span>
@@ -20,11 +20,7 @@
                 </v-list>
               </v-card-text>
             </v-card>
-          </v-col>
-        </v-row>
-        <v-row dense>
-          <v-col cols="12">
-            <v-card>
+            <v-card class="card-item" xs12 md12 style="margin-top: 12px">
               <v-card-title>
                 <v-icon left>description</v-icon>
                 <span class="title">Документы</span>
@@ -33,11 +29,11 @@
                 <docs-tree :entity="component"></docs-tree>
               </v-card-text>
             </v-card>
-          </v-col>
-        </v-row>
-      </v-col>
-      <v-col cols="8">
-        <v-card v-if="contexts.length">
+          </v-container>
+        </v-layout>
+      </v-flex>
+      <v-flex xs12 md8 d-flex>
+        <v-card v-if="contexts.length" class="card-item">
           <v-card-title>
             <v-icon left>link</v-icon>
             <span class="title">Контексты</span>
@@ -51,8 +47,8 @@
             <schema :schema="schema"></schema>
           </v-card-text>
         </v-card>
-      </v-col>
-    </v-row>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
@@ -120,5 +116,9 @@ export default {
 </script>
 
 <style scoped>
+
+.card-item {
+  width: 100%;
+}
 
 </style>

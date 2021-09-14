@@ -1,25 +1,29 @@
 <template>
-  <v-container fluid class="lighten-4">
-    <v-row dense>
-      <v-col cols="4">
-        <v-card>
-          <v-card-title>
-            <v-icon left>settings</v-icon>
-            <span class="title">Сводка</span>
-          </v-card-title>
-          <v-card-text class="headline font-weight-bold">
-            <v-list>
-              <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
-                <v-list-item-content  @click="goToLink(item.link)">
-                  <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
-                  <v-list-item-title v-html="item.content"></v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col cols="8">
+  <v-container grid-list-xl fluid>
+    <v-layout wrap>
+      <v-flex xs12 md4 d-flex style="min-width: 480px">
+        <v-layout wrap>
+          <v-container grid-list-xl fluid>
+            <v-card>
+              <v-card-title>
+                <v-icon left>settings</v-icon>
+                <span class="title">Сводка</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <v-list>
+                  <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
+                    <v-list-item-content  @click="goToLink(item.link)">
+                      <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
+                      <v-list-item-title v-html="item.content"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+            </v-card>
+          </v-container>
+        </v-layout>
+      </v-flex>
+      <v-flex xs12 md8 d-flex>
         <v-card v-if="contexts.length">
           <v-card-title>
             <v-icon left>link</v-icon>
@@ -34,8 +38,8 @@
             <schema :schema="schema"></schema>
           </v-card-text>
         </v-card>
-      </v-col>
-    </v-row>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
@@ -93,5 +97,7 @@ export default {
 </script>
 
 <style scoped>
-
+.card-item {
+  width: 100%;
+}
 </style>
