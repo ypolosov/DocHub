@@ -64,23 +64,23 @@ const MENU_QUERY = `
     [
         {
             "title": 'Архитектура',
-            "route": 'architect',
+            "location": 'architect',
             "expand": true,
             "icon": 'home'
         },
         {
             "title": "Контексты",
-            "route": 'architect/contexts',
+            "location": 'architect/contexts',
             "icon": 'location_searching'
         },
         {
             "title": "Аспекты",
-            "route": 'architect/aspects',
+            "location": 'architect/aspects',
             "icon": 'visibility'
         },
         {
             "title": 'Документы',
-            "route": 'docs',
+            "location": 'docs',
             "expand": true,
             "icon": 'description'
         },
@@ -120,7 +120,7 @@ const MENU_QUERY = `
     ]
 ).{
     "title": title,
-    "route": '/' & route,
+    "route": route ? '/' & route : undefined,
     "icon": icon,
     "location": location ? location : route
 }

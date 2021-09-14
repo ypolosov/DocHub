@@ -1,5 +1,7 @@
 <template>
-  <v-app id="keep">
+  <v-app id="keep"
+         :class="{'no-select-text': isDrawerResize}"
+  >
     <v-app-bar
         app
         clipped-left
@@ -33,8 +35,13 @@
         <v-icon>mdi-call-split</v-icon>
       </v-btn>
     </v-app-bar>
-
-    <v-navigation-drawer v-model="drawer" app clipped color="grey lighten-4">
+    <v-navigation-drawer
+        ref="drawer"
+        :width="width"
+        v-model="drawer"
+        app
+        clipped
+        color="grey lighten-4">
       <Menu></Menu>
     </v-navigation-drawer>
     <v-content>
@@ -47,14 +54,53 @@
 
 import Menu from "./Menu";
 
+const minDrawerSize = 200;
+const defaultDrawerSize = 300;
+
 export default {
   name: 'Root',
   components: {
     Menu
   },
+  mounted() {
+    const el = this.$refs.drawer.$el;
+    const drawerBorder = document.querySelector(".v-navigation-drawer__border");
+
+    function resize(e) {
+      document.body.style.cursor = "ew-resize";
+      if (e.clientX < minDrawerSize) return;
+      el.style.width = `${e.clientX}px`;
+    }
+
+    drawerBorder.addEventListener(
+        "mousedown",
+        (e) => {
+          if (e.offsetX < minDrawerSize) {
+            el.style.transition = "initial";
+            document.addEventListener("mousemove", resize, false);
+            this.isDrawerResize = true;
+          }
+        },
+        false
+    );
+
+    document.addEventListener(
+        "mouseup",
+        () => {
+          el.style.transition = "";
+          this.width = el.style.width;
+          document.body.style.cursor = "";
+          document.removeEventListener("mousemove", resize, false);
+          this.isDrawerResize = false;
+        },
+        false
+    );
+  },
   data() {
     return {
       drawer: null,
+      isDrawerResize: false,
+      width: defaultDrawerSize
     };
   }
 };
@@ -67,6 +113,19 @@ export default {
 
 .swagger-ui {
   width: 100%;
+}
+
+.v-navigation-drawer__border {
+  width: 3px !important;
+  cursor: col-resize !important;
+  background: #ccc !important;
+}
+
+.no-select-text * {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 </style>
