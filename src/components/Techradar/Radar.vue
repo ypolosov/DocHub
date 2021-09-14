@@ -1,5 +1,5 @@
 <template>
-  <svg width="100%" height="90vh" viewBox="0 0 600 600">
+  <svg width="100%" style="max-height:90vh" viewBox="0 0 600 600">
     <defs>
       <path d="m0,300 a300,300 0 1,0 600,0 a300,300 0 1,0 -600,0" id="outsideTextPath"></path>
     </defs>
