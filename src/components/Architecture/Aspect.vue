@@ -1,7 +1,7 @@
 <template>
   <v-container grid-list-xl fluid>
     <v-layout wrap>
-      <v-flex xs12 md4 d-flex style="min-width: 480px">
+      <v-flex xs12 md5 d-flex>
         <v-layout wrap>
           <v-container grid-list-xl fluid>
             <v-card>
@@ -23,7 +23,7 @@
           </v-container>
         </v-layout>
       </v-flex>
-      <v-flex xs12 md8 d-flex>
+      <v-flex xs12 md7 d-flex>
         <v-card v-if="contexts.length">
           <v-card-title>
             <v-icon left>link</v-icon>
