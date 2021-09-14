@@ -1,25 +1,29 @@
 <template>
-  <v-container style="padding: 0; min-width: 100%">
-    <v-row dense>
-      <v-col cols="8">
+  <v-container grid-list-xl fluid>
+    <v-layout wrap>
+      <v-flex xs12 md9 d-flex>
         <radar v-model="technologies" :section="section"></radar>
-      </v-col>
-      <v-col cols="4">
-        <ul class="sections">
-          <li v-for="(section, key) in legend" :key="key" class="section-header">
-            {{section.section.title}}
-            <ul class="section-record">
-              <li v-for="record in section.items" :key="record.index">
-                <router-link
-                    :to="`/technology/${record.item.key}`">
-                    {{record.index ? `${record.index}: `: ''}} {{record.item.key}}
-                </router-link>
+      </v-flex>
+      <v-flex xs12 md3 d-flex>
+        <v-layout wrap>
+          <v-flex xs4 md12 d-flex v-for="(section, key) in legend" :key="key">
+            <ul class="sections">
+              <li class="section-header">
+                {{section.section.title}}
+                <ul class="section-record">
+                  <li v-for="record in section.items" :key="record.index">
+                    <router-link
+                        :to="`/technology/${record.item.key}`">
+                      {{record.index ? `${record.index}: `: ''}} {{record.item.key}}
+                    </router-link>
+                  </li>
+                </ul>
               </li>
             </ul>
-          </li>
-        </ul>
-      </v-col>
-    </v-row>
+          </v-flex>
+        </v-layout>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
