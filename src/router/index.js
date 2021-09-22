@@ -42,7 +42,13 @@ export default new Router({
         },
         {
             path: '/sso/gitlab/authentication',
-            redirect: "/main"
+            redirect(route) {
+                window.Vuex.dispatch('onReceivedOAuthToken', route.query.access_token);
+                return {
+                    route: '/main',
+                    query: {}
+                };
+            }
         },
         {
             name: 'main',

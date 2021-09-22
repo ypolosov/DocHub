@@ -90,6 +90,8 @@ export default {
 
         // Need to call when gitlab takes callback's rout with oauth code
         onReceivedOAuthToken(context, access_token) {
+            // eslint-disable-next-line no-debugger
+            debugger;
             context.commit('setAccessToken', access_token);
             context.dispatch('reloadAll');
         },

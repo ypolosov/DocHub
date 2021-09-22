@@ -10,7 +10,7 @@ axios.interceptors.request.use(function (params) {
     if (config.gitlab_server && ((new URL(params.url)).host === (new URL(config.gitlab_server)).host)) {
         if (!params.headers) params.headers = {};
         // eslint-disable-next-line no-undef
-        params.headers['Authorization'] = `Bearer ${Vuex.state.access_token}`;
+        params.headers['Authorization'] = `Bearer ${config.porsonalToken || Vuex.state.access_token}`;
     }
     return params;
 }, function (error) {
@@ -125,8 +125,14 @@ export default {
             if (!baseURI) {
                 throw `Error in base URI ${uri}! Base URI is empty.`
             }
-            let slices = baseURI.split('/');
-            result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri);
+            result = this.makeURL(baseURI);
+            let slices = result.url.toString().split('/');
+            if (result.type === 'gitlab') {
+                slices[slices.length - 2] = `${uri}`;
+            } else {
+                slices[slices.length - 1] = uri;
+            }
+            result.url = new URL(slices.join('/'));
         }
         return result;
     },
