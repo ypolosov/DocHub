@@ -43,10 +43,15 @@ export default new Router({
         {
             path: '/sso/gitlab/authentication',
             redirect(route) {
+                // eslint-disable-next-line no-debugger
+                debugger;
+                // eslint-disable-next-line no-console
+                console.info('>>>>>>>>>>>>', route);
                 window.Vuex.dispatch('onReceivedOAuthToken', route.query.access_token);
                 return {
-                    route: '/main',
-                    query: {}
+                    path: '/main',
+                    query: {},
+                    hash: ''
                 };
             }
         },
