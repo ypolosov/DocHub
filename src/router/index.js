@@ -42,7 +42,7 @@ export default new Router({
         },
         {
             path: '/sso/gitlab/authentication',
-            redirect(route) {
+            redirect(route) {x
                 // eslint-disable-next-line no-debugger
                 debugger;
                 // eslint-disable-next-line no-console
@@ -51,6 +51,8 @@ export default new Router({
                     ? route.query.access_token
                     : new URLSearchParams(route.hash.substr(1)).get('access_token');
                 if (accessToken) {
+                    // eslint-disable-next-line no-console
+                    console.info('>>>>>>>>>>', accessToken);
                     window.Vuex.dispatch('onReceivedOAuthToken', accessToken);
                     return {
                         path: '/main',
