@@ -47,12 +47,23 @@ export default new Router({
                 debugger;
                 // eslint-disable-next-line no-console
                 console.info('>>>>>>>>>>>>', route);
-                window.Vuex.dispatch('onReceivedOAuthToken', route.query.access_token);
-                return {
-                    path: '/main',
-                    query: {},
-                    hash: ''
-                };
+                const accessToken = Object.keys(route.query).length
+                    ? route.query.access_token
+                    : new URLSearchParams(route.hash.substr(1)).get('access_token');
+                if (accessToken) {
+                    window.Vuex.dispatch('onReceivedOAuthToken', accessToken);
+                    return {
+                        path: '/main',
+                        query: {},
+                        hash: ''
+                    };
+                } else {
+                    return {
+                        path: '/sso/error',
+                        query: {},
+                        hash: ''
+                    };
+                }
             }
         },
         {
