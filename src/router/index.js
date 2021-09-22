@@ -42,7 +42,7 @@ export default new Router({
         },
         {
             path: '/sso/gitlab/authentication',
-            redirect(route) {x
+            redirect(route) {
                 // eslint-disable-next-line no-debugger
                 debugger;
                 // eslint-disable-next-line no-console
