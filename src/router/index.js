@@ -47,9 +47,15 @@ export default new Router({
                 debugger;
                 // eslint-disable-next-line no-console
                 console.info('>>>>>>>>>>>>', route);
+                // eslint-disable-next-line no-console
+                console.info('>>>>>>>>>>>> HASH', route.hash.substr(1));
+                // eslint-disable-next-line no-console
+                console.info('>>>>>>>>>>>> Object.keys(route.query).length', Object.keys(route.query).length);
                 const accessToken = Object.keys(route.query).length
                     ? route.query.access_token
                     : new URLSearchParams(route.hash.substr(1)).get('access_token');
+                // eslint-disable-next-line no-console
+                console.info('>>>>>>>>>>>> accessToken', route.hash.substr(1));
                 if (accessToken) {
                     // eslint-disable-next-line no-console
                     console.info('>>>>>>>>>>', accessToken);
