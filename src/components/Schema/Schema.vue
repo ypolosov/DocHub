@@ -117,11 +117,16 @@ export default {
 
       // Размещает компонент в структуре схемы
       const expandComponent = (component, extra) => {
-        const namespace = component.namespace;
-        const namespaces = structure.namespaces;
-        !namespaces[namespace.id] && (namespaces[namespace.id] = Object.assign(namespace, {components: {}}));
-        if (!extra || !namespaces[namespace.id].components[component.id])
-          namespaces[namespace.id].components[component.id] = Object.assign({extra}, component);
+        let namespaces = structure.namespaces;
+        component.namespaces && component.namespaces.map((namespace) => {
+          !namespaces.namespaces && (namespaces.namespaces = {});
+          !namespaces.namespaces[namespace.id] && (namespaces.namespaces[namespace.id] = Object.assign({}, namespace));
+          namespaces = namespaces.namespaces[namespace.id];
+        });
+        !namespaces.components && (namespaces.components = {});
+        if (!extra || !namespaces.components[component.id]) {
+          namespaces.components[component.id] = Object.assign({extra}, component);
+        }
       }
 
       (this.schema.components || []).map((component) => {
@@ -152,9 +157,17 @@ export default {
         // Готовим структуру схемы для рендеринга
         const structure = this.structure;
         // Разбираем архитектурные пространства
-        for (const namespaceID in structure.namespaces) {
-          const namespace = structure.namespaces[namespaceID];
-          uml += `rectangle "${namespace.title}" {\n`;
+        const expandNamespace = (namespace) =>  {
+          // Если область определена, выводим ее
+          if (namespace.id) {
+            uml += `rectangle "${namespace.title}" {\n`;
+          }
+          // Если есть вложенные пространства, отображаем их тоже
+          if (namespace.namespaces) {
+            for (const namespaceID in namespace.namespaces) {
+              expandNamespace(namespace.namespaces[namespaceID]);
+            }
+          }
           // Формируем компоненты
           for (const componentID in namespace.components) {
             const component = namespace.components[componentID];
@@ -172,11 +185,14 @@ export default {
             } else {
               uml += `${component.entity} "${title}" as ${component.id}`;
             }
-
             uml += `\n`
           }
-          uml += `}\n`
-        }
+          if (namespace.id) {
+            uml += `}\n`
+          }
+        };
+        expandNamespace(structure.namespaces);
+
         // Строим связи
         for (const linkId in structure.links) {
           const link = structure.links[linkId];

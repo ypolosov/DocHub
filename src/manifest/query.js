@@ -2,7 +2,75 @@ const SCHEMA_QUERY = `
 (
     $MANIFEST := $;
     $CONTEXT_ID := '{%CONTEXT_ID%}';
-    $LOCATION := '{%LOCATION%}';
+    $CONTEXT := $CONTEXT_ID = 'self' ? {"title": "Собственный"} : $lookup($MANIFEST.contexts, $CONTEXT_ID);
+    {
+        "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
+        "id": $CONTEXT_ID,
+        "uml": $CONTEXT.uml,
+        "extra": $CONTEXT."extra-links",
+        "components": [components.$spread().(
+            $COMPONENT_ID := $keys()[0];
+            $NAMESPACES_IDS := $split($keys()[0], ".");
+            $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
+                $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
+            });
+            {
+                "order": $NAMESPACE_ID & ":" & $keys()[0],
+                "id": $COMPONENT_ID,
+                "title": $.*.title,
+                "entity": $.*.entity,
+                "namespaces":[$NAMESPACES_IDS.(
+                    $NAMESPACE := $lookup($MANIFEST.namespaces, $);
+                    {
+                        "id": $,
+                        "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $
+                    }
+                )],
+                "contexts": $distinct(
+                    $MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].$keys()[0]
+                ),
+                "links": [$distinct($.*.links).(
+                    $COMPONENT := $lookup($MANIFEST.components, $.id);
+                    $NAMESPACES_IDS := $split($.id, ".");
+                    $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
+                        $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
+                    });
+                    $CONTRACT := $lookup($MANIFEST.docs, $.contract);
+                    {
+                        "id": $.id,
+                        "title": $COMPONENT.title ? $COMPONENT.title : $.id,
+                        "direction": $.direction ? $.direction : '--', 
+                        "link_title": $.title,
+                        "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
+                        "namespaces":[$NAMESPACES_IDS.(
+                            $NAMESPACE := $lookup($MANIFEST.namespaces, $);
+                            {
+                                "id": $,
+                                "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $
+                            }
+                        )],
+                        "contract": $CONTRACT ? {
+                            "id": $.contract, 
+                            "location": $CONTRACT.location
+                        } : undefined
+                    }
+                )],
+                "aspects": [$.*.aspects.$spread().(
+                    $ASPECT := $lookup($MANIFEST.aspects, $);
+                    {
+                    "id": $,
+                    "title": $ASPECT.title ? $ASPECT.title : $
+                })]
+            }
+        )][{%CONDITIONS%}]^(order)[]
+    }
+)
+`;
+
+/*
+(
+    $MANIFEST := $;
+    $CONTEXT_ID := '{%CONTEXT_ID%}';
     $CONTEXT := $CONTEXT_ID = 'self' ? {"title": "Собственный"} : $lookup($MANIFEST.contexts, $CONTEXT_ID);
     {
         "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
@@ -33,7 +101,7 @@ const SCHEMA_QUERY = `
                     {
                         "id": $.id,
                         "title": $COMPONENT.title ? $COMPONENT.title : $.id,
-                        "direction": $.direction ? $.direction : '--', 
+                        "direction": $.direction ? $.direction : '--',
                         "link_title": $.title,
                         "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
                         "namespace": {
@@ -41,7 +109,7 @@ const SCHEMA_QUERY = `
                                 "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $NAMESPACE_ID
                         },
                         "contract": $CONTRACT ? {
-                            "id": $.contract, 
+                            "id": $.contract,
                             "location": $CONTRACT.location
                         } : undefined
                     }
@@ -56,7 +124,7 @@ const SCHEMA_QUERY = `
         )][{%CONDITIONS%}]^(order)[]
     }
 )
-`;
+ */
 
 const MENU_QUERY = `
 (

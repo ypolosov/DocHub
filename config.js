@@ -18,6 +18,7 @@ if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
     if (process.env.VUE_APP_DOCHUB_PERSONAL_TOKEN) {
         // Персональный токен генерируемый пользователем
         config.porsonalToken = process.env.VUE_APP_DOCHUB_PERSONAL_TOKEN;
+        config.oauth = false;
     } else {
         // Секреты приложения для OAuth авторизации в GitLab
         if(!process.env.VUE_APP_DOCHUB_CLIENT_SECRET)

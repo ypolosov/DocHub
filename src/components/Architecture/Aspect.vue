@@ -12,7 +12,7 @@
               <v-card-text class="headline font-weight-bold">
                 <v-list>
                   <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
-                    <v-list-item-content  @click="goToLink(item.link)">
+                    <v-list-item-content @click="goToLink(item.link)">
                       <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
                       <v-list-item-title v-html="item.content"></v-list-item-title>
                     </v-list-item-content>
@@ -66,7 +66,7 @@ export default {
       return jsonata(query.locationsForAspect(this.aspect))
           .evaluate(this.$store.state.sources) || [];
     },
-    schema () {
+    schema() {
       return jsonata(query.context(this.contexts[this.currentContext].id))
           .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
     },
@@ -80,7 +80,7 @@ export default {
           .concat([{
             title: 'Размещение',
             content: this.sourceLocations.map((location) =>
-              `<a href="${requests.makeURL(location).url}" target="_blank">${location}</a>`
+                `<a href="${requests.makeURL(location).url}" target="_blank">${location}</a>`
             ).join('</br>')
           }])
     }
