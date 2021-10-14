@@ -196,11 +196,13 @@ export default {
         // Строим связи
         for (const linkId in structure.links) {
           const link = structure.links[linkId];
-          if (this.extraLinks || (
-              structure.namespaces[link.namespace.id]
-              && structure.namespaces[link.namespace.id].components[link.id]
-              && !structure.namespaces[link.namespace.id].components[link.id].extra
-          )) uml += `${linkId}: "                               "\n`
+          if (this.extraLinks || (() => {
+              let namespace = structure.namespaces;
+              for (let i = 0; i < link.namespaces.length; i++) {
+                namespace = namespace.namespaces[link.namespaces[i].id];
+              }
+              return namespace.components[link.id] && !namespace.components[link.id].extra
+          })()) uml += `${linkId}: "                               "\n`
         }
         this.schema.uml && this.schema.uml.$after && (uml += this.schema.uml.$after + '\n');
       }
