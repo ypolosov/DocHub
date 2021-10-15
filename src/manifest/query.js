@@ -3,6 +3,21 @@ const SCHEMA_QUERY = `
     $MANIFEST := $;
     $CONTEXT_ID := '{%CONTEXT_ID%}';
     $CONTEXT := $CONTEXT_ID = 'self' ? {"title": "Собственный"} : $lookup($MANIFEST.contexts, $CONTEXT_ID);
+    $ARRLEFT := function($ARR ,$COUNT) {
+        $map($ARR, function($v, $i) {
+            $i < $COUNT ? $v : undefined
+        })
+    };
+    $MKNS := function($IDS) {(
+        $map($IDS, function($v, $i) {(
+            $ID := $join($ARRLEFT($IDS, $i + 1), ".");
+            $NAMESPACE := $lookup($MANIFEST.namespaces, $ID);
+            {
+                "id": $ID,
+                "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $ID
+            }
+        )})
+    )};
     {
         "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
         "id": $CONTEXT_ID,
@@ -19,13 +34,7 @@ const SCHEMA_QUERY = `
                 "id": $COMPONENT_ID,
                 "title": $.*.title,
                 "entity": $.*.entity,
-                "namespaces":[$NAMESPACES_IDS.(
-                    $NAMESPACE := $lookup($MANIFEST.namespaces, $);
-                    {
-                        "id": $,
-                        "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $
-                    }
-                )],
+                "namespaces":[$MKNS($NAMESPACES_IDS)],
                 "contexts": $distinct(
                     $MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].$keys()[0]
                 ),
@@ -42,13 +51,7 @@ const SCHEMA_QUERY = `
                         "direction": $.direction ? $.direction : '--', 
                         "link_title": $.title,
                         "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
-                        "namespaces":[$NAMESPACES_IDS.(
-                            $NAMESPACE := $lookup($MANIFEST.namespaces, $);
-                            {
-                                "id": $,
-                                "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $
-                            }
-                        )],
+                        "namespaces":[$MKNS($NAMESPACES_IDS)],
                         "contract": $CONTRACT ? {
                             "id": $.contract, 
                             "location": $CONTRACT.location
@@ -66,65 +69,6 @@ const SCHEMA_QUERY = `
     }
 )
 `;
-
-/*
-(
-    $MANIFEST := $;
-    $CONTEXT_ID := '{%CONTEXT_ID%}';
-    $CONTEXT := $CONTEXT_ID = 'self' ? {"title": "Собственный"} : $lookup($MANIFEST.contexts, $CONTEXT_ID);
-    {
-        "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
-        "id": $CONTEXT_ID,
-        "uml": $CONTEXT.uml,
-        "extra": $CONTEXT."extra-links",
-        "components": [components.$spread().(
-            $COMPONENT_ID := $keys()[0];
-            $NAMESPACE_ID := $split($keys()[0], ".")[0];
-            $NAMESPACE := $lookup($MANIFEST.namespaces, $NAMESPACE_ID);
-            {
-                "order": $NAMESPACE_ID & ":" & $keys()[0],
-                "id": $COMPONENT_ID,
-                "title": $.*.title,
-                "entity": $.*.entity,
-                "namespace": {
-                        "id": $NAMESPACE_ID,
-                        "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $NAMESPACE_ID
-                },
-                "contexts": $distinct(
-                    $MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].$keys()[0]
-                ),
-                "links": [$distinct($.*.links).(
-                    $COMPONENT := $lookup($MANIFEST.components, $.id);
-                    $NAMESPACE_ID := $split($.id, ".")[0];
-                    $NAMESPACE := $lookup($MANIFEST.namespaces, $NAMESPACE_ID);
-                    $CONTRACT := $lookup($MANIFEST.docs, $.contract);
-                    {
-                        "id": $.id,
-                        "title": $COMPONENT.title ? $COMPONENT.title : $.id,
-                        "direction": $.direction ? $.direction : '--',
-                        "link_title": $.title,
-                        "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
-                        "namespace": {
-                                "id": $NAMESPACE_ID,
-                                "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $NAMESPACE_ID
-                        },
-                        "contract": $CONTRACT ? {
-                            "id": $.contract,
-                            "location": $CONTRACT.location
-                        } : undefined
-                    }
-                )],
-                "aspects": [$.*.aspects.$spread().(
-                    $ASPECT := $lookup($MANIFEST.aspects, $);
-                    {
-                    "id": $,
-                    "title": $ASPECT.title ? $ASPECT.title : $
-                })]
-            }
-        )][{%CONDITIONS%}]^(order)[]
-    }
-)
- */
 
 const MENU_QUERY = `
 (
@@ -385,71 +329,71 @@ const TECHNOLOGY_QUERY = `
 const PROBLEMS_QUERY = `
 (
     $MANIFEST := $;
+    $NOFOUND_COMPONENTS := [
+        $map($distinct($MANIFEST.contexts.*.components), function($v) {
+            (
+                $COMPONENT := $lookup($MANIFEST.components, $v);
+                $exists($COMPONENT) ? undefined : {
+                    "problem": 'Несуществующие компонент',
+                    "id": $v,
+                    "title": "Ссылка на несуществующий компонент [" & $v & "]",
+                    "route": '/architect/components/' & $v
+                }
+            )
+        })
+    ];    
     $LOST_COMPONENTS := [
         components.$spread().{
             "problem": 'Компонент вне контекста',
             "id": $keys()[0],
             "title": *.title,
-            "route": '/architect/components/' & $keys()[0],
-            "presentations": $.*.presentations.contexts
-        }.presentations.(
-            $exists($lookup($MANIFEST.contexts, $)) ? undefined : %
+            "route": '/architect/components/' & $keys()[0]
+        }.(
+            $ID := id;
+            $exists($MANIFEST.contexts.*.components[$ = $ID]) 
+            ? undefined
+            : $
         )
     ];
-    $EMPTY_CONTEXTS := [
-        contexts.$spread().(
-            $KEY := $keys()[0];
-            $COMPONENTS := $MANIFEST.components.*.presentations[$KEY in contexts];
-            $exists($COMPONENTS) ? undefined : {
-                "problem": "Пустые контексты",
-                "id": $KEY,
-                "title": *.title,
-                "route": '/architect/contexts/' & $KEY
+    $UNDEFINED_NAMESPACES := (
+        $ens := function($id) {
+            (
+                $ids := $split($id, ".");
+                $join($map($ids, function($v, $i, $a) {
+                        $i < $count($ids) - 1 ? $v : undefined
+                }), ".")
+            )
+        };
+        [
+            aspects.$spread().{
+                "id": $keys()[0],
+                "route": "/architect/aspects/" & $keys()[0],
+                "title": *.location,
+                "namespace":  $ens($keys()[0]),
+                "entity": "аспекте"
+            },
+            contexts.$spread().{
+                "id": $keys()[0],
+                "route": "/architect/contexts/" & $keys()[0],
+                "title": *.location,
+                "namespace": $ens($keys()[0]),
+                "entity": "контексте"
+            },
+            components.$spread().{
+                "id": $keys()[0],
+                "route": "architect/components/" & $keys()[0],
+                "title": title,
+                "namespace": $ens($keys()[0]),
+                "entity": "компоненте"
+            }
+        ].(
+            $exists($lookup($MANIFEST.namespaces, namespace)) ? undefined :
+            {
+                "problem": 'Область имен отсутствует',
+                "route": route,
+                "title": namespace & " в " & entity & " " & title & " [" & id & "]"
             }
         )
-    ];
-    $UNDEFINED_CONTEXTS := [
-        components.$spread().(
-            $KEY := $keys()[0];
-            $COMPONENT := $;
-            $CONTEXTS := *.presentations.contexts[$not($exists($lookup($MANIFEST.contexts, $)))];
-            $CONTEXTS.{
-                "problem": "Неизвестные контексты",
-                "title": $ & " в компоненте " & $COMPONENT.*.title & " [" & $KEY & "]",
-                "route": '/architect/components/' & $KEY
-            }
-        )
-    ];
-    $UNDEFINED_NAMESPACES := 
-    [
-        aspects.$spread().{
-            "id": $keys()[0],
-            "route": "/architect/aspects/" & $keys()[0],
-            "title": *.location,
-            "namespace": $split($keys()[0], ".")[0],
-            "entity": "аспекте"
-        },
-        contexts.$spread().{
-            "id": $keys()[0],
-            "route": "/architect/contexts/" & $keys()[0],
-            "title": *.location,
-            "namespace": $split($keys()[0], ".")[0],
-            "entity": "контексте"
-        },
-        components.$spread().{
-            "id": $keys()[0],
-            "route": "architect/components/" & $keys()[0],
-            "title": title,
-            "namespace": $split($keys()[0], ".")[0],
-            "entity": "компоненте"
-        }
-    ].(
-        $exists($lookup($MANIFEST.namespaces, namespace)) ? undefined :
-        {
-            "problem": 'Область имен отсутствует',
-            "route": route,
-            "title": namespace & " в " & entity & " " & title & " [" & id & "]"
-        }
     );
     $UNDEFINED_COMPONENT := 
         [
@@ -481,9 +425,9 @@ const PROBLEMS_QUERY = `
             )
         ];
     [
+        $distinct($NOFOUND_COMPONENTS),
         $distinct($UNDEFINED_CONTEXTS),
         $distinct($LOST_COMPONENTS),
-        $distinct($EMPTY_CONTEXTS),
         $distinct($UNDEFINED_NAMESPACES),
         $distinct($UNDEFINED_COMPONENT),
         $distinct($UNDEFINED_ASPECT)

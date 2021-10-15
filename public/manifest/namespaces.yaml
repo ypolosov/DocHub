@@ -4,6 +4,10 @@ namespaces:
         title: DocHub # Название области имен. Будет отражаться на схемах
     - gitlab:
         title: GitLab
+    - git:
+        title: Клиент git
+    - manifest:
+        title: Манифесты
     - plantuml:
           title: PlantUML сервер
     - web:
