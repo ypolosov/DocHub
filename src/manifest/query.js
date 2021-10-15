@@ -268,7 +268,7 @@ const TECHNOLOGIES_QUERY = `
     $MANIFEST := $;
     $distinct(components.*.technologies).(
         $TECHKEY := $;
-        $TECHNOLOGY := $lookup($MANIFEST.technologies.items, $);
+        $TECHNOLOGY := $lookup($MANIFEST.technologies.items, $type($)="string" ? $ : undefined);
         $TECHNOLOGY := $TECHNOLOGY ? $TECHNOLOGY : 
             $MANIFEST.technologies.items.*.$[$TECHKEY in aliases];
         $TECHNOLOGY := $TECHNOLOGY ? $TECHNOLOGY : {
