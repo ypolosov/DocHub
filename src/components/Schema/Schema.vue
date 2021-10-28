@@ -72,6 +72,12 @@ export default {
           titlePath.setAttribute("href", `#${defPathID}`);
           titlePath.setAttribute("startOffset", '50%');
           titlePath.textContent = link.link_title;
+          if (link.contract) {
+            const contactID = link.contract.id;
+            titlePath.addEventListener("click", () => {
+              this.$router.push({ path: `/docs/${contactID}`});
+            });
+          }
 
           title.setAttribute('data-link-selector', prefix);
           titlePath.setAttribute('data-link-selector', prefix);
