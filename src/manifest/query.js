@@ -14,7 +14,8 @@ const SCHEMA_QUERY = `
             $NAMESPACE := $lookup($MANIFEST.namespaces, $ID);
             {
                 "id": $ID,
-                "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $ID
+                "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $ID,
+                "type": $NAMESPACE.type
             }
         )})
     )};
@@ -34,6 +35,7 @@ const SCHEMA_QUERY = `
                 "id": $COMPONENT_ID,
                 "title": $.*.title,
                 "entity": $.*.entity,
+                "type": $.*.type,
                 "namespaces":[$MKNS($NAMESPACES_IDS)],
                 "contexts": $distinct(
                     $MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].$keys()[0]

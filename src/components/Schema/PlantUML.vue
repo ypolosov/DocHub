@@ -54,6 +54,10 @@ export default {
         this.svg = response.data.toString();
         this.$nextTick(() => this.prepareSVG());
       }).catch((error) => {
+        if (error.response && error.response.status === 400) {
+          this.svg = error.response.data.toString();
+          this.$nextTick(() => this.prepareSVG());
+        }
         // eslint-disable-next-line no-console
         console.error(error);
       });

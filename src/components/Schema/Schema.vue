@@ -8,7 +8,9 @@
 <script>
 
 import PlantUML from "./PlantUML";
-import DSL from "!!raw-loader!../../assets/dsl.txt";
+import PlantUMLDSL from "!!raw-loader!../../assets/plantuml_dsl.txt";
+import C4ModelDSL from "!!raw-loader!../../assets/c4model_dsl.txt";
+import SberDSL from "!!raw-loader!../../assets/sber_dsl.txt";
 
 export default {
   name: 'Schema',
@@ -107,7 +109,7 @@ export default {
         }
       })();
       return `[[${url} ${title || id}]]`;
-    }
+    },
   },
   computed: {
     extraLinks() {
@@ -141,15 +143,37 @@ export default {
         // Разбираем зависимости компонента
         (component.links || []).map((link) => {
           expandComponent(link, true);
+          structure.links[`${component.id} ${link.direction} ${link.id}`] =
+              Object.assign(link, { linkFrom: component.id, linkTo: link.id});
+          /*
           structure.links[`[${component.id}] ${link.direction} [${link.id}]`] =
               Object.assign(link, { linkFrom: component.id, linkTo: link.id});
+          */
         });
       });
 
       return structure;
     },
     uml () {
-      let uml = `@startuml\n${DSL}\n`;
+      let uml = `@startuml\n`;
+
+      // Определяем в какой нотации будем выводить схему
+      let notation = this.notation;
+      if (this.schema.uml && this.schema.uml.$notation) {
+        notation = this.schema.uml.$notation;
+      }
+      switch (notation.toLowerCase()) {
+        case 'sber':
+          uml += `${SberDSL}\n`;
+          break;
+        case 'c4model':
+          uml += `${C4ModelDSL}\n`;
+          break;
+        case 'plantuml':
+        default:
+          uml += `${PlantUMLDSL}\n`;
+      }
+
       this.orientation === 'horizontal' && (uml += 'left to right direction\n');
       if(this.schema) {
         if (this.schema.uml) {
@@ -159,14 +183,22 @@ export default {
             uml += this.schema.uml.$before + '\n';
           }
         }
-        uml += `title  "${this.makeRef('context', this.schema.id, this.schema.title)}"\n`;
+
+        const header = {
+          title: `"${this.makeRef('context', this.schema.id, this.schema.title)}"`,
+          author: this.schema.uml && this.schema.uml.$autor ? this.schema.uml.$autor : '',
+          version: this.schema.uml && this.schema.uml.$version ? this.schema.uml.$version : '',
+          moment: this.schema.uml && this.schema.uml.$moment ? this.schema.uml.$moment : ''
+        };
+        uml += `$Header(${header.title}, ${header.author}, ${header.version}, ${header.moment})\n`;
         // Готовим структуру схемы для рендеринга
         const structure = this.structure;
         // Разбираем архитектурные пространства
         const expandNamespace = (namespace) =>  {
           // Если область определена, выводим ее
           if (namespace.id) {
-            uml += `rectangle "${namespace.title}" {\n`;
+            const type = namespace.type ? `"${namespace.type}"` : "";
+            uml += `$Region(${namespace.id},"${namespace.title}", ${type}) {\n`;
           }
           // Если есть вложенные пространства, отображаем их тоже
           if (namespace.namespaces) {
@@ -180,16 +212,35 @@ export default {
             if (!this.extraLinks && component.extra)
               continue;
             const title = this.makeRef('component', component.id, component.title);
+            // Если компонент является системой, описываем его через DSL
+            const entity = component.entity.toString();
             if (component.aspects && component.aspects.length) {
-              uml += `${component.entity} ${component.id}`;
+              if (entity === 'system') {
+                uml += `$System(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n`;
+              } else {
+                uml += `${component.entity} ${component.id}`;
+              }
               const aspectList = [];
               component.aspects.map((aspect) => {
                 let aspectTitle = this.makeRef('aspect', aspect.id, aspect.title);
                 aspectList.push(aspectTitle);
               });
-              aspectList.length && (uml += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n]`);
+              if (entity === 'system') {
+                aspectList.map((prop) => {
+                  uml += `$Property("${prop}")\n`;
+                });
+                uml += '\n$SystemEnd()\n'
+              } else if (aspectList.length) {
+                uml += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n]`;
+              }
             } else {
-              uml += `${component.entity} "${title}" as ${component.id}`;
+              if (entity === 'system') {
+                uml += `$System(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n$SystemEnd()\n`;
+              } else if (entity === 'person') {
+                uml += `$Person(${component.id}, "${title}")\n`;
+              } else {
+                uml += `${component.entity} "${title}" as ${component.id}`;
+              }
             }
             uml += `\n`
           }
@@ -203,23 +254,34 @@ export default {
         for (const linkId in structure.links) {
           const link = structure.links[linkId];
           if (this.extraLinks || (() => {
-              let namespace = structure.namespaces;
-              for (let i = 0; i < link.namespaces.length; i++) {
-                namespace = namespace.namespaces[link.namespaces[i].id];
-              }
-              return namespace.components[link.id] && !namespace.components[link.id].extra
+            let namespace = structure.namespaces;
+            for (let i = 0; i < link.namespaces.length; i++) {
+              namespace = namespace.namespaces[link.namespaces[i].id];
+            }
+            return namespace.components[link.id] && !namespace.components[link.id].extra
           })()) uml += `${linkId}: "                               "\n`
         }
         this.schema.uml && this.schema.uml.$after && (uml += this.schema.uml.$after + '\n');
       }
       uml += '@enduml';
+
       // eslint-disable-next-line no-console
       console.info(uml);
+
       return uml;
     }
   },
   props: {
     schema: Object,
+    notation: { // Нотация
+      type: String,
+      default: 'PlantUML',
+      validator: value => [
+        'PlantUML',
+        'С4Model',
+        'Sber'
+      ].indexOf(value) >= 0
+    },
     orientation: { // Ориентация построения схемы
       type: String,
       default: 'horizontal', // По умолчанию - сверху в низ

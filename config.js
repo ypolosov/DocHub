@@ -36,5 +36,6 @@ if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
 }
 
 config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
+config.pumlServer = process.env.VUE_APP_PLANTUML_SERVER || 'www.plantuml.com/plantuml/svg/';
 
 export default config;

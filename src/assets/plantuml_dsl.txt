@@ -58,3 +58,48 @@ skinparam {
         }
     }
 </style>
+
+!unquoted procedure $Region($alias, $label, $type)
+    !if ($type)
+        rectangle "$label" <<$type>> as $alias
+    !else
+        rectangle "$label" as $alias
+    !endif
+!endprocedure
+
+!unquoted procedure $Header($Title="Header", $Authors="Name", $Version="0.1", $Date="01.01.1999")
+    header
+        !if ($Authors)
+            Authors: $Authors
+        !endif
+        !if ($Version)
+            Version: $Version
+        !endif
+        !if ($Date)
+            Date: $Date
+        !endif
+
+    endheader
+
+    hide empty members
+
+    title $Title
+!endprocedure
+
+!unquoted procedure $System($ID, $ACName, $AType = "")
+    component $ID[
+        * <b>$ACName</b>
+        ====
+!endprocedure
+
+!unquoted procedure $SystemEnd()
+    ]
+!endprocedure
+
+!unquoted procedure $Property($func="", $AType = "")
+    * $func
+!endprocedure
+
+!unquoted procedure $Person($ID, $ACName)
+    actor "$ACName" as $ID
+!endprocedure
