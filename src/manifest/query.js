@@ -367,20 +367,6 @@ const PROBLEMS_QUERY = `
             )
         };
         [
-            aspects.$spread().{
-                "id": $keys()[0],
-                "route": "/architect/aspects/" & $keys()[0],
-                "title": *.location,
-                "namespace":  $ens($keys()[0]),
-                "entity": "аспекте"
-            },
-            contexts.$spread().{
-                "id": $keys()[0],
-                "route": "/architect/contexts/" & $keys()[0],
-                "title": *.location,
-                "namespace": $ens($keys()[0]),
-                "entity": "контексте"
-            },
             components.$spread().{
                 "id": $keys()[0],
                 "route": "architect/components/" & $keys()[0],
