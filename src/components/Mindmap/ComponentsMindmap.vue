@@ -23,6 +23,7 @@ export default {
       const asis = this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
       const nodes = jsonata(query.archMindMapComponents()).evaluate(asis);
       const namespaces = asis.namespaces || {};
+      const contexts = asis.contexts || {};
       let uml = '@startwbs\n* Архитектура\n';
       let prevStruct = [];
       nodes && nodes.map((node) => {
@@ -34,7 +35,13 @@ export default {
           else if (i === struct.length - 1) {
             uml += ` [[/architect/components/${node.id} ${node.title}]]\n`;
           } else {
-            uml += ` ${(namespaces[`${nsid}${struct[i]}`] || {}).title || '...'}\n**`;
+            const id = `${nsid}${struct[i]}`;
+            const title = (namespaces[id] || {}).title || '...';
+            const context = contexts[id];
+            if (context)
+              uml += ` [[/architect/contexts/${id} ${title}]]\n**`;
+            else
+              uml += ` ${title}\n**`;
             for (let f = 0; f <= i; f++) uml += '*';
           }
           nsid += `${struct[i]}.`;
