@@ -79,6 +79,7 @@ const MENU_QUERY = `
         {
             "title": 'Архитектура',
             "location": 'architect',
+            "route": 'architect/',
             "expand": true,
             "icon": 'home'
         },
@@ -137,19 +138,21 @@ const MENU_QUERY = `
     "route": route ? '/' & route : undefined,
     "icon": icon,
     "location": location ? location : route
-}
+}^(location)
 `;
 
 const CONTEXTS_QUERY_FOR_COMPONENT = `
 (
     $MANIFEST := $;
-    $distinct($lookup(components, '{%COMPONENT%}').*.contexts).(
-        $CONTEXT := $lookup($MANIFEST.contexts, $);
-        {
-            "id": $,
-            "title": $CONTEXT.title ? $CONTEXT.title : $
+    [contexts.$spread().(
+        $CONTEXT := $;
+        $ID := $keys()[0];
+        $.*.components[$ = '{%COMPONENT%}'].{
+            "id": $ID,
+            "title": $CONTEXT.*.title
         }
-    )
+        
+    )]
 )
 `;
 
@@ -265,6 +268,22 @@ const CONTEXTS_QUERY_FOR_ASPECT = `
 )
 `;
 
+const COMPONENTS_QUERY_FOR_ASPECT = `
+(
+    $MANIFEST := $;
+    components.$spread().(
+        $KEY := $keys()[0];
+        $.*.aspects[$ = '{%ASPECT%}'] ? [(
+            $COMPONENT := $lookup($MANIFEST.components, $KEY);
+            {
+                "title": $COMPONENT.title,
+                "id" : $KEY
+            }
+        )]
+    )
+)
+`;
+
 const TECHNOLOGIES_QUERY = `
 (
     $MANIFEST := $;
@@ -327,6 +346,16 @@ const TECHNOLOGY_QUERY = `
     }
 )
 `;
+
+const ARCH_MINDMAP_COMPONENTS_QUERY = `
+(
+    [components.$spread().
+        {
+            "id": $keys()[0],
+            "title": $.*.title
+        }
+    ]^(id)
+)`;
 
 const PROBLEMS_QUERY = `
 (
@@ -466,9 +495,13 @@ export default {
     locationsForAspect(aspect) {
         return ASPECT_LOCATIONS_QUERY.replaceAll("{%ASPECT%}", aspect)
     },
-    // Запрос контекстов в которых встречается компонент
+    // Запрос контекстов в которых встречается аспект
     contextsForAspects(aspect) {
         return CONTEXTS_QUERY_FOR_ASPECT.replaceAll("{%ASPECT%}", aspect)
+    },
+    // Запрос компонентов в которых встречается аспект
+    componentsForAspects(aspect) {
+        return COMPONENTS_QUERY_FOR_ASPECT.replaceAll("{%ASPECT%}", aspect)
     },
     // Сбор информации об использованных технологиях
     collectTechnologies() {
@@ -486,4 +519,8 @@ export default {
     docsForEntity(entity) {
         return DOCUMENTS_FOR_ENTITY_QUERY.replaceAll("{%ENTITY%}", entity);
     },
+    // MindMap по архитектурным компонентам
+    archMindMapComponents() {
+        return ARCH_MINDMAP_COMPONENTS_QUERY;
+    }
 }

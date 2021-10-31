@@ -1,7 +1,7 @@
 <template>
   <v-container grid-list-xl fluid>
     <v-layout wrap>
-      <v-flex xs12 md5 d-flex>
+      <v-flex xs12 md6 d-flex>
         <v-layout wrap>
           <v-container grid-list-xl fluid>
             <v-card>
@@ -23,7 +23,28 @@
           </v-container>
         </v-layout>
       </v-flex>
-      <v-flex xs12 md7 d-flex>
+      <v-flex xs12 md6 d-flex>
+        <v-layout wrap>
+          <v-container grid-list-xl fluid>
+            <v-card>
+              <v-card-title>
+                <v-icon left>settings</v-icon>
+                <span class="title">Встречается в компонентах</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <ul style="font-size: 16px">
+                  <li :key="component.id" v-for="(component) in components">
+                    <router-link :to="`/architect/components/${component.id}`">
+                      {{component.title.replaceAll('\\n',' ')}}
+                    </router-link>
+                  </li>
+                </ul>
+              </v-card-text>
+            </v-card>
+          </v-container>
+        </v-layout>
+      </v-flex>
+      <v-flex xs12 md12 d-flex>
         <v-card v-if="contexts.length">
           <v-card-title>
             <v-icon left>link</v-icon>
@@ -40,6 +61,7 @@
         </v-card>
       </v-flex>
     </v-layout>
+    <div style="display: none" v-html="focusStyle"></div>
   </v-container>
 </template>
 
@@ -62,6 +84,18 @@ export default {
     }
   },
   computed: {
+    focusStyle() {
+      return `
+        <style>
+          a[href$="${this.aspect}"] text {
+            font-size: 14px;
+            fill: #f00;
+            font-weight: 600;
+            text-decoration-line: underline;
+          }
+        </style>
+      `;
+    },
     sourceLocations() {
       return jsonata(query.locationsForAspect(this.aspect))
           .evaluate(this.$store.state.sources) || [];
@@ -69,6 +103,10 @@ export default {
     schema() {
       return jsonata(query.context(this.contexts[this.currentContext].id))
           .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
+    },
+    components() {
+      return jsonata(query.componentsForAspects(this.aspect))
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [];
     },
     contexts() {
       return jsonata(query.contextsForAspects(this.aspect))

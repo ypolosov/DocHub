@@ -11,6 +11,8 @@ skinparam {
 	'ranksep 100
 	shadowing false
 	'padding 0
+    hyperlinkColor white
+    hyperlinkUnderline false
 }
 'left to right direction
 hide circle

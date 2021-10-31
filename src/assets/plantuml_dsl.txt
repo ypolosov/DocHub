@@ -100,6 +100,21 @@ skinparam {
     * $func
 !endprocedure
 
-!unquoted procedure $Person($ID, $ACName)
-    actor "$ACName" as $ID
+'Стили Person
+skinparam component<<Person>> {
+	backgroundColor Transparent
+	borderColor Transparent
+	shadowing false
+	hide stereotype
+	borderthickness 1
+	FontSize 14
+    FontStyle Bold
+}
+
+'Person
+'#################################################################
+!unquoted procedure $Person($PersonID, $PersonName)
+actor $PersonID <<Person>> [
+..===$PersonName..
+]
 !endprocedure

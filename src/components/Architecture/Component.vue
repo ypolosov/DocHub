@@ -1,5 +1,6 @@
 <template>
   <v-container grid-list-xl fluid>
+    <div style="display: none" v-html="focusStyle"></div>
     <v-layout wrap>
       <v-flex xs12 md5 d-flex>
         <v-layout wrap>
@@ -73,6 +74,18 @@ export default {
     }
   },
   computed: {
+    focusStyle() {
+      return `
+        <style>
+          a[href$="${this.component}"] text {
+            font-size: 14px;
+            fill: #f00;
+            font-weight: 600;
+            text-decoration-line: underline;
+          }
+        </style>
+      `;
+    },
     sourceLocations() {
       return jsonata(query.locationsForComponent(this.component))
           .evaluate(this.$store.state.sources) || [];
