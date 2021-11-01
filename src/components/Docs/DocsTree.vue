@@ -21,6 +21,8 @@ export default {
       let counter = 0;
       const result = [];
       const expandItem = (expitem) => {
+        // eslint-disable-next-line no-debugger
+        debugger;
         let node = result;
         expitem.location.split('/').map((title, index, arr) => {
           let item = node.find((element) => element.title === title)

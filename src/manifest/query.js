@@ -191,7 +191,7 @@ const DOCUMENTS_FOR_ENTITY_QUERY = `
 (
     $COMPONENT_ID := '{%ENTITY%}';
     $MANIFEST := $;
-    docs.$spread().(
+    [docs.$spread().(
         $LINK := "/docs/" & $keys()[0];
         $COMPONENT_ID in *.subjects ?
         [$[$COMPONENT_ID in *.subjects]
@@ -200,7 +200,7 @@ const DOCUMENTS_FOR_ENTITY_QUERY = `
                 "title": *.description,
                 "link": $LINK
             }] : undefined;
-    )^(location);
+    )^(location)];
 )
 `;
 
@@ -451,6 +451,26 @@ const PROBLEMS_QUERY = `
     ]
 )
 `;
+
+/*
+    $FIELD_ERRORS := [
+        (
+            $MANIFEST := $;
+            [components.$spread().(
+                $COMPONENT := $;
+                $ID := $keys()[0];
+                $.*.expert ? undefined : {
+                    "problem": "Ошибки в полях",
+                    "id": $ID,
+                    "title": "Не указан эксперт в компоненте [" & $COMPONENT.*.title & "]",
+                    "route": '/architect/components/' & $ID
+                }
+            )]
+        )
+    ];
+*/
+
+// $distinct($FIELD_ERRORS),
 
 export default {
     // Меню
