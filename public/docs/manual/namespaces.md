@@ -24,9 +24,9 @@ dochub.front
 
 ```yaml
 namespaces:
-    - dochub: # Идентификатор области имен
+    dochub: # Идентификатор области имен
         title: DocHub # Название области имен. Будет отражаться на схемах
-    - gitlab:
+    gitlab:
         title: GitLab
 ```
 
