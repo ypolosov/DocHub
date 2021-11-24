@@ -313,7 +313,7 @@ export default {
 
   path.link-path {
     stroke: rgb(52, 149, 219);
-    stroke-width: 1;
+    stroke-width: 2;
   }
 
   path.selected {

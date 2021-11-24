@@ -47,6 +47,13 @@ npm run serve
   docker run dochub -p 8080:8080
 ``` 
 
+## Развертывание сервер рендеринга PlantUML
+
+```shell
+docker run -d -p 8081:8080 plantuml/plantuml-server:jetty
+docker run -d -p 8081:8080 plantuml/plantuml-server:tomcat
+```
+
 ## Конфигурирование
 
 ### Настройка GitLab
