@@ -128,7 +128,9 @@ export default {
             result = this.makeURL(baseURI);
             let slices = result.url.toString().split('/');
             if (result.type === 'gitlab') {
-                slices[slices.length - 2] = `${uri}`;
+                const subSlices = slices[slices.length - 2].split('%2F');
+                subSlices[subSlices.length - 1] = uri.replaceAll('/', '%2F');
+                slices[slices.length - 2] = subSlices.join('%2F');
             } else {
                 slices[slices.length - 1] = uri;
             }
