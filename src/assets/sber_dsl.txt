@@ -107,15 +107,15 @@ backgroundcolor pink
 !unquoted procedure $Property($func="", $type="")
 !if ($func!= "")
 	!if (%strpos($type, "+") == 0)
-<size:13><&plus,color=red></size> $func
+<size:13><color:red>+</color></size> $func
 	!else
 		!if (%strpos($type, "-") == 0)
-<size:13><&x,color=red></size> $func
+<size:13><color:red>✕</color></size> $func
 		!else
 			!if (%strpos($type, "*") == 0)
-<size:13><&media-record,color=red></size> $func
+<size:13><color:red>●</color></size> $func
 			!else
-<size:13><&media-record,color=black></size> $func
+<size:13><color:black>●</color></size> $func
 			!endif
 		!endif
 	!endif
