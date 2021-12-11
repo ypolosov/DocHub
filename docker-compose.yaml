@@ -1,0 +1,22 @@
+version: "3.8"
+
+networks:
+  dochub:
+    driver: bridge
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker-frontend.yaml
+    container_name: dockhub-frontend
+    volumes:
+      - type: bind
+        source: .
+        target: /var/www
+    ports:
+      - 8080:8080
+    networks:
+      dochub:
+        aliases:
+          - FrontEnd
