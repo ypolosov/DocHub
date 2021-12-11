@@ -193,17 +193,24 @@ export default {
         uml += `$Header(${header.title}, ${header.author}, ${header.version}, ${header.moment})\n`;
         // Готовим структуру схемы для рендеринга
         const structure = this.structure;
+
         // Разбираем архитектурные пространства
         const expandNamespace = (namespace) =>  {
           // Если область определена, выводим ее
+          let result = '';
+          let notEmpty = false;
           if (namespace.id) {
             const type = namespace.type ? `"${namespace.type}"` : "";
-            uml += `$Region(${namespace.id},"${namespace.title}", ${type}) {\n`;
+            result += `$Region(${namespace.id},"${namespace.title}", ${type}) {\n`;
           }
           // Если есть вложенные пространства, отображаем их тоже
           if (namespace.namespaces) {
             for (const namespaceID in namespace.namespaces) {
-              expandNamespace(namespace.namespaces[namespaceID]);
+              const subCode = expandNamespace(namespace.namespaces[namespaceID]);
+              if(subCode) {
+                notEmpty = true;
+                result += subCode;
+              }
             }
           }
           // Формируем компоненты
@@ -211,14 +218,15 @@ export default {
             const component = namespace.components[componentID];
             if (!this.extraLinks && component.extra)
               continue;
+            notEmpty = true;
             const title = this.makeRef('component', component.id, component.title);
             // Если компонент является системой, описываем его через DSL
             const entity = component.entity.toString();
             if (component.aspects && component.aspects.length) {
               if (entity === 'system') {
-                uml += `$System(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n`;
+                result += `$System(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n`;
               } else {
-                uml += `${component.entity} ${component.id}`;
+                result += `${component.entity} ${component.id}`;
               }
               const aspectList = [];
               component.aspects.map((aspect) => {
@@ -227,28 +235,30 @@ export default {
               });
               if (entity === 'system') {
                 aspectList.map((prop) => {
-                  uml += `$Property("${prop}")\n`;
+                  result += `$Property("${prop}")\n`;
                 });
-                uml += '\n$SystemEnd()\n'
+                result += '\n$SystemEnd()\n'
               } else if (aspectList.length) {
-                uml += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n]`;
+                result += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n]`;
               }
             } else {
               if (entity === 'system') {
-                uml += `$System(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n$SystemEnd()\n`;
+                result += `$System(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n$SystemEnd()\n`;
               } else if (entity === 'person') {
-                uml += `$Person(${component.id}, "${title}")\n`;
+                result += `$Person(${component.id}, "${title}")\n`;
               } else {
-                uml += `${component.entity} "${title}" as ${component.id}`;
+                result += `${component.entity} "${title}" as ${component.id}`;
               }
             }
-            uml += `\n`
+            result += `\n`
           }
-          if (namespace.id) {
-            uml += `}\n`
+          if (namespace.id && notEmpty) {
+            result += `}\n`
           }
+          return notEmpty ? result : null;
         };
-        expandNamespace(structure.namespaces);
+
+        uml += expandNamespace(structure.namespaces) || '';
 
         // Строим связи
         for (const linkId in structure.links) {

@@ -1,4 +1,5 @@
 skinparam useBetaStyle true
+!pragma layout elk
 skinparam {
     HyperLinkColor #000
 	wrapWidth 200
