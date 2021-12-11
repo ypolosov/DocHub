@@ -1,0 +1,33 @@
+version: "3.8"
+
+networks:
+  dochub:
+    driver: bridge
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker-frontend.yaml
+    container_name: dockhub-frontend
+    environment:
+      VUE_APP_PLANTUML_SERVER: localhost:8079/svg/
+    volumes:
+      - type: bind
+        source: .
+        target: /var/www
+    ports:
+      - 8080:8080
+    networks:
+      dochub:
+        aliases:
+          - FrontEnd
+  pmlserver:
+    build: ./pmlserver
+    container_name: dockhub-pmlserver
+    ports:
+      - 8079:8080
+    networks:
+      dochub:
+        aliases:
+          - PMLServer
