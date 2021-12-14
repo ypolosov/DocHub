@@ -35,7 +35,7 @@
                 <ul style="font-size: 16px">
                   <li :key="component.id" v-for="(component) in components">
                     <router-link :to="`/architect/components/${component.id}`">
-                      {{component.title.replaceAll('\\n',' ')}}
+                      {{component.title.replace(/\n/g, ' ')}}
                     </router-link>
                   </li>
                 </ul>
