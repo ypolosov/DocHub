@@ -86,8 +86,6 @@ export default {
       this.showDocument = false;
       this.toc = '';
       setTimeout(() => {
-        // eslint-disable-next-line no-debugger
-        debugger;
         requests.request(this.url).then((response) => {
           this.markdown = response.data.toString();
         })

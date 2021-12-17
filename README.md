@@ -102,7 +102,7 @@ VUE_APP_DOCHUB_GITLAB_URL=https://foo.space
 
 ![Пример настройки GitLab](pics/personal_token.png)
 
-Полученный токен укажите в файле .env.local в переменной:
+Полученный токен укажите в файле ".env.local" в переменной:
 ```
 # Персональный токен gitlab. Используется для локальной разработки
 VUE_APP_DOCHUB_PERSONAL_TOKEN=9H...FR
@@ -113,6 +113,31 @@ VUE_APP_DOCHUB_PERSONAL_TOKEN=9H...FR
 docker-compose down
 docker-compose up
 ```
+
+### Локальное развитие архитектуры
+
+Создайте папку "/public/workspace". Папка входит в .gitignore. Это нормально. Папка предназначена для 
+локального развертывания архитектурных репозиториев. Клонируйте необходимый архитектурный репозиторий.
+
+```
+cd /public/workspace
+git clone git@git.foo.space:repo.git
+```
+
+Определите в ".env.local" переменную корневого манифеста:
+
+```
+VUE_APP_DOCHUB_ROOT_MANIFEST=workspace/repo/root.yaml
+``` 
+
+Перезапустите контейнеры:
+
+```
+docker-compose down
+docker-compose up
+```
+
+Теперь вы можете вносить изменения в репозиторий локально и видеть результат изменений в режиме реального времени. 
 
 ### Для продакшена
 В файле ".env" укажите адрес GitLab в соответствующей переменной:
