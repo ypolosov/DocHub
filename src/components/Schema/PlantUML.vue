@@ -32,8 +32,6 @@ export default {
       this.isMove = true;
       this.moveX = event.clientX;
       this.moveY = event.clientY;
-      // eslint-disable-next-line no-console
-      console.info('x=', this.moveX, 'y=', this.moveY);
     },
     onMouseMove (event) {
       this.isShiftSens = event.shiftKey;
@@ -47,19 +45,20 @@ export default {
       this.isMove = false;
     },
     doZoom (value, x, y) {
-      const kX = x / this.$el.clientWidth;
-      const kY = y / (this.$el.clientHeight || y);
+      const kX = x / (this.svgEl.clientWidth || x);
+      const kY = y / (this.svgEl.clientHeight || y);
+      // eslint-disable-next-line no-console
+      console.info('kX=', kX, 'kY=', kY);
       let resizeWidth = value * this.viewBox.width;
       let resizeHeight = value * this.viewBox.height;
       this.viewBox.x -= resizeWidth * kX;
-      this.viewBox.width += resizeWidth * (1 - kX);
+      this.viewBox.width += resizeWidth;
       this.viewBox.y -= resizeHeight * kY;
-      this.viewBox.height += resizeHeight * (1 - kY);
+      this.viewBox.height += resizeHeight;
+      this.cacheViewBox = null;
     },
     proxyScrollEvent (event) {
       if (!event.shiftKey) return;
-      // eslint-disable-next-line no-debugger
-      debugger;
       let e = window.event || event;
       switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
         case 1:
@@ -77,14 +76,14 @@ export default {
       return false;
     },
     bindHREF() {
-      const refs = this.$el.querySelectorAll('[href]');
+      const refs = this.svgEl.querySelectorAll('[href]');
       for (let i = 0; i < refs.length; i++) {
         const ref = refs[i];
         ref.onclick = this.onClickRef;
       }
     },
     rebuildLinks() {
-      const refs = this.$el.querySelectorAll('[href]');
+      const refs = this.svgEl.querySelectorAll('[href]');
       for (let i = 0; i < refs.length; i++) {
         const ref = refs[i];
         ref.onclick = this.onClickRef;
@@ -92,6 +91,7 @@ export default {
     },
     prepareSVG() {
       this.svgEl = this.$el.querySelectorAll('svg')[0];
+      this.cacheViewBox = null;
       if (this.svgEl) {
         this.svgEl.style = null;
         this.bindHREF();
@@ -143,21 +143,18 @@ export default {
           height : 0
         }
       } else
-        return this.svgEl.viewBox.baseVal;
-    },
-    width () {
-      return this.viewBox.width;
-    },
-    height () {
-      return this.viewBox.height;
+        return this.cacheViewBox ?
+            this.cacheViewBox
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+            : this.cacheViewBox = this.svgEl.viewBox.baseVal;
     },
     // Коэффициент преобразования реальных точек во внутренние по ширине
     koofScreenX () {
-      return (+this.clientWidth) !== 0 ? this.width / this.$el.clientWidth : 1;
+      return this.svgEl ? this.viewBox.width / this.svgEl.clientWidth : 1;
     },
     // Коэффициент преобразования реальных точек во внутренние по высоте
     koofScreenY () {
-      return (+this.clientHeight) !== 0 ? this.height / this.$el.clientHeight : 1;
+      return this.svgEl ? this.viewBox.height / this.svgEl.clientHeight : 1;
     },
     cursor () {
       return this.isShiftSens ? 'move' : undefined;
@@ -183,7 +180,8 @@ export default {
       zoom: {
         value: 1,   // Текущий зум
         step: 0.1,  // Шаг зума
-      }
+      },
+      cacheViewBox: null
     };
   }
 };
