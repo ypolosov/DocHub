@@ -1,11 +1,22 @@
 <template>
-  <div v-html="svg" class="plantuml-schema"
-    :style="{cursor: cursor}"
-    @mousedown.prevent="onMouseDown"
-    @mousemove.prevent="onMouseMove"
-    @mouseup.prevent="onMouseUp"
-    @mouseleave.prevent="onMouseUp"
-  >
+  <div>
+    <v-progress-circular
+        v-if="isLoading"
+        :size="64"
+        :width="7"
+        style="left: 50%; top: 50%; position: absolute; margin-left: -32px; margin-top: -32px;"
+        :value="60"
+        color="primary"
+        indeterminate
+    ></v-progress-circular>
+    <div v-else v-html="svg" class="plantuml-schema"
+      :style="{cursor: cursor}"
+      @mousedown.prevent="onMouseDown"
+      @mousemove.prevent="onMouseMove"
+      @mouseup.prevent="onMouseUp"
+      @mouseleave.prevent="onMouseUp"
+    >
+    </div>
   </div>
 </template>
 
@@ -107,17 +118,21 @@ export default {
         return;
       }
 
-      axios({
-        url: plantUML.svgURL(this.uml)
-      }).then((response) => {
-        this.svg = response.data.toString();
-        this.$nextTick(() => this.prepareSVG());
-      }).catch((error) => {
-        if (error.response && error.response.status === 400) {
-          this.svg = error.response.data.toString();
+      this.isLoading = true;
+
+      this.$nextTick(() => {
+        axios({
+          url: plantUML.svgURL(this.uml)
+        }).then((response) => {
+          this.svg = response.data.toString();
+          this.isLoading = false;
           this.$nextTick(() => this.prepareSVG());
-        } else {
-          this.svg = `
+        }).catch((error) => {
+          if (error.response && error.response.status === 400) {
+            this.svg = error.response.data.toString();
+            this.$nextTick(() => this.prepareSVG());
+          } else {
+            this.svg = `
             <svg viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg">
               <style>
                 .small {font: italic 12px sans-serif;}
@@ -127,9 +142,12 @@ export default {
               <text x="200" y="60" text-anchor="middle" class="small">${error}</text>
             </svg>
          `;
-        }
-        // eslint-disable-next-line no-console
-        console.error(error);
+          }
+          // eslint-disable-next-line no-console
+          console.error(error);
+        }).finally(()=> {
+          this.isLoading = false;
+        });
       });
     }
   },
@@ -172,6 +190,7 @@ export default {
   data() {
     return {
       svg: '',
+      isLoading: true,
       svgEl: null,
       isShiftSens: false, // Признак, что пользователь нажал шифт
       isMove: false, // Признак перемещения схемы

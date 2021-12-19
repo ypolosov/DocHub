@@ -40,9 +40,12 @@ export default {
       return (this.$store.state.sources.find((item) => item.path === `/contexts/${this.context}`) || {}).location;
     },
     schema () {
+      const startTime = Date.now();
       const result = jsonata(query.context(this.context, this.location))
           .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
       this.$nextTick(this.reloadCustomUML);
+      // eslint-disable-next-line no-console
+      console.info('Spent time = ', Date.now() - startTime);
       return result;
     },
     isCustomUML () {
