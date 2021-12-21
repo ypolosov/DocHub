@@ -1,3 +1,78 @@
+
+const SCHEMA_CONTEXT = `
+(
+    $MANIFEST := $;
+    $CONTEXT_ID := '{%CONTEXT_ID%}';
+    $CONTEXT := $CONTEXT_ID = 'self' ? {"title": "Собственный"} : $lookup($MANIFEST.contexts, $CONTEXT_ID);
+    $ARRLEFT := function($ARR ,$COUNT) {
+        $map($ARR, function($v, $i) {
+            $i < $COUNT ? $v : undefined
+        })
+    };
+    $MKNS := function($IDS) {(
+        $map($IDS, function($v, $i) {(
+            $ID := $join($ARRLEFT($IDS, $i + 1), ".");
+            $NAMESPACE := $lookup($MANIFEST.namespaces, $ID);
+            {
+                "id": $ID,
+                "title": $NAMESPACE and $NAMESPACE.title ? $NAMESPACE.title : $ID,
+                "type": $NAMESPACE.type
+            }
+        )})
+    )};
+    {
+        "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
+        "id": $CONTEXT_ID,
+        "uml": $CONTEXT.uml,
+        "extra": $CONTEXT."extra-links",
+        "components": [$CONTEXT.components.(
+            $COMPONENT_ID := $;
+            $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
+            $NAMESPACES_IDS := $split($, ".");
+            $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
+                $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
+            });
+            {
+                "order": $NAMESPACE_ID & ":" & $COMPONENT_ID,
+                "id": $COMPONENT_ID,
+                "title": $COMPONENT.title,
+                "entity": $COMPONENT.entity ? $COMPONENT.entity : 'component',
+                "type": $COMPONENT.type,
+                "namespaces":[$MKNS($NAMESPACES_IDS)],
+                "is_context": $lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false,
+                "links": [$distinct($COMPONENT.links).(
+                    $COMPONENT := $lookup($MANIFEST.components, $.id);
+                    $NAMESPACES_IDS := $split($.id, ".");
+                    $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
+                        $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
+                    });
+                    $CONTRACT := $lookup($MANIFEST.docs, $.contract);
+                    {
+                        "id": $.id,
+                        "title": $COMPONENT.title ? $COMPONENT.title : $.id,
+                        "direction": $.direction ? $.direction : '--',
+                        "link_title": $.title,
+                        "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
+                        "namespaces":[$MKNS($NAMESPACES_IDS)],
+                        "contract": $CONTRACT ? {
+                            "id": $.contract,
+                            "location": $CONTRACT.location
+                        } : undefined
+                    }
+                )],
+                "aspects": [$COMPONENT.aspects.$spread().(
+                    $ASPECT := $lookup($MANIFEST.aspects, $);
+                    {
+                    "id": $,
+                    "title": $ASPECT.title ? $ASPECT.title : $
+                })]
+            }
+        )]^(order)[]
+    }
+)
+`;
+
+/* до умного сбора контекстов
 const SCHEMA_CONTEXT = `
 (
     $MANIFEST := $;
@@ -51,12 +126,12 @@ const SCHEMA_CONTEXT = `
                     {
                         "id": $.id,
                         "title": $COMPONENT.title ? $COMPONENT.title : $.id,
-                        "direction": $.direction ? $.direction : '--', 
+                        "direction": $.direction ? $.direction : '--',
                         "link_title": $.title,
                         "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
                         "namespaces":[$MKNS($NAMESPACES_IDS)],
                         "contract": $CONTRACT ? {
-                            "id": $.contract, 
+                            "id": $.contract,
                             "location": $CONTRACT.location
                         } : undefined
                     }
@@ -72,6 +147,7 @@ const SCHEMA_CONTEXT = `
     }
 )
 `;
+ */
 
 const SCHEMA_COMPONENT = `
 (

@@ -221,33 +221,40 @@ export default {
             notEmpty = true;
             const title = this.makeRef('component', component.id, component.title);
             // Если компонент является системой, описываем его через DSL
-            const entity = component.entity.toString();
-            if (component.aspects && component.aspects.length) {
-              if (entity === 'system') {
-                result += `$System(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n`;
-              } else {
-                result += `${component.entity} ${component.id}`;
-              }
-              const aspectList = [];
-              component.aspects.map((aspect) => {
-                let aspectTitle = this.makeRef('aspect', aspect.id, aspect.title);
-                aspectList.push(aspectTitle);
+            let entity = component.entity.toString();
+            // todo Костыль для совместимости. Нужно будет удалить, когда все перейдут на новый синтаксис
+            switch (entity) {
+              case 'system':
+                entity = "$System";
+                break;
+              case 'person':
+                entity = "$Person";
+                break;
+            }
+            if (entity === 'system') entity = "$System"
+            // Формируем список аспектов
+            const aspectList = [];
+            (component.aspects || []).map((aspect) => {
+              let aspectTitle = this.makeRef('aspect', aspect.id, aspect.title);
+              aspectList.push(aspectTitle);
+            });
+
+            // Если сущность описана с "$", предполагается, что это DSL шаблон
+            if (entity.slice(0,1) === '$') {
+              result += `${entity}(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n`;
+              aspectList.map((prop) => {
+                result += `${entity}Aspect("${prop}")\n`;
               });
-              if (entity === 'system') {
-                aspectList.map((prop) => {
-                  result += `$Property("${prop}")\n`;
-                });
-                result += '\n$SystemEnd()\n'
-              } else if (aspectList.length) {
-                result += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n]`;
-              }
+              if (component.is_context)
+                result += `${entity}Expand(${component.id})\n`
+              result += `\n${entity}End()\n`
             } else {
-              if (entity === 'system') {
-                result += `$System(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n$SystemEnd()\n`;
-              } else if (entity === 'person') {
-                result += `$Person(${component.id}, "${title}")\n`;
+              if (aspectList.length || component.is_context) {
+                result += `${component.entity} ${component.id}`;
+                result += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n`;
+                result += component.is_context ? `---\n[[/architect/contexts/${component.id} ≫≫]]\n]`: `]`;
               } else {
-                result += `${component.entity} "${title}" as ${component.id}`;
+                result += `${component.entity} "${component.title}" as ${component.id}`;
               }
             }
             result += `\n`
@@ -276,7 +283,7 @@ export default {
       uml += '@enduml';
 
       // eslint-disable-next-line no-console
-      // console.info(uml);
+      console.info(uml);
       return uml;
     }
   },

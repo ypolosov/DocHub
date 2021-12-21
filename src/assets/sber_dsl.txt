@@ -104,7 +104,7 @@ backgroundcolor pink
 
 'Свойства для АС
 '#################################################################
-!unquoted procedure $Property($func="", $type="")
+!unquoted procedure $SystemAspect($func="", $type="")
 !if ($func!= "")
 	!if (%strpos($type, "+") == 0)
 <size:13><color:red>+</color></size> $func
@@ -120,6 +120,12 @@ backgroundcolor pink
 		!endif
 	!endif
 !endif
+!endprocedure
+
+'Развертывание контекста
+!unquoted procedure $SystemExpand($ID)
+---
+[[/architect/contexts/$ID ≫≫]]
 !endprocedure
 
 'Стек для АС
@@ -176,11 +182,20 @@ backgroundcolor pink
 
 'Person
 '#################################################################
-!unquoted procedure $Person($PersonID, $PersonName)
+!unquoted procedure $Person($PersonID, $PersonName, $Type)
 component $PersonID <<Person>> [
 ..<size:88><&person,color=Blue></size>..
 ..===$PersonName..
 ]
+!endprocedure
+
+!unquoted procedure $PersonAspect()
+!endprocedure
+
+!unquoted procedure $PersonExpand($ContextID)
+!endprocedure
+
+!unquoted procedure $PersonEnd()
 !endprocedure
 
 'Device

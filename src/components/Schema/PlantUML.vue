@@ -58,8 +58,6 @@ export default {
     doZoom (value, x, y) {
       const kX = x / (this.svgEl.clientWidth || x);
       const kY = y / (this.svgEl.clientHeight || y);
-      // eslint-disable-next-line no-console
-      console.info('kX=', kX, 'kY=', kY);
       let resizeWidth = value * this.viewBox.width;
       let resizeHeight = value * this.viewBox.height;
       this.viewBox.x -= resizeWidth * kX;

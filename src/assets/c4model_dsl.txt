@@ -118,9 +118,13 @@ backgroundcolor pink
     }
 !endprocedure
 
+!unquoted procedure $SystemExpand($ID)
+    [[/architect/contexts/$ID ≫≫]]
+!endprocedure
+
 'Свойства для АС
 '#################################################################
-!unquoted procedure $Property($func="", $type="")
+!unquoted procedure $SystemAspect($func="", $type="")
 /'!if ($func!= "")
 	!if (%strpos($type, "+") == 0)
 <size:13><&plus,color=red></size> $func
@@ -192,11 +196,20 @@ backgroundcolor pink
 
 'Person
 '#################################################################
-!unquoted procedure $Person($PersonID, $PersonName)
+!unquoted procedure $Person($PersonID, $PersonName, $Type)
 component $PersonID <<Person>> [
 ..<size:88><&person,color=white></size>..
 ..===$PersonName..
 ]
+!endprocedure
+
+!unquoted procedure $PersonEnd()
+!endprocedure
+
+!unquoted procedure $PersonAspect($title, $id)
+!endprocedure
+
+!unquoted procedure $PersonExpand($id)
 !endprocedure
 
 'Device

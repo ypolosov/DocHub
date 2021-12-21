@@ -87,6 +87,30 @@ skinparam {
     title $Title
 !endprocedure
 
+
+'Развертывание контекста
+!unquoted procedure $ExpandContext($ID)
+---
+[[/architect/contexts/$ID ≫≫]]
+!endprocedure
+
+'Неизвестные объекты
+!unquoted procedure $Unknown($ID, $ACName)
+    rectangle $ID [
+        <b>$ACName</b>
+        ====
+!endprocedure
+
+!unquoted procedure $UnknownEnd()
+    ]
+!endprocedure
+
+!unquoted procedure $UnknownAspect($func="", $AType = "")
+    * $func
+!endprocedure
+
+
+'Компоненты
 !unquoted procedure $System($ID, $ACName, $AType = "")
     component $ID[
         * <b>$ACName</b>
@@ -97,7 +121,7 @@ skinparam {
     ]
 !endprocedure
 
-!unquoted procedure $Property($func="", $AType = "")
+!unquoted procedure $SystemAspect($func="", $AType = "")
     * $func
 !endprocedure
 
@@ -114,10 +138,19 @@ skinparam component<<Person>> {
 
 'Person
 '#################################################################
-!unquoted procedure $Person($PersonID, $PersonName)
+!unquoted procedure $Person($PersonID, $PersonName, $Type)
 actor $PersonID <<Person>> [
 ..===$PersonName..
 ]
+!endprocedure
+
+!unquoted procedure $PersonEnd()
+!endprocedure
+
+!unquoted procedure $PersonAspect($ID, $title)
+!endprocedure
+
+!unquoted procedure $PersonExpand($ID, $title)
 !endprocedure
 
 
