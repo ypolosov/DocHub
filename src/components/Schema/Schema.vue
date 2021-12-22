@@ -87,12 +87,18 @@ export default {
 
           linkTitle.appendChild(titlePath);
           svg.appendChild(linkTitle);
-        } else {
+        } else if (linkTitle) {
           const olehref = linkTitle;
           linkTitle = olehref.querySelectorAll('text')[0];
           olehref.remove();
           if (linkTitle.innerHTML !== '⠀')
             svg.appendChild(linkTitle);
+        }
+
+        if (!linkTitle)  {
+          // eslint-disable-next-line no-console
+          console.warn('Что-то пошло не так в постобработке линка', linkId);
+          continue;
         }
 
         linkTitle.classList.add('schema-link-title');
@@ -265,7 +271,7 @@ export default {
                 result += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n`;
                 result += component.is_context ? `---\n[[/architect/contexts/${component.id} ≫≫]]\n]`: `]`;
               } else {
-                result += `${component.entity} "${component.title}" as ${component.id}`;
+                result += `${component.entity} "<b>${title}</b>" as ${component.id}`;
               }
             }
             result += `\n`
