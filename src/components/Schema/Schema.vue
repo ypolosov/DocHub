@@ -56,9 +56,10 @@ export default {
         })();
         //const selector = `path[id^='${link.linkFrom}'][id$='${link.linkTo}']`
         const linkPath = svg.querySelectorAll(selector)[0];
-        let linkTitle = svg.querySelectorAll(`a[href="http://#${encodeURI(linkId)}"]`)[0];
+        let linkTitle = svg.querySelectorAll(`a[href="http://#${encodeURI(linkId)}"]`);
         if (linkPath) {
-          linkTitle.remove();
+          for (let i = 0; i < linkTitle.length; i++)
+            linkTitle[i].remove();
           linkPath.classList.add("link-path");
           linkPath.style = null;
           const defPathID = `def_${prefix++}_${linkPath.id}`;
@@ -87,19 +88,16 @@ export default {
 
           linkTitle.appendChild(titlePath);
           svg.appendChild(linkTitle);
-        } else if (linkTitle) {
-          const olehref = linkTitle;
-          linkTitle = olehref.querySelectorAll('text')[0];
-          olehref.remove();
+        } else if (linkTitle.length) {
+          const oldLinks = linkTitle;
+          linkTitle = linkTitle[0].querySelectorAll('text')[0];
+          for (let i = 0; i < oldLinks.length; i++)
+            oldLinks[i].remove();
           if (linkTitle.innerHTML !== '⠀')
             svg.appendChild(linkTitle);
         }
 
-        if (!linkTitle)  {
-          // eslint-disable-next-line no-console
-          console.warn('Что-то пошло не так в постобработке линка', linkId);
-          continue;
-        }
+        if (!linkTitle) continue;
 
         linkTitle.classList.add('schema-link-title');
 
