@@ -187,6 +187,7 @@ const SCHEMA_COMPONENT = `
                 "entity": $COMPONENT.entity,
                 "type": $COMPONENT.type,
                 "namespaces":[$MKNS($NAMESPACES_IDS)],
+                "is_context": $lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false,
                 "contexts": $distinct(
                     $MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].$keys()[0]
                 ),

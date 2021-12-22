@@ -56,7 +56,9 @@ export default {
         })();
         //const selector = `path[id^='${link.linkFrom}'][id$='${link.linkTo}']`
         const linkPath = svg.querySelectorAll(selector)[0];
+        let linkTitle = svg.querySelectorAll(`a[href="http://#${encodeURI(linkId)}"]`)[0];
         if (linkPath) {
+          linkTitle.remove();
           linkPath.classList.add("link-path");
           linkPath.style = null;
           const defPathID = `def_${prefix++}_${linkPath.id}`;
@@ -65,23 +67,16 @@ export default {
           path.setAttribute('d',linkPath.getAttribute('d'));
           defs.appendChild(path);
 
-          const title = this.createSVGElement('svg:text');
-          title.classList.add('schema-link-title');
-          title.setAttribute('text-anchor', 'middle');
-          title.setAttribute('dy', -4);
+          linkTitle = this.createSVGElement('svg:text');
+          linkTitle.setAttribute('dy', -4);
+          linkTitle.setAttribute('text-anchor', 'middle');
 
           const titlePath = this.createSVGElement('svg:textPath');
           titlePath.setAttribute("href", `#${defPathID}`);
           titlePath.setAttribute("startOffset", '50%');
           titlePath.textContent = link.link_title;
-          if (link.contract) {
-            const contactID = link.contract.id;
-            titlePath.addEventListener("click", () => {
-              this.$router.push({ path: `/docs/${contactID}`});
-            });
-          }
 
-          title.setAttribute('data-link-selector', prefix);
+          linkTitle.setAttribute('data-link-selector', prefix);
           titlePath.setAttribute('data-link-selector', prefix);
           titlePath.addEventListener('mouseover', this.onOverLink);
           titlePath.addEventListener('mouseout', this.onOutLink);
@@ -90,9 +85,25 @@ export default {
           linkPath.addEventListener('mouseover', this.onOverLink);
           linkPath.addEventListener('mouseout', this.onOutLink);
 
-          title.appendChild(titlePath);
-          svg.appendChild(title);
+          linkTitle.appendChild(titlePath);
+          svg.appendChild(linkTitle);
+        } else {
+          const olehref = linkTitle;
+          linkTitle = olehref.querySelectorAll('text')[0];
+          olehref.remove();
+          if (linkTitle.innerHTML !== '⠀')
+            svg.appendChild(linkTitle);
         }
+
+        linkTitle.classList.add('schema-link-title');
+
+        if (link.contract) {
+          const contactID = link.contract.id;
+          linkTitle.addEventListener("click", () => {
+            this.$router.push({ path: `/docs/${contactID}`});
+          });
+        }
+
       }
     },
     makeRef(type, id, title) {
@@ -276,7 +287,7 @@ export default {
               namespace = namespace.namespaces[link.namespaces[i].id];
             }
             return namespace.components[link.id] && !namespace.components[link.id].extra
-          })()) uml += `${linkId}: "                               "\n`
+          })()) uml += `${linkId}: [[http://#${encodeURI(linkId)} ${link.link_title || "⠀"}]]\n`
         }
         this.schema.uml && this.schema.uml.$after && (uml += this.schema.uml.$after + '\n');
       }
