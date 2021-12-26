@@ -316,7 +316,8 @@ const MENU_QUERY = `
         {
             "title": "Аспекты",
             "location": 'architect/aspects',
-            "icon": 'visibility'
+            "icon": 'visibility',
+            "route": 'aspects/'
         },
         {
             "title": 'Документы',
@@ -414,12 +415,12 @@ const SUMMARY_COMPONENT_QUERY = `
 
 const DOCUMENTS_FOR_ENTITY_QUERY = `
 (
-    $COMPONENT_ID := '{%ENTITY%}';
+    $ENTITY_ID := '{%ENTITY%}';
     $MANIFEST := $;
     [docs.$spread().(
         $LINK := "/docs/" & $keys()[0];
-        $COMPONENT_ID in *.subjects ?
-        [$[$COMPONENT_ID in *.subjects]
+        $ENTITY_ID in *.subjects ?
+        [$[$ENTITY_ID in *.subjects]
             {
                 "location": *.location,
                 "title": *.description,
@@ -574,12 +575,37 @@ const TECHNOLOGY_QUERY = `
 
 const ARCH_MINDMAP_COMPONENTS_QUERY = `
 (
-    [components.$spread().
+    $FILTER := '{%ROOT%}';
+    $FILTER_LN := $length($FILTER);
+    [[components.$spread().(
+        $ID := $keys()[0];
+        $PREFIX := $substring($ID, 0, $FILTER_LN + 1);
+        $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
         {
-            "id": $keys()[0],
+            "id": $ID,
             "title": $.*.title
-        }
-    ]^(id)
+        }) : undefined
+    )]^(id)]
+)`;
+
+const ARCH_MINDMAP_ASPECTS_QUERY = `
+(
+    $MANIFEST := $;
+    $FILTER := '{%ROOT%}';
+    $FILTER_LN := $length($FILTER);
+    $USED_ASPECTS := $distinct($.components.*.aspects);
+    $ASPECTS := $.aspects.$spread().$keys()[0];
+    [[$append($USED_ASPECTS, $ASPECTS).(
+        $PREFIX := $substring($, 0, $FILTER_LN + 1);
+        $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
+            $ASPECT := $lookup($MANIFEST.aspects, $);
+            {
+                "id": $,
+                "title": $ASPECT.title ? $ASPECT.title : id,
+                "used": $ in $USED_ASPECTS
+            }
+        ) : undefined
+    )]^(id)]
 )`;
 
 const PROBLEMS_QUERY = `
@@ -761,7 +787,11 @@ export default {
         return DOCUMENTS_FOR_ENTITY_QUERY.replace(/{%ENTITY%}/g, entity);
     },
     // MindMap по архитектурным компонентам
-    archMindMapComponents() {
-        return ARCH_MINDMAP_COMPONENTS_QUERY;
+    archMindMapComponents(root) {
+        return ARCH_MINDMAP_COMPONENTS_QUERY.replace(/{%ROOT%}/g, root || '');
+    },
+    // MindMap по архитектурным аспектам
+    archMindMapAspects(root) {
+        return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
     }
 }

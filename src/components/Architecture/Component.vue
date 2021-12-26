@@ -30,6 +30,15 @@
                 <docs-tree :entity="component"></docs-tree>
               </v-card-text>
             </v-card>
+            <v-card class="card-item" xs12 md12 style="margin-top: 12px">
+              <v-card-title>
+                <v-icon left>description</v-icon>
+                <span class="title">Иерархия</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <components-mindmap :root="component"></components-mindmap>
+              </v-card-text>
+            </v-card>
           </v-container>
         </v-layout>
       </v-flex>
@@ -61,12 +70,14 @@ import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
 import requests from "../../helpers/requests";
 import DocsTree from "../Docs/DocsTree";
+import ComponentsMindmap from "@/components/Mindmap/ComponentsMindmap";
 
 export default {
   name: 'Component_',
   components: {
     Schema,
-    DocsTree
+    DocsTree,
+    ComponentsMindmap
   },
   methods: {
     goToLink() {

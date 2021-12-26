@@ -95,6 +95,8 @@ export default {
             oldLinks[i].remove();
           if (linkTitle.innerHTML !== '⠀')
             svg.appendChild(linkTitle);
+        } else if (!linkTitle.length) {
+          linkTitle = undefined;
         }
 
         if (!linkTitle) continue;

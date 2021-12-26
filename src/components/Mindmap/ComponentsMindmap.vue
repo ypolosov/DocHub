@@ -18,10 +18,13 @@ export default {
   },
   methods: {
   },
+  props: {
+    root: String // Корневой идентификатор
+  },
   computed: {
     uml () {
       const asis = this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
-      const nodes = jsonata(query.archMindMapComponents()).evaluate(asis);
+      const nodes = jsonata(query.archMindMapComponents(this.root)).evaluate(asis);
       const namespaces = asis.namespaces || {};
       const contexts = asis.contexts || {};
       let uml = '@startwbs\n* Архитектура\n';

@@ -1,7 +1,7 @@
 <template>
   <v-container grid-list-xl fluid>
     <v-layout wrap>
-      <v-flex xs12 md6 d-flex>
+      <v-flex xs12 md5 d-flex>
         <v-layout wrap>
           <v-container grid-list-xl fluid>
             <v-card>
@@ -20,13 +20,16 @@
                 </v-list>
               </v-card-text>
             </v-card>
-          </v-container>
-        </v-layout>
-      </v-flex>
-      <v-flex xs12 md6 d-flex>
-        <v-layout wrap>
-          <v-container grid-list-xl fluid>
-            <v-card>
+            <v-card class="card-item" xs12 md12>
+              <v-card-title>
+                <v-icon left>description</v-icon>
+                <span class="title">Документы</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <docs-tree :entity="aspect"></docs-tree>
+              </v-card-text>
+            </v-card>
+            <v-card class="card-item" xs12 md12>
               <v-card-title>
                 <v-icon left>settings</v-icon>
                 <span class="title">Встречается в компонентах</span>
@@ -41,10 +44,19 @@
                 </ul>
               </v-card-text>
             </v-card>
+            <v-card class="card-item" xs12 md12>
+              <v-card-title>
+                <v-icon left>description</v-icon>
+                <span class="title">Иерархия</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <aspects-mindmap :root="aspect"></aspects-mindmap>
+              </v-card-text>
+            </v-card>
           </v-container>
         </v-layout>
       </v-flex>
-      <v-flex xs12 md12 d-flex>
+      <v-flex xs12 md7 d-flex>
         <v-card v-if="contexts.length">
           <v-card-title>
             <v-icon left>link</v-icon>
@@ -72,11 +84,15 @@ import jsonata from "jsonata";
 import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
 import requests from "../../helpers/requests";
+import DocsTree from "../Docs/DocsTree";
+import AspectsMindmap from "@/components/Mindmap/AspectsMindmap";
 
 export default {
   name: 'Aspect',
   components: {
-    Schema
+    Schema,
+    DocsTree,
+    AspectsMindmap
   },
   methods: {
     goToLink() {
@@ -137,5 +153,6 @@ export default {
 <style scoped>
 .card-item {
   width: 100%;
+  margin-top: 12px;
 }
 </style>

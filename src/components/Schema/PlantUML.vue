@@ -15,6 +15,7 @@
       @mousemove.prevent="onMouseMove"
       @mouseup.prevent="onMouseUp"
       @mouseleave.prevent="onMouseUp"
+      @wheel="proxyScrollEvent"
     >
     </div>
   </div>
@@ -24,16 +25,9 @@
 
 import axios from 'axios';
 import plantUML from '../../helpers/plantuml'
-// import DSL from '!!raw-loader!./../../assets/dsl.txt'
 
 export default {
   name: 'PlantUML',
-  created() {
-    window.addEventListener('mousewheel', this.proxyScrollEvent);
-  },
-  destroyed () {
-    window.removeEventListener('mousewheel', this.proxyScrollEvent);
-  },
   mounted() {
     this.reloadSVG();
   },
@@ -68,6 +62,8 @@ export default {
     },
     proxyScrollEvent (event) {
       if (!event.shiftKey) return;
+      // eslint-disable-next-line no-console
+      console.info(event.target);
       let e = window.event || event;
       switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
         case 1:
@@ -83,6 +79,12 @@ export default {
       const url = new URL(event.currentTarget.href.baseVal, window.location);
       this.$router.push({ path: url.pathname});
       return false;
+    },
+    doResize() {
+      if (this.$el.clientWidth > this.viewBox.width) {
+        this.svgEl.setAttribute("width", `${this.$el.clientWidth}px`)
+        this.viewBox.width = this.$el.clientWidth;
+      }
     },
     bindHREF() {
       const refs = this.svgEl.querySelectorAll('[href]');
@@ -103,6 +105,7 @@ export default {
       this.cacheViewBox = null;
       if (this.svgEl) {
         this.svgEl.style = null;
+        this.doResize();
         this.bindHREF();
         if (this.postrender) this.postrender(this.svgEl);
       }

@@ -1,0 +1,73 @@
+<template>
+  <plantuml :uml = "uml"></plantuml>
+</template>
+
+<script>
+
+import PlantUML from "../Schema/PlantUML";
+import query from "../../manifest/query";
+import jsonata from 'jsonata';
+import manifest_parser from "../../manifest/manifest_parser";
+
+export default {
+  name: 'AspectsMindMap',
+  components: {
+    "plantuml" : PlantUML
+  },
+  mounted() {
+  },
+  methods: {
+  },
+  props: {
+    root: String // Корневой идентификатор
+  },
+  computed: {
+    uml () {
+      const asis = this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
+      const nodes = jsonata(query.archMindMapAspects(this.root)).evaluate(asis);
+      let uml = '@startwbs\n* Аспекты\n';
+
+      const appendNode = (before, current, title) => {
+        let deep = '**';
+        let isPrefix = true;
+        const beforeStruct = before.split('.');
+        const curentStruct = current.split('.');
+        for (let i = 0; i < curentStruct.length; i++) {
+          isPrefix = isPrefix && (beforeStruct[i] === curentStruct[i]);
+          if (!isPrefix) {
+            if (i === curentStruct.length - 1) {
+              uml += `${deep} [[/architect/aspects/${current} ${title}]]`
+            } else {
+              const aspectID = curentStruct.slice(0, i + 1).join('.');
+              const aspect = asis.aspects && asis.aspects[aspectID];
+              const title = (aspect && aspect.title) || curentStruct[i];
+              uml += `${deep} [[/architect/aspects/${aspectID} ${title}]]\n`;
+            }
+          }
+          deep += '*';
+        }
+        uml += '\n';
+      }
+
+      let before = '';
+      nodes && nodes.map((node) => {
+        appendNode(before, node.id, node.title);
+        before = node.id;
+      });
+      uml += '@endwbs\n';
+      // eslint-disable-next-line no-console
+      console.info(uml);
+      return uml;
+    }
+  },
+  data() {
+    return {
+    };
+  }
+};
+</script>
+
+<style scoped>
+
+
+</style>

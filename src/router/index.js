@@ -13,6 +13,7 @@ import Radar from "../components/Techradar/Main";
 import Technology from "../components/Techradar/Technology";
 import Problems from "../components/Problems/Problems";
 import ComponentsMindmap from "../components/Mindmap/ComponentsMindmap";
+import AspectsMindmap from "../components/Mindmap/AspectsMindmap";
 
 Vue.use(Router)
 
@@ -87,9 +88,15 @@ export default new Router({
             props: middleware
         },
         {
-            name: 'contexts',
+            name: 'architect',
             path: '/architect',
             component: ComponentsMindmap,
+            props: middleware
+        },
+        {
+            name: 'aspects',
+            path: '/aspects',
+            component: AspectsMindmap,
             props: middleware
         },
         {
