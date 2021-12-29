@@ -1,8 +1,6 @@
 name: build dochub
 on:
   push:
-    tags-ignore:
-    - plantuml-*
     tags:
     - v*
 

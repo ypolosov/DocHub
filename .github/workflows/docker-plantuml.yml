@@ -5,8 +5,6 @@ on:
 #    - plantuml-server/*
     tags:
     - plantuml-*
-    tags-ignore:
-    - v*
 
 jobs:
   buildx:
