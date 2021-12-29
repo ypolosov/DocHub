@@ -1,4 +1,7 @@
 .git
 .gitlab-ci.yml
 Dockerfile
+docker-compose.dev.yaml
 helm
+plantuml-server
+**/*.md

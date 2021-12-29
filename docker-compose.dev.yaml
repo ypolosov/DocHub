@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    command:
+    - ash
+    - -c
+    - "npm install && npm run serve"
+    volumes:
+    - ./:/var/www
+    container_name: dockhub-frontend
+    environment:
+      VUE_APP_PLANTUML_SERVER: localhost:8079/svg/
+    ports:
+      - 8080:8080
+
+
+  plantuml:
+    build:
+      context: plantuml-server
+      dockerfile: Dockerfile
+      target: plantuml
+    container_name: dockhub-plantuml
+    ports:
+      - 8079:8080
