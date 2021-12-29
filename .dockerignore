@@ -2,6 +2,7 @@
 .gitlab-ci.yml
 Dockerfile
 docker-compose.dev.yaml
+docker-compose.yaml
 helm
 plantuml-server
 **/*.md
