@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: nginx
-  pullPolicy: IfNotPresent
+  repository: ghrc.io/rabotaru/dochub/frontend
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "master"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -81,4 +81,23 @@ tolerations: []
 
 affinity: {}
 
+# Custom envs for dochub
+env: {}
+
+
+plantuml:
+  image:
+    repository: ghrc.io/rabotaru/dochub/plantuml
+    tag: master
+
+  ingress:
+    enabled: false
+    hosts:
+    - plantuml.local
+
+  env:
+  - name: "PLANTUML_LIMIT_SIZE"
+    value: "131072"
+  - name: "LOG4J_FORMAT_MSG_NO_LOOKUPS"
+    value: "true"
 
