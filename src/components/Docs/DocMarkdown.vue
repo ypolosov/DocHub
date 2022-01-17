@@ -48,12 +48,21 @@ export default {
       mounted () {
         const refs = this.$el.querySelectorAll('a');
         for (let i = 0; i < refs.length; i++) {
-          const href = refs[i].href;
-          if (href.substring(0, document.location.origin.length) === document.location.origin) {
-            refs[i].addEventListener("click", (event) => {
-              event.preventDefault();
-              this.$router.push({ path: href.substring(document.location.origin.length)});
-            });
+          try {
+            const href = refs[i].href;
+            const url = new URL(href);
+            if (
+                url.origin === document.location.origin
+                && (['architect', 'docs'].indexOf(url.pathname.split('/')[1].toLocaleLowerCase()) >= 0)
+            ) {
+              refs[i].addEventListener("click", (event) => {
+                event.preventDefault();
+                this.$router.push({ path: href.substring(url.origin.length) });
+              });
+            }
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.warn(e);
           }
         }
       },
