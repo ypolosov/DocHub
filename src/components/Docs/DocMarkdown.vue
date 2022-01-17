@@ -45,6 +45,18 @@ export default {
       props: {
         template: String
       },
+      mounted () {
+        const refs = this.$el.querySelectorAll('a');
+        for (let i = 0; i < refs.length; i++) {
+          const href = refs[i].href;
+          if (href.substring(0, document.location.origin.length) === document.location.origin) {
+            refs[i].addEventListener("click", (event) => {
+              event.preventDefault();
+              this.$router.push({ path: href.substring(document.location.origin.length)});
+            });
+          }
+        }
+      },
       created () {
         this.$options.template = `<div class="markdown-document">${this.template}</div>`;
       }
