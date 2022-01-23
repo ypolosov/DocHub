@@ -2,6 +2,7 @@
 node_modules
 /dist
 /certs
+
 /public/workspace/*
 
 # local env files
