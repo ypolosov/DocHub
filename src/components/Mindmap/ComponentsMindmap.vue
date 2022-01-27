@@ -19,7 +19,16 @@ export default {
   methods: {
   },
   props: {
-    root: String // Корневой идентификатор
+    root: String, // Корневой идентификатор
+    links: {
+      type: String,
+      default: 'smart',
+      validator: value => [
+        'smart',
+        'component',
+        'context'
+      ].indexOf(value) >= 0
+    }
   },
   computed: {
     uml () {
@@ -27,25 +36,30 @@ export default {
       const nodes = jsonata(query.archMindMapComponents(this.root)).evaluate(asis);
       const namespaces = asis.namespaces || {};
       const contexts = asis.contexts || {};
+      const components = asis.components || {};
       let uml = '@startwbs\n* Архитектура\n';
       let prevStruct = [];
       nodes && nodes.map((node) => {
         uml += '**'
         let nsid = '';
+        const makeTitle = (id, title) => {
+          if ((['smart', 'context'].indexOf(this.links) >= 0) && contexts[id]) {
+            return ` [[/architect/contexts/${id} ${title}]]\n`;
+          } else if ((['smart', 'component'].indexOf(this.links) >= 0) && components[id]) {
+            return ` [[/architect/components/${id} ${title}]]\n`;
+          } else {
+            return ` ${title}\n`;
+          }
+        };
         const struct = node.id.split('.');
         for (let i = 0; i < struct.length; i++) {
           if (prevStruct[i] === struct[i]) uml += '*';
           else if (i === struct.length - 1) {
-            uml += ` [[/architect/components/${node.id} ${node.title}]]\n`;
+            uml += makeTitle(node.id, node.title);
           } else {
             const id = `${nsid}${struct[i]}`;
-            const title = (namespaces[id] || {}).title || '...';
-            const context = contexts[id];
-            if (context)
-              uml += ` [[/architect/contexts/${id} ${title}]]\n**`;
-            else
-              uml += ` ${title}\n**`;
-            for (let f = 0; f <= i; f++) uml += '*';
+            uml += makeTitle(id, (namespaces[id] || {}).title || '...');
+            for (let f = 0; f <= i + 2; f++) uml += '*';
           }
           nsid += `${struct[i]}.`;
         }

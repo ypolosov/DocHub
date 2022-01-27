@@ -16,5 +16,9 @@ fs.readFile(sourceFileName, 'utf8' , (err, yaml) => {
         return
     }
 
-    fs.writeFileSync(distanationFileName, YAML.stringify(parser.parse(YAML.parse(yaml))));
+    parser.parse(YAML.parse(yaml));
+    fs.writeFileSync(distanationFileName, YAML.stringify(parser.context));
+    for (const filename in parser.files) {
+        fs.writeFileSync(path.resolve(process.env.INIT_CWD, filename), parser.files[filename]);
+    }
 })

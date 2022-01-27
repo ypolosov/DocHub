@@ -36,7 +36,7 @@
                 <span class="title">Иерархия</span>
               </v-card-title>
               <v-card-text class="headline font-weight-bold">
-                <components-mindmap :root="component"></components-mindmap>
+                <components-mindmap :root="component" links="component"></components-mindmap>
               </v-card-text>
             </v-card>
           </v-container>

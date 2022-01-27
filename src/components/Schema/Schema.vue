@@ -11,6 +11,7 @@ import PlantUML from "./PlantUML";
 import PlantUMLDSL from "!!raw-loader!../../assets/plantuml_dsl.txt";
 import C4ModelDSL from "!!raw-loader!../../assets/c4model_dsl.txt";
 import SberDSL from "!!raw-loader!../../assets/sber_dsl.txt";
+import manifest_parser from "@/manifest/manifest_parser";
 
 export default {
   name: 'Schema',
@@ -133,6 +134,10 @@ export default {
       return !('extra' in this.schema) || (this.schema.extra !== false);
     },
 
+    manifest() {
+      return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
+    },
+
     structure() {
       // Структура схемы
       const structure = {
@@ -218,7 +223,13 @@ export default {
           let notEmpty = false;
           if (namespace.id) {
             const type = namespace.type ? `"${namespace.type}"` : "";
-            result += `$Region(${namespace.id},"${namespace.title}", ${type}) {\n`;
+            let title = namespace.title;
+            if (this.manifest.contexts[namespace.id]) {
+              title = `[[/architect/contexts/${namespace.id} ${title}]]`;
+            } else if (this.manifest.components[namespace.id]) {
+              title = `[[/architect/components/${namespace.id} ${title}]]`;
+            }
+            result += `$Region(${namespace.id},"${title}", ${type}) {\n`;
           }
           // Если есть вложенные пространства, отображаем их тоже
           if (namespace.namespaces) {
