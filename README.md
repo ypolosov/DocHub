@@ -102,6 +102,7 @@ PlantUml будет доступен по пути http://localhost:8079/svg
 ```console
 npm install
 npm run build
+npm run serve
 ```
 
 
