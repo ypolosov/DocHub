@@ -57,9 +57,8 @@ DocHub умеет находить проблемы в описании архи
 ![Инкрементальное развитие архитектуры](pics/problems.png)
 
 
-## Развертывание
 
-### Конфигурирование
+## Конфигурирование
 
 Определите необходимые переменные окружения. Используйте файл примера ".env-example" для этого. Переименуйте его для
 продакшен окружения в ".env" для локального развертывания в ".env.local". 
@@ -67,34 +66,70 @@ DocHub умеет находить проблемы в описании архи
 Если вы ничего не будете трогать, развертывание произойдет с дефолтными настройками. В этом случае DocHub будет 
 содержать собственную документацию.   
 
-### Локальное развертывание
+| Переменная                        | Описание                                      |     Значение по-умолчанию      |             Обязательно             |
+|-----------------------------------|-----------------------------------------------|:------------------------------:|:-----------------------------------:|
+| VUE_APP_DOCHUB_ROOT_MANIFEST      | URI в формате DocHub корневого манифеста      |    workspace/meta/root.yaml    |                 Да                  |
+| VUE_APP_DOCHUB_ROOT_DOCUMENT      | Идентификатор документа главной страницы.     |         dochub_welcome         |                 Да                  |
+| VUE_APP_DOCHUB_GITLAB_URL         | URL до GitLab                                 |       https://foo.space        |                 Нет                 |
+| VUE_APP_DOCHUB_PERSONAL_TOKEN     | Персональный токен gitlab для разработки      |                                |                 Нет                 |
+| VUE_APP_DOCHUB_APP_ID             | ID приложения зарегистрированного в GitLab    |                                | если есть VUE_APP_DOCHUB_GITLAB_URL |
+| VUE_APP_DOCHUB_CLIENT_SECRET      | Секрет приложения в GitLab                    |                                | если есть VUE_APP_DOCHUB_GITLAB_URL |
+ | VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS | y/n подключает в описание документацию DocHub |               n                |                 Нет                 |
+| VUE_APP_PLANTUML_SERVER           | Cервер рендеринга PlantUML                    | www.plantuml.com/plantuml/svg/ |                 Да                  |
 
-Выполните команды: 
+
+> [Больше информации](https://cli.vuejs.org/ru/guide/mode-and-env.html) о переменных среды выполнения
+
+## Развертывание
+
+Проект является VueJS SPA приложением. Все развертывание типично для vueJS приложений.
+В качестве backend пользуется GitLab.
+
+
+### Локальное
+
+Запустим локальный plantuml сервер
+
+```console
+docker-compose up plantuml
 ```
-docker-compose build
-docker-compose up
-```
-DocHub станет доступен по адресу [http://localhost:8080/main](http://localhost:8080/main)
 
-### Сборка из исходников для продакшен
+PlantUml будет доступен по пути http://localhost:8079/svg
 
-Проект является VueJS SPA приложением. В качестве backend пользуется GitLab.
 
-Для развёртывания потребуется стандартная сборка VueJS приложения средствами npm.
-```
+Далее запустим npm
+
+```console
 npm install
 npm run build
 ```
+
+
+DocHub станет доступен по адресу http://localhost:8080/main
 
 В результате будут сгенерированы статические файлы в папке /dist. Их необходимо
 опубликовать используя web-сервер. Например, nginx.
 
 Подробнее о вариантах развертывания можно узнать [тут](https://cli.vuejs.org/ru/guide/deployment.html).
 
-## Интеграция с GitLab
-### Для локального развертывания
-В файле ".env.local" укажите адрес GitLab в соответствующей переменной:
+Для разработки вместе с Docker
+- Монтирование исходников в контейнер
+- Сборка в докере
+- Долго
+
+```console
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up --build 
 ```
+
+
+
+## Интеграция с GitLab
+
+### Для локального развертывания
+
+В файле ".env.local" укажите адрес GitLab в соответствующей переменной:
+
+```dotenv
 VUE_APP_DOCHUB_GITLAB_URL=https://foo.space
 ```
 
@@ -103,12 +138,14 @@ VUE_APP_DOCHUB_GITLAB_URL=https://foo.space
 ![Пример настройки GitLab](pics/personal_token.png)
 
 Полученный токен укажите в файле ".env.local" в переменной:
-```
+
+```dotenv
 # Персональный токен gitlab. Используется для локальной разработки
 VUE_APP_DOCHUB_PERSONAL_TOKEN=9H...FR
 ```
 
 Перезапустите контейнеры:
+
 ```
 docker-compose down
 docker-compose up
@@ -126,13 +163,13 @@ git clone git@git.foo.space:repo.git
 
 Определите в ".env.local" переменную корневого манифеста:
 
-```
+```dotenv
 VUE_APP_DOCHUB_ROOT_MANIFEST=workspace/repo/root.yaml
 ``` 
 
 Перезапустите контейнеры:
 
-```
+```console
 docker-compose down
 docker-compose up
 ```
@@ -141,7 +178,8 @@ docker-compose up
 
 ### Для продакшена
 В файле ".env" укажите адрес GitLab в соответствующей переменной:
-```
+
+```dotenv
 VUE_APP_DOCHUB_GITLAB_URL=https://foo.space
 ```
 
@@ -151,7 +189,8 @@ VUE_APP_DOCHUB_GITLAB_URL=https://foo.space
 ![Пример настройки GitLab](pics/gitoauth.png)
 
 Полученные токены укажите в файле .env в переменных:
-```
+
+```dotenv
 # Идентификатор приложения зарегистрированного в GitLab
 VUE_APP_DOCHUB_APP_ID=5f3...f0
 
@@ -160,7 +199,8 @@ VUE_APP_DOCHUB_CLIENT_SECRET=1e4...384
 ```
 
 Соберите приложение:
-```
+
+```console
 npm run build
 ```
 

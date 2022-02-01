@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  frontend:
-    image: gchr.io/rabotaru/dockhub/frontend
-    container_name: dockhub-frontend
+  dochub:
+    image: ghcr.io/rabotaru/dochub:v2.0.0-rc1
+    container_name: dochub
     environment:
       VUE_APP_PLANTUML_SERVER: localhost:8079/svg/
     ports:
@@ -11,7 +11,7 @@ services:
 
 
   plantuml:
-    image: gchr.io/rabotaru/dockhub/plantuml
-    container_name: dockhub-plantuml
+    image: ghcr.io/rabotaru/dochub/plantuml:v0.0.2
+    container_name: plantuml
     ports:
       - 8079:8080
