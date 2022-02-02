@@ -216,3 +216,9 @@ npm run build
 DocHub распространяется под лицензией
 [GNU GPL v.2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 Open source license.
+
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/RabotaRu/DocHub.svg)](https://starchart.cc/RabotaRu/DocHub)
+
