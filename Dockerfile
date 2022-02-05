@@ -1,4 +1,4 @@
-FROM node:12.9.1-alpine AS builder
+FROM node:17-alpine AS builder
 WORKDIR /var/www
 COPY package.json package-lock.json ./
 RUN npm install
