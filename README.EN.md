@@ -1,0 +1,146 @@
+# DocHub
+
+Dochub is ArchOps tool. Dochub allows describing architecture as a code.
+
+Dochub supports:
+
+* [PlantUML](https://plantuml.com/)
+* [Markdown](https://ru.wikipedia.org/wiki/Markdown)
+* [Swagger](https://swagger.io/)
+* [Manifests](https://dochub.info/docs/dochub_contexts)
+
+
+## Features
+
+Dochub allows solves issues with:
+
+* [Versioning Architecture](#versioning);
+* [Decentralized architecture management in Agile-oriented companies](#decentralized);
+* [Ecosystem Architecture Management](#ecosystem);
+* [Unified portal of documentations](#facade);
+* [Consistency control](#problems).
+
+### <a name="versioning"></a> Versioning Architecture
+
+Dochub provides to manage architecture using Git. 
+
+![archops](pics/inc_arch.png)
+
+### <a name="decentralized"></a> Decentralized architecture management in Agile-oriented companies
+
+DocHub can use external git repositories as external sources.
+It allows developing different parts of big project with several teams.
+
+
+![decentralized](pics/decentralized.png)
+
+## <a name="ecosystem"></a> Ecosystem architecture management
+
+DocHub is built with today's challenges in ecosystem architecture management in mind. In it, the products are interconnected,
+but develop autonomously. DocHub allows you to create a single information space for the ecosystem. Stimulates
+positive product synergy.
+
+
+![ecosystem](pics/ecosystem.png)
+
+## <a name="facade"></a> Unified portal of documentations
+
+DocHub is the simplest way to a centralised documentation portal.
+
+![facade](pics/facade.png)
+
+
+## <a name="problems"></a> Consistency control
+
+DocHub can find problems in the description of the architecture.
+
+![problems](pics/problems.png)
+
+## Live demo portal
+
+https://dochub.info/
+
+## Configure
+
+Dochub configures with environment variables. Example available in [`example.env`](example.env). Rename it to `.env`
+
+```bash
+cp -f example.env .env
+```
+
+Define the required environment variables in `.env`
+
+## Build
+
+Dochub is regular vuejs single page application (spa).
+
+### build with docker (recommended)
+
+**Requirements:**
+
+* docker >= 20
+* docker-compose >= 3.8
+
+
+```bash
+git clone git@github.com:RabotaRu/DocHub.git
+cd DocHub
+docker-compose up --build
+```
+
+### build with npm
+
+**Requirements:**
+
+* nodejs >= 12
+* plantuml with shade plugin
+
+
+
+0. you can deploy plantuml with docker as external service
+```bash
+docker-compose up plantuml
+```
+1. Configure `.env`
+2. Install dependencies. Results will available at `./node_modules` directory.
+```bash
+npm install
+```
+2. Build SPA. Static files available at `./dist` directory.
+```bash
+npm run build
+```
+3. Serve with nodejs. Open http://localhost:8080/main in your browser.
+```bash
+npm run serve
+```
+
+
+
+## Deployment
+
+Full VueJS [documentation](https://cli.vuejs.org/ru/guide/deployment.html) about deployment.
+
+```mermaid
+flowchart LR
+    gitlab <--> dochub <--> plantuml
+```
+
+
+### Kubernetes
+
+You can use the [helm chart](https://github.com/RabotaRu/helm-charts/tree/main/charts/dochub)
+
+## License
+
+[GNU GPL v.2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html), see [LICENSE](LICENSE)
+
+## Articles
+
+* [Архитектура как кот VS Архитектура как кол](https://habr.com/ru/company/rabota/blog/578340/);
+* [Архитектура как данные](https://habr.com/ru/post/593009/);
+
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/RabotaRu/DocHub.svg)](https://starchart.cc/RabotaRu/DocHub)
