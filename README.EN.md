@@ -70,11 +70,13 @@ cp -f example.env .env
 
 Define the required environment variables in `.env`
 
-## Build
+## Developing
 
 Dochub is regular vuejs single page application (spa).
 
 ### build with docker (recommended)
+
+> Pay your attention! Docker builds can be much longer than regular npm way.
 
 **Requirements:**
 
@@ -102,6 +104,9 @@ docker-compose up --build
 docker-compose up plantuml
 ```
 1. Configure `.env`
+```dotenv
+VUE_APP_DOCHUB_GITLAB_URL=https://gitlab.example.com
+```
 2. Install dependencies. Results will available at `./node_modules` directory.
 ```bash
 npm install
@@ -119,12 +124,22 @@ npm run serve
 
 ## Deployment
 
-Full VueJS [documentation](https://cli.vuejs.org/ru/guide/deployment.html) about deployment.
+You need the following components in order to work doсhub:
 
+* Plantuml-server with shade plugin needs to render;
+* Gitlab. Dochub uses gitlab as an auth. 
+  * Create OAuth2 provider in your GitLab. https://docs.gitlab.com/ee/integration/oauth_provider.html.
+  
 ```mermaid
 flowchart LR
     gitlab <--> dochub <--> plantuml
 ```
+
+You can serve dochub like regular static site via nginx, s3 or something else.
+
+Full VueJS [documentation](https://cli.vuejs.org/ru/guide/deployment.html) about deployment.
+
+
 
 
 ### Kubernetes

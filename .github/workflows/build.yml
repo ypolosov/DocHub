@@ -30,4 +30,5 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
+        target: deps
         tags: "ghcr.io/rabotaru/dochub:${{ steps.vars.outputs.tag }}"
