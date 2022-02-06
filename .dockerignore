@@ -2,8 +2,6 @@
 .gitlab-ci.yml
 Dockerfile
 docker-compose*.yaml
-helm
-plantuml-server
 **/*.md
 node_modules
 dist

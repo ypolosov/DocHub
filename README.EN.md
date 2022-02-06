@@ -74,7 +74,7 @@ Define the required environment variables in `.env`
 
 Dochub is regular vuejs single page application (spa).
 
-### build with docker (recommended)
+### build with docker (simple)
 
 > Pay your attention! Docker builds can be much longer than regular npm way.
 
@@ -90,7 +90,7 @@ cd DocHub
 docker-compose up --build
 ```
 
-### build with npm
+### build with npm (recommended)
 
 **Requirements:**
 
@@ -99,7 +99,7 @@ docker-compose up --build
 
 
 
-0. you can deploy plantuml with docker as external service
+0. you can deploy plantuml with docker as an external service
 ```bash
 docker-compose up plantuml
 ```

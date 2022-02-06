@@ -6,9 +6,10 @@ node_modules
 /public/workspace/*
 
 # local env files
-.env.local
-.env.*.local
-.env
+*.env*
+!example.env
+
+
 
 # Log files
 npm-debug.log*

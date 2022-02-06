@@ -8,6 +8,11 @@ services:
       context: .
       dockerfile: Dockerfile
       target: nginx
+    # Setup variables however you want
+    # environment:
+    #   VUE_APP_PLANTUML_SERVER: localhost:8079/svg/
+    env_file:
+      - .env
     ports:
       - "8080:8080"
 
