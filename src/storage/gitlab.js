@@ -32,6 +32,14 @@ export default {
     },
 
     mutations: {
+        clean(state) {
+            state.manifest = {};
+            state.problems = {};
+            state.sources = {};
+            state.available_projects = {};
+            state.projects = {};
+            state.last_changes = {};
+        },
         setManifest(state, value) {
             state.manifest = value;
         },
@@ -86,6 +94,26 @@ export default {
                     title: `${data.uri} [${data.error}]`
                 }]);
             };
+
+            // Детектор обновления манифестов в IDE
+            if ((process.env.VUE_APP_DOCHUB_MODE === "plugin") && (process.env.NODE_ENV === 'production')) {
+                let lastIndex = null;
+                let oldIndex = null;
+                let trigger = 0;
+                setInterval(() => {
+                    window.$PAPI.getChangeIndex().then((response) => {
+                        if (lastIndex === response.data) return;
+                        if (oldIndex === response.data && trigger++) {
+                            if (!context.state.setIsReloading && (trigger > 1)) {
+                                trigger = 0;
+                                lastIndex = response.data;
+                                context.dispatch('reloadAll');
+                            }
+                        } else 
+                            oldIndex = response.data;
+                    });
+                }, 300);
+            }
         },
 
         // Need to call when gitlab takes callback's rout with oauth code
@@ -96,6 +124,7 @@ export default {
 
         // Reload root manifest
         reloadAll(context) {
+            context.commit('clean');
             context.dispatch('reloadRootManifest');
         },
 

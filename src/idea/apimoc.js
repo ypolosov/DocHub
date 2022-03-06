@@ -7,10 +7,12 @@ export default {
         params.url = window.origin + params.url.slice(19);
         return requests.axios(params);
     },
-    rootManifest() {
-        return process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
-    },
     renderPlantUML(uml) {
         return axios({url: plantUML.svgURL(uml)});
-    }
+    },
+    getChangeIndex: function () {
+        return new Promise(function (resolve) {
+            resolve(1);
+        });
+    }    
 }

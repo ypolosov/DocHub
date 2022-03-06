@@ -32,6 +32,9 @@
         },
         renderPlantUML: function(uml) {
           return this.request({url: 'plugin:/idea/plantuml/svg', source: uml});
+        },
+        getChangeIndex: function () {
+          return this.request({url: 'plugin:/idea/change/index'});
         }
       };      
       "API_INJECTION"
