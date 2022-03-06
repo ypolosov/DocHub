@@ -35,7 +35,18 @@ if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
     }
 }
 
+
 config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
+
+if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+    if (process.env.NODE_ENV !== 'production') {
+        window.$IDE_PLUGIN = true;
+        window.$PAPI = require('./src/idea/apimoc').default;
+    } else  {
+        config.root_manifest = 'plugin:/idea/source/$root';
+    }
+}
+
 config.pumlServer = process.env.VUE_APP_PLANTUML_SERVER || 'www.plantuml.com/plantuml/svg/';
 
 export default config;

@@ -152,7 +152,7 @@ export default {
 
         // Reload root manifest
         reloadRootManifest() {
-            parser.import(requests.makeURIByBaseURI(config.root_manifest, window.origin + '/'));
+            parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
         },
 
         // Регистрация проблемы

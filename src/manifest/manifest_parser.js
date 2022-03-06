@@ -114,7 +114,7 @@ export default {
             })
                 .catch((e) => {
                     // eslint-disable-next-line no-console
-                    console.error(e, `Ошибка запроса [${URI}]`, e);
+                    console.error(e, `Ошибка запроса (3) [${URI}]`, e);
                     this.onError && this.onError('net', {
                         uri: URI,
                         error: e
@@ -149,7 +149,7 @@ export default {
                 // eslint-disable-next-line no-console
                 .catch((e) => {
                     // eslint-disable-next-line no-console
-                    console.error(e, `Ошибка запроса [${URI}]`, e);
+                    console.error(e, `Ошибка запроса (4) [${URI}]`, e);
                     this.onError && this.onError('net', {
                         uri: URI,
                         error: e
@@ -170,7 +170,7 @@ export default {
             // Подключаем манифест самого DocHub
             // eslint-disable-next-line no-constant-condition
             if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y') {
-                this.import(requests.makeURIByBaseURI('manifest/root.yaml', window.origin + '/'), true);
+                this.import(requests.makeURIByBaseURI('manifest/root.yaml', requests.getSourceRoot()), true);
             }
         }
 
@@ -198,7 +198,7 @@ export default {
         // eslint-disable-next-line no-console
         .catch((e) => {
             // eslint-disable-next-line no-console
-            console.error(e, `Ошибка запроса [${uri}]`, e);
+            console.error(e, `Ошибка запроса (5) [${uri}]`, e);
             this.onError && this.onError('net', {
                 uri,
                 error: e

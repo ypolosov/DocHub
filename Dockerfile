@@ -11,7 +11,7 @@ COPY --from=deps /var/www .
 COPY . .
 ENV NODE_ENV=production
 # RUN --mount=type=cache,target=./node_modules/.cache npm run build
-RUN npm run build
+# RUN npm run build
 CMD ["npm", "run", "serve"]
 EXPOSE 8080
 

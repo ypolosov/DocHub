@@ -23,47 +23,8 @@ let middleware = (route) => {
     return route.params
 }
 
-export default new Router({
-    mode: 'history',
+const rConfig = {
     routes: [
-        {
-            path: '/',
-            redirect() {
-                if (config.oauth !== false) {
-                    window.location = new URL(
-                        `/oauth/authorize?client_id=${config.oauth.APP_ID}`
-                        + `&redirect_uri=` + new URL(consts.pages.OAUTH_CALLBACK_PAGE, window.location)
-                        + `&response_type=token&state=none&scope=${config.oauth.REQUESTED_SCOPES}`
-                        + '&' + Math.floor(Math.random() * 10000)
-                        , config.gitlab_server
-                    );
-                } else {
-                    window.location = new URL('/main', window.origin)
-                }
-            }
-        },
-        {
-            path: '/sso/gitlab/authentication',
-            redirect(route) {
-                const accessToken = Object.keys(route.query).length
-                    ? route.query.access_token
-                    : new URLSearchParams(route.hash.substr(1)).get('access_token');
-                if (accessToken) {
-                    window.Vuex.dispatch('onReceivedOAuthToken', accessToken);
-                    return {
-                        path: '/main',
-                        query: {},
-                        hash: ''
-                    };
-                } else {
-                    return {
-                        path: '/sso/error',
-                        query: {},
-                        hash: ''
-                    };
-                }
-            }
-        },
         {
             name: 'main',
             path: '/main',
@@ -142,4 +103,51 @@ export default new Router({
             props: middleware
         },
     ]
-})
+};
+
+if (process.env.VUE_APP_DOCHUB_MODE !== "plugin") {
+    rConfig.mode = 'history';
+    rConfig.routes.push(
+        {
+            path: '/',
+            redirect() {
+                if (config.oauth !== false) {
+                    window.location = new URL(
+                        `/oauth/authorize?client_id=${config.oauth.APP_ID}`
+                        + `&redirect_uri=` + new URL(consts.pages.OAUTH_CALLBACK_PAGE, window.location)
+                        + `&response_type=token&state=none&scope=${config.oauth.REQUESTED_SCOPES}`
+                        + '&' + Math.floor(Math.random() * 10000)
+                        , config.gitlab_server
+                    );
+                } else {
+                    window.location = new URL('/main', window.origin)
+                }
+        }
+    });
+    rConfig.routes.push(        
+        {
+            path: '/sso/gitlab/authentication',
+            redirect(route) {
+                const accessToken = Object.keys(route.query).length
+                    ? route.query.access_token
+                    : new URLSearchParams(route.hash.substr(1)).get('access_token');
+                if (accessToken) {
+                    window.Vuex.dispatch('onReceivedOAuthToken', accessToken);
+                    return {
+                        path: '/main',
+                        query: {},
+                        hash: ''
+                    };
+                } else {
+                    return {
+                        path: '/sso/error',
+                        query: {},
+                        hash: ''
+                    };
+                }
+            }
+        }
+    );
+}
+
+export default new Router(rConfig);

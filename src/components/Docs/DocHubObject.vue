@@ -13,6 +13,8 @@
 
 <script>
 
+import requests from '../../helpers/requests';
+
 export default {
   name: 'DocHubObject',
   computed: {
@@ -50,7 +52,7 @@ export default {
       };
       try {
         if (this.src.substr(0, 1) === '@') {
-          const uri = new URL(this.src.replace('@', '/'), window.origin);
+          const uri = new URL(this.src.replace('@', '/'), requests.getSourceRoot());
           const path = uri.pathname.split('/');
           result.type = path[1];
           result.subject = path[2];

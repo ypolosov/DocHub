@@ -122,9 +122,10 @@ export default {
       this.isLoading = true;
 
       this.$nextTick(() => {
-        axios({
-          url: plantUML.svgURL(this.uml)
-        }).then((response) => {
+        const request= window.$IDE_PLUGIN
+            ? window.$PAPI.renderPlantUML(this.uml) 
+            : axios({url: plantUML.svgURL(this.uml)})
+        request.then((response) => {
           this.svg = response.data.toString();
           this.isLoading = false;
           this.$nextTick(() => this.prepareSVG());
@@ -140,9 +141,9 @@ export default {
                 .Rrrrr {font: italic 24px serif; fill: red;}
               </style>
               <text x="200" y="40" text-anchor="middle" class="Rrrrr">Ошибка загрузки!</text>
-              <text x="200" y="60" text-anchor="middle" class="small">${error}</text>
+              <text x="200" y="60" text-anchor="middle" class="small">${error.response.status}</text>
             </svg>
-         `;
+        `;
           }
           // eslint-disable-next-line no-console
           console.error(error);

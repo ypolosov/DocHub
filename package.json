@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "core-js": "3.3.2",
     "dateformat": "3.0.3",
     "jsonata": "^1.8.4",
     "swagger-ui": "3.24.3",
@@ -33,6 +32,7 @@
     "css-loader": "3.4.2",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.2.3",
+    "html-webpack-inline-source-plugin": "^0.0.10",
     "postcss-loader": "2.0.8",
     "raw-loader": "^4.0.2",
     "vue-loader": "13.7.3",
