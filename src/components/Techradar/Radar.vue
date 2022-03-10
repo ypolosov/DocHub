@@ -142,7 +142,7 @@ export default {
       const result = [];
       let index = 1;
       (jsonata(query.collectTechnologies())
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []).map((item) => {
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []).forEach((item) => {
             if (this.section && this.section.toLowerCase() !== item.section.key.toLowerCase())
               return;
             const ring = this.getRingOfStatus(item.status || "trial");

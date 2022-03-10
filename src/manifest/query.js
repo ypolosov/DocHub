@@ -513,7 +513,7 @@ const COMPONENTS_QUERY_FOR_ASPECT = `
 const TECHNOLOGIES_QUERY = `
 (
     $MANIFEST := $;
-    $distinct(components.*.technologies).(
+    $distinct($distinct(components.*.technologies).(
         $TECHKEY := $;
         $TECHNOLOGY := $lookup($MANIFEST.technologies.items, $type($)="string" ? $ : undefined);
         $TECHNOLOGY := $TECHNOLOGY ? $TECHNOLOGY : 
@@ -528,12 +528,13 @@ const TECHNOLOGIES_QUERY = `
             "key": $,
             "hint": $TECHNOLOGY.title,
             "link": $TECHNOLOGY.link,
+            "status": $TECHNOLOGY.status,
             "section" : {
                 "key": $TECHNOLOGY.section,
                 "title": $SECTION.title ? $SECTION.title : "Не определено"
             }
         }
-    )
+    ))
 )
 `;
 
