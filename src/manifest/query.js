@@ -513,27 +513,33 @@ const COMPONENTS_QUERY_FOR_ASPECT = `
 const TECHNOLOGIES_QUERY = `
 (
     $MANIFEST := $;
-    $distinct(components.*.technologies).(
+    $distinct($distinct(components.*.technologies).(
         $TECHKEY := $;
         $TECHNOLOGY := $lookup($MANIFEST.technologies.items, $type($)="string" ? $ : undefined);
-        $TECHNOLOGY := $TECHNOLOGY ? $TECHNOLOGY : 
-            $MANIFEST.technologies.items.*.$[$TECHKEY in aliases];
+        $TECHNOLOGY := $TECHNOLOGY ? $merge([$TECHNOLOGY, {"id": $TECHKEY}]) : $single(
+            $spread(
+                $sift($MANIFEST.technologies.items, function($v, $k) {
+                    [$TECHKEY in $v.aliases]}
+                )
+            ), function($v, $k){ $k=0 }).$merge([$.*, {"id": $keys($)}]);
         $TECHNOLOGY := $TECHNOLOGY ? $TECHNOLOGY : {
+            "id": $TECHKEY,
             "section": "UNKNOWN",
             "title": "Не определено"
         }; 
         $SECTION := $lookup($MANIFEST.technologies.sections, $TECHNOLOGY.section);
         {
-            "label": $,
-            "key": $,
+            "label": $TECHNOLOGY.id,
+            "key": $TECHNOLOGY.id,
             "hint": $TECHNOLOGY.title,
             "link": $TECHNOLOGY.link,
+            "status": $TECHNOLOGY.status,
             "section" : {
                 "key": $TECHNOLOGY.section,
                 "title": $SECTION.title ? $SECTION.title : "Не определено"
             }
         }
-    )
+    ))
 )
 `;
 
@@ -543,13 +549,16 @@ const TECHNOLOGY_QUERY = `
     $TECH_ID := '{%TECH_ID%}';
     $TECHNOLOGY := $lookup(technologies.items, $TECH_ID);
     $TECHNOLOGY := $TECHNOLOGY ? $TECHNOLOGY : technologies.items.*[$TECH_ID in aliases];
-    $COMPONENTS := [$distinct([
-            $MANIFEST.components.*[$TECH_ID in technologies].%, 
+    $COMPONENTS := $distinct($append(
+            $MANIFEST.components.*[$TECH_ID in technologies], 
             $TECHNOLOGY.aliases.(
                 $ALIAS := $;
-                $MANIFEST.components.*[$ALIAS in technologies].%;
+                $MANIFEST.components.*[$ALIAS in technologies];
             )
-        ]).$spread().{
+    ));
+    $COMPONENTS := $filter($MANIFEST.components.$spread(), function($v) {
+            $lookup($v, $v.$keys()[0]) in $COMPONENTS
+    }).$spread().{
             "id": $keys()[0],
             "title": *.title,
             "entity": *.entity ? *.entity : "component",
@@ -561,7 +570,7 @@ const TECHNOLOGY_QUERY = `
                 }
             )],
             "technologies": [*.technologies]
-        }[$TECH_ID in technologies]];
+        };
     $CONTEXTS := $distinct($COMPONENTS.contexts);
     {
         'title': $TECHNOLOGY.title,
