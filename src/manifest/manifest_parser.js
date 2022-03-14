@@ -175,7 +175,10 @@ export default {
 
             // Подключаем манифест самого DocHub
             // eslint-disable-next-line no-constant-condition
-            if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y') {
+            if (
+                (process.env.VUE_APP_DOCHUB_MODE !== "plugin") &&
+                ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
+                ) {
                 this.import(requests.makeURIByBaseURI('manifest/root.yaml', requests.getSourceRoot()), true);
             }
         }
@@ -192,7 +195,7 @@ export default {
             this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
             for (const section in manifest) {
-                ['forms', 'namespaces', 'aspects', 'docs', 'contexts', 'components'].indexOf(section) >= 0
+                ['forms', 'namespaces', 'aspects', 'docs', 'contexts', 'components', 'datasets'].indexOf(section) >= 0
                 && section !== 'imports' && this.parseEntity(manifest[section],`${mode}/${section}`, uri);
             }
 

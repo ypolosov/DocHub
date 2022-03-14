@@ -62,7 +62,7 @@ export default {
         },
         appendProblems(state, value) {
             state.problems = jsonata("$distinct($)")
-                .evaluate(JSON.parse(JSON.stringify(state.problems.concat(value))));
+                .evaluate(JSON.parse(JSON.stringify((state.problems || []).concat(value)))) || [];
         },
     },
 
