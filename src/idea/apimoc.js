@@ -14,5 +14,9 @@ export default {
         return new Promise(function (resolve) {
             resolve(1);
         });
-    }    
+    },
+    showDebugger: function() {
+        // eslint-disable-next-line no-debugger
+        debugger;
+    }
 }

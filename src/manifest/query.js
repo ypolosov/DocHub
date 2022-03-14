@@ -299,6 +299,11 @@ const SCHEMA_QUERY = `
 
 const MENU_QUERY = `
 (
+    $GET_TITLE := function($LOCATION) {(
+        $STRUCT := $split($LOCATION, "/");
+        $STRUCT[$count($STRUCT) - 1];
+    )};
+
     $MANIFEST := $;
     [
         {
@@ -326,19 +331,19 @@ const MENU_QUERY = `
             "icon": 'description'
         },
         contexts.$spread().{
-            "title": $.*.title,
+            "title": $GET_TITLE($.*.location),
             "route": 'architect/contexts/' & $keys()[0],
             "location": 'architect/contexts/' & $.*.location,
             "icon": $.*.icon ? $.*.icon : ''
         },
         aspects.$spread().{
-            "title": $.*.title,
+            "title": $GET_TITLE($.*.location),
             "route": 'architect/aspects/' & $keys()[0],
             "location": 'architect/aspects/' & $.*.location,
             "icon": $.*.icon ? $.*.icon : ''
         },
         docs.$spread().{
-            "title": $.*.description,
+            "title": $GET_TITLE($.*.location),
             "route": 'docs/' & $keys()[0],
             "location": 'docs/' & $.*.location,
             "icon": $.*.icon ? $.*.icon : ''

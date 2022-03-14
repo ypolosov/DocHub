@@ -31,9 +31,17 @@
       </v-app-bar-nav-icon>
       <v-toolbar-title style="cursor: pointer" @click="$router.push({name: 'main'})">DocHub</v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn v-if="isPlugin" icon title="Отладка" @click="showDebugger">
+        <v-icon>adjust</v-icon>
+      </v-btn>
+      <v-btn icon title="Обновить" @click="reloadManifests">
+        <v-icon>refresh</v-icon>
+      </v-btn>
+      <!--
       <v-btn icon title="Стравнить">
         <v-icon>mdi-call-split</v-icon>
       </v-btn>
+      -->
     </v-app-bar>
     <v-navigation-drawer
         ref="drawer"
@@ -96,11 +104,20 @@ export default {
         false
     );
   },
+  methods: {
+    reloadManifests() {
+      this.$store.dispatch('reloadAll')
+    },
+    showDebugger() {
+      window.$PAPI.showDebugger();
+    }
+  },
   data() {
     return {
       drawer: null,
       isDrawerResize: false,
-      width: defaultDrawerSize
+      width: defaultDrawerSize,
+      isPlugin: process.env.VUE_APP_DOCHUB_MODE === "plugin"
     };
   }
 };

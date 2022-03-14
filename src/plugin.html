@@ -35,6 +35,9 @@
         },
         getChangeIndex: function () {
           return this.request({url: 'plugin:/idea/change/index'});
+        },
+        showDebugger() {
+          this.request({url: 'plugin:/idea/debugger/show'});
         }
       };      
       "API_INJECTION"

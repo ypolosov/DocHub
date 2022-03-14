@@ -28,19 +28,25 @@ export default {
     MODE_AS_WAS : 'as-was', // Как было
     MODE_TO_BE : 'to-be', // Как будет
     // Журнал объединений
-    margeMap: [],
+    mergeMap: [],
     // Итоговый манифест
     manifest: null,
     // Сохраняет в карте склеивания данные
-    pushToMargeMap(path, source, location) {
-        this.margeMap.push({
-            path: path || '/',
-            source: JSON.stringify(source),
-            location
+    pushToMergeMap(path, source, location) {
+        if (path && path.split('/').length > 3) return;
+        const storePath = path || '/';
+        const found = this.mergeMap.find((element) => {
+            return ((element.path === storePath) && (element.location === location));
         });
-        if (typeof source === 'object') {
-            for (const key in source) {
-                this.pushToMargeMap(`${path || ''}/${key}`, source[key], location);
+        if (!found) {
+            this.mergeMap.push({
+                path: path || '/',
+                location
+            });
+            if (typeof source === 'object') {
+                for (const key in source) {
+                    this.pushToMergeMap(`${path || ''}/${key}`, source[key], location);
+                }
             }
         }
     },
@@ -53,14 +59,14 @@ export default {
         let result;
         if (destination === undefined) {
             result = JSON.parse(JSON.stringify(source));
-            this.pushToMargeMap(path, result, location);
+            this.pushToMergeMap(path, result, location);
         } else if (Array.isArray(source)) {
             if (Array.isArray(destination)) {
                 result = JSON.parse(JSON.stringify(destination)).concat(JSON.parse(JSON.stringify(source)));
             } else {
                 result = JSON.parse(JSON.stringify(source));
             }
-            this.pushToMargeMap(path, result, location);
+            this.pushToMergeMap(path, result, location);
         } else if (typeof source === 'object') {
             result = JSON.parse(JSON.stringify(destination));
             typeof result !== 'object' && (result = {});
@@ -70,12 +76,12 @@ export default {
                     result[id] = this.merge(result[id], source[id], location, `${path || ''}/${id}`);
                 } else {
                     result[id] = JSON.parse(JSON.stringify(source[id]));
-                    this.pushToMargeMap(keyPath, result[id], location)
+                    this.pushToMergeMap(keyPath, result[id], location)
                 }
             }
         } else {
             result = JSON.parse(JSON.stringify(source));
-            this.pushToMargeMap(path, result, location);
+            this.pushToMergeMap(path, result, location);
         }
         return result;
     },
@@ -163,7 +169,7 @@ export default {
     import(uri, subimport) {
         if (!subimport) {
             this.manifest = {};
-            this.margeMap = [];
+            this.mergeMap = [];
             touchProjects = {};
             this.incReqCounter();
 

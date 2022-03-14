@@ -24,7 +24,7 @@ let config = {
             new HtmlWebpackPlugin({
                 filename: 'plugin.html', 
                 template: 'src/plugin.html', 
-                inlineSource: '.(js|css)$'
+                inlineSource: '.(woff(2)?|ttf|eot|svg|js|css)$'
             }),
             new HtmlWebpackInlineSourcePlugin()
         ]

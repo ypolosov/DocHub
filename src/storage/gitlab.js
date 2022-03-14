@@ -34,7 +34,7 @@ export default {
     mutations: {
         clean(state) {
             state.manifest = {};
-            state.problems = {};
+            state.problems = [];
             state.sources = {};
             state.available_projects = {};
             state.projects = {};
@@ -78,7 +78,7 @@ export default {
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
             parser.onReloaded = (parser) => {
                 context.commit('setManifest', parser.manifest);
-                context.commit('setSources', parser.margeMap);
+                context.commit('setSources', parser.mergeMap);
                 context.commit('setIsReloading', false);
                 context.commit('appendProblems', jsonata(query.problems())
                     .evaluate(parser.manifest[manifest_parser.MODE_AS_IS]) || []);
@@ -100,14 +100,28 @@ export default {
                 let lastIndex = null;
                 let oldIndex = null;
                 let trigger = 0;
+                let changedBuffer = [];
                 setInterval(() => {
                     window.$PAPI.getChangeIndex().then((response) => {
-                        if (lastIndex === response.data) return;
+                        changedBuffer = changedBuffer.concat(response.changed);
+                        if ((lastIndex === response.data) || context.state.is_reloading) return;
                         if (oldIndex === response.data && trigger++) {
-                            if (!context.state.setIsReloading && (trigger > 1)) {
-                                trigger = 0;
-                                lastIndex = response.data;
-                                context.dispatch('reloadAll');
+                            // eslint-disable-next-line no-console
+                            console.info("DODODOD context.sources", context.state.sources);
+                            if (trigger > 1) {
+                                for (const location of changedBuffer) {
+                                    if (context.state.sources.find((item) => {
+                                        // eslint-disable-next-line no-console
+                                        console.info(item, location);
+                                        return item.location === location;
+                                    })) {
+                                        trigger = 0;
+                                        lastIndex = response.data;
+                                        context.dispatch('reloadAll');
+                                        changedBuffer = [];
+                                        break;
+                                    }
+                                }
                             }
                         } else 
                             oldIndex = response.data;

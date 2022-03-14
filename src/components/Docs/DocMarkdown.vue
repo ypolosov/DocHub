@@ -108,9 +108,11 @@ export default {
       this.toc = '';
       setTimeout(() => {
         requests.request(this.url).then((response) => {
+          // eslint-disable-next-line no-console
           this.markdown = response.data.toString();
+          if (this.markdown.length === 0)
+            this.markdown = "Здесь пусто :(";
         })
-        // eslint-disable-next-line no-console
         .catch((e) => {
           // eslint-disable-next-line no-console
           console.error(e, `Ошибка запроса (1) [${this.url}]`, e);
