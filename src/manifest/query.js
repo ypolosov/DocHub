@@ -345,6 +345,7 @@ const MENU_QUERY = `
         docs.$spread().{
             "title": $GET_TITLE($.*.location),
             "route": 'docs/' & $keys()[0],
+            "hiden": $.*.location ? false : true,
             "location": 'docs/' & $.*.location,
             "icon": $.*.icon ? $.*.icon : ''
         },
@@ -363,7 +364,7 @@ const MENU_QUERY = `
             "route": 'problems',
             "icon": 'report_problem'
         }
-    ]
+    ][($exists(hiden) and $not(hiden)) or $not($exists(hiden))]
 ).{
     "title": title,
     "route": route ? '/' & route : undefined,
@@ -431,7 +432,7 @@ const DOCUMENTS_FOR_ENTITY_QUERY = `
                 "title": *.description,
                 "link": $LINK
             }] : undefined;
-    )^(location)];
+    )[location]^(location)];
 )
 `;
 

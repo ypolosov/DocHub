@@ -19,6 +19,7 @@ import Technology from "./components/Techradar/Technology";
 import Radar from "./components/Techradar/Main";
 import PlantUML from "./components/Schema/PlantUML";
 
+
 window.Vue = Vue;
 
 Vue.use(Vuex);

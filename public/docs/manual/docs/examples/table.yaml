@@ -1,0 +1,8 @@
+docs:
+  dochub.table.preset: 
+    type: table
+    data:
+      - id: 1
+        payload: Строка 1
+      - id: 2
+        payload: Строка 2

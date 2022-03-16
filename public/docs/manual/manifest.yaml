@@ -1,3 +1,5 @@
+imports:
+  - docs/manifest.yaml
 docs:
     dochub_manual:
         location: DocHub/Руководство
@@ -46,27 +48,6 @@ docs:
       subjects:
         - dochub.front
       source: aspects.md
-    dochub_docs:
-      location: DocHub/Руководство/Документы
-      description: Документы
-      type: markdown
-      subjects:
-        - dochub.front
-      source: docs.md
-    example_pml:
-      location: DocHub/Руководство/Документы/PlantUML
-      description: Пример документа PlantUML
-      type: PlantUML
-      subjects:
-        - dochub.front
-      source: examples/example.puml
-    example_swgr:
-      location: DocHub/Руководство/Документы/Swagger
-      description: Пример контракта Swagger
-      type: OpenAPI
-      subjects:
-        - dochub.front
-      source: examples/example.yaml
     dochub_forms:
       location: DocHub/Руководство/Формы
       description: Формы

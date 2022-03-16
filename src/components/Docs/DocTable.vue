@@ -19,13 +19,13 @@
 
 import manifest_parser from "../../manifest/manifest_parser";
 import datasets from "../../helpers/datasets";
+import docs from "../../helpers/docs"
 
 export default {
   name: 'DocTable',
   methods: {
     refresh() {
-      datasets.get(this.manifest, this.docParams.dataset)
-      .then((dataset) => {
+      datasets.parseData(this.manifest, this.docParams.data, this.baseURI).then((dataset) => {
         this.dataset = dataset
       });
     }
@@ -37,6 +37,11 @@ export default {
     url () { this.refresh() }
   },
   computed: {
+    baseURI() {
+      return docs.urlFromProfile({source: this.docParams.data},
+            (window.Vuex.state.sources.find((item) => item.path === `/datasets/${this.document}`) || {}).location
+        );
+    },
     manifest() {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
     },
@@ -64,7 +69,8 @@ export default {
   },
   data() {
     return {
-        dataset: null
+      error: null,
+      dataset: null
     }
   }
 };

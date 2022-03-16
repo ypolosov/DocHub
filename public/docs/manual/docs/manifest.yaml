@@ -1,0 +1,48 @@
+imports:
+  - examples/table.yaml
+docs:
+    dochub_docs:
+      location: DocHub/Руководство/Документы
+      description: Документы
+      type: markdown
+      subjects:
+        - dochub.front
+      source: docs.md
+    dochub_markdown:
+      location: DocHub/Руководство/Документы/Markdwon
+      description: Markdown
+      type: markdown
+      subjects:
+        - dochub.front
+      source: markdown.md
+    dochub_plantuml:
+      location: DocHub/Руководство/Документы/PlantUML
+      description: Markdown
+      type: markdown
+      subjects:
+        - dochub.front
+      source: plantuml.md
+    dochub_swagger:
+      location: DocHub/Руководство/Документы/Swagger
+      description: Markdown
+      type: markdown
+      subjects:
+        - dochub.front
+      source: swagger.md
+    dochub.docs.tables:
+      location: DocHub/Руководство/Документы/Таблицы
+      description: Markdown
+      type: markdown
+      subjects:
+        - dochub.front
+      source: tables.md
+    example_pml:
+      type: PlantUML
+      subjects:
+        - dochub.front
+      source: examples/example.puml
+    example_swgr:
+      type: OpenAPI
+      subjects:
+        - dochub.front
+      source: examples/example.yaml
