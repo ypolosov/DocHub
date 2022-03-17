@@ -20,7 +20,7 @@ export default {
                             : JSON.stringify(response.data)).evaluate(context)
                         );
                     }).catch((e) => reject(e));
-                  } else if (/(\s+|)\((.*?)(\)(\s+|))$/.test(data)) {
+                  } else if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(data)) {
                     resolve(jsonata(data).evaluate(context));
                   } else {
                     this.get(context, data).then((data) => resolve(data)).catch((e) => reject(e));  

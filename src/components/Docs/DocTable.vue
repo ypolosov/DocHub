@@ -1,18 +1,29 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="dataset || []"
-    class="elevation-1"
-  >
-    <template v-slot:items="props" v-if="manifest">
-      <td>[{{ dataset }}]</td>
-      <td class="text-xs-right">----123</td>
-      <td class="text-xs-right">{{ props.item.fat }}</td>
-      <td class="text-xs-right">{{ props.item.carbs }}</td>
-      <td class="text-xs-right">{{ props.item.protein }}</td>
-      <td class="text-xs-right">{{ props.item.iron }}</td>
-    </template>
-  </v-data-table>
+<v-card>
+    <v-card-title v-if="(dataset || []).length > 10">
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Поиск"
+        single-line
+        hide-details
+      ></v-text-field>
+    </v-card-title>
+    <v-data-table
+      :headers="headers"
+      :items="dataset || []"
+      :search="search"
+      :items-per-page="15"
+      :multi-sort="true"
+      class="elevation-1"
+    >
+      <template v-slot:no-data>
+        <v-alert :value="true" color="error" icon="warning">
+          Данных нет :(
+        </v-alert>
+      </template>  
+    </v-data-table>
+  </v-card>
 </template>
 
 <script>
@@ -46,22 +57,15 @@ export default {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
     },
     docParams() {
-      return (this.manifest.docs || {})[this.document];
+      return (this.manifest.docs || {})[this.document] || {};
     },
     headers () {
-      return [
-          {
-            text: 'Dessert (100g serving)aa',
-            align: 'left',
-            sortable: false,
-            value: 'name'
-          },
-          { text: 'Calories', value: 'calories' },
-          { text: 'Fat (g)', value: 'fat' },
-          { text: 'Carbs (g)', value: 'carbs' },
-          { text: 'Protein (g)', value: 'protein' },
-          { text: 'Iron (%)', value: 'iron' }
-        ];
+      return this.docParams.headers || [];
+    },
+    perPage() {
+      // eslint-disable-next-line no-debugger
+      debugger
+      return this.docParams["per-page"];
     }
   },
   props: {
@@ -70,7 +74,8 @@ export default {
   data() {
     return {
       error: null,
-      dataset: null
+      dataset: null,
+      search: ''
     }
   }
 };

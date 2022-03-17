@@ -331,7 +331,7 @@ const MENU_QUERY = `
             "icon": 'description'
         },
         contexts.$spread().{
-            "title": $GET_TITLE($.*.location),
+            "title": $GET_TITLE($.*.location ? $.*.location : $keys()[0]),
             "route": 'architect/contexts/' & $keys()[0],
             "location": 'architect/contexts/' & $.*.location,
             "icon": $.*.icon ? $.*.icon : ''

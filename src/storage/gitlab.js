@@ -13,7 +13,7 @@ const axios = require('axios');
 export default {
     state: {
         // Признак загрузки данных
-        is_reloading: true,
+        isReloading: true,
         // Токен досутпа в GitLab
         access_token: null,
         // Обобщенный манифест
@@ -47,7 +47,7 @@ export default {
             state.sources = value;
         },
         setIsReloading(state, value) {
-            state.is_reloading = value;
+            state.isReloading = value;
         },
         setAccessToken(state, value) {
             state.access_token = value;
@@ -104,7 +104,7 @@ export default {
                 setInterval(() => {
                     window.$PAPI.getChangeIndex().then((response) => {
                         changedBuffer = changedBuffer.concat(response.changed);
-                        if ((lastIndex === response.data) || context.state.is_reloading) return;
+                        if ((lastIndex === response.data) || context.state.isReloading) return;
                         if (oldIndex === response.data && trigger++) {
                             // eslint-disable-next-line no-console
                             console.info("DODODOD context.sources", context.state.sources);

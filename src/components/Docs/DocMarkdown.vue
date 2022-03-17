@@ -220,16 +220,23 @@ code[class*="language-"]::after, pre[class*="language-"]::after
   border: solid #ccc 1px;
 }
 
-.markdown-document table td {
+.markdown-document table.table td {
   padding-left: 6px;
   padding-right: 6px;
 }
 
-.markdown-document table thead th {
+.markdown-document table thead th * {
+  color: #fff !important;
+}
+
+.markdown-document table thead th  {
   background: rgb(52, 149, 219);
-  color: #fff;
+  color: #fff !important;
   height: 40px;
-  padding: 0;
+}
+
+.markdown-document table.table thead th {
+  padding: 6px;
 }
 
 .markdown-document h1,
