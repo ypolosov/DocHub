@@ -11,10 +11,10 @@ COPY --from=deps /var/www .
 COPY . .
 ENV NODE_ENV=production
 # RUN --mount=type=cache,target=./node_modules/.cache npm run build
-# RUN npm run build
+RUN npm run build
 CMD ["npm", "run", "serve"]
 EXPOSE 8080
 
 
-FROM ghcr.io/rabotaru/dochub/nginx:v0.0.2 as nginx
+FROM ghcr.io/rabotaru/dochub/nginx:v0.0.3 as nginx
 COPY --chown=101 --from=builder /var/www/dist /usr/share/nginx/html

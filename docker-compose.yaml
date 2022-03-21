@@ -16,23 +16,6 @@ services:
     ports:
       - "8080:8080"
 
-  serve:
-    container_name: serve
-    image: serve
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: builder
-    # Setup variables however you want
-    # environment:
-    #   VUE_APP_PLANTUML_SERVER: localhost:8079/svg/
-    volumes:
-      - ./:/var/www
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
-
   plantuml:
     image: ghcr.io/rabotaru/dochub/plantuml:v0.0.2
     container_name: plantuml

@@ -6,20 +6,20 @@
 ```yaml
 docs:
   dochub.table.preset: 
-    type: table
-    headers:
-      - value: id
-        text: Идентификатор
-        sortable: true
-        align: left
-        width: 20%
+    type: table               # Тип документа 
+    headers:                  # Заголовки таблицы
+      - value: id             # Идентификатор поля для вывода в колонке
+        text: Идентификатор   # Заголовок колокнки
+        sortable: true        # Производить сортировку по колонке
+        align: left           # Форматирование по горизонтали
+        width: 20%            # Ширина колонки 
       - value: payload
         text: Значение
         sortable: true
         align: left
-    data:
-      - id: 1
-        payload: Значение 1
+    data:                     # Данные для таблицы (массив)
+      - id: 1                 # Поде "id" 
+        payload: Значение 1   # Значение поля "id"
       - id: 2
         payload: Значение 2
 ```
@@ -41,11 +41,13 @@ docs:
         sortable: true
         align: left
         width: 20%
+        link: link-from       # Идентификатор поля, в котором хранится ссылка
       - value: to
         text: Система 2
         sortable: true
         align: left
         width: 20%
+        link: link-to
       - value: direction
         text: Связь
         sortable: true
@@ -55,7 +57,12 @@ docs:
         text: Описание
         sortable: true
         align: left
-    data: > 
+      - value: contract
+        text: Контракт
+        sortable: true
+        align: left
+        link: link-contract
+    data: >                   # JSONata запрос к архитектуре
       (
         $MANIFEST := $;
         $distinct([components.$spread().(
@@ -63,7 +70,11 @@ docs:
             $COMPONENT_ID := $keys()[0];
             $.*.links.{
                 "from": $COMPONENT.*.title,
-                "to": $lookup($MANIFEST.components, $COMPONENT_ID).title,
+                "link-from": "/architect/components/" & $COMPONENT_ID,
+                "to": id ? $lookup($MANIFEST.components, id).title : id,
+                "link-to": "/architect/components/" & id,
+                "contract": contract ? $lookup($MANIFEST.docs, contract).location : contract,
+                "link-contract": "/docs/" & contract,
                 "title": title,
                 "direction": direction
             };
@@ -73,6 +84,28 @@ docs:
 
 Результат:
 ![Предопределенная таблица](@document/dochub.table.select)
+
+## Генерация таблицы на основании источника данных
+
+```yaml
+  dochub.table.dataset: 
+    type: table
+    headers:
+      - value: location
+        text: Документ
+        sortable: true
+        align: left
+        width: 100%
+        link: link
+    data: dochub.docs           # Идентификтор источника данных
+datasets:                       # Источники данных
+  dochub.docs:                  # Идентификатор источника данных
+    data: >                     # Выводит все документы
+      ([docs.{"location": location}])     
+```
+
+Результат:
+![Предопределенная таблица](@document/dochub.table.dataset)
 
 
 [Далее](/docs/dochub_forms)

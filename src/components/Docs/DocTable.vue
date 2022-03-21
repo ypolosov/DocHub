@@ -17,6 +17,24 @@
       :multi-sort="true"
       class="elevation-1"
     >
+      <template #item="{ item }">
+        <tr>
+          <td 
+            v-for="(field, index) in rowFields(item)" 
+            :key = "index"
+            :align = "field.align"
+          >
+            <template v-if="field.link">
+              <router-link :to="field.link">
+                {{ field.value }}
+              </router-link>              
+            </template>
+            <template v-else>
+              {{ field.value }}
+            </template>
+          </td>
+        </tr>  
+      </template>
       <template v-slot:no-data>
         <v-alert :value="true" color="error" icon="warning">
           Данных нет :(
@@ -39,6 +57,16 @@ export default {
       datasets.parseData(this.manifest, this.docParams.data, this.baseURI).then((dataset) => {
         this.dataset = dataset
       });
+    },
+    rowFields(row) {
+      const result = this.headers.map((column) => {
+        return {
+          value: (row[column.value] || '').toString().replace("\\n","\n"),
+          link: column.link ? row[column.link] : undefined,
+          align: column.align || 'left'
+        }
+      });
+      return result;
     }
   },
   mounted(){
