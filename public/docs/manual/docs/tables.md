@@ -87,7 +87,10 @@ docs:
 
 ## Генерация таблицы на основании источника данных
 
+Табличные документы могут ссылаться на источники данных.
+
 ```yaml
+docs:
   dochub.table.dataset: 
     type: table
     headers:
@@ -99,13 +102,54 @@ docs:
         link: link
     data: dochub.docs           # Идентификтор источника данных
 datasets:                       # Источники данных
-  dochub.docs:                  # Идентификатор источника данных
-    data: >                     # Выводит все документы
-      ([docs.{"location": location}])     
+  dochub.docs:                  # Возвращает список всех документов
+    data: >                     # JSONata запрос к архитектуре
+      (
+        [docs.$spread().{
+          "location": *.location,
+          "link": "/docs/" & $keys()[0]
+        }[location]^(location)]
+      )
 ```
 
 Результат:
 ![Предопределенная таблица](@document/dochub.table.dataset)
+
+
+## Обработка данных
+
+Перед визуализацией таблицы есть возможность подвергнуть данные обработке.
+
+```yaml
+docs:
+  dochub.table.dataset.post:    # Табличный с портобработкой данных источника
+    type: table
+    headers:
+      - value: location
+        text: Документ
+        sortable: true
+        align: left
+        width: 100%
+        link: link
+    origin: dochub.docs         # Оригинальный источник данных
+    data: >                     # Отбирает документы концепции
+      (
+        $[$substring(location, 0, 17) = "DocHub/Концепция/"]
+      )
+datasets:                       # Источники данных
+  dochub.docs:                  # Возвращает список всех документов
+    data: >                     # JSONata запрос к архитектуре
+      (
+        [docs.$spread().{
+          "location": *.location,
+          "link": "/docs/" & $keys()[0]
+        }[location]^(location)]
+      )
+```
+
+
+Результат:
+![Предопределенная таблица](@document/dochub.table.dataset.post)
 
 
 [Далее](/docs/dochub_forms)

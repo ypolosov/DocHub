@@ -24,6 +24,9 @@ let middleware = (route) => {
 }
 
 const rConfig = {
+    scrollBehavior() {
+        window.scrollTo(0, 0);
+    },    
     routes: [
         {
             name: 'main',

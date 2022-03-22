@@ -1,5 +1,5 @@
 docs:
-  dochub.table.preset: 
+  dochub.table.preset:        # Табличный документ на основании предопределенных данных
     type: table               # Тип документа 
     headers:                  # Заголовки таблицы
       - value: id             # Идентификатор поля для вывода в колонке
@@ -16,7 +16,7 @@ docs:
         payload: Значение 1   # Значение поля "id"
       - id: 2
         payload: Значение 2
-  dochub.table.select: 
+  dochub.table.select:        # Табличный документ на основании запроса к данным архитектуры
     type: table
     headers:
       - value: from
@@ -63,7 +63,7 @@ docs:
             };
         )])^(from)
       )
-  dochub.table.dataset: 
+  dochub.table.dataset:        # Табличный документ на соновании источника данных
     type: table
     headers:
       - value: location
@@ -73,7 +73,26 @@ docs:
         width: 100%
         link: link
     data: dochub.docs           # Идентификтор источника данных
+  dochub.table.dataset.post:    # Табличный с портобработкой данных источника
+    type: table
+    headers:
+      - value: location
+        text: Документ
+        sortable: true
+        align: left
+        width: 100%
+        link: link
+    origin: dochub.docs         # Оригинальный источник данных
+    data: >                     # Отбирает документы концепции
+      (
+        $[$substring(location, 0, 17) = "DocHub/Концепция/"]
+      )
 datasets:                       # Источники данных
-  dochub.docs:
-    query: >                     # Выводит все документы
-      ([docs.{"location": location}])     
+  dochub.docs:                  # Возвращает список всех документов
+    data: >                     # Выводит все документы
+      (
+        [docs.$spread().{
+          "location": *.location,
+          "link": "/docs/" & $keys()[0]
+        }[location]^(location)]
+      )

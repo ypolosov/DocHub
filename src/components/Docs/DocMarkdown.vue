@@ -75,14 +75,6 @@ export default {
     this.refresh();
   },
   methods: {
-    onClickRef(event) {
-      const href = event.currentTarget.href;
-      if (href.substr(0, 1) === '#')
-        return true;
-      const url = new URL(event.currentTarget.href, window.location);
-      this.$router.push({ path: url.pathname});
-      return false;
-    },
     // eslint-disable-next-line no-unused-vars
     rendered(outHtml) {
       if (this.outHTML !== outHtml) {
