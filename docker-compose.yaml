@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  nginx:
+    container_name: dochub
+    image: dochub
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: nginx
+    # Setup variables however you want
+    # environment:
+    #   VUE_APP_PLANTUML_SERVER: localhost:8079/svg/
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+
+  plantuml:
+    image: ghcr.io/rabotaru/dochub/plantuml:v0.0.2
+    container_name: plantuml
+    ports:
+      - "8079:8080"

@@ -3,9 +3,13 @@ node_modules
 /dist
 /certs
 
+/public/workspace/*
+
 # local env files
-.env.local
-.env.*.local
+*.env*
+!example.env
+
+
 
 # Log files
 npm-debug.log*

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script>
+      window.$IDE_PLUGIN = true;
+      window.$PAPI = {
+        middleware: function(response) {
+        },
+        request : function(params) {
+          const data = JSON.stringify(params);
+          console.info('plugin request.request', data);
+          return new Promise(function(res, rej) {
+            const resolve = function(result) {
+              console.info(`plugin request.response:`, JSON.stringify(result));
+              res(window.$PAPI.middleware(JSON.parse(result)));
+            };
+            const reject = function(errCode, errInfo) {
+              console.error(`plugin request.error:`, errCode, errInfo);
+              rej({
+                response: {
+                  data: errInfo,
+                  headers: {},
+                  status: errCode
+                }
+              });
+            }
+            "API_INJECTION"
+          });
+        },
+        renderPlantUML: function(uml) {
+          return this.request({url: 'plugin:/idea/plantuml/svg', source: uml});
+        },
+        getChangeIndex: function () {
+          return this.request({url: 'plugin:/idea/change/index'});
+        },
+        showDebugger() {
+          this.request({url: 'plugin:/idea/debugger/show'});
+        }
+      };      
+      "API_INJECTION"
+    </script>
+
+    <title>DocHub</title>
+    <style>
+      .header {
+        padding: 10px;
+        background-color: rgba(255, 255, 255, .9);
+        position: sticky;
+        top: 0;
+        z-index: 9999;
+      }
+      .swagger-ui label.url-label {
+        display: block;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+  <div id="app"></div>
+  </body>
+</html>

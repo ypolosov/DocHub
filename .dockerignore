@@ -1,4 +1,9 @@
 .git
 .gitlab-ci.yml
 Dockerfile
-helm
+docker-compose*.yaml
+**/*.md
+node_modules
+dist
+.github
+pics

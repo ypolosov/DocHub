@@ -1,0 +1,148 @@
+<template>
+  <v-container grid-list-xl fluid>
+    <div style="display: none" v-html="focusStyle"></div>
+    <v-layout wrap>
+      <v-flex xs12 md5 d-flex>
+        <v-layout wrap>
+          <v-container grid-list-xl fluid>
+            <v-card class="card-item" xs12 md12>
+              <v-card-title>
+                <v-icon left>settings</v-icon>
+                <span class="title">Сводка</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <v-list>
+                  <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
+                    <v-list-item-content  @click="goToLink(item.link)">
+                      <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
+                      <v-list-item-title v-html="item.content"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card-text>
+            </v-card>
+            <v-card class="card-item" xs12 md12 style="margin-top: 12px">
+              <v-card-title>
+                <v-icon left>description</v-icon>
+                <span class="title">Документы</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <docs-tree :entity="component"></docs-tree>
+              </v-card-text>
+            </v-card>
+            <v-card class="card-item" xs12 md12 style="margin-top: 12px">
+              <v-card-title>
+                <v-icon left>description</v-icon>
+                <span class="title">Иерархия</span>
+              </v-card-title>
+              <v-card-text class="headline font-weight-bold">
+                <components-mindmap :root="component" links="component"></components-mindmap>
+              </v-card-text>
+            </v-card>
+          </v-container>
+        </v-layout>
+      </v-flex>
+      <v-flex xs12 md7 d-flex>
+        <v-card v-if="contexts.length" class="card-item">
+          <v-card-title>
+            <v-icon left>link</v-icon>
+            <span class="title">Контексты</span>
+          </v-card-title>
+          <v-card-text class="headline font-weight-bold">
+            <v-tabs v-model="currentContext">
+              <v-tab v-for="context in contexts" :key="context.id" ripple>
+                {{ context.title }}
+              </v-tab>
+            </v-tabs>
+            <schema :schema="schema"></schema>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+    </v-layout>
+  </v-container>
+</template>
+
+<script>
+
+import Schema from '../Schema/Schema';
+import jsonata from "jsonata";
+import query from "../../manifest/query";
+import manifest_parser from "../../manifest/manifest_parser";
+import requests from "../../helpers/requests";
+import DocsTree from "../Docs/DocsTree";
+import ComponentsMindmap from "@/components/Mindmap/ComponentsMindmap";
+
+export default {
+  name: 'Component_',
+  components: {
+    Schema,
+    DocsTree,
+    ComponentsMindmap
+  },
+  methods: {
+    goToLink() {
+
+    }
+  },
+  computed: {
+    focusStyle() {
+      return `
+        <style>
+          a[href$="${this.component}"] text {
+            font-size: 14px;
+            fill: #f00;
+            font-weight: 600;
+            text-decoration-line: underline;
+          }
+        </style>
+      `;
+    },
+    sourceLocations() {
+      return jsonata(query.locationsForComponent(this.component))
+          .evaluate(this.$store.state.sources) || [];
+    },
+    schema () {
+      if (this.currentContext === 0) {
+        return jsonata(query.component(this.component))
+            .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
+      } else {
+        return jsonata(query.context(this.contexts[this.currentContext].id))
+            .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
+      }
+    },
+    contexts() {
+      return [{
+        id: 'self',
+        title: 'SELF'
+      }].concat(jsonata(query.contextsForComponent(this.component))
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
+    },
+    summary() {
+      return (jsonata(query.summaryForComponent(this.component))
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [])
+          .concat([{
+            title: 'Размещение',
+            content: this.sourceLocations.map((location) =>
+              `<a href="${requests.makeURL(location).url}" target="_blank">${location}</a>`
+            ).join('</br>')
+          }])
+    }
+  },
+  props: {
+    component: String
+  },
+  data() {
+    return {
+      currentContext: 0
+    };
+  }
+};
+</script>
+
+<style scoped>
+
+.card-item {
+  width: 100%;
+}
+
+</style>

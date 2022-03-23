@@ -1,0 +1,165 @@
+skinparam useBetaStyle true
+!pragma layout elk
+skinparam {
+    HyperLinkColor #000
+	wrapWidth 200
+	maxMessageSize 200
+	'hide stereotype
+	defaultfontname Roboto, sans-serif
+	roundCorner 10
+	'linetype ortho
+	'linetype polyline
+	nodesep 70
+	ranksep 70
+	shadowing false
+	padding 2
+}
+
+<style>
+    component {
+        BackGroundColor #fff
+        RoundCorner 10
+        LineColor #000
+        FontColor #333
+        HyperLinkColor #333
+
+        .focus {
+            FontColor #fff
+            BackGroundColor #3495db
+            HyperLinkColor #fff
+            HyperLinkUnderline false
+        }
+    }
+    database {
+        BackGroundColor #fff
+        RoundCorner 10
+        LineColor #000
+        FontColor #333
+        HyperLinkColor #333
+
+        .focus {
+            FontColor #fff
+            BackGroundColor #3495db
+            HyperLinkColor #fff
+            HyperLinkUnderline false
+        }
+    }
+    queue {
+        BackGroundColor #fff
+        RoundCorner 10
+        LineColor #000
+        FontColor #333
+        HyperLinkColor #333
+
+        .focus {
+            FontColor #fff
+            BackGroundColor #3495db
+            HyperLinkColor #fff
+            HyperLinkUnderline false
+        }
+    }
+</style>
+
+!unquoted procedure $Region($alias, $label, $type)
+    !if ($type)
+        rectangle "$label" <<$type>> as $alias
+    !else
+        rectangle "$label" as $alias
+    !endif
+!endprocedure
+
+!unquoted procedure $Header($Title="Header", $Authors="Name", $Version="0.1", $Date="01.01.1999")
+    header
+        !if ($Authors)
+            Authors: $Authors
+        !endif
+        !if ($Version)
+            Version: $Version
+        !endif
+        !if ($Date)
+            Date: $Date
+        !endif
+
+    endheader
+
+    hide empty members
+
+    title $Title
+!endprocedure
+
+
+'Развертывание контекста
+!unquoted procedure $SystemExpand($ID)
+---
+[[/architect/contexts/$ID ≫≫]]
+!endprocedure
+
+'Неизвестные объекты
+!unquoted procedure $Unknown($ID, $ACName)
+    rectangle $ID [
+        <b>$ACName</b>
+        ====
+!endprocedure
+
+!unquoted procedure $UnknownEnd()
+    ]
+!endprocedure
+
+!unquoted procedure $UnknownAspect($func="", $AType = "")
+    * $func
+!endprocedure
+
+
+'Компоненты
+!unquoted procedure $System($ID, $ACName, $AType = "")
+    component $ID[
+        <b>$ACName</b>
+        ====
+!endprocedure
+
+!unquoted procedure $SystemEnd()
+    ]
+!endprocedure
+
+!unquoted procedure $SystemAspect($func="", $AType = "")
+    * $func
+!endprocedure
+
+'Стили Person
+skinparam component<<Person>> {
+	backgroundColor Transparent
+	borderColor Transparent
+	shadowing false
+	hide stereotype
+	borderthickness 1
+	FontSize 14
+    FontStyle Bold
+}
+
+'Person
+'#################################################################
+!unquoted procedure $Person($PersonID, $PersonName, $Type)
+actor $PersonID <<Person>> [
+..===$PersonName..
+]
+!endprocedure
+
+!unquoted procedure $PersonEnd()
+!endprocedure
+
+!unquoted procedure $PersonAspect($ID, $title)
+!endprocedure
+
+!unquoted procedure $PersonExpand($ID, $title)
+!endprocedure
+
+
+'Entity
+'#################################################################
+!unquoted procedure $Entity($entity, $title, $id)
+    !if ($entity == component)
+        participant "$title" as $id
+    !else
+        $entity "$title" as $id
+    !endif
+!endprocedure
