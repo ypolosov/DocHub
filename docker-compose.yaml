@@ -16,7 +16,6 @@ services:
     ports:
       - "8080:8080"
 
-
   plantuml:
     image: ghcr.io/rabotaru/dochub/plantuml:v0.0.2
     container_name: plantuml

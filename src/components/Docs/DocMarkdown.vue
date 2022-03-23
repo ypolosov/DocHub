@@ -75,14 +75,6 @@ export default {
     this.refresh();
   },
   methods: {
-    onClickRef(event) {
-      const href = event.currentTarget.href;
-      if (href.substr(0, 1) === '#')
-        return true;
-      const url = new URL(event.currentTarget.href, window.location);
-      this.$router.push({ path: url.pathname});
-      return false;
-    },
     // eslint-disable-next-line no-unused-vars
     rendered(outHtml) {
       if (this.outHTML !== outHtml) {
@@ -108,12 +100,14 @@ export default {
       this.toc = '';
       setTimeout(() => {
         requests.request(this.url).then((response) => {
+          // eslint-disable-next-line no-console
           this.markdown = response.data.toString();
+          if (this.markdown.length === 0)
+            this.markdown = "Здесь пусто :(";
         })
-        // eslint-disable-next-line no-console
         .catch((e) => {
           // eslint-disable-next-line no-console
-          console.error(e, `Ошибка запроса [${this.url}]`, e);
+          console.error(e, `Ошибка запроса (1) [${this.url}]`, e);
         });
       }, 50);
     }
@@ -218,16 +212,23 @@ code[class*="language-"]::after, pre[class*="language-"]::after
   border: solid #ccc 1px;
 }
 
-.markdown-document table td {
+.markdown-document table.table td {
   padding-left: 6px;
   padding-right: 6px;
 }
 
-.markdown-document table thead th {
+.markdown-document table thead th * {
+  color: #fff !important;
+}
+
+.markdown-document table thead th  {
   background: rgb(52, 149, 219);
-  color: #fff;
+  color: #fff !important;
   height: 40px;
-  padding: 0;
+}
+
+.markdown-document table.table thead th {
+  padding: 6px;
 }
 
 .markdown-document h1,

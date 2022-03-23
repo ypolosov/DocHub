@@ -29,7 +29,7 @@ export default {
       // eslint-disable-next-line no-console
       .catch((e) => {
         // eslint-disable-next-line no-console
-        console.error(e, `Ошибка запроса [${this.url}]`, e);
+        console.error(e, `Ошибка запроса (2) [${this.url}]`, e);
       });
     }
   },

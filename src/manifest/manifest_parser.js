@@ -28,19 +28,25 @@ export default {
     MODE_AS_WAS : 'as-was', // Как было
     MODE_TO_BE : 'to-be', // Как будет
     // Журнал объединений
-    margeMap: [],
+    mergeMap: [],
     // Итоговый манифест
     manifest: null,
     // Сохраняет в карте склеивания данные
-    pushToMargeMap(path, source, location) {
-        this.margeMap.push({
-            path: path || '/',
-            source: JSON.stringify(source),
-            location
+    pushToMergeMap(path, source, location) {
+        if (path && path.split('/').length > 3) return;
+        const storePath = path || '/';
+        const found = this.mergeMap.find((element) => {
+            return ((element.path === storePath) && (element.location === location));
         });
-        if (typeof source === 'object') {
-            for (const key in source) {
-                this.pushToMargeMap(`${path || ''}/${key}`, source[key], location);
+        if (!found) {
+            this.mergeMap.push({
+                path: path || '/',
+                location
+            });
+            if (typeof source === 'object') {
+                for (const key in source) {
+                    this.pushToMergeMap(`${path || ''}/${key}`, source[key], location);
+                }
             }
         }
     },
@@ -53,14 +59,14 @@ export default {
         let result;
         if (destination === undefined) {
             result = JSON.parse(JSON.stringify(source));
-            this.pushToMargeMap(path, result, location);
+            this.pushToMergeMap(path, result, location);
         } else if (Array.isArray(source)) {
             if (Array.isArray(destination)) {
                 result = JSON.parse(JSON.stringify(destination)).concat(JSON.parse(JSON.stringify(source)));
             } else {
                 result = JSON.parse(JSON.stringify(source));
             }
-            this.pushToMargeMap(path, result, location);
+            this.pushToMergeMap(path, result, location);
         } else if (typeof source === 'object') {
             result = JSON.parse(JSON.stringify(destination));
             typeof result !== 'object' && (result = {});
@@ -70,12 +76,12 @@ export default {
                     result[id] = this.merge(result[id], source[id], location, `${path || ''}/${id}`);
                 } else {
                     result[id] = JSON.parse(JSON.stringify(source[id]));
-                    this.pushToMargeMap(keyPath, result[id], location)
+                    this.pushToMergeMap(keyPath, result[id], location)
                 }
             }
         } else {
             result = JSON.parse(JSON.stringify(source));
-            this.pushToMargeMap(path, result, location);
+            this.pushToMergeMap(path, result, location);
         }
         return result;
     },
@@ -114,7 +120,7 @@ export default {
             })
                 .catch((e) => {
                     // eslint-disable-next-line no-console
-                    console.error(e, `Ошибка запроса [${URI}]`, e);
+                    console.error(e, `Ошибка запроса (3) [${URI}]`, e);
                     this.onError && this.onError('net', {
                         uri: URI,
                         error: e
@@ -149,7 +155,7 @@ export default {
                 // eslint-disable-next-line no-console
                 .catch((e) => {
                     // eslint-disable-next-line no-console
-                    console.error(e, `Ошибка запроса [${URI}]`, e);
+                    console.error(e, `Ошибка запроса (4) [${URI}]`, e);
                     this.onError && this.onError('net', {
                         uri: URI,
                         error: e
@@ -163,14 +169,17 @@ export default {
     import(uri, subimport) {
         if (!subimport) {
             this.manifest = {};
-            this.margeMap = [];
+            this.mergeMap = [];
             touchProjects = {};
             this.incReqCounter();
 
             // Подключаем манифест самого DocHub
             // eslint-disable-next-line no-constant-condition
-            if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y') {
-                this.import(requests.makeURIByBaseURI('manifest/root.yaml', window.origin + '/'), true);
+            if (
+                (process.env.VUE_APP_DOCHUB_MODE !== "plugin") &&
+                ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
+                ) {
+                this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
             }
         }
 
@@ -186,7 +195,7 @@ export default {
             this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
             for (const section in manifest) {
-                ['forms', 'namespaces', 'aspects', 'docs', 'contexts', 'components'].indexOf(section) >= 0
+                ['forms', 'namespaces', 'aspects', 'docs', 'contexts', 'components', 'datasets'].indexOf(section) >= 0
                 && section !== 'imports' && this.parseEntity(manifest[section],`${mode}/${section}`, uri);
             }
 
@@ -198,7 +207,7 @@ export default {
         // eslint-disable-next-line no-console
         .catch((e) => {
             // eslint-disable-next-line no-console
-            console.error(e, `Ошибка запроса [${uri}]`, e);
+            console.error(e, `Ошибка запроса (5) [${uri}]`, e);
             this.onError && this.onError('net', {
                 uri,
                 error: e

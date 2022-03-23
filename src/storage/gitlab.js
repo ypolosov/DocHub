@@ -13,7 +13,7 @@ const axios = require('axios');
 export default {
     state: {
         // Признак загрузки данных
-        is_reloading: true,
+        isReloading: true,
         // Токен досутпа в GitLab
         access_token: null,
         // Обобщенный манифест
@@ -32,6 +32,14 @@ export default {
     },
 
     mutations: {
+        clean(state) {
+            state.manifest = {};
+            state.problems = [];
+            state.sources = {};
+            state.available_projects = {};
+            state.projects = {};
+            state.last_changes = {};
+        },
         setManifest(state, value) {
             state.manifest = value;
         },
@@ -39,7 +47,7 @@ export default {
             state.sources = value;
         },
         setIsReloading(state, value) {
-            state.is_reloading = value;
+            state.isReloading = value;
         },
         setAccessToken(state, value) {
             state.access_token = value;
@@ -54,7 +62,7 @@ export default {
         },
         appendProblems(state, value) {
             state.problems = jsonata("$distinct($)")
-                .evaluate(JSON.parse(JSON.stringify(state.problems.concat(value))));
+                .evaluate(JSON.parse(JSON.stringify((state.problems || []).concat(value)))) || [];
         },
     },
 
@@ -70,9 +78,10 @@ export default {
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
             parser.onReloaded = (parser) => {
                 context.commit('setManifest', parser.manifest);
-                context.commit('setSources', parser.margeMap);
+                context.commit('setSources', parser.mergeMap);
                 context.commit('setIsReloading', false);
-                context.commit('appendProblems', jsonata(query.problems())
+                context.commit('appendProblems', 
+                    query.expression(query.problems())
                     .evaluate(parser.manifest[manifest_parser.MODE_AS_IS]) || []);
             };
             parser.onStartReload = () => {
@@ -86,6 +95,40 @@ export default {
                     title: `${data.uri} [${data.error}]`
                 }]);
             };
+
+            // Детектор обновления манифестов в IDE
+            if ((process.env.VUE_APP_DOCHUB_MODE === "plugin") && (process.env.NODE_ENV === 'production')) {
+                let lastIndex = null;
+                let oldIndex = null;
+                let trigger = 0;
+                let changedBuffer = [];
+                setInterval(() => {
+                    window.$PAPI.getChangeIndex().then((response) => {
+                        changedBuffer = changedBuffer.concat(response.changed);
+                        if ((lastIndex === response.data) || context.state.isReloading) return;
+                        if (oldIndex === response.data && trigger++) {
+                            // eslint-disable-next-line no-console
+                            console.info("DODODOD context.sources", context.state.sources);
+                            if (trigger > 1) {
+                                for (const location of changedBuffer) {
+                                    if (context.state.sources.find((item) => {
+                                        // eslint-disable-next-line no-console
+                                        console.info(item, location);
+                                        return item.location === location;
+                                    })) {
+                                        trigger = 0;
+                                        lastIndex = response.data;
+                                        context.dispatch('reloadAll');
+                                        changedBuffer = [];
+                                        break;
+                                    }
+                                }
+                            }
+                        } else 
+                            oldIndex = response.data;
+                    });
+                }, 300);
+            }
         },
 
         // Need to call when gitlab takes callback's rout with oauth code
@@ -96,6 +139,7 @@ export default {
 
         // Reload root manifest
         reloadAll(context) {
+            context.commit('clean');
             context.dispatch('reloadRootManifest');
         },
 
@@ -152,7 +196,7 @@ export default {
 
         // Reload root manifest
         reloadRootManifest() {
-            parser.import(requests.makeURIByBaseURI(config.root_manifest, window.origin + '/'));
+            parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
         },
 
         // Регистрация проблемы

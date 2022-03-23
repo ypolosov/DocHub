@@ -7,7 +7,6 @@
 
 <script>
 import Schema from '../Schema/Schema';
-import jsonata from 'jsonata';
 import manifest_parser from "../../manifest/manifest_parser";
 import query from "../../manifest/query";
 import Plantuml from "../Schema/PlantUML";
@@ -42,7 +41,9 @@ export default {
     schema () {
       const asIs = this.$store.state.manifest[manifest_parser.MODE_AS_IS];
       this.$nextTick(this.reloadCustomUML);
-      const result = jsonata(query.context(this.context, this.location)).evaluate(asIs);
+      const result = query.expression(query.context(this.context, this.location)).evaluate(asIs);
+      // eslint-disable-next-line no-debugger
+      debugger;
       return result;
     },
     isCustomUML () {

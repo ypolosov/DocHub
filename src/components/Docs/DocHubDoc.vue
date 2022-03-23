@@ -1,8 +1,9 @@
 <template>
   <div>
     <swagger v-if="isContract" :document="document"></swagger>
-    <plantuml v-if="isPlantUML"  :document="document"></plantuml>
-    <doc-markdown v-if="isMarkdown"  :document="document"></doc-markdown>
+    <plantuml v-if="isPlantUML" :document="document"></plantuml>
+    <doc-markdown v-if="isMarkdown" :document="document"></doc-markdown>
+    <doc-table v-if="isTable" :document="document"></doc-table>
   </div>
 </template>
 
@@ -12,13 +13,15 @@ import Swagger from "./DocSwagger";
 import Plantuml from "./DocPlantUML";
 import manifest_parser from "../../manifest/manifest_parser";
 import DocMarkdown from "./DocMarkdown";
+import DocTable from "./DocTable.vue"
 
 export default {
   name: 'document',
   components: {
     Plantuml,
     Swagger,
-    DocMarkdown
+    DocMarkdown,
+    DocTable
   },
   mounted() {
   },
@@ -39,6 +42,9 @@ export default {
     },
     isMarkdown () {
       return this.docType === 'markdown';
+    },
+    isTable () {
+      return this.docType === 'table';
     }
   },
   props: {

@@ -17,7 +17,6 @@ axios.interceptors.request.use(function (params) {
     return Promise.reject(error);
 });
 
-
 axios.interceptors.response.use(function (response) {
     if (typeof response.data === 'string' ) {
         const url = response.config.url.toLowerCase();
@@ -32,7 +31,25 @@ axios.interceptors.response.use(function (response) {
     return Promise.reject(error);
 });
 
+if(window.$PAPI) {
+    window.$PAPI.middleware = function (response) {
+        if (response.contentType === 'yaml') {
+          response.data = YAML.parse(response.data);
+        } else if (response.contentType === 'json') {
+            response.data = JSON.parse(response.data);
+        }
+        return response;
+    }
+}
+
 export default {
+    axios,
+    getSourceRoot(){
+        if(window.$IDE_PLUGIN) {
+            return "plugin:/idea/source/"
+        } else 
+            return window.origin + "/";
+    },
     getGitLabProjectID (uri) {
         let result = undefined;
         // Анализируем URI
@@ -143,6 +160,10 @@ export default {
         let params = Object.assign({}, axios_params);
         params.source = this.makeURL(uri, baseURI);
         params.url = params.source.url.toString();
-        return axios(params);
+        if (window.$IDE_PLUGIN) {
+            return window.$PAPI.request(params);
+        } else {
+            return axios(params);
+        }
     }
 };

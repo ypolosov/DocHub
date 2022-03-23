@@ -2,32 +2,34 @@
     <div
         :id="id"
         v-if="this.url"
-    ></div>
+    >{{error}}</div>
 </template>
 
 <script>
 import SwaggerUI from "swagger-ui";
-import config from "../../../config";
+// import config from "../../../config";
 import manifest_parser from "../../manifest/manifest_parser";
 import docs from "../../helpers/docs";
+import requests from "../../helpers/requests"
 
 export default {
   name: 'Swagger',
-  mounted() {
-    this.swaggerRender();
-  },
   methods: {
+    requestData() {
+      requests.request(this.url)
+      .then((response) => {
+        this.data = response.data;
+        this.swaggerRender();
+      }).catch((e) => {
+        this.error = e;
+      });
+    },
+
     swaggerRender() {
       if (this.url) {
         SwaggerUI({
           dom_id: `#${this.id}`,
-          url: this.url,
-          // deepLinking: true,
-          requestInterceptor: (request) => {
-            if (config.gitlab_server && ((new URL(request.url)).host === (new URL(config.gitlab_server)).host)) {
-              request.headers['Authorization'] = `Bearer ${this.$store.state.access_token}`;
-            }
-          }
+          spec: this.data
         })
       }
     }
@@ -38,7 +40,7 @@ export default {
     },
     url () {
       // eslint-disable-next-line vue/no-async-in-computed-properties
-      setTimeout(() => this.swaggerRender(), 50);
+      setTimeout(() => this.requestData(), 50);
       const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
       return profile ?
           docs.urlFromProfile(profile,
@@ -52,7 +54,9 @@ export default {
   },
   data() {
     return {
-      id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`
+      id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`,
+      data: null,
+      error: ""
     };
   }
 };

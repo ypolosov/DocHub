@@ -58,7 +58,7 @@ export default {
             uml += makeTitle(node.id, node.title);
           } else {
             const id = `${nsid}${struct[i]}`;
-            uml += makeTitle(id, (namespaces[id] || {}).title || '...');
+            uml += makeTitle(id, (components[id] || namespaces[id] || {}).title || '...');
             for (let f = 0; f <= i + 2; f++) uml += '*';
           }
           nsid += `${struct[i]}.`;

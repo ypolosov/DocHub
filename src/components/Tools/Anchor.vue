@@ -3,7 +3,7 @@
 </template>
 
 <script>
-
+/*
 let anchorWinner = {
   offsetTop: 0,
   id: ''
@@ -32,6 +32,7 @@ window.addEventListener('scroll', () => {
     }, 10);
   }
 });
+*/
 
 export default {
   name: 'Anchor',
