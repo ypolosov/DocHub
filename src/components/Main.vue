@@ -8,7 +8,7 @@ export default {
   name: 'MainPage',
   computed: {
     document() {
-      return process.env.VUE_APP_DOCHUB_ROOT_DOCUMENT || 'dochub_welcome';
+      return process.env.VUE_APP_DOCHUB_ROOT_DOCUMENT || 'dochub.welcome';
     }
   },
   data() {
