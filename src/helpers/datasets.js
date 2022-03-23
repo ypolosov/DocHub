@@ -18,8 +18,16 @@ export default function () {
                 if(typeof data === "object") {
                     resolve(JSON.parse(JSON.stringify(data)));
                 } else if (typeof data === "string") {
+                    // Inline запрос JSONata
+                    if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(data)) {
+                        resolve(jsonata(data).evaluate(context));
+                    // Ссылка на файл с данными
+                    } else if (data.slice(-5) === ".yaml" || data.slice(-5) === ".json" || (data.search(":") > 0)) {
+                        requests.request(data, baseURI)
+                        .then((response) => resolve(response.data))
+                        .catch((e) => reject(e))
                     // Ссылка на файл с запросом
-                    if (data.slice(-8) === ".jsonata") {
+                    } else if (data.slice(-8) === ".jsonata") {
                         const url = docs.urlFromProfile({source: data}, baseURI);
                         requests.request(url).then((response) => {
                             resolve(jsonata(typeof response.data === 'string' 
@@ -27,9 +35,6 @@ export default function () {
                                 : JSON.stringify(response.data)).evaluate(context)
                             );
                         }).catch((e) => reject(e));
-                    // Inline запрос JSONata
-                    } else if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(data)) {
-                        resolve(jsonata(data).evaluate(context));
                     // Идентификатор источника данных
                     } else {
                         const dataSet = this.dsResolver(data);

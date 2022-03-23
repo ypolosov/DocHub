@@ -80,7 +80,8 @@ export default {
                 context.commit('setManifest', parser.manifest);
                 context.commit('setSources', parser.mergeMap);
                 context.commit('setIsReloading', false);
-                context.commit('appendProblems', jsonata(query.problems())
+                context.commit('appendProblems', 
+                    query.expression(query.problems())
                     .evaluate(parser.manifest[manifest_parser.MODE_AS_IS]) || []);
             };
             parser.onStartReload = () => {
