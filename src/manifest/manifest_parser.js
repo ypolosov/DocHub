@@ -119,8 +119,10 @@ export default {
                 this.touchProjects(URI);
             })
                 .catch((e) => {
+                    const errorPath = `$errors/requests/${new Date().getTime()}`;
                     // eslint-disable-next-line no-console
-                    console.error(e, `Ошибка запроса (3) [${URI}]`, e);
+                    console.error(e, `Ошибка запроса (3) [${errorPath}:${URI}]`, e);
+                    this.pushToMergeMap(errorPath, null, URI);
                     this.onError && this.onError('net', {
                         uri: URI,
                         error: e
@@ -154,8 +156,10 @@ export default {
             })
                 // eslint-disable-next-line no-console
                 .catch((e) => {
+                    const errorPath = `$errors/requests/${new Date().getTime()}`;
                     // eslint-disable-next-line no-console
-                    console.error(e, `Ошибка запроса (4) [${URI}]`, e);
+                    console.error(e, `Ошибка запроса (4) [${errorPath}:${URI}]`, e);
+                    this.pushToMergeMap(errorPath, null, URI);
                     this.onError && this.onError('net', {
                         uri: URI,
                         error: e
@@ -206,8 +210,10 @@ export default {
         })
         // eslint-disable-next-line no-console
         .catch((e) => {
+            const errorPath = `$errors/requests/${new Date().getTime()}`;
             // eslint-disable-next-line no-console
-            console.error(e, `Ошибка запроса (5) [${uri}]`, e);
+            console.error(e, `Ошибка запроса (5) [${errorPath}:${uri}]`, e);
+            this.pushToMergeMap(errorPath, null, uri);
             this.onError && this.onError('net', {
                 uri,
                 error: e

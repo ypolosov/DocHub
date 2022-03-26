@@ -69,6 +69,11 @@ export default {
       }
     }
   },
+  watch: {
+    contexts() {
+      this.seleted = null;
+    }
+  },
   props: {
     contexts: Array,
     manifest: Object

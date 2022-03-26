@@ -127,7 +127,19 @@ export default {
           linkPath.addEventListener('mouseover', this.onOverLink);
           linkPath.addEventListener('mouseout', this.onOutLink);
       }
+
+      for (const linkId in this.structure.links) {
+        const link = this.structure.links[linkId];
+        const linkTitle = svg.querySelectorAll(`a[href="http://#${encodeURI(linkId)}"]`)[0];
+        if (link.contract) {
+          const contactID = link.contract.id;
+          linkTitle.setAttribute("href", `/docs/${contactID}`);
+        } else if (linkTitle) {
+          linkTitle.setAttribute("href", "");
+        }
+      }
     },
+
     postrender (svg) {
       switch (this.renderCore) {
         case 'smetana': this.postRenderSmetana(svg); break;
@@ -333,7 +345,10 @@ export default {
               namespace = namespace.namespaces[link.namespaces[i].id];
             }
             return namespace.components[link.id] && !namespace.components[link.id].extra
-          })()) uml += `${linkId}: [[http://#${encodeURI(linkId)} ${link.link_title || "⠀"}]]\n`
+          })()) uml += 
+            link.link_title 
+            ? `${linkId}: [[http://#${encodeURI(linkId)} ${link.link_title || "⠀"}]]\n`
+            : `${linkId}: ⠀\n`
         }
         this.schema.uml && this.schema.uml.$after && (uml += this.schema.uml.$after + '\n');
       }

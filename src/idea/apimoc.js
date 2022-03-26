@@ -18,5 +18,8 @@ export default {
     showDebugger: function() {
         // eslint-disable-next-line no-debugger
         debugger;
+    },
+    reload() {
+        window.location.reload();
     }
 }

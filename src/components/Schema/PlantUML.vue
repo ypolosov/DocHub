@@ -85,8 +85,19 @@ export default {
     },
     onClickRef(event) {
       if (event.shiftKey) return false;
-      const url = new URL(event.currentTarget.href.baseVal, window.location);
-      this.$router.push({ path: url.pathname});
+      const ref = event.currentTarget.href.baseVal;
+      if (!ref.length) return false;
+      // eslint-disable-next-line no-console
+      console.info(`onClickRef`, ref);
+      try {
+        const url = new URL(ref, window.location);
+        this.$router.push({ path: url.pathname});
+      } catch (e) {
+        if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+          this.$router.push({ path: ref.split('#')[1]});
+        }
+      }
+      
       return false;
     },
     doResize() {

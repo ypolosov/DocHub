@@ -115,14 +115,17 @@ export default {
                         if ((lastIndex === response.data) || context.state.isReloading) return;
                         if (oldIndex === response.data && trigger++) {
                             // eslint-disable-next-line no-console
-                            console.info("DODODOD context.sources", context.state.sources);
+                            // console.info("DODODOD context.sources", context.state.sources);
                             if (trigger > 1) {
                                 for (const location of changedBuffer) {
-                                    if (context.state.sources.find((item) => {
+                                    const sources = context.state.sources;
+                                    if (!sources || !sources.length || context.state.sources.find((item) => {
                                         // eslint-disable-next-line no-console
-                                        console.info(item, location);
+                                        // console.info(item, location);
                                         return item.location === location;
                                     })) {
+                                        // eslint-disable-next-line no-console
+                                        console.info('>>>>>> GO RELOAD <<<<<<<<<<');
                                         trigger = 0;
                                         lastIndex = response.data;
                                         context.dispatch('reloadAll');

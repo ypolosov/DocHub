@@ -151,6 +151,13 @@ if (process.env.VUE_APP_DOCHUB_MODE !== "plugin") {
             }
         }
     );
+} else {
+    rConfig.routes.push(
+        {
+            path: '/url=about:blank',
+            component: ComponentsMindmap
+        }
+    );
 }
 
 export default new Router(rConfig);
