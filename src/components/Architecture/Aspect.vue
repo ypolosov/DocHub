@@ -50,27 +50,20 @@
                 <span class="title">Иерархия</span>
               </v-card-title>
               <v-card-text class="headline font-weight-bold">
-                <aspects-mindmap :root="aspect"></aspects-mindmap>
+                <aspects-mindmap :root="aspect" style="width: 100%"></aspects-mindmap>
               </v-card-text>
             </v-card>
           </v-container>
         </v-layout>
       </v-flex>
       <v-flex xs12 md7 d-flex>
-        <v-card v-if="contexts.length">
-          <v-card-title>
-            <v-icon left>link</v-icon>
-            <span class="title">Контексты</span>
-          </v-card-title>
-          <v-card-text class="headline font-weight-bold">
-            <v-tabs v-model="currentContext">
-              <v-tab v-for="context in contexts" :key="context.id" ripple>
-                {{ context.title }}
-              </v-tab>
-            </v-tabs>
-            <schema :schema="schema"></schema>
-          </v-card-text>
-        </v-card>
+        <tab-contexts 
+          v-if="contexts.length" style="width: 100%"
+          :contexts = "contexts"
+          :manifest = "manifest"
+          d-flex
+        >
+        </tab-contexts>  
       </v-flex>
     </v-layout>
     <div style="display: none" v-html="focusStyle"></div>
@@ -79,20 +72,19 @@
 
 <script>
 
-import Schema from '../Schema/Schema';
-import jsonata from "jsonata";
 import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
 import requests from "../../helpers/requests";
 import DocsTree from "../Docs/DocsTree";
 import AspectsMindmap from "@/components/Mindmap/AspectsMindmap";
+import TabContexts from './tabs/TabContext.vue'
 
 export default {
   name: 'Aspect',
   components: {
-    Schema,
     DocsTree,
-    AspectsMindmap
+    AspectsMindmap,
+    TabContexts
   },
   methods: {
     goToLink() {
@@ -113,23 +105,20 @@ export default {
       `;
     },
     sourceLocations() {
-      return jsonata(query.locationsForAspect(this.aspect))
+      return query.expression(query.locationsForAspect(this.aspect))
           .evaluate(this.$store.state.sources) || [];
     },
-    schema() {
-      return jsonata(query.context(this.contexts[this.currentContext].id))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
-    },
     components() {
-      return jsonata(query.componentsForAspects(this.aspect))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [];
+      return query.expression(query.componentsForAspects(this.aspect)).evaluate(this.manifest) || [];
+    },
+    manifest () {
+      return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
     },
     contexts() {
-      return jsonata(query.contextsForAspects(this.aspect))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [];
+      return query.expression(query.contextsForAspects(this.aspect)).evaluate(this.manifest) || [];
     },
     summary() {
-      return (jsonata(query.summaryForAspect(this.aspect))
+      return (query.expression(query.summaryForAspect(this.aspect))
           .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [])
           .concat([{
             title: 'Размещение',
@@ -143,9 +132,7 @@ export default {
     aspect: String
   },
   data() {
-    return {
-      currentContext: 0
-    };
+    return {};
   }
 };
 </script>

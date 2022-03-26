@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="plantuml-place">
     <v-progress-circular
         v-if="isLoading"
         :size="64"
@@ -9,7 +9,8 @@
         color="primary"
         indeterminate
     ></v-progress-circular>
-    <div v-else v-html="svg" class="plantuml-schema"
+    <div v-else v-html="svg" 
+      class="plantuml-schema"
       :style="{cursor: cursor}"
       @mousedown.prevent="onMouseDown"
       @mousemove.prevent="onMouseMove"
@@ -30,6 +31,13 @@ export default {
   name: 'PlantUML',
   mounted() {
     this.reloadSVG();
+    let oldClientHeight = this.$el.clientHeight;
+    new ResizeObserver(() => {
+      if (oldClientHeight != this.$el.clientHeight) {
+        this.doResize();
+        oldClientHeight = this.$el.clientHeight;
+      }
+    }).observe(this.$el);
   },
   methods: {
     onMouseDown (event) {
@@ -76,15 +84,31 @@ export default {
       event.stopPropagation();
     },
     onClickRef(event) {
+      if (event.shiftKey) return false;
       const url = new URL(event.currentTarget.href.baseVal, window.location);
       this.$router.push({ path: url.pathname});
       return false;
     },
     doResize() {
+      if (!this.svgEl || !this.svgEl.clientWidth || !this.svgEl.clientHeight) return;
+      // eslint-disable-next-line no-debugger
+      // debugger;
+      
       if (this.$el.clientWidth > this.viewBox.width) {
-        this.svgEl.setAttribute("width", `${this.$el.clientWidth}px`)
         this.viewBox.width = this.$el.clientWidth;
+      } 
+
+      const originalHeight = this.viewBox.height * (this.svgEl.clientWidth / this.viewBox.width);
+
+      this.svgEl.style.height = originalHeight;
+
+      if (originalHeight < this.$el.clientHeight) {
+        const k = this.viewBox.height / originalHeight;
+        this.svgEl.style.height = this.$el.clientHeight;
+        this.viewBox.height = this.$el.clientHeight * k;
       }
+
+      // this.viewBox.height = this.svgEl.clientHeight * (this.viewBox.width / this.svgEl.clientWidth);
     },
     bindHREF() {
       const refs = this.svgEl.querySelectorAll('[href]');
@@ -210,8 +234,15 @@ export default {
 
 <style>
 
+.plantuml-place {
+}
+
+.plantuml-schema {
+  width: 100%;  
+}
+
 .plantuml-schema svg {
-  max-width: 100%;
+  width: 100%;
   height: auto;
 }
 

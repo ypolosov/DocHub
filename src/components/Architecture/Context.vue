@@ -1,7 +1,16 @@
 <template>
-    <div>
-      <plantuml v-if="isCustomUML && customUML" :uml="customUML"></plantuml>
-      <schema v-if="!isCustomUML" :schema="schema"></schema>
+    <div 
+      style="min-height:100%; position:relative"
+    >
+      <plantuml 
+        v-if="isCustomUML && customUML" 
+        :uml="customUML"
+      ></plantuml>
+      <schema 
+        style="position: absolute; bottom: 0; right: 0; left:0; top: 0;"
+        v-else
+        :schema="schema"
+      ></schema>
     </div>
 </template>
 
@@ -42,8 +51,6 @@ export default {
       const asIs = this.$store.state.manifest[manifest_parser.MODE_AS_IS];
       this.$nextTick(this.reloadCustomUML);
       const result = query.expression(query.context(this.context, this.location)).evaluate(asIs);
-      // eslint-disable-next-line no-debugger
-      debugger;
       return result;
     },
     isCustomUML () {

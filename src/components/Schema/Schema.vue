@@ -1,5 +1,5 @@
 <template>
-  <plantuml class="plantuml-schema"
+  <plantuml
       :uml = "uml"
       :postrender = "postrender"
   ></plantuml>
@@ -23,8 +23,14 @@ export default {
       return document.createElementNS("http://www.w3.org/2000/svg", tag);
     },
     getControlsByTarget(target) {
-      const linkID = target.getAttribute('data-link-selector');
-      return document.querySelectorAll(`[data-link-selector="${linkID}"]`);
+      let result;
+      if (this.renderCore === "smetana") {
+        result = [target];
+      } else {
+        const linkID = target.getAttribute('data-link-selector');
+        result = document.querySelectorAll(`[data-link-selector="${linkID}"]`);
+      }
+      return result;
     },
     onOverLink(event) {
       const controls = this.getControlsByTarget(event.target);
@@ -38,7 +44,7 @@ export default {
         controls[i].classList.remove("selected");
     },
 
-    postrender (svg) {
+    postRenderDot(svg) {
       // Строим надписи на связях
       let prefix = 0;
       let defs = svg.querySelectorAll('defs')[0];
@@ -113,6 +119,21 @@ export default {
 
       }
     },
+    postRenderSmetana(svg) {
+      const links = svg.querySelectorAll('path');
+      for (let i = 0; i < links.length; i++) {
+        const linkPath = links[i];
+          linkPath.classList.add("link-path");
+          linkPath.addEventListener('mouseover', this.onOverLink);
+          linkPath.addEventListener('mouseout', this.onOutLink);
+      }
+    },
+    postrender (svg) {
+      switch (this.renderCore) {
+        case 'smetana': this.postRenderSmetana(svg); break;
+        default: this.postRenderDot(svg);
+      }
+    },
     makeRef(type, id, title) {
       const url = (() => {
         switch (type) {
@@ -136,6 +157,10 @@ export default {
 
     manifest() {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
+    },
+
+    renderCore() {
+      return this.$store.state.renderCore;
     },
 
     structure() {
@@ -178,6 +203,10 @@ export default {
     },
     uml () {
       let uml = `@startuml\n`;
+
+      if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+        uml += '!pragma layout smetana\n';
+      }
 
       // Определяем в какой нотации будем выводить схему
       let notation = this.notation;
@@ -356,13 +385,13 @@ export default {
   }
 
   path.link-path {
-    stroke: rgb(52, 149, 219);
-    stroke-width: 2;
+    stroke: rgb(52, 149, 219) !important;
+    stroke-width: 2 !important;
   }
 
   path.selected {
-    stroke: #F00;
-    stroke-width: 2;
+    stroke: #F00 !important;
+    stroke-width: 2 !important;
   }
 
 </style>

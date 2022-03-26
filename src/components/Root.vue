@@ -54,7 +54,7 @@
           color="grey lighten-4">
         <Menu></Menu>
       </v-navigation-drawer>
-      <v-content v-show="!isLoading">
+      <v-content v-show="!isLoading" style="min-height:100%">
         <router-view/>
       </v-content>
       <v-progress-circular

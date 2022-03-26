@@ -4,7 +4,6 @@ import GitHelper from '../helpers/gitlab'
 import parser from '../manifest/manifest_parser';
 import Vue from 'vue';
 import query from "../manifest/query";
-import jsonata from "jsonata";
 import manifest_parser from "../manifest/manifest_parser";
 import requests from "../helpers/requests";
 
@@ -29,6 +28,8 @@ export default {
         diff_format: 'line-by-line',
         // Последние изменения
         last_changes: {},
+        // Движок для рендеринга
+        renderCore: 'graphviz'
     },
 
     mutations: {
@@ -61,14 +62,20 @@ export default {
             Vue.set(state.last_changes, value.id, value.payload);
         },
         appendProblems(state, value) {
-            state.problems = jsonata("$distinct($)")
+            state.problems = query.expression("$distinct($)")
                 .evaluate(JSON.parse(JSON.stringify((state.problems || []).concat(value)))) || [];
         },
+        setRenderCore(state, value) {
+            state.renderCore = value;
+        }
     },
 
     actions: {
         // Action for init store
         init(context) {
+            context.commit('setRenderCore', 
+                process.env.VUE_APP_DOCHUB_MODE === "plugin" ? 'smetana' : 'graphviz'
+            );
             const access_token = cookie.get('git_access_token');
             if (access_token) {
                 context.commit('setAccessToken', access_token);

@@ -43,20 +43,13 @@
         </v-layout>
       </v-flex>
       <v-flex xs12 md7 d-flex>
-        <v-card v-if="contexts.length" class="card-item">
-          <v-card-title>
-            <v-icon left>link</v-icon>
-            <span class="title">Контексты</span>
-          </v-card-title>
-          <v-card-text class="headline font-weight-bold">
-            <v-tabs v-model="currentContext">
-              <v-tab v-for="context in contexts" :key="context.id" ripple>
-                {{ context.title }}
-              </v-tab>
-            </v-tabs>
-            <schema :schema="schema"></schema>
-          </v-card-text>
-        </v-card>
+        <tab-contexts 
+          v-if="contexts.length" style="width: 100%"
+          :contexts = "contexts"
+          :manifest = "manifest"
+          d-flex
+        >
+        </tab-contexts>  
       </v-flex>
     </v-layout>
   </v-container>
@@ -64,20 +57,19 @@
 
 <script>
 
-import Schema from '../Schema/Schema';
-import jsonata from "jsonata";
 import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
 import requests from "../../helpers/requests";
 import DocsTree from "../Docs/DocsTree";
 import ComponentsMindmap from "@/components/Mindmap/ComponentsMindmap";
+import TabContexts from './tabs/TabContext.vue'
 
 export default {
-  name: 'Component_',
+  name: 'Component',
   components: {
-    Schema,
     DocsTree,
-    ComponentsMindmap
+    ComponentsMindmap,
+    TabContexts
   },
   methods: {
     goToLink() {
@@ -97,29 +89,24 @@ export default {
         </style>
       `;
     },
-    sourceLocations() {
-      return jsonata(query.locationsForComponent(this.component))
-          .evaluate(this.$store.state.sources) || [];
+    manifest () {
+      return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
     },
-    schema () {
-      if (this.currentContext === 0) {
-        return jsonata(query.component(this.component))
-            .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
-      } else {
-        return jsonata(query.context(this.contexts[this.currentContext].id))
-            .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]);
-      }
+    sourceLocations() {
+      return query.expression(query.locationsForComponent(this.component))
+          .evaluate(this.$store.state.sources) || [];
     },
     contexts() {
       return [{
-        id: 'self',
-        title: 'SELF'
-      }].concat(jsonata(query.contextsForComponent(this.component))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
+        id: this.component,
+        title: 'SELF',
+        type: 'component'
+      }].concat(query.expression(query.contextsForComponent(this.component))
+          .evaluate(this.manifest) || []);
     },
     summary() {
-      return (jsonata(query.summaryForComponent(this.component))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [])
+      return (query.expression(query.summaryForComponent(this.component))
+          .evaluate(this.manifest) || [])
           .concat([{
             title: 'Размещение',
             content: this.sourceLocations.map((location) =>

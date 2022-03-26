@@ -36,7 +36,6 @@
 
 <script>
 
-import jsonata from 'jsonata';
 import manifest_parser from "../manifest/manifest_parser";
 import query from "../manifest/query";
 
@@ -96,7 +95,7 @@ export default {
 
     treeMenu () {
       const result = { items: {} };
-      (jsonata(query.menu()).evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []).map((item) => {
+      (query.expression(query.menu()).evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []).map((item) => {
         const location = item.location.split('/');
         let node = result;
         let key = null;
