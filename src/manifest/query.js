@@ -148,7 +148,8 @@ const SCHEMA_COMPONENT = `
                         "link_title": $.title,
                         "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
                         "namespaces":[$MKNS($NAMESPACES_IDS)],
-                        "contract": $CONTRACT ? {
+                        "test": $,
+                        "contract": $.contract ? {
                             "id": $.contract, 
                             "location": $CONTRACT.location
                         } : undefined

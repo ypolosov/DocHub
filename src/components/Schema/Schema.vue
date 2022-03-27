@@ -12,6 +12,7 @@ import PlantUMLDSL from "!!raw-loader!../../assets/plantuml_dsl.txt";
 import C4ModelDSL from "!!raw-loader!../../assets/c4model_dsl.txt";
 import SberDSL from "!!raw-loader!../../assets/sber_dsl.txt";
 import manifest_parser from "@/manifest/manifest_parser";
+import requests from "@/helpers/requests";
 
 export default {
   name: 'Schema',
@@ -43,7 +44,6 @@ export default {
       for (let i = 0; i < controls.length; i++)
         controls[i].classList.remove("selected");
     },
-
     postRenderDot(svg) {
       // Строим надписи на связях
       let prefix = 0;
@@ -112,8 +112,12 @@ export default {
 
         if (link.contract) {
           const contactID = link.contract.id;
+          linkTitle.style.cursor = "pointer";
           linkTitle.addEventListener("click", () => {
-            this.$router.push({ path: `/docs/${contactID}`});
+            if (requests.isExtarnalURI(contactID))
+              window.open(contactID, '_blank');
+            else
+              this.$router.push({ path: `/docs/${contactID}`});
           });
         }
 
@@ -131,10 +135,15 @@ export default {
       for (const linkId in this.structure.links) {
         const link = this.structure.links[linkId];
         const linkTitle = svg.querySelectorAll(`a[href="http://#${encodeURI(linkId)}"]`)[0];
+        if (!link || !linkTitle) continue;
+        linkTitle.setAttribute("title", "");
         if (link.contract) {
           const contactID = link.contract.id;
-          linkTitle.setAttribute("href", `/docs/${contactID}`);
+          const url = requests.isExtarnalURI(contactID) ? contactID : `/docs/${contactID}`;
+          linkTitle.setAttribute("xlink:title", url);
+          linkTitle.setAttribute("href", url);
         } else if (linkTitle) {
+          linkTitle.setAttribute("xlink:title", "");
           linkTitle.setAttribute("href", "");
         }
       }

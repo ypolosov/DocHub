@@ -44,6 +44,10 @@ if(window.$PAPI) {
 
 export default {
     axios,
+    isExtarnalURI(uri) {
+      // eslint-disable-next-line no-useless-escape
+      return uri.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
+    },
     getSourceRoot(){
         if(window.$IDE_PLUGIN) {
             return "plugin:/idea/source/"

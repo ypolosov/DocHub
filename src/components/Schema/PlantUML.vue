@@ -26,6 +26,7 @@
 
 import axios from 'axios';
 import plantUML from '../../helpers/plantuml'
+import requests from '../../helpers/requests';
 
 export default {
   name: 'PlantUML',
@@ -90,8 +91,12 @@ export default {
       // eslint-disable-next-line no-console
       console.info(`onClickRef`, ref);
       try {
-        const url = new URL(ref, window.location);
-        this.$router.push({ path: url.pathname});
+        if (requests.isExtarnalURI(ref)) {
+          window.open(ref, 'blank_');
+        } else {
+          const url = new URL(ref, window.location);
+          this.$router.push({ path: url.pathname});
+        }
       } catch (e) {
         if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
           this.$router.push({ path: ref.split('#')[1]});
