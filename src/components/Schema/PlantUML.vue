@@ -71,8 +71,6 @@ export default {
     },
     proxyScrollEvent (event) {
       if (!event.shiftKey) return;
-      // eslint-disable-next-line no-console
-      console.info(event.target);
       let e = window.event || event;
       switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
         case 1:
