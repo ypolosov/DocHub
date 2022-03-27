@@ -176,7 +176,7 @@ export default {
                 .Rrrrr {font: italic 24px serif; fill: red;}
               </style>
               <text x="200" y="40" text-anchor="middle" class="Rrrrr">Ошибка загрузки!</text>
-              <text x="200" y="60" text-anchor="middle" class="small">${error.response.status}</text>
+              <text x="200" y="60" text-anchor="middle" class="small">${error.response ? error.response.status : error.toString()}</text>
             </svg>
         `;
           }
