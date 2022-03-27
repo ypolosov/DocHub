@@ -1,6 +1,6 @@
 import requests from "./requests";
 import docs from './docs'
-import jsonata from 'jsonata';
+import query from "../manifest/query";
 
 export default function () {
     return {
@@ -20,7 +20,7 @@ export default function () {
                 } else if (typeof data === "string") {
                     // Inline запрос JSONata
                     if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(data)) {
-                        resolve(jsonata(data).evaluate(context));
+                        resolve(query.expression(data).evaluate(context));
                     // Ссылка на файл с данными
                     } else if (data.slice(-5) === ".yaml" || data.slice(-5) === ".json" || (data.search(":") > 0)) {
                         requests.request(data, baseURI)
@@ -30,7 +30,7 @@ export default function () {
                     } else if (data.slice(-8) === ".jsonata") {
                         const url = docs.urlFromProfile({source: data}, baseURI);
                         requests.request(url).then((response) => {
-                            resolve(jsonata(typeof response.data === 'string' 
+                            resolve(query.expression(typeof response.data === 'string' 
                                 ? response.data 
                                 : JSON.stringify(response.data)).evaluate(context)
                             );
@@ -58,7 +58,7 @@ export default function () {
                 if (url) {
                     requests.request(url).then((response) => {
                         resolve(
-                            jsonata(typeof response.data === 'string' 
+                            query.expression(typeof response.data === 'string' 
                             ? response.data 
                             : JSON.stringify(response.data)).evaluate(data || context)
                         );

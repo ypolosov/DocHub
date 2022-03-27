@@ -4,7 +4,6 @@ import GitHelper from '../helpers/gitlab'
 import parser from '../manifest/manifest_parser';
 import Vue from 'vue';
 import query from "../manifest/query";
-import jsonata from "jsonata";
 import manifest_parser from "../manifest/manifest_parser";
 import requests from "../helpers/requests";
 
@@ -29,6 +28,8 @@ export default {
         diff_format: 'line-by-line',
         // Последние изменения
         last_changes: {},
+        // Движок для рендеринга
+        renderCore: 'graphviz'
     },
 
     mutations: {
@@ -61,14 +62,20 @@ export default {
             Vue.set(state.last_changes, value.id, value.payload);
         },
         appendProblems(state, value) {
-            state.problems = jsonata("$distinct($)")
+            state.problems = query.expression("$distinct($)")
                 .evaluate(JSON.parse(JSON.stringify((state.problems || []).concat(value)))) || [];
         },
+        setRenderCore(state, value) {
+            state.renderCore = value;
+        }
     },
 
     actions: {
         // Action for init store
         init(context) {
+            context.commit('setRenderCore', 
+                process.env.VUE_APP_DOCHUB_MODE === "plugin" ? 'smetana' : 'graphviz'
+            );
             const access_token = cookie.get('git_access_token');
             if (access_token) {
                 context.commit('setAccessToken', access_token);
@@ -108,14 +115,17 @@ export default {
                         if ((lastIndex === response.data) || context.state.isReloading) return;
                         if (oldIndex === response.data && trigger++) {
                             // eslint-disable-next-line no-console
-                            console.info("DODODOD context.sources", context.state.sources);
+                            // console.info("DODODOD context.sources", context.state.sources);
                             if (trigger > 1) {
                                 for (const location of changedBuffer) {
-                                    if (context.state.sources.find((item) => {
+                                    const sources = context.state.sources;
+                                    if (!sources || !sources.length || context.state.sources.find((item) => {
                                         // eslint-disable-next-line no-console
-                                        console.info(item, location);
+                                        // console.info(item, location);
                                         return item.location === location;
                                     })) {
+                                        // eslint-disable-next-line no-console
+                                        console.info('>>>>>> GO RELOAD <<<<<<<<<<');
                                         trigger = 0;
                                         lastIndex = response.data;
                                         context.dispatch('reloadAll');

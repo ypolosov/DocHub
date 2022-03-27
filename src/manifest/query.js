@@ -70,7 +70,7 @@ const SCHEMA_CONTEXT = `
                             "link_title": $.title,
                             "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
                             "namespaces":[$MKNS($NAMESPACES_IDS)],
-                            "contract": $CONTRACT ? {
+                            "contract": $.contract ? {
                                 "id": $.contract,
                                 "location": $CONTRACT.location
                             } : undefined
@@ -148,7 +148,7 @@ const SCHEMA_COMPONENT = `
                         "link_title": $.title,
                         "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
                         "namespaces":[$MKNS($NAMESPACES_IDS)],
-                        "contract": $CONTRACT ? {
+                        "contract": $.contract ? {
                             "id": $.contract, 
                             "location": $CONTRACT.location
                         } : undefined
@@ -224,7 +224,7 @@ const SCHEMA_QUERY = `
                         "link_title": $.title,
                         "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
                         "namespaces":[$MKNS($NAMESPACES_IDS)],
-                        "contract": $CONTRACT ? {
+                        "contract": $.contract ? {
                             "id": $.contract,
                             "location": $CONTRACT.location
                         } : undefined

@@ -6,7 +6,6 @@
 
 import PlantUML from "../Schema/PlantUML";
 import query from "../../manifest/query";
-import jsonata from 'jsonata';
 import manifest_parser from "../../manifest/manifest_parser";
 
 export default {
@@ -24,7 +23,7 @@ export default {
   computed: {
     uml () {
       const asis = this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
-      const nodes = jsonata(query.archMindMapAspects(this.root)).evaluate(asis);
+      const nodes = query.expression(query.archMindMapAspects(this.root)).evaluate(asis);
       let uml = '@startwbs\n* Аспекты\n';
 
       const appendNode = (before, current, title) => {

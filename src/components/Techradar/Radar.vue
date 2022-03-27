@@ -48,7 +48,6 @@
 <script>
 
 import query from "../../manifest/query";
-import jsonata from 'jsonata';
 import manifest_parser from "../../manifest/manifest_parser";
 import crc16 from "../../helpers/crc16";
 
@@ -141,7 +140,7 @@ export default {
     dots() {
       const result = [];
       let index = 1;
-      (jsonata(query.collectTechnologies())
+      (query.expression(query.collectTechnologies())
           .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []).forEach((item) => {
             if (this.section && this.section.toLowerCase() !== item.section.key.toLowerCase())
               return;

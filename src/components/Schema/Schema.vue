@@ -1,5 +1,5 @@
 <template>
-  <plantuml class="plantuml-schema"
+  <plantuml
       :uml = "uml"
       :postrender = "postrender"
   ></plantuml>
@@ -12,6 +12,7 @@ import PlantUMLDSL from "!!raw-loader!../../assets/plantuml_dsl.txt";
 import C4ModelDSL from "!!raw-loader!../../assets/c4model_dsl.txt";
 import SberDSL from "!!raw-loader!../../assets/sber_dsl.txt";
 import manifest_parser from "@/manifest/manifest_parser";
+import requests from "@/helpers/requests";
 
 export default {
   name: 'Schema',
@@ -23,8 +24,14 @@ export default {
       return document.createElementNS("http://www.w3.org/2000/svg", tag);
     },
     getControlsByTarget(target) {
-      const linkID = target.getAttribute('data-link-selector');
-      return document.querySelectorAll(`[data-link-selector="${linkID}"]`);
+      let result;
+      if (this.renderCore === "smetana") {
+        result = [target];
+      } else {
+        const linkID = target.getAttribute('data-link-selector');
+        result = document.querySelectorAll(`[data-link-selector="${linkID}"]`);
+      }
+      return result;
     },
     onOverLink(event) {
       const controls = this.getControlsByTarget(event.target);
@@ -37,8 +44,7 @@ export default {
       for (let i = 0; i < controls.length; i++)
         controls[i].classList.remove("selected");
     },
-
-    postrender (svg) {
+    postRenderDot(svg) {
       // Строим надписи на связях
       let prefix = 0;
       let defs = svg.querySelectorAll('defs')[0];
@@ -106,11 +112,47 @@ export default {
 
         if (link.contract) {
           const contactID = link.contract.id;
+          linkTitle.style.cursor = "pointer";
           linkTitle.addEventListener("click", () => {
-            this.$router.push({ path: `/docs/${contactID}`});
+            if (requests.isExtarnalURI(contactID))
+              window.open(contactID, '_blank');
+            else
+              this.$router.push({ path: `/docs/${contactID}`});
           });
         }
 
+      }
+    },
+    postRenderSmetana(svg) {
+      const links = svg.querySelectorAll('path');
+      for (let i = 0; i < links.length; i++) {
+        const linkPath = links[i];
+          linkPath.classList.add("link-path");
+          linkPath.addEventListener('mouseover', this.onOverLink);
+          linkPath.addEventListener('mouseout', this.onOutLink);
+      }
+
+      for (const linkId in this.structure.links) {
+        const link = this.structure.links[linkId];
+        const linkTitle = svg.querySelectorAll(`a[href="http://#${encodeURI(linkId)}"]`)[0];
+        if (!link || !linkTitle) continue;
+        linkTitle.setAttribute("title", "");
+        if (link.contract) {
+          const contactID = link.contract.id;
+          const url = requests.isExtarnalURI(contactID) ? contactID : `/docs/${contactID}`;
+          linkTitle.setAttribute("xlink:title", url);
+          linkTitle.setAttribute("href", url);
+        } else if (linkTitle) {
+          linkTitle.setAttribute("xlink:title", "");
+          linkTitle.setAttribute("href", "");
+        }
+      }
+    },
+
+    postrender (svg) {
+      switch (this.renderCore) {
+        case 'smetana': this.postRenderSmetana(svg); break;
+        default: this.postRenderDot(svg);
       }
     },
     makeRef(type, id, title) {
@@ -136,6 +178,10 @@ export default {
 
     manifest() {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
+    },
+
+    renderCore() {
+      return this.$store.state.renderCore;
     },
 
     structure() {
@@ -178,6 +224,10 @@ export default {
     },
     uml () {
       let uml = `@startuml\n`;
+
+      if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+        uml += '!pragma layout smetana\n';
+      }
 
       // Определяем в какой нотации будем выводить схему
       let notation = this.notation;
@@ -304,7 +354,10 @@ export default {
               namespace = namespace.namespaces[link.namespaces[i].id];
             }
             return namespace.components[link.id] && !namespace.components[link.id].extra
-          })()) uml += `${linkId}: [[http://#${encodeURI(linkId)} ${link.link_title || "⠀"}]]\n`
+          })()) uml += 
+            link.link_title 
+            ? `${linkId}: [[http://#${encodeURI(linkId)} ${link.link_title || "⠀"}]]\n`
+            : `${linkId}: ⠀\n`
         }
         this.schema.uml && this.schema.uml.$after && (uml += this.schema.uml.$after + '\n');
       }
@@ -356,13 +409,13 @@ export default {
   }
 
   path.link-path {
-    stroke: rgb(52, 149, 219);
-    stroke-width: 2;
+    stroke: rgb(52, 149, 219) !important;
+    stroke-width: 2 !important;
   }
 
   path.selected {
-    stroke: #F00;
-    stroke-width: 2;
+    stroke: #F00 !important;
+    stroke-width: 2 !important;
   }
 
 </style>

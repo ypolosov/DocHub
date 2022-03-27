@@ -35,7 +35,7 @@
         <v-btn v-if="isPlugin" icon title="Отладка" @click="showDebugger">
           <v-icon>adjust</v-icon>
         </v-btn>
-        <v-btn icon title="Обновить" @click="reloadManifests">
+        <v-btn icon title="Обновить" @click="reloadForce">
           <v-icon>refresh</v-icon>
         </v-btn>
         <!--
@@ -54,7 +54,7 @@
           color="grey lighten-4">
         <Menu></Menu>
       </v-navigation-drawer>
-      <v-content v-show="!isLoading">
+      <v-content v-show="!isLoading" style="min-height:100%">
         <router-view/>
       </v-content>
       <v-progress-circular
@@ -116,10 +116,11 @@ export default {
     );
   },
   methods: {
-    reloadManifests() {
-      this.$store.dispatch('reloadAll')
+    reloadForce() {
+      window.$PAPI.reload();
     },
     showDebugger() {
+      window.$PAPI.isDebug = true;
       window.$PAPI.showDebugger();
     }
   },
