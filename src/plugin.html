@@ -41,11 +41,14 @@
         getChangeIndex: function () {
           return this.request({url: 'plugin:/idea/change/index'});
         },
-        reload() {
+        reload: function () {
           this.request({url: 'plugin:/idea/reload'});
         },
-        showDebugger() {
+        showDebugger: function () {
           this.request({url: 'plugin:/idea/debugger/show'});
+        },
+        goto: function(source, entity, id) {
+          this.request({url: `plugin:/idea/goto`, source, entity, id});
         }
       };      
       "API_INJECTION"

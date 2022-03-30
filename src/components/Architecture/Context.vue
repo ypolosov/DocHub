@@ -50,7 +50,7 @@ export default {
     schema () {
       const asIs = this.$store.state.manifest[manifest_parser.MODE_AS_IS];
       this.$nextTick(this.reloadCustomUML);
-      const result = query.expression(query.context(this.context, this.location)).evaluate(asIs);
+      const result = query.expression(query.context(this.context, this.location)).evaluate(asIs) || {};
       return result;
     },
     isCustomUML () {

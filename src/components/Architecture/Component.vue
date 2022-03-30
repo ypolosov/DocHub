@@ -15,7 +15,11 @@
                   <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
                     <v-list-item-content  @click="goToLink(item.link)">
                       <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
-                      <v-list-item-title v-html="item.content"></v-list-item-title>
+                      <v-list-item-title v-if = "item.onclick" :title="item.hint">
+                        <a @click="item.onclick">{{item.content}}</a>
+                      </v-list-item-title>
+                      <v-list-item-title v-else v-html="item.content" :title="item.hint"
+                      ></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list>
@@ -105,14 +109,29 @@ export default {
           .evaluate(this.manifest) || []);
     },
     summary() {
+
+      const locations = this.sourceLocations.map((location) => {
+        const url = requests.makeURL(location).url;
+        return process.env.VUE_APP_DOCHUB_MODE === "plugin"
+          ?  {
+            title: 'Размещение',
+            content: url.toString().substring(19),
+            hint: url.toString().substring(19),
+            onclick: () => {
+              window.$PAPI.goto(url, 'component', this.component);
+              return false;
+            }
+          }
+          : {
+            title: 'Размещение',
+            hint: url,
+            content: `<a href="${url}" target="_blank">${location}</a>`
+          }
+      });
+
       return (query.expression(query.summaryForComponent(this.component))
           .evaluate(this.manifest) || [])
-          .concat([{
-            title: 'Размещение',
-            content: this.sourceLocations.map((location) =>
-              `<a href="${requests.makeURL(location).url}" target="_blank">${location}</a>`
-            ).join('</br>')
-          }])
+          .concat(locations)
     }
   },
   props: {
