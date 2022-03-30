@@ -6,6 +6,7 @@ import Vue from 'vue';
 import query from "../manifest/query";
 import manifest_parser from "../manifest/manifest_parser";
 import requests from "../helpers/requests";
+import gateway from '../idea/gateway';
 
 const axios = require('axios');
 
@@ -84,8 +85,8 @@ export default {
             let diff_format = cookie.get('diff_format');
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
             parser.onReloaded = (parser) => {
-                context.commit('setManifest', parser.manifest);
-                context.commit('setSources', parser.mergeMap);
+                context.commit('setManifest', Object.freeze(parser.manifest));
+                context.commit('setSources', Object.freeze(parser.mergeMap));
                 context.commit('setIsReloading', false);
                 context.commit('appendProblems', 
                     query.expression(query.problems())
@@ -103,7 +104,29 @@ export default {
                 }]);
             };
 
-            // Детектор обновления манифестов в IDE
+            let changes = {};
+            let refreshTimer = null;
+            gateway.appendListener('source/changed', (data) => {
+                // eslint-disable-next-line no-console
+                if (data) {
+                    changes = Object.assign(changes, data);
+                    if (refreshTimer) clearTimeout(refreshTimer);
+                    refreshTimer = setInterval(() => {
+                        for (const source in changes) {
+                            if (context.state.sources.find((item) => {
+                                return item.location === source;
+                            })) {
+                                // eslint-disable-next-line no-console
+                                console.info('>>>>>> GO RELOAD <<<<<<<<<<');
+                                changes = {};
+                                context.dispatch('reloadAll');
+                                break;
+                            }
+                        }
+                    });
+                }
+            });
+/*
             if ((process.env.VUE_APP_DOCHUB_MODE === "plugin") && (process.env.NODE_ENV === 'production')) {
                 let lastIndex = null;
                 let oldIndex = null;
@@ -139,6 +162,8 @@ export default {
                     });
                 }, 300);
             }
+
+*/
         },
 
         // Need to call when gitlab takes callback's rout with oauth code

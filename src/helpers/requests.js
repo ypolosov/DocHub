@@ -34,7 +34,7 @@ axios.interceptors.response.use(function (response) {
 if(window.$PAPI) {
     window.$PAPI.middleware = function (response) {
         if (response.contentType === 'yaml') {
-          response.data = YAML.parse(response.data);
+            response.data = YAML.parse(response.data);
         } else if (response.contentType === 'json') {
             response.data = JSON.parse(response.data);
         }

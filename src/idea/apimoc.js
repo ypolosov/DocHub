@@ -10,11 +10,18 @@ export default {
     renderPlantUML(uml) {
         return axios({url: plantUML.svgURL(uml)});
     },
+    messagePull: function () {
+        return new Promise(function (resolve) {
+            resolve({});
+        });
+    },
+    /*
     getChangeIndex: function () {
         return new Promise(function (resolve) {
             resolve(1);
         });
     },
+    */
     showDebugger: function() {
         // eslint-disable-next-line no-debugger
         debugger;

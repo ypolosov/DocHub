@@ -38,9 +38,14 @@
         renderPlantUML: function(uml) {
           return this.request({url: 'plugin:/idea/plantuml/svg', source: uml});
         },
+        messagePull: function () {
+          return this.request({url: 'plugin:/idea/gateway/pull'});
+        },
+        /*
         getChangeIndex: function () {
           return this.request({url: 'plugin:/idea/change/index'});
         },
+        */
         reload: function () {
           this.request({url: 'plugin:/idea/reload'});
         },

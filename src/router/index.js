@@ -14,6 +14,7 @@ import Technology from "../components/Techradar/Technology";
 import Problems from "../components/Problems/Problems";
 import ComponentsMindmap from "../components/Mindmap/ComponentsMindmap";
 import AspectsMindmap from "../components/Mindmap/AspectsMindmap";
+import gateway from "../idea/gateway"
 
 Vue.use(Router)
 
@@ -160,4 +161,11 @@ if (process.env.VUE_APP_DOCHUB_MODE !== "plugin") {
     );
 }
 
-export default new Router(rConfig);
+const router = new Router(rConfig);
+
+gateway.appendListener("navigate/component", (data) => {
+    router.push({ path: `/architect/components/${Object.keys(data)[0]}`});
+});
+
+
+export default router;
