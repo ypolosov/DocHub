@@ -1,4 +1,5 @@
 const config = {};
+import consts from './src/consts';
 
 // eslint-disable-next-line no-console
 console.info('ENVIRONMENTS:');
@@ -43,7 +44,7 @@ if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
         window.$IDE_PLUGIN = true;
         window.$PAPI = require('./src/idea/apimoc').default;
     } else  {
-        config.root_manifest = 'plugin:/idea/source/$root';
+        config.root_manifest = consts.plugin.ROOT_MANIFEST;
     }
 }
 

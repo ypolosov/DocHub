@@ -1,6 +1,7 @@
 <template>
   <v-container grid-list-xl fluid>
-    <v-layout wrap>
+    <empty v-if="isEmpty"></empty>
+    <v-layout wrap v-else>
       <v-flex xs12 md5 d-flex>
         <v-layout wrap>
           <v-container grid-list-xl fluid>
@@ -78,13 +79,15 @@ import requests from "../../helpers/requests";
 import DocsTree from "../Docs/DocsTree";
 import AspectsMindmap from "@/components/Mindmap/AspectsMindmap";
 import TabContexts from './tabs/TabContext.vue'
+import Empty from '../Controls/Empty.vue'
 
 export default {
   name: 'Aspect',
   components: {
     DocsTree,
     AspectsMindmap,
-    TabContexts
+    TabContexts,
+    Empty
   },
   methods: {
     goToLink() {
@@ -92,6 +95,9 @@ export default {
     }
   },
   computed: {
+    isEmpty() {
+      return !(this.manifest.aspects || {})[this.aspect];
+    },
     focusStyle() {
       return `
         <style>

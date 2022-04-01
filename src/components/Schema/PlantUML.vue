@@ -9,7 +9,7 @@
         color="primary"
         indeterminate
     ></v-progress-circular>
-    <div v-else v-html="svg" 
+    <div v-else-if="render" v-html="svg" 
       class="plantuml-schema"
       :style="{cursor: cursor}"
       @mousedown.prevent="onMouseDown"
@@ -31,6 +31,7 @@ import requests from '../../helpers/requests';
 export default {
   name: 'PlantUML',
   mounted() {
+    window.addEventListener('resize', this.reRender);
     this.reloadSVG();
     let oldClientHeight = this.$el.clientHeight;
     new ResizeObserver(() => {
@@ -40,7 +41,20 @@ export default {
       }
     }).observe(this.$el);
   },
+  beforeDestroy(){
+    window.removeEventListener('resize', this.reRender);
+  },
   methods: {
+    reRender() {
+      if (this.rerenderTimer) clearTimeout(this.rerenderTimer);
+      this.rerenderTimer = setTimeout(() => {
+        this.render = false;
+        this.$nextTick(() => {
+          this.render = true
+          this.$nextTick(() => this.prepareSVG());
+        });
+      }, 300);
+    },
     onMouseDown (event) {
       if (!event.shiftKey) return;
       this.isMove = true;
@@ -229,6 +243,8 @@ export default {
   },
   data() {
     return {
+      render: true,
+      rerenderTimer: null,
       svg: '',
       isLoading: true,
       svgEl: null,

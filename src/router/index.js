@@ -167,5 +167,16 @@ gateway.appendListener("navigate/component", (data) => {
     router.push({ path: `/architect/components/${Object.keys(data)[0]}`});
 });
 
+gateway.appendListener("navigate/document", (data) => {
+    router.push({ path: `/docs/${Object.keys(data)[0]}`});
+});
+
+gateway.appendListener("navigate/aspect", (data) => {
+    router.push({ path: `/architect/aspects/${Object.keys(data)[0]}`});
+});
+
+gateway.appendListener("navigate/context", (data) => {
+    router.push({ path: `/architect/contexts/${Object.keys(data)[0]}`});
+});
 
 export default router;

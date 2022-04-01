@@ -15,13 +15,10 @@ export default {
             resolve({});
         });
     },
-    /*
-    getChangeIndex: function () {
-        return new Promise(function (resolve) {
-            resolve(1);
-        });
+    initProject: function () {
+        // eslint-disable-next-line no-console
+        console.info(`Call init ptoject`);
     },
-    */
     showDebugger: function() {
         // eslint-disable-next-line no-debugger
         debugger;

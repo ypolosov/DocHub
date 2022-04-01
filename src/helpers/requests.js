@@ -164,7 +164,7 @@ export default {
         let params = Object.assign({}, axios_params);
         params.source = this.makeURL(uri, baseURI);
         params.url = params.source.url.toString();
-        if (window.$IDE_PLUGIN) {
+        if (window.$IDE_PLUGIN && uri.split(':')[0] === 'plugin') {
             return window.$PAPI.request(params);
         } else {
             return axios(params);

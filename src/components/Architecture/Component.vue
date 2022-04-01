@@ -1,7 +1,8 @@
 <template>
   <v-container grid-list-xl fluid>
     <div style="display: none" v-html="focusStyle"></div>
-    <v-layout wrap>
+    <empty v-if="isEmpty"></empty>
+    <v-layout wrap v-else>
       <v-flex xs12 md5 d-flex>
         <v-layout wrap>
           <v-container grid-list-xl fluid>
@@ -67,13 +68,15 @@ import requests from "../../helpers/requests";
 import DocsTree from "../Docs/DocsTree";
 import ComponentsMindmap from "@/components/Mindmap/ComponentsMindmap";
 import TabContexts from './tabs/TabContext.vue'
+import Empty from '../Controls/Empty.vue'
 
 export default {
   name: 'Component',
   components: {
     DocsTree,
     ComponentsMindmap,
-    TabContexts
+    TabContexts,
+    Empty
   },
   methods: {
     goToLink() {
@@ -81,6 +84,9 @@ export default {
     }
   },
   computed: {
+    isEmpty() {
+      return !(this.manifest.components || {})[this.component];
+    },
     focusStyle() {
       return `
         <style>
@@ -109,7 +115,6 @@ export default {
           .evaluate(this.manifest) || []);
     },
     summary() {
-
       const locations = this.sourceLocations.map((location) => {
         const url = requests.makeURL(location).url;
         return process.env.VUE_APP_DOCHUB_MODE === "plugin"

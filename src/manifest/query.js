@@ -557,7 +557,7 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
     $FILTER_LN := $length($FILTER);
     $USED_ASPECTS := $distinct($.components.*.aspects);
     $ASPECTS := $.aspects.$spread().$keys()[0];
-    [[$append($USED_ASPECTS, $ASPECTS).(
+    [[$append($USED_ASPECTS, $ASPECTS)[$].(
         $PREFIX := $substring("" & $, 0, $FILTER_LN + 1);
         $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
             $ASPECT := $lookup($MANIFEST.aspects, $);
@@ -648,10 +648,13 @@ const PROBLEMS_QUERY = `
                 $COMPONENT_ID := $keys()[0];
                 $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
                 $COMPONENT.aspects.(
-                    $ and $lookup($MANIFEST.aspects, $) ? undefined :                     {
+                    $lookup($MANIFEST.aspects, $ ? $ : " ") ? undefined :                     
+                    {
                         "problem": 'Аспекты не определены',
                         'route': '/architect/aspects/' & $,
-                        "title": "Аспект не описан [" & $ & "]"
+                        "title": $ 
+                            ? "Аспект не описан [" & $ & "]"
+                            : "Ошибка ссылки на аспект в компоненте [" & $COMPONENT_ID & "]"
                     }
                 )
             )

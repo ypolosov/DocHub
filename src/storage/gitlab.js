@@ -7,6 +7,7 @@ import query from "../manifest/query";
 import manifest_parser from "../manifest/manifest_parser";
 import requests from "../helpers/requests";
 import gateway from '../idea/gateway';
+import consts from '../consts';
 
 const axios = require('axios');
 
@@ -30,7 +31,9 @@ export default {
         // Последние изменения
         last_changes: {},
         // Движок для рендеринга
-        renderCore: 'graphviz'
+        renderCore: 'graphviz',
+        // Признак инциализации проекта в плагине
+        notInited: null
     },
 
     mutations: {
@@ -68,7 +71,10 @@ export default {
         },
         setRenderCore(state, value) {
             state.renderCore = value;
-        }
+        },
+        setNoInited(state, value) {
+            state.notInited = value;
+        },
     },
 
     actions: {
@@ -93,15 +99,20 @@ export default {
                     .evaluate(parser.manifest[manifest_parser.MODE_AS_IS]) || []);
             };
             parser.onStartReload = () => {
+                context.commit('setNoInited', false);
                 context.commit('setIsReloading', true);
             }
             parser.onError = (action, data) => {
-                context.commit('appendProblems', [{
-                    problem: "Сетевые ошибки",
-                    route: (data.error.config || {url: data.uri}).url,
-                    target: "_blank",
-                    title: `${data.uri} [${data.error}]`
-                }]);
+                if (data.uri === consts.plugin.ROOT_MANIFEST) {
+                    context.commit('setNoInited', true);
+                } else {
+                    context.commit('appendProblems', [{
+                        problem: "Сетевые ошибки",
+                        route: (data.error.config || {url: data.uri}).url,
+                        target: "_blank",
+                        title: `${data.uri} [${data.error}]`
+                    }]);
+                }
             };
 
             let changes = {};
@@ -126,44 +137,6 @@ export default {
                     });
                 }
             });
-/*
-            if ((process.env.VUE_APP_DOCHUB_MODE === "plugin") && (process.env.NODE_ENV === 'production')) {
-                let lastIndex = null;
-                let oldIndex = null;
-                let trigger = 0;
-                let changedBuffer = [];
-                setInterval(() => {
-                    window.$PAPI.getChangeIndex().then((response) => {
-                        changedBuffer = changedBuffer.concat(response.changed);
-                        if ((lastIndex === response.data) || context.state.isReloading) return;
-                        if (oldIndex === response.data && trigger++) {
-                            // eslint-disable-next-line no-console
-                            // console.info("DODODOD context.sources", context.state.sources);
-                            if (trigger > 1) {
-                                for (const location of changedBuffer) {
-                                    const sources = context.state.sources;
-                                    if (!sources || !sources.length || context.state.sources.find((item) => {
-                                        // eslint-disable-next-line no-console
-                                        // console.info(item, location);
-                                        return item.location === location;
-                                    })) {
-                                        // eslint-disable-next-line no-console
-                                        console.info('>>>>>> GO RELOAD <<<<<<<<<<');
-                                        trigger = 0;
-                                        lastIndex = response.data;
-                                        context.dispatch('reloadAll');
-                                        changedBuffer = [];
-                                        break;
-                                    }
-                                }
-                            }
-                        } else 
-                            oldIndex = response.data;
-                    });
-                }, 300);
-            }
-
-*/
         },
 
         // Need to call when gitlab takes callback's rout with oauth code
