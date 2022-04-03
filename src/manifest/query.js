@@ -386,7 +386,11 @@ const DOCUMENTS_FOR_ENTITY_QUERY = `
 const COMPONENT_LOCATIONS_QUERY = `
 (
     $COMPONENT_ID := '{%COMPONENT%}';
-    [$distinct($[$substring(path, 0, $length($COMPONENT_ID) + 12) = '/components/' & $COMPONENT_ID].location)]
+    [[$distinct($[$substring(path, 0, $length($COMPONENT_ID) + 12) = '/components/' & $COMPONENT_ID].location)]
+    .{
+        "link": $,
+        "title": $
+    }]
 )
 `;
 
@@ -423,7 +427,11 @@ const SUMMARY_ASPECT_QUERY = `
 const ASPECT_LOCATIONS_QUERY = `
 (
     $ASPECT_ID := '{%ASPECT%}';
-    [$distinct($[$substring(path, 0, $length($ASPECT_ID) + 9) = '/aspects/' & $ASPECT_ID].location)]
+    [[$distinct($[$substring(path, 0, $length($ASPECT_ID) + 9) = '/aspects/' & $ASPECT_ID].location)]
+    .{
+        "link": $,
+        "title": $
+    }]
 )
 `;
 
@@ -784,7 +792,7 @@ export default {
         return PROBLEMS_QUERY;
     },
     // Документы для сущности
-    docsForEntity(entity) {
+    docsForSubject(entity) {
         return DOCUMENTS_FOR_ENTITY_QUERY.replace(/{%ENTITY%}/g, entity);
     },
     // MindMap по архитектурным компонентам

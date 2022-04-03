@@ -26,15 +26,7 @@
                 </v-list>
               </v-card-text>
             </v-card>
-            <v-card class="card-item" xs12 md12 style="margin-top: 12px">
-              <v-card-title>
-                <v-icon left>description</v-icon>
-                <span class="title">Документы</span>
-              </v-card-title>
-              <v-card-text class="headline font-weight-bold">
-                <docs-tree :entity="component"></docs-tree>
-              </v-card-text>
-            </v-card>
+            <Docs :subject="component"></Docs>
             <v-card class="card-item" xs12 md12 style="margin-top: 12px">
               <v-card-title>
                 <v-icon left>description</v-icon>
@@ -44,6 +36,8 @@
                 <components-mindmap :root="component" links="component"></components-mindmap>
               </v-card-text>
             </v-card>
+            <src-locations :locations="srcLocations">
+            </src-locations>
           </v-container>
         </v-layout>
       </v-flex>
@@ -64,19 +58,20 @@
 
 import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
-import requests from "../../helpers/requests";
-import DocsTree from "../Docs/DocsTree";
 import ComponentsMindmap from "@/components/Mindmap/ComponentsMindmap";
 import TabContexts from './tabs/TabContext.vue'
 import Empty from '../Controls/Empty.vue'
+import SrcLocations from './tabs/SrcLocations.vue';
+import Docs from "./tabs/Docs.vue";
 
 export default {
   name: 'Component',
   components: {
-    DocsTree,
+    Docs,
     ComponentsMindmap,
     TabContexts,
-    Empty
+    Empty,
+    SrcLocations
   },
   methods: {
     goToLink() {
@@ -85,7 +80,7 @@ export default {
   },
   computed: {
     isEmpty() {
-      return !(this.manifest.components || {})[this.component];
+      return !((this.manifest || {}).components || {})[this.component];
     },
     focusStyle() {
       return `
@@ -102,10 +97,6 @@ export default {
     manifest () {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
     },
-    sourceLocations() {
-      return query.expression(query.locationsForComponent(this.component))
-          .evaluate(this.$store.state.sources) || [];
-    },
     contexts() {
       return [{
         id: this.component,
@@ -114,29 +105,22 @@ export default {
       }].concat(query.expression(query.contextsForComponent(this.component))
           .evaluate(this.manifest) || []);
     },
-    summary() {
-      const locations = this.sourceLocations.map((location) => {
-        const url = requests.makeURL(location).url;
-        return process.env.VUE_APP_DOCHUB_MODE === "plugin"
-          ?  {
-            title: 'Размещение',
-            content: url.toString().substring(19),
-            hint: url.toString().substring(19),
-            onclick: () => {
-              window.$PAPI.goto(url, 'component', this.component);
-              return false;
-            }
-          }
-          : {
-            title: 'Размещение',
-            hint: url,
-            content: `<a href="${url}" target="_blank">${location}</a>`
-          }
-      });
+    srcLocations() {
+      let result = query.expression(query.locationsForComponent(this.component))
+          .evaluate(this.$store.state.sources) || [];
 
+      if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+        result = result.map((item) => ({
+          title: item.title.slice(19),
+          link: `${item.link}?entity=component&id=${this.component}`
+        }));
+      }
+
+      return result;
+    },
+    summary() {
       return (query.expression(query.summaryForComponent(this.component))
-          .evaluate(this.manifest) || [])
-          .concat(locations)
+          .evaluate(this.manifest) || []);
     }
   },
   props: {

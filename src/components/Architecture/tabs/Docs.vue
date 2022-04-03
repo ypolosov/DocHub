@@ -1,20 +1,26 @@
 <template>
-  <tree :items="items" style="overflow-x: auto"></tree>
+    <v-card class="card-item" v-if="items.length">
+      <v-card-title>
+        <v-icon left>description</v-icon>
+        <span class="title">Документы</span>
+      </v-card-title>
+      <v-card-text class="headline font-weight-bold">
+        <tree :items="items" style="overflow-x: auto"></tree>
+      </v-card-text>
+    </v-card>
 </template>
 
 <script>
 
-import Tree from "../Controls/Tree";
+import Tree from "../../Controls/Tree.vue";
 import jsonata from "jsonata";
-import query from "../../manifest/query";
-import manifest_parser from "../../manifest/manifest_parser";
+import query from "../../../manifest/query";
+import manifest_parser from "../../../manifest/manifest_parser";
 
 export default {
-  name: 'DocsTree',
+  name: 'Docs',
   components: {
     Tree
-  },
-  methods: {
   },
   computed: {
     items () {
@@ -40,22 +46,30 @@ export default {
         });
       }
       const docs =
-          (jsonata(query.docsForEntity(this.entity))
+          (jsonata(query.docsForSubject(this.subject))
               .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
       docs.map((item) => expandItem(item));
       return result;
-    }
+    }    
   },
   props: {
-    entity: String
+    subject: String
   },
   data() {
-    return {
-    };
+    return {};
   }
 };
 </script>
 
-<style>
+<style scoped>
+  .card-item {
+    width: 100%;
+    margin-top: 12px;
+  }
 
+  .source-list-item {
+    font-stretch: normal;
+    font-size: 16px;
+    font-weight: 300;
+  }
 </style>

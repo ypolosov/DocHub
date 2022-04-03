@@ -10,7 +10,13 @@ export default {
   name: 'DCLink',
   methods: {
     onClick(event) {
-      if ((this.href || "").split("://").length == 1) {
+      const struct = (this.href || "").split(":/");
+      if (struct[0] === "plugin") {
+        const url = new URL(this.href);
+        window.$PAPI.goto(`plugin:${url.pathname}`, url.searchParams.get("entity"), url.searchParams.get("id"));
+        event.preventDefault();
+        return false;
+      } else if ((this.href || "").split(":/").length == 1) {
         event.preventDefault();
         this.$router.push({ path: this.href});
         return false;

@@ -21,16 +21,8 @@
                 </v-list>
               </v-card-text>
             </v-card>
-            <v-card class="card-item" xs12 md12>
-              <v-card-title>
-                <v-icon left>description</v-icon>
-                <span class="title">Документы</span>
-              </v-card-title>
-              <v-card-text class="headline font-weight-bold">
-                <docs-tree :entity="aspect"></docs-tree>
-              </v-card-text>
-            </v-card>
-            <v-card class="card-item" xs12 md12>
+            <Docs :subject="aspect"></Docs>
+            <v-card class="card-item" xs12 md12 v-if="components.length">
               <v-card-title>
                 <v-icon left>settings</v-icon>
                 <span class="title">Встречается в компонентах</span>
@@ -54,6 +46,7 @@
                 <aspects-mindmap :root="aspect" style="width: 100%"></aspects-mindmap>
               </v-card-text>
             </v-card>
+            <src-locations :locations="srcLocations"></src-locations>
           </v-container>
         </v-layout>
       </v-flex>
@@ -75,19 +68,20 @@
 
 import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
-import requests from "../../helpers/requests";
-import DocsTree from "../Docs/DocsTree";
+import Docs from "./tabs/Docs.vue";
 import AspectsMindmap from "@/components/Mindmap/AspectsMindmap";
 import TabContexts from './tabs/TabContext.vue'
 import Empty from '../Controls/Empty.vue'
+import SrcLocations from './tabs/SrcLocations.vue';
 
 export default {
   name: 'Aspect',
   components: {
-    DocsTree,
+    Docs,
     AspectsMindmap,
     TabContexts,
-    Empty
+    Empty,
+    SrcLocations
   },
   methods: {
     goToLink() {
@@ -96,7 +90,7 @@ export default {
   },
   computed: {
     isEmpty() {
-      return !(this.manifest.aspects || {})[this.aspect];
+      return !((this.manifest || {}).aspects || {})[this.aspect];
     },
     focusStyle() {
       return `
@@ -110,9 +104,18 @@ export default {
         </style>
       `;
     },
-    sourceLocations() {
-      return query.expression(query.locationsForAspect(this.aspect))
+    srcLocations() {
+      let result = query.expression(query.locationsForAspect(this.aspect))
           .evaluate(this.$store.state.sources) || [];
+
+      if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+        result = result.map((item) => ({
+          title: item.title.slice(19),
+          link: `${item.link}?entity=aspect&id=${this.aspect}`
+        }));
+      }
+
+      return result;
     },
     components() {
       return query.expression(query.componentsForAspects(this.aspect)).evaluate(this.manifest) || [];
@@ -125,13 +128,7 @@ export default {
     },
     summary() {
       return (query.expression(query.summaryForAspect(this.aspect))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [])
-          .concat([{
-            title: 'Размещение',
-            content: this.sourceLocations.map((location) =>
-                `<a href="${requests.makeURL(location).url}" target="_blank">${location}</a>`
-            ).join('</br>')
-          }])
+          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
     }
   },
   props: {
