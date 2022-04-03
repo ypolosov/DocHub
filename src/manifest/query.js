@@ -323,15 +323,14 @@ const MENU_QUERY = `
 const CONTEXTS_QUERY_FOR_COMPONENT = `
 (
     $MANIFEST := $;
-    [contexts.$spread().(
+    [$distinct([contexts.$spread().(
         $CONTEXT := $;
         $ID := $keys()[0];
-        $.*.components[$ = '{%COMPONENT%}'].{
+        *.components[$wcard('{%COMPONENT%}', $)].{
             "id": $ID,
             "title": $CONTEXT.*.title
         }
-        
-    )]
+    )])];
 )
 `;
 
@@ -444,10 +443,12 @@ const CONTEXTS_QUERY_FOR_ASPECT = `
         $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
         $COMPONENT['{%ASPECT%}' in aspects] ? 
         (
-            [$MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].(
-                {
-                    "id": $keys()[0],
-                    "title": *.title
+            [$MANIFEST.contexts.$spread().(
+                $CONTEXT_ID := $keys()[0];
+                $TITLE := *.title;
+                *.components[$wcard($COMPONENT_ID, $)].{
+                    "id": $CONTEXT_ID,
+                    "title": $TITLE
                 }
             )];
         ) : undefined
