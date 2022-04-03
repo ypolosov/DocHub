@@ -15,6 +15,7 @@ import Problems from "../components/Problems/Problems";
 import ComponentsMindmap from "../components/Mindmap/ComponentsMindmap";
 import AspectsMindmap from "../components/Mindmap/AspectsMindmap";
 import gateway from "../idea/gateway"
+import Empty from "../components/Controls/Empty"
 
 Vue.use(Router)
 
@@ -105,6 +106,11 @@ const rConfig = {
             path: '/problems',
             component: Problems,
             props: middleware
+        },
+        {
+            name: 'Empty',
+            path: '*',
+            component: Empty,
         },
     ]
 };
