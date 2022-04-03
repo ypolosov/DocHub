@@ -30,7 +30,7 @@
             </svg>
           </div>
         </v-app-bar-nav-icon>
-        <v-toolbar-title style="cursor: pointer" @click="$router.push({name: 'main'})">DocHub</v-toolbar-title>
+        <v-toolbar-title style="cursor: pointer" @click="onLogoClick">DocHub</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-btn v-if="isPlugin" icon title="Найти в коде" @click="gotoCode">
           <v-icon class="material-icons" style="display: inline">search</v-icon>
@@ -122,6 +122,10 @@ export default {
     );
   },
   methods: {
+    onLogoClick() {
+      if (this.isPlugin) window.open('https://dochub.info', '_blank');
+      else this.$router.push({name: 'main'})
+    },
     gotoCode() {
       // eslint-disable-next-line no-console
       console.info("For GOTO ", window.location.hash);
