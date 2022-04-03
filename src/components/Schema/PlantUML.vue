@@ -122,6 +122,8 @@ export default {
       // eslint-disable-next-line no-debugger
       // debugger;
       
+      const originWidth = this.viewBox.width;
+
       if (this.$el.clientWidth > this.viewBox.width) {
         this.viewBox.width = this.$el.clientWidth;
       } 
@@ -136,7 +138,8 @@ export default {
         this.viewBox.height = this.$el.clientHeight * k;
       }
 
-      // this.viewBox.height = this.svgEl.clientHeight * (this.viewBox.width / this.svgEl.clientWidth);
+      const offset = (this.viewBox.width - originWidth) / 2;
+      this.viewBox.x -= offset;
     },
     bindHREF() {
       const refs = this.svgEl.querySelectorAll('[href]');
