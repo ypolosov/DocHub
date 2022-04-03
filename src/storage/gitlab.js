@@ -103,8 +103,11 @@ export default {
                 context.commit('setIsReloading', true);
             }
             parser.onError = (action, data) => {
-                if (data.uri === consts.plugin.ROOT_MANIFEST) {
-                    context.commit('setNoInited', true);
+                if (
+                        (data.uri === consts.plugin.ROOT_MANIFEST) 
+                        && (data.error.toString().slice(0, 17) !== "YAMLSemanticError")
+                    ) {
+                        context.commit('setNoInited', true);
                 } else {
                     context.commit('appendProblems', [{
                         problem: "Сетевые ошибки",

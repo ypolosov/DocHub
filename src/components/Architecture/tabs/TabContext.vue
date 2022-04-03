@@ -3,7 +3,7 @@
     style="
       overflow: hidden;
       position: relative;
-      min-height: 400px;
+      min-height: 600px;
     "
   >
     <v-card-title>
