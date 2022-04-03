@@ -34,7 +34,7 @@ axios.interceptors.response.use(function (response) {
 if(window.$PAPI) {
     window.$PAPI.middleware = function (response) {
         if (response.contentType === 'yaml') {
-          response.data = YAML.parse(response.data);
+            response.data = YAML.parse(response.data);
         } else if (response.contentType === 'json') {
             response.data = JSON.parse(response.data);
         }
@@ -164,7 +164,7 @@ export default {
         let params = Object.assign({}, axios_params);
         params.source = this.makeURL(uri, baseURI);
         params.url = params.source.url.toString();
-        if (window.$IDE_PLUGIN) {
+        if (window.$IDE_PLUGIN && uri.split(':')[0] === 'plugin') {
             return window.$PAPI.request(params);
         } else {
             return axios(params);

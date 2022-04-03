@@ -12,7 +12,7 @@ export default function () {
         //      context - Контекст данных для выполнения запросов
         //      data - данные требующие парсинга
         //      baseURI - URI владельца поля данных
-        parseData(context, data, baseURI) {
+        parseSource(context, data, baseURI) {
             return new Promise((resolve, reject) => {
                 // Константные данные
                 if(typeof data === "object") {
@@ -74,14 +74,14 @@ export default function () {
         getData(context, subject, baseURI) {
             return new Promise((resolve, reject) => {
                 const exec = (origin) => {
-                    this.parseData(origin, subject.data, baseURI)
+                    this.parseSource(origin, subject.source || (subject.data /* depricated */), baseURI)
                     .then((data) => resolve(data))
                     .catch((e) => reject(e));
                 };
-                if (subject.data) {
+                if (subject.source || (subject.data /* depricated */) ) {
                     if (subject.origin) {
                         if(typeof subject.origin === 'string') {
-                            this.parseData(context, subject.origin, baseURI)
+                            this.parseSource(context, subject.origin, baseURI)
                             .then((data) => exec(data))
                             .catch((e) => reject(e));
                         } else if ((typeof subject.origin === 'object') && !Array.isArray(subject.origin)) {
@@ -89,7 +89,7 @@ export default function () {
                             const data = {};
                             for (const key in subject.origin) {
                                 ++counter;
-                                this.parseData(context, subject.origin[key], baseURI).then((content) => {
+                                this.parseSource(context, subject.origin[key], baseURI).then((content) => {
                                     data[key] = content;
                                     if(!--counter) exec(data);
                                 }).catch((e) => reject(e));

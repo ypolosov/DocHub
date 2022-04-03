@@ -9,7 +9,7 @@
         color="primary"
         indeterminate
     ></v-progress-circular>
-    <div v-else v-html="svg" 
+    <div v-else-if="render" v-html="svg" 
       class="plantuml-schema"
       :style="{cursor: cursor}"
       @mousedown.prevent="onMouseDown"
@@ -31,6 +31,7 @@ import requests from '../../helpers/requests';
 export default {
   name: 'PlantUML',
   mounted() {
+    window.addEventListener('resize', this.reRender);
     this.reloadSVG();
     let oldClientHeight = this.$el.clientHeight;
     new ResizeObserver(() => {
@@ -40,7 +41,20 @@ export default {
       }
     }).observe(this.$el);
   },
+  beforeDestroy(){
+    window.removeEventListener('resize', this.reRender);
+  },
   methods: {
+    reRender() {
+      if (this.rerenderTimer) clearTimeout(this.rerenderTimer);
+      this.rerenderTimer = setTimeout(() => {
+        this.render = false;
+        this.$nextTick(() => {
+          this.render = true
+          this.$nextTick(() => this.prepareSVG());
+        });
+      }, 300);
+    },
     onMouseDown (event) {
       if (!event.shiftKey) return;
       this.isMove = true;
@@ -108,6 +122,8 @@ export default {
       // eslint-disable-next-line no-debugger
       // debugger;
       
+      const originWidth = this.viewBox.width;
+
       if (this.$el.clientWidth > this.viewBox.width) {
         this.viewBox.width = this.$el.clientWidth;
       } 
@@ -122,7 +138,8 @@ export default {
         this.viewBox.height = this.$el.clientHeight * k;
       }
 
-      // this.viewBox.height = this.svgEl.clientHeight * (this.viewBox.width / this.svgEl.clientWidth);
+      const offset = (this.viewBox.width - originWidth) / 2;
+      this.viewBox.x -= offset;
     },
     bindHREF() {
       const refs = this.svgEl.querySelectorAll('[href]');
@@ -229,6 +246,8 @@ export default {
   },
   data() {
     return {
+      render: true,
+      rerenderTimer: null,
       svg: '',
       isLoading: true,
       svgEl: null,

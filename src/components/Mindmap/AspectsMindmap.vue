@@ -1,5 +1,5 @@
 <template>
-  <plantuml :uml = "uml"></plantuml>
+  <plantuml :uml = "uml" style="min-height:100%"></plantuml>
 </template>
 
 <script>

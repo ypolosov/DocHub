@@ -1,7 +1,8 @@
 <template>
   <v-container grid-list-xl fluid>
     <div style="display: none" v-html="focusStyle"></div>
-    <v-layout wrap>
+    <empty v-if="isEmpty"></empty>
+    <v-layout wrap v-else>
       <v-flex xs12 md5 d-flex>
         <v-layout wrap>
           <v-container grid-list-xl fluid>
@@ -15,21 +16,17 @@
                   <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
                     <v-list-item-content  @click="goToLink(item.link)">
                       <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
-                      <v-list-item-title v-html="item.content"></v-list-item-title>
+                      <v-list-item-title v-if = "item.onclick" :title="item.hint">
+                        <a @click="item.onclick">{{item.content}}</a>
+                      </v-list-item-title>
+                      <v-list-item-title v-else v-html="item.content" :title="item.hint"
+                      ></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list>
               </v-card-text>
             </v-card>
-            <v-card class="card-item" xs12 md12 style="margin-top: 12px">
-              <v-card-title>
-                <v-icon left>description</v-icon>
-                <span class="title">Документы</span>
-              </v-card-title>
-              <v-card-text class="headline font-weight-bold">
-                <docs-tree :entity="component"></docs-tree>
-              </v-card-text>
-            </v-card>
+            <Docs :subject="component"></Docs>
             <v-card class="card-item" xs12 md12 style="margin-top: 12px">
               <v-card-title>
                 <v-icon left>description</v-icon>
@@ -39,6 +36,8 @@
                 <components-mindmap :root="component" links="component"></components-mindmap>
               </v-card-text>
             </v-card>
+            <src-locations :locations="srcLocations">
+            </src-locations>
           </v-container>
         </v-layout>
       </v-flex>
@@ -59,17 +58,20 @@
 
 import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
-import requests from "../../helpers/requests";
-import DocsTree from "../Docs/DocsTree";
 import ComponentsMindmap from "@/components/Mindmap/ComponentsMindmap";
 import TabContexts from './tabs/TabContext.vue'
+import Empty from '../Controls/Empty.vue'
+import SrcLocations from './tabs/SrcLocations.vue';
+import Docs from "./tabs/Docs.vue";
 
 export default {
   name: 'Component',
   components: {
-    DocsTree,
+    Docs,
     ComponentsMindmap,
-    TabContexts
+    TabContexts,
+    Empty,
+    SrcLocations
   },
   methods: {
     goToLink() {
@@ -77,6 +79,9 @@ export default {
     }
   },
   computed: {
+    isEmpty() {
+      return !((this.manifest || {}).components || {})[this.component];
+    },
     focusStyle() {
       return `
         <style>
@@ -92,10 +97,6 @@ export default {
     manifest () {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
     },
-    sourceLocations() {
-      return query.expression(query.locationsForComponent(this.component))
-          .evaluate(this.$store.state.sources) || [];
-    },
     contexts() {
       return [{
         id: this.component,
@@ -104,15 +105,22 @@ export default {
       }].concat(query.expression(query.contextsForComponent(this.component))
           .evaluate(this.manifest) || []);
     },
+    srcLocations() {
+      let result = query.expression(query.locationsForComponent(this.component))
+          .evaluate(this.$store.state.sources) || [];
+
+      if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+        result = result.map((item) => ({
+          title: item.title.slice(19),
+          link: `${item.link}?entity=component&id=${this.component}`
+        }));
+      }
+
+      return result;
+    },
     summary() {
       return (query.expression(query.summaryForComponent(this.component))
-          .evaluate(this.manifest) || [])
-          .concat([{
-            title: 'Размещение',
-            content: this.sourceLocations.map((location) =>
-              `<a href="${requests.makeURL(location).url}" target="_blank">${location}</a>`
-            ).join('</br>')
-          }])
+          .evaluate(this.manifest) || []);
     }
   },
   props: {

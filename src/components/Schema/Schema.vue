@@ -234,6 +234,13 @@ export default {
       if (this.schema.uml && this.schema.uml.$notation) {
         notation = this.schema.uml.$notation;
       }
+
+      if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+        uml += '!pragma layout smetana\n';
+      } else {
+        uml += '!pragma layout elk\n';
+      }
+
       switch (notation.toLowerCase()) {
         case 'sber':
           uml += `${SberDSL}\n`;

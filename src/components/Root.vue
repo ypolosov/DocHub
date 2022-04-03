@@ -30,13 +30,16 @@
             </svg>
           </div>
         </v-app-bar-nav-icon>
-        <v-toolbar-title style="cursor: pointer" @click="$router.push({name: 'main'})">DocHub</v-toolbar-title>
+        <v-toolbar-title style="cursor: pointer" @click="onLogoClick">DocHub</v-toolbar-title>
         <v-spacer></v-spacer>
+        <v-btn v-if="isPlugin" icon title="Найти в коде" @click="gotoCode">
+          <v-icon class="material-icons" style="display: inline">search</v-icon>
+        </v-btn>
         <v-btn v-if="isPlugin" icon title="Отладка" @click="showDebugger">
-          <v-icon>adjust</v-icon>
+          <v-icon class="material-icons" style="display: inline">adb</v-icon>
         </v-btn>
         <v-btn icon title="Обновить" @click="reloadForce">
-          <v-icon>refresh</v-icon>
+          <v-icon class="material-icons" style="display: inline">refresh</v-icon>
         </v-btn>
         <!--
         <v-btn icon title="Стравнить">
@@ -54,7 +57,8 @@
           color="grey lighten-4">
         <Menu></Menu>
       </v-navigation-drawer>
-      <v-content v-show="!isLoading" style="min-height:100%">
+      <plugin-init v-if="isNotInited"/>
+      <v-content v-else v-show="!isLoading" style="min-height:100%">
         <router-view/>
       </v-content>
       <v-progress-circular
@@ -72,6 +76,7 @@
 <script>
 
 import Menu from "./Menu";
+import PluginInit from '../idea/components/Init.vue'
 
 const minDrawerSize = 200;
 const defaultDrawerSize = 300;
@@ -79,7 +84,8 @@ const defaultDrawerSize = 300;
 export default {
   name: 'Root',
   components: {
-    Menu
+    Menu,
+    PluginInit
   },
   mounted() {
     const el = this.$refs.drawer.$el;
@@ -116,6 +122,26 @@ export default {
     );
   },
   methods: {
+    onLogoClick() {
+      if (this.isPlugin) window.open('https://dochub.info', '_blank');
+      else this.$router.push({name: 'main'})
+    },
+    gotoCode() {
+      // eslint-disable-next-line no-console
+      console.info("For GOTO ", window.location.hash);
+      const struct = window.location.hash.split("/");
+      switch (struct[1]) {
+        case "architect": {
+          switch (struct[2]) {
+            case "contexts": window.$PAPI.goto(null, 'context', struct[3]); break;
+            case "aspects": window.$PAPI.goto(null, 'aspect', struct[3]); break;
+            case "components": window.$PAPI.goto(null, 'component', struct[3]); break;
+          }
+          break;
+        }
+        case "docs": window.$PAPI.goto(null, 'document', struct[2]); break;
+      }
+    },
     reloadForce() {
       window.$PAPI.reload();
     },
@@ -127,6 +153,9 @@ export default {
   computed: {
     isLoading() {
       return this.$store.state.isReloading;
+    },
+    isNotInited() {
+      return this.isPlugin && this.$store.state.notInited;
     }
   },
   data() {

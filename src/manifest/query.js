@@ -35,7 +35,7 @@ const SCHEMA_CONTEXT = `
             $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
                 $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
             });
-            $COMPONENT := $lookup($MANIFEST.components, $);
+            $COMPONENT := $ ? $lookup($MANIFEST.components, $);
             $COMPONENTS := $COMPONENT 
                 ? [$merge([$COMPONENT, {"id": $}])]
                 : [(
@@ -54,15 +54,15 @@ const SCHEMA_CONTEXT = `
                     "entity": $COMPONENT.entity ? $COMPONENT.entity : 'component',
                     "type": $COMPONENT.type,
                     "namespaces":[$MKNS($NAMESPACES_IDS)],
-                    "is_context": $lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false,
+                    "is_context": $COMPONENT_ID ? ($lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false),
                     "links": [$distinct($COMPONENT.links)[id].(
                         $ID := $.id;
-                        $COMPONENT := $lookup($MANIFEST.components, $ID);
+                        $COMPONENT := $ID ? $lookup($MANIFEST.components, $ID);
                         $NAMESPACES_IDS := $split($ID, ".");
                         $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
                             $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
                         });
-                        $CONTRACT := $lookup($MANIFEST.docs, $.contract);
+                        $CONTRACT := $.contract ? $lookup($MANIFEST.docs, $.contract);
                         {
                             "id": $ID,
                             "title": $COMPONENT.title ? $COMPONENT.title : $ID,
@@ -77,11 +77,12 @@ const SCHEMA_CONTEXT = `
                         }
                     )],
                     "aspects": [$COMPONENT.aspects.$spread().(
-                        $ASPECT := $lookup($MANIFEST.aspects, $);
+                        $ASPECT := $ ? $lookup($MANIFEST.aspects, $);
                         {
-                        "id": $,
-                        "title": $ASPECT.title ? $ASPECT.title : $
-                    })]
+                            "id": $,
+                            "title": $ASPECT.title ? $ASPECT.title : $
+                        }
+                    )]
                 }                
             )
             
@@ -130,17 +131,17 @@ const SCHEMA_COMPONENT = `
                 "entity": $COMPONENT.entity,
                 "type": $COMPONENT.type,
                 "namespaces":[$MKNS($NAMESPACES_IDS)],
-                "is_context": $lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false,
+                "is_context": $COMPONENT_ID ? ($lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false),
                 "contexts": $distinct(
                     $MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].$keys()[0]
                 ),
                 "links": [$distinct($COMPONENT.links).(
-                    $COMPONENT := $lookup($MANIFEST.components, $.id);
+                    $COMPONENT := $.id ? $lookup($MANIFEST.components, $.id);
                     $NAMESPACES_IDS := $split($.id, ".");
                     $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
                         $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
                     });
-                    $CONTRACT := $lookup($MANIFEST.docs, $.contract);
+                    $CONTRACT := $.contract ? $lookup($MANIFEST.docs, $.contract);
                     {
                         "id": $.id,
                         "title": $COMPONENT.title ? $COMPONENT.title : $.id,
@@ -155,7 +156,7 @@ const SCHEMA_COMPONENT = `
                     }
                 )],
                 "aspects": [$COMPONENT.aspects.$spread().(
-                    $ASPECT := $lookup($MANIFEST.aspects, $);
+                    $ASPECT := $ ? $lookup($MANIFEST.aspects, $);
                     {
                     "id": $,
                     "title": $ASPECT.title ? $ASPECT.title : $
@@ -322,15 +323,14 @@ const MENU_QUERY = `
 const CONTEXTS_QUERY_FOR_COMPONENT = `
 (
     $MANIFEST := $;
-    [contexts.$spread().(
+    [$distinct([contexts.$spread().(
         $CONTEXT := $;
         $ID := $keys()[0];
-        $.*.components[$ = '{%COMPONENT%}'].{
+        *.components[$wcard('{%COMPONENT%}', $)].{
             "id": $ID,
             "title": $CONTEXT.*.title
         }
-        
-    )]
+    )])];
 )
 `;
 
@@ -385,7 +385,11 @@ const DOCUMENTS_FOR_ENTITY_QUERY = `
 const COMPONENT_LOCATIONS_QUERY = `
 (
     $COMPONENT_ID := '{%COMPONENT%}';
-    [$distinct($[$substring(path, 0, $length($COMPONENT_ID) + 12) = '/components/' & $COMPONENT_ID].location)]
+    [[$distinct($[$substring(path, 0, $length($COMPONENT_ID) + 12) = '/components/' & $COMPONENT_ID].location)]
+    .{
+        "link": $,
+        "title": $
+    }]
 )
 `;
 
@@ -422,7 +426,11 @@ const SUMMARY_ASPECT_QUERY = `
 const ASPECT_LOCATIONS_QUERY = `
 (
     $ASPECT_ID := '{%ASPECT%}';
-    [$distinct($[$substring(path, 0, $length($ASPECT_ID) + 9) = '/aspects/' & $ASPECT_ID].location)]
+    [[$distinct($[$substring(path, 0, $length($ASPECT_ID) + 9) = '/aspects/' & $ASPECT_ID].location)]
+    .{
+        "link": $,
+        "title": $
+    }]
 )
 `;
 
@@ -435,10 +443,12 @@ const CONTEXTS_QUERY_FOR_ASPECT = `
         $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
         $COMPONENT['{%ASPECT%}' in aspects] ? 
         (
-            [$MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].(
-                {
-                    "id": $keys()[0],
-                    "title": *.title
+            [$MANIFEST.contexts.$spread().(
+                $CONTEXT_ID := $keys()[0];
+                $TITLE := *.title;
+                *.components[$wcard($COMPONENT_ID, $)].{
+                    "id": $CONTEXT_ID,
+                    "title": $TITLE
                 }
             )];
         ) : undefined
@@ -556,8 +566,8 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
     $FILTER_LN := $length($FILTER);
     $USED_ASPECTS := $distinct($.components.*.aspects);
     $ASPECTS := $.aspects.$spread().$keys()[0];
-    [[$append($USED_ASPECTS, $ASPECTS).(
-        $PREFIX := $substring($, 0, $FILTER_LN + 1);
+    [[$append($USED_ASPECTS, $ASPECTS)[$].(
+        $PREFIX := $substring("" & $, 0, $FILTER_LN + 1);
         $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
             $ASPECT := $lookup($MANIFEST.aspects, $);
             {
@@ -647,10 +657,13 @@ const PROBLEMS_QUERY = `
                 $COMPONENT_ID := $keys()[0];
                 $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
                 $COMPONENT.aspects.(
-                    $lookup($MANIFEST.aspects, $) ? undefined :                     {
+                    $lookup($MANIFEST.aspects, $ ? $ : " ") ? undefined :                     
+                    {
                         "problem": 'Аспекты не определены',
                         'route': '/architect/aspects/' & $,
-                        "title": "Аспект не описан [" & $ & "]"
+                        "title": $ 
+                            ? "Аспект не описан [" & $ & "]"
+                            : "Ошибка ссылки на аспект в компоненте [" & $COMPONENT_ID & "]"
                     }
                 )
             )
@@ -688,8 +701,24 @@ const PROBLEMS_QUERY = `
 
 export default {
     expression(expression) {
-        const result = jsonata(expression);
-        result.registerFunction("wcard", (id, template) => {
+        const obj = {
+            expression,
+            core : jsonata(expression),
+            evaluate(context, def) {
+                try {
+                    return  Object.freeze(this.core.evaluate(context));
+                } catch(e) {
+                    // eslint-disable-next-line no-console
+                    console.error('JSONata error:');
+                    // eslint-disable-next-line no-console
+                    console.log(this.expression.slice(0, e.position) + "%c" + this.expression.slice(e.position), "color:red" );
+                    // eslint-disable-next-line no-console
+                    console.error(e);
+                    return def;
+                }
+            }
+        }
+        obj.core.registerFunction("wcard", (id, template) => {
             if (!id || !template) return false;
             const idStruct = id.split('.');
             const tmlStruct = template.split('.');
@@ -702,7 +731,7 @@ export default {
             }
             return idStruct.length === tmlStruct.length;
         });
-        return result;
+        return obj;
     },
 
     // Меню
@@ -764,7 +793,7 @@ export default {
         return PROBLEMS_QUERY;
     },
     // Документы для сущности
-    docsForEntity(entity) {
+    docsForSubject(entity) {
         return DOCUMENTS_FOR_ENTITY_QUERY.replace(/{%ENTITY%}/g, entity);
     },
     // MindMap по архитектурным компонентам

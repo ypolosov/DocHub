@@ -14,6 +14,8 @@ import Technology from "../components/Techradar/Technology";
 import Problems from "../components/Problems/Problems";
 import ComponentsMindmap from "../components/Mindmap/ComponentsMindmap";
 import AspectsMindmap from "../components/Mindmap/AspectsMindmap";
+import gateway from "../idea/gateway"
+import Empty from "../components/Controls/Empty"
 
 Vue.use(Router)
 
@@ -105,6 +107,11 @@ const rConfig = {
             component: Problems,
             props: middleware
         },
+        {
+            name: 'Empty',
+            path: '*',
+            component: Empty,
+        },
     ]
 };
 
@@ -160,4 +167,22 @@ if (process.env.VUE_APP_DOCHUB_MODE !== "plugin") {
     );
 }
 
-export default new Router(rConfig);
+const router = new Router(rConfig);
+
+gateway.appendListener("navigate/component", (data) => {
+    router.push({ path: `/architect/components/${Object.keys(data)[0]}`});
+});
+
+gateway.appendListener("navigate/document", (data) => {
+    router.push({ path: `/docs/${Object.keys(data)[0]}`});
+});
+
+gateway.appendListener("navigate/aspect", (data) => {
+    router.push({ path: `/architect/aspects/${Object.keys(data)[0]}`});
+});
+
+gateway.appendListener("navigate/context", (data) => {
+    router.push({ path: `/architect/contexts/${Object.keys(data)[0]}`});
+});
+
+export default router;

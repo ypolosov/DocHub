@@ -1,9 +1,12 @@
 <template>
   <div>
-    <swagger v-if="isContract" :document="document"></swagger>
-    <plantuml v-if="isPlantUML" :document="document"></plantuml>
-    <doc-markdown v-if="isMarkdown" :document="document"></doc-markdown>
-    <doc-table v-if="isTable" :document="document"></doc-table>
+    <empty v-if="isEmpty"></empty>
+    <template v-else>
+      <swagger v-if="isContract" :document="document"></swagger>
+      <plantuml v-if="isPlantUML" :document="document"></plantuml>
+      <doc-markdown v-if="isMarkdown" :document="document"></doc-markdown>
+      <doc-table v-if="isTable" :document="document"></doc-table>
+    </template>
   </div>
 </template>
 
@@ -14,6 +17,7 @@ import Plantuml from "./DocPlantUML";
 import manifest_parser from "../../manifest/manifest_parser";
 import DocMarkdown from "./DocMarkdown";
 import DocTable from "./DocTable.vue"
+import Empty from '../Controls/Empty.vue'
 
 export default {
   name: 'document',
@@ -21,13 +25,17 @@ export default {
     Plantuml,
     Swagger,
     DocMarkdown,
-    DocTable
+    DocTable,
+    Empty
   },
   mounted() {
   },
   methods: {
   },
   computed: {
+    isEmpty() {
+      return !this.docs[this.document];
+    },
     docs() {
       return (this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {}).docs || {};
     },

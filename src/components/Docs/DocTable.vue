@@ -26,9 +26,9 @@
               :align = "field.align"
             >
               <template v-if="field.link">
-                <router-link :to="field.link">
+                <DCLink  :href="field.link">
                   {{ field.value }}
-                </router-link>              
+                </DCLink>
               </template>
               <template v-else>
                 {{ field.value }}
@@ -56,8 +56,12 @@
 
 import manifest_parser from "../../manifest/manifest_parser";
 import datasets from "../../helpers/datasets";
+import DCLink from "../Controls/DCLink.vue"
 
 export default {
+  components: { 
+    DCLink 
+  },
   name: 'DocTable',
   methods: {
     refresh() {
@@ -80,7 +84,7 @@ export default {
     this.refresh();
   },
   watch: {
-    url () { this.refresh() }
+    document () { this.refresh() }
   },
   computed: {
     baseURI() {

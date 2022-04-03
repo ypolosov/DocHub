@@ -2,15 +2,18 @@
     <div 
       style="min-height:100%; position:relative"
     >
-      <plantuml 
-        v-if="isCustomUML && customUML" 
-        :uml="customUML"
-      ></plantuml>
-      <schema 
-        style="position: absolute; bottom: 0; right: 0; left:0; top: 0;"
-        v-else
-        :schema="schema"
-      ></schema>
+      <empty v-if="isEmpty"></empty>
+      <template v-else>
+        <plantuml 
+          v-if="isCustomUML && customUML" 
+          :uml="customUML"
+        ></plantuml>
+        <schema 
+          style="position: absolute; bottom: 0; right: 0; left:0; top: 0;"
+          v-else
+          :schema="schema"
+        ></schema>
+      </template>
     </div>
 </template>
 
@@ -20,12 +23,14 @@ import manifest_parser from "../../manifest/manifest_parser";
 import query from "../../manifest/query";
 import Plantuml from "../Schema/PlantUML";
 import requests from "../../helpers/requests";
+import Empty from '../Controls/Empty.vue'
 
 export default {
   name: 'Context',
   components: {
     Schema,
-    Plantuml
+    Plantuml,
+    Empty
   },
   methods : {
     reloadCustomUML () {
@@ -41,6 +46,9 @@ export default {
     }
   },
   computed: {
+    isEmpty() {
+      return !(this.manifest.contexts || {})[this.context];
+    },
     manifest() {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
     },
@@ -50,7 +58,7 @@ export default {
     schema () {
       const asIs = this.$store.state.manifest[manifest_parser.MODE_AS_IS];
       this.$nextTick(this.reloadCustomUML);
-      const result = query.expression(query.context(this.context, this.location)).evaluate(asIs);
+      const result = query.expression(query.context(this.context, this.location)).evaluate(asIs) || {};
       return result;
     },
     isCustomUML () {

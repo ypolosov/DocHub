@@ -10,10 +10,14 @@ export default {
     renderPlantUML(uml) {
         return axios({url: plantUML.svgURL(uml)});
     },
-    getChangeIndex: function () {
+    messagePull: function () {
         return new Promise(function (resolve) {
-            resolve(1);
+            resolve({});
         });
+    },
+    initProject: function () {
+        // eslint-disable-next-line no-console
+        console.info(`Call init ptoject`);
     },
     showDebugger: function() {
         // eslint-disable-next-line no-debugger
@@ -21,5 +25,9 @@ export default {
     },
     reload() {
         window.location.reload();
+    },
+    goto(source, entity, id) {
+        // eslint-disable-next-line no-console
+        console.info(`Call goto ${source}#${entity}\\${id}`);
     }
 }
