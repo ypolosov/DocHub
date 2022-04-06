@@ -225,20 +225,22 @@ export default {
     uml () {
       let uml = `@startuml\n`;
 
-      if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
-        uml += '!pragma layout smetana\n';
-      }
-
       // Определяем в какой нотации будем выводить схему
       let notation = this.notation;
       if (this.schema.uml && this.schema.uml.$notation) {
         notation = this.schema.uml.$notation;
       }
 
-      if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
-        uml += '!pragma layout smetana\n';
-      } else {
-        uml += '!pragma layout elk\n';
+      switch((process.env.VUE_APP_DOCHUB_RENDER_CORE || "").toLowerCase())  {
+        case "smetana": uml += '!pragma layout smetana\n'; break;
+        case "elk": uml += '!pragma layout elk\n'; break;
+        case "graphviz": break;
+        default:
+          if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+            uml += '!pragma layout smetana\n';
+          } else {
+            uml += '!pragma layout elk\n';
+          }
       }
 
       switch (notation.toLowerCase()) {

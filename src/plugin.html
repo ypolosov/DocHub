@@ -65,8 +65,8 @@
         messagePull: function () {
           return this.request({url: 'plugin:/idea/gateway/pull'});
         },
-        initProject: function () {
-          return this.request({url: 'plugin:/idea/initproject'});
+        initProject: function (mode) {
+          return this.request({url: 'plugin:/idea/initproject', mode});
         },
         reload: function () {
           this.request({url: 'plugin:/idea/reload'});
