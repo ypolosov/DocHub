@@ -1,7 +1,5 @@
 <template>
-    <div 
-      style="min-height:100%; position:relative"
-    >
+    <div>
       <empty v-if="isEmpty"></empty>
       <template v-else>
         <plantuml 
@@ -9,7 +7,6 @@
           :uml="customUML"
         ></plantuml>
         <schema 
-          style="position: absolute; bottom: 0; right: 0; left:0; top: 0;"
           v-else
           :schema="schema"
         ></schema>

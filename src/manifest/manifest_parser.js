@@ -1,10 +1,11 @@
 import requests from '../helpers/requests';
 import gitlab from "../helpers/gitlab";
 import jsonata from 'jsonata';
+import property from './prototype'
 
 let touchProjects = {};
 
-export default {
+const parser = {
     // Манифест перезагружен
     onReloaded: null,
     // Запущена перезагрузка манифеста
@@ -20,8 +21,10 @@ export default {
     },
     decReqCounter() {
         this.reqCounter--;
-        if(this.reqCounter === 0 && this.onReloaded)
+        if(this.reqCounter === 0 && this.onReloaded) {
+            this.expandPrototype();
             this.onReloaded(this);
+        }
     },
     // Режимы манифестов
     MODE_AS_IS : 'as-is', // Как есть
@@ -31,6 +34,42 @@ export default {
     mergeMap: [],
     // Итоговый манифест
     manifest: null,
+    // Возвращает тип значения
+    fieldValueType(value) {
+        const type = typeof value;
+        if (type === "string") {
+            // В значении JSONata запрос
+            if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(value)) 
+                return "jsonata"
+            else {
+                const ext = value.split('.').pop();
+                // В значении ссылка на файл
+                if (["yaml", "json", "jsonata"].indexOf(ext) >= 0)
+                    return "ref"
+                else
+                    // В значении ссылка на файл
+                    return "id"
+            }
+        } else 
+            return type;
+    },
+    // Реализует наследование
+    expandPrototype() {
+        property.expandAll(this.manifest[this.manifest.mode || this.MODE_AS_IS]);
+    },
+    // Преобразование относительных ссылок в прямые
+    propResolver: {
+        docs(item, baseURI) {
+            ["source", "origin", "data"].forEach((field) => 
+                item[field] 
+                && (parser.fieldValueType(item[field]) === "ref") 
+                && (item[field] = requests.makeURIByBaseURI(item[field], baseURI))
+            )
+        },
+        datasets(item, baseURI) {
+            this.docs(item, baseURI);
+        }
+    },
     // Сохраняет в карте склеивания данные
     pushToMergeMap(path, source, location) {
         if (path && path.split('/').length > 3) return;
@@ -70,6 +109,8 @@ export default {
         } else if (typeof source === 'object') {
             result = JSON.parse(JSON.stringify(destination));
             typeof result !== 'object' && (result = {});
+            const pathStruct = path ? path.split('/') : [];
+            const entity = pathStruct.pop();
             for (const id in source) {
                 const keyPath = `${path || ''}/${id}`;
                 if (result[id]) {
@@ -78,6 +119,7 @@ export default {
                     result[id] = JSON.parse(JSON.stringify(source[id]));
                     this.pushToMergeMap(keyPath, result[id], location)
                 }
+                pathStruct.length == 1 && this.propResolver[entity] && this.propResolver[entity](result[id], location);
             }
         } else {
             result = JSON.parse(JSON.stringify(source));
@@ -134,7 +176,6 @@ export default {
     // Разбираем сущности
     // path - путь к перечислению сущностей (ключ -> объект)
     parseEntity(context, path, baseURI) {
-        // const context = this.getManifestContext(path);
         for (const key in context) {
             this.expandProperty(context[key], `${path}/${encodeURIComponent(key)}`, baseURI);
         }
@@ -200,7 +241,8 @@ export default {
 
             for (const section in manifest) {
                 ['forms', 'namespaces', 'aspects', 'docs', 'contexts', 'components', 'datasets'].indexOf(section) >= 0
-                && section !== 'imports' && this.parseEntity(manifest[section],`${mode}/${section}`, uri);
+                && section !== 'imports' 
+                this.parseEntity(manifest[section],`${mode}/${section}`, uri);
             }
 
             // Подключаем манифесты
@@ -226,3 +268,5 @@ export default {
         !subimport && this.decReqCounter();
     }
 };
+
+export default parser;

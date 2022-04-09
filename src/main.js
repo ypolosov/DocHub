@@ -1,5 +1,5 @@
 // import '../node_modules/@mdi/font/css/materialdesignicons.css'
-// import '@mdi/font/css/materialdesignicons.css'
+import '@mdi/font/css/materialdesignicons.css'
 // See icons https://fonts.google.com/icons?selected=Material+Icons
 import Vue from 'vue';
 import Vuex from 'vuex';

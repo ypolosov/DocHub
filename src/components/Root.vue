@@ -58,7 +58,7 @@
         <Menu></Menu>
       </v-navigation-drawer>
       <plugin-init v-if="isNotInited"/>
-      <v-content v-else v-show="!isLoading" style="min-height:100%">
+      <v-content v-else v-show="!isLoading" style="min-height:100%" class="router-view">
         <router-view/>
       </v-content>
       <v-progress-circular
@@ -176,6 +176,14 @@ export default {
 
 .swagger-ui {
   width: 100%;
+}
+
+.router-view > div > div {
+  height: 100%;
+}
+
+.router-view > div > div > div {
+  height: 100%;
 }
 
 .v-navigation-drawer__border {
