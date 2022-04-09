@@ -20,8 +20,16 @@ import Empty from "../components/Controls/Empty"
 Vue.use(Router)
 
 let middleware = (route) => {
-    // eslint-disable-next-line no-undef
-    // Vuex.dispatch('selectDocumentByURI', atob(route.params.source));
+    if (config.oauth !== false && !window.Vuex.state.access_token) {
+        window.location = new URL(
+            `/oauth/authorize?client_id=${config.oauth.APP_ID}`
+            + `&redirect_uri=` + new URL(consts.pages.OAUTH_CALLBACK_PAGE, window.location)
+            + `&response_type=token&state=none&scope=${config.oauth.REQUESTED_SCOPES}`
+            + '&' + Math.floor(Math.random() * 10000)
+            , config.gitlab_server
+        );
+    }
+
     return route.params
 }
 
@@ -34,6 +42,7 @@ const rConfig = {
             name: 'main',
             path: '/main',
             component: Main,
+            props: middleware
         },
         {
             name: 'conditions',
@@ -121,19 +130,9 @@ if (process.env.VUE_APP_DOCHUB_MODE !== "plugin") {
         {
             path: '/',
             redirect() {
-                if (config.oauth !== false) {
-                    window.location = new URL(
-                        `/oauth/authorize?client_id=${config.oauth.APP_ID}`
-                        + `&redirect_uri=` + new URL(consts.pages.OAUTH_CALLBACK_PAGE, window.location)
-                        + `&response_type=token&state=none&scope=${config.oauth.REQUESTED_SCOPES}`
-                        + '&' + Math.floor(Math.random() * 10000)
-                        , config.gitlab_server
-                    );
-                } else {
-                    window.location = new URL('/main', window.origin)
-                }
-        }
-    });
+                window.location = new URL('/main', window.origin)
+            }
+        });
     rConfig.routes.push(        
         {
             path: '/sso/gitlab/authentication',
