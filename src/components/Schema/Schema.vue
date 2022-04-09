@@ -33,16 +33,26 @@ export default {
       }
       return result;
     },
+
+    onSelected(event) {
+      const controls = this.getControlsByTarget(event.target);
+      for (let i = 0; i < controls.length; i++)
+        if (controls[i].classList.contains("selected"))
+          controls[i].classList.remove("selected");
+        else
+          controls[i].classList.add("selected");
+    },
+
     onOverLink(event) {
       const controls = this.getControlsByTarget(event.target);
       for (let i = 0; i < controls.length; i++)
-        controls[i].classList.add("selected");
+        controls[i].classList.add("hover");
     },
 
     onOutLink(event) {
       const controls = this.getControlsByTarget(event.target);
       for (let i = 0; i < controls.length; i++)
-        controls[i].classList.remove("selected");
+        controls[i].classList.remove("hover");
     },
     postRenderDot(svg) {
       // Строим надписи на связях
@@ -57,7 +67,7 @@ export default {
         const selector = (() => {
           const isBack = link.direction.slice(0, 1) === '<';
           const isTo = link.direction.slice(-1) === '>';
-          if (isBack && isTo) return `path[id^='${link.linkFrom}-${link.linkTo}']`;
+          if (isBack && isTo || (!isBack && !isTo)) return `path[id^='${link.linkFrom}-${link.linkTo}']`;
           else if (isBack) return `path[id^='${link.linkFrom}-backto-${link.linkTo}']`;
           else return `path[id^='${link.linkFrom}-to-${link.linkTo}']`;
         })();
@@ -88,10 +98,12 @@ export default {
           titlePath.setAttribute('data-link-selector', prefix);
           titlePath.addEventListener('mouseover', this.onOverLink);
           titlePath.addEventListener('mouseout', this.onOutLink);
+          titlePath.addEventListener('mousedown', this.onSelected);
 
           linkPath.setAttribute('data-link-selector', prefix);
           linkPath.addEventListener('mouseover', this.onOverLink);
           linkPath.addEventListener('mouseout', this.onOutLink);
+          linkPath.addEventListener('mousedown', this.onSelected);
 
           linkTitle.appendChild(titlePath);
           svg.appendChild(linkTitle);
@@ -412,7 +424,7 @@ export default {
     margin-bottom: 6px;
   }
 
-  text.selected {
+  text.hover {
     font-size: 16px;
     cursor: pointer;
   }
@@ -422,7 +434,7 @@ export default {
     stroke-width: 2 !important;
   }
 
-  path.selected {
+  path.hover, path.selected {
     stroke: #F00 !important;
     stroke-width: 2 !important;
   }
