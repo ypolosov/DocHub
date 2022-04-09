@@ -66,7 +66,9 @@ export default {
   methods: {
     refresh() {
       this.provider.getData(this.manifest, this.docParams, this.baseURI)
-      .then((dataset) => this.dataset = dataset)
+      .then((dataset) => {
+        this.dataset = dataset
+      })
       .catch((e) => this.error = e)
     },
     rowFields(row) {

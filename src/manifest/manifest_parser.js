@@ -5,7 +5,7 @@ import property from './prototype'
 
 let touchProjects = {};
 
-export default {
+const parser = {
     // Манифест перезагружен
     onReloaded: null,
     // Запущена перезагрузка манифеста
@@ -34,6 +34,25 @@ export default {
     mergeMap: [],
     // Итоговый манифест
     manifest: null,
+    // Возвращает тип значения
+    fieldValueType(value) {
+        const type = typeof value;
+        if (type === "string") {
+            // В значении JSONata запрос
+            if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(value)) 
+                return "jsonata"
+            else {
+                const ext = value.split('.').pop();
+                // В значении ссылка на файл
+                if (["yaml", "json", "jsonata"].indexOf(ext) >= 0)
+                    return "ref"
+                else
+                    // В значении ссылка на файл
+                    return "id"
+            }
+        } else 
+            return type;
+    },
     // Реализует наследование
     expandPrototype() {
         property.expandAll(this.manifest[this.manifest.mode || this.MODE_AS_IS]);
@@ -42,7 +61,9 @@ export default {
     propResolver: {
         docs(item, baseURI) {
             ["source", "origin", "data"].forEach((field) => 
-                item[field] &&  (typeof item[field] === "string") && (item[field] = requests.makeURIByBaseURI(item[field], baseURI))
+                item[field] 
+                && (parser.fieldValueType(item[field]) === "ref") 
+                && (item[field] = requests.makeURIByBaseURI(item[field], baseURI))
             )
         },
         datasets(item, baseURI) {
@@ -247,3 +268,5 @@ export default {
         !subimport && this.decReqCounter();
     }
 };
+
+export default parser;

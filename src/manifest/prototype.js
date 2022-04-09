@@ -6,9 +6,9 @@ export default {
     inheritance(section, id) {
         const parentId = section[id]["$prototype"];
         if (parentId) {
-            const parent = section[parentId]["$prototype"] 
+            const parent = (section[parentId] || {})["$prototype"] 
                 ? this.inheritance(section, parentId) 
-                : section[parentId];
+                : section[parentId] || {};
             section[id] = Object.assign({}, parent, section[id]);
 
         }
