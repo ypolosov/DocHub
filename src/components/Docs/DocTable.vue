@@ -65,7 +65,7 @@ export default {
   name: 'DocTable',
   methods: {
     refresh() {
-      this.provider.getData(this.manifest, this.docParams, this.baseURI)
+      this.provider.getData(this.manifest, this.docParams)
       .then((dataset) => {
         this.dataset = dataset
       })
@@ -89,9 +89,6 @@ export default {
     document () { this.refresh() }
   },
   computed: {
-    baseURI() {
-      return (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location;
-    },
     manifest() {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
     },

@@ -50,7 +50,7 @@ export default {
       let defs = svg.querySelectorAll('defs')[0];
       if (!defs) {
         defs = this.createSVGElement('defs');
-        svg.insertAfter(0, defs);
+        svg.insertAfter && svg.insertAfter(0, defs);
       }
       for (const linkId in this.structure.links) {
         const link = this.structure.links[linkId];

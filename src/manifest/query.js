@@ -313,10 +313,10 @@ const MENU_QUERY = `
         }
     ][($exists(hiden) and $not(hiden)) or $not($exists(hiden))]
 ).{
-    "title": title,
+    "title": "" & title,
     "route": route ? '/' & route : undefined,
     "icon": icon,
-    "location": location ? location : route
+    "location": "" & (location ? location : route)
 }^(location)
 `;
 

@@ -65,7 +65,6 @@ docs:
       )
   dochub.table.ex_jsonata:
     type: table
-    location: "123"
     headers:                  
       - value: id             
         text: Идентификатор   
@@ -143,6 +142,42 @@ docs:
         width: 100%
         link: link
     source: dochub.components.l1
+  dochub.table.integrations:          # Базовое описание таблицы интеграций
+    type: table
+    headers:
+      - value: from
+        text: Система 1
+        sortable: true
+        align: left
+        width: 20%
+        link: link-from       
+      - value: to
+        text: Система 2
+        sortable: true
+        align: left
+        width: 20%
+        link: link-to
+      - value: direction
+        text: Связь
+        sortable: true
+        align: center
+        width: 5%
+      - value: title
+        text: Описание
+        sortable: true
+        align: left
+      - value: contract
+        text: Контракт
+        sortable: true
+        align: left
+        link: link-contract
+  dochub.table.integrations.vuex:     # Отбирает только компоненты VUEX
+    $prototype: dochub.table.select   # Родительская таблицы
+    origin: dochub.integrations       # Базовый источник данных
+    source: >
+        (
+            $[from="VUEX" or to="VUEX"]
+        )
 datasets:                       # Источники данных
   dochub.docs:                  # Возвращает список всех документов
     source: >                     # Выводит все документы
@@ -175,3 +210,22 @@ datasets:                       # Источники данных
     origin: dochub.components   # Базовый источник данных
     source: >                     # JSONata запрос к архитектуре
       ($[$count($split(id, "."))=2])
+  dochub.integrations:          # Базовый источник данных интеграций
+    source: >                   # JSONata запрос к архитектуре
+      (
+        $MANIFEST := $;
+        $distinct([components.$spread().(
+            $COMPONENT := $;
+            $COMPONENT_ID := $keys()[0];
+            $.*.links.{
+                "from": $COMPONENT.*.title,
+                "link-from": "/architect/components/" & $COMPONENT_ID,
+                "to": id ? $lookup($MANIFEST.components, id).title : id,
+                "link-to": "/architect/components/" & id,
+                "contract": contract ? $lookup($MANIFEST.docs, contract).location : contract,
+                "link-contract": "/docs/" & contract,
+                "title": title,
+                "direction": direction
+            };
+        )])^(from)
+      )
