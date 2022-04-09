@@ -1,13 +1,13 @@
 <template>
   <div class="dochub-object" :style="{float:srcStruct.float}">
     <dochub-doc v-if="isDocument" :document="srcStruct.subject" :alt="srcStruct.alt"></dochub-doc>
-    <dochub-context v-if="isContext" :context="srcStruct.subject" :alt="srcStruct.alt"></dochub-context>
-    <dochub-aspect v-if="isAspect" :aspect="srcStruct.subject" :alt="srcStruct.alt"></dochub-aspect>
-    <dochub-component v-if="isComponent" :component="srcStruct.subject" :alt="srcStruct.alt"></dochub-component>
-    <dochub-technology v-if="isTechnology" :technology="srcStruct.subject" :alt="srcStruct.alt"></dochub-technology>
-    <dochub-radar v-if="isRadar" :section="srcStruct.subject" :alt="srcStruct.alt"></dochub-radar>
-    <dochub-anchor v-if="isAnchor" :id="srcStruct.subject" :name="srcStruct.subject"></dochub-anchor>
-    <img v-if="isImage" :src="srcStruct.subject" :alt="srcStruct.alt"/>
+    <dochub-context v-else-if="isContext" :context="srcStruct.subject" :alt="srcStruct.alt"></dochub-context>
+    <dochub-aspect v-else-if="isAspect" :aspect="srcStruct.subject" :alt="srcStruct.alt"></dochub-aspect>
+    <dochub-component v-else-if="isComponent" :component="srcStruct.subject" :alt="srcStruct.alt"></dochub-component>
+    <dochub-technology v-else-if="isTechnology" :technology="srcStruct.subject" :alt="srcStruct.alt"></dochub-technology>
+    <dochub-radar v-else-if="isRadar" :section="srcStruct.subject" :alt="srcStruct.alt"></dochub-radar>
+    <dochub-anchor v-else-if="isAnchor" :id="srcStruct.subject" :name="srcStruct.subject"></dochub-anchor>
+    <dochub-image v-else :src="src" :alt="srcStruct.alt" :baseURI="baseURI"></dochub-image>
   </div>
 </template>
 
@@ -83,7 +83,8 @@ export default {
     src: String,
     alt: String,
     type: String,
-    subject: String
+    subject: String,
+    baseURI: String
   },
   data() {
     return {};

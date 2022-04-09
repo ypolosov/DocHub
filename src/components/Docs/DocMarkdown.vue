@@ -14,7 +14,7 @@
     >
       {{this.markdown}}
     </markdown>
-    <final-markdown v-if="showDocument && outHTML" :template="outHTML"></final-markdown>
+    <final-markdown v-if="showDocument && outHTML" :template="outHTML" :baseURI="url"></final-markdown>
     <v-progress-circular
         :size="64"
         :width="7"
@@ -43,31 +43,37 @@ export default {
         "dochub-object": DocMarkdownObject
       },
       props: {
-        template: String
-      },
-      mounted () {
-        const refs = this.$el.querySelectorAll('a');
-        for (let i = 0; i < refs.length; i++) {
-          try {
-            const href = refs[i].href;
-            const url = new URL(href);
-            if (
-                url.origin === document.location.origin
-                && (['architect', 'docs'].indexOf(url.pathname.split('/')[1].toLocaleLowerCase()) >= 0)
-            ) {
-              refs[i].addEventListener("click", (event) => {
-                event.preventDefault();
-                this.$router.push({ path: href.substring(url.origin.length) });
-              });
-            }
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.warn(e);
-          }
-        }
+        template: String,
+        baseURI: String
       },
       created () {
         this.$options.template = `<div class="markdown-document">${this.template}</div>`;
+      },
+      mounted () {
+        this.refactoringRefs();
+      },
+      methods: {
+        refactoringRefs() {
+          const refs = this.$el.querySelectorAll('a');
+          for (let i = 0; i < refs.length; i++) {
+            try {
+              const href = refs[i].href;
+              const url = new URL(href);
+              if (
+                  url.origin === document.location.origin
+                  && (['architect', 'docs'].indexOf(url.pathname.split('/')[1].toLocaleLowerCase()) >= 0)
+              ) {
+                refs[i].addEventListener("click", (event) => {
+                  event.preventDefault();
+                  this.$router.push({ path: href.substring(url.origin.length) });
+                });
+              }
+            } catch (e) {
+              // eslint-disable-next-line no-console
+              console.warn(e);
+            }
+          }
+        }
       }
     }
   },
@@ -78,7 +84,7 @@ export default {
     // eslint-disable-next-line no-unused-vars
     rendered(outHtml) {
       if (this.outHTML !== outHtml) {
-        this.outHTML = outHtml.replace(/<img /g, '<dochub-object ');
+        this.outHTML = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" ');
         this.showDocument = false;
         this.$nextTick(() => {
           this.showDocument = true;
