@@ -70,6 +70,29 @@ const parser = {
             this.docs(item, baseURI);
         }
     },
+    //Регистрирует ошибку
+    // e - объект ошибки
+    // uri - источник ошибки
+    registerError(e, uri) {
+        const errorPath = `$errors/requests/${new Date().getTime()}`;
+        this.pushToMergeMap(errorPath, null, uri);
+        // eslint-disable-next-line no-console
+        console.error(e, `Ошибка запроса [${errorPath}:${uri}]`, e);
+        let errorType = (() => {
+            switch (e.name) {
+                case 'YAMLSyntaxError':
+                case 'YAMLSemanticError':
+                    return "syntax";
+                default:
+                    return 'net';
+            }
+        })();
+
+        this.onError && this.onError(errorType, {
+            uri,
+            error: e
+        });
+    },
     // Сохраняет в карте склеивания данные
     pushToMergeMap(path, source, location) {
         if (path && path.split('/').length > 3) return;
@@ -160,16 +183,7 @@ const parser = {
                 context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
                 this.touchProjects(URI);
             })
-                .catch((e) => {
-                    const errorPath = `$errors/requests/${new Date().getTime()}`;
-                    // eslint-disable-next-line no-console
-                    console.error(e, `Ошибка запроса (3) [${errorPath}:${URI}]`, e);
-                    this.pushToMergeMap(errorPath, null, URI);
-                    this.onError && this.onError('net', {
-                        uri: URI,
-                        error: e
-                    });
-                })
+                .catch((e) => this.registerError(e, URI))
                 .finally(() => this.decReqCounter())
         }
     },
@@ -196,16 +210,7 @@ const parser = {
                 });
             })
                 // eslint-disable-next-line no-console
-                .catch((e) => {
-                    const errorPath = `$errors/requests/${new Date().getTime()}`;
-                    // eslint-disable-next-line no-console
-                    console.error(e, `Ошибка запроса (4) [${errorPath}:${URI}]`, e);
-                    this.pushToMergeMap(errorPath, null, URI);
-                    this.onError && this.onError('net', {
-                        uri: URI,
-                        error: e
-                    });
-                })
+                .catch((e) => this.registerError(e, URI))
                 .finally(() => this.decReqCounter())
         }
     },
@@ -251,16 +256,7 @@ const parser = {
             });
         })
         // eslint-disable-next-line no-console
-        .catch((e) => {
-            const errorPath = `$errors/requests/${new Date().getTime()}`;
-            // eslint-disable-next-line no-console
-            console.error(e, `Ошибка запроса (5) [${errorPath}:${uri}]`, e);
-            this.pushToMergeMap(errorPath, null, uri);
-            this.onError && this.onError('net', {
-                uri,
-                error: e
-            });
-        })
+        .catch((e) => this.registerError(e, uri))
         .finally(() => {
             this.decReqCounter();
         });

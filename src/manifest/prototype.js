@@ -23,7 +23,8 @@ export default {
 
     // manifest - манифест
     expandAll(mainfest) {
-        [
+        mainfest
+        && [
             "docs", "components", "datasets",
             "contexts", "aspects"
         ].forEach((section) => this.expandSection(mainfest[section]));
