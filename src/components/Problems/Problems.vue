@@ -1,29 +1,39 @@
 <template>
-  <v-container>
-    <v-tabs v-model="currentTab">
-      <v-tab v-for="tab in problems" :key="tab.title" ripple>
-        {{ tab.title }}
-      </v-tab>
-    </v-tabs>
-    <ul v-if="problems.length" style="margin-top: 16px">
-      <template v-for="problem in problems[currentTab].problems">
-        <li :key="problem.route">
-          <router-link v-if="!problem.target"
-              :to="problem.route">{{problem.title}}
-          </router-link>
-          <a v-else :href="problem.route" :target="problem.target">
-            {{problem.title}}
-          </a>
-        </li>
-      </template>
-    </ul>
-  </v-container>
+  <div>
+    <v-container>
+      <v-tabs v-model="currentTab">
+        <v-tab v-for="tab in problems" :key="tab.title" ripple>
+          {{ tab.title }}
+        </v-tab>
+      </v-tabs>
+      <ul v-if="problems.length" style="margin-top: 16px">
+        <template v-for="problem in problems[currentTab].problems">
+          <li :key="problem.route">
+            <a v-if="problem.target === 'plugin'" @click="onGoto(problem.route)">
+              {{problem.title}}
+            </a>
+            <router-link v-else-if="!problem.target"
+                :to="problem.route">{{problem.title}}
+            </router-link>
+            <a v-else :href="problem.route" :target="problem.target">
+              {{problem.title}}
+            </a>
+          </li>
+        </template>
+      </ul>
+    </v-container>
+  </div>
 </template>
 
 <script>
 
 export default {
   name: 'Problems',
+  methods: {
+    onGoto(route) {
+      window.$PAPI.goto(route);
+    }
+  },
   computed: {
     problems() {
       const tabs = {};

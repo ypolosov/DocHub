@@ -24,6 +24,7 @@ import PlantUML from "./components/Schema/PlantUML";
 
 
 window.Vue = Vue;
+window.Router = router;
 
 Vue.use(Vuex);
 Vue.use(Vuetify);

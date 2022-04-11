@@ -59,7 +59,8 @@
       </v-navigation-drawer>
       <plugin-init v-if="isNotInited"/>
       <v-content v-else v-show="!isLoading" style="min-height:100%" class="router-view">
-        <router-view/>
+        <problems v-if="isCriticalError"></problems>
+        <router-view v-else/>
       </v-content>
       <v-progress-circular
           v-show="isLoading"
@@ -77,6 +78,7 @@
 
 import Menu from "./Menu";
 import PluginInit from '../idea/components/Init.vue'
+import Problems from './Problems/Problems.vue'
 
 const minDrawerSize = 200;
 const defaultDrawerSize = 300;
@@ -85,7 +87,8 @@ export default {
   name: 'Root',
   components: {
     Menu,
-    PluginInit
+    PluginInit,
+    Problems
   },
   mounted() {
     const el = this.$refs.drawer.$el;
@@ -156,6 +159,9 @@ export default {
     },
     isNotInited() {
       return this.isPlugin && this.$store.state.notInited;
+    },
+    isCriticalError() {
+      return this.isPlugin && this.$store.state.criticalError;
     }
   },
   data() {

@@ -33,7 +33,9 @@ export default {
         // Движок для рендеринга
         renderCore: 'graphviz',
         // Признак инциализации проекта в плагине
-        notInited: null
+        notInited: null,
+        // Признак критической проблемы
+        criticalError: null
     },
 
     mutations: {
@@ -44,6 +46,8 @@ export default {
             state.available_projects = {};
             state.projects = {};
             state.last_changes = {};
+            state.notInited = null;
+            state.criticalError = null;
         },
         setManifest(state, value) {
             state.manifest = value;
@@ -75,6 +79,9 @@ export default {
         setNoInited(state, value) {
             state.notInited = value;
         },
+        setCriticalError(state, value) {
+            state.criticalError = value;
+        }
     },
 
     actions: {
@@ -97,17 +104,31 @@ export default {
                 context.commit('appendProblems', 
                     query.expression(query.problems())
                     .evaluate(parser.manifest[manifest_parser.MODE_AS_IS]) || []);
+                if (!Object.keys(context.state.manifest || {}).length && (context.state.problems ||[]).length) {
+                    context.commit('setCriticalError', true);
+                }
             };
             parser.onStartReload = () => {
                 context.commit('setNoInited', false);
                 context.commit('setIsReloading', true);
             }
             parser.onError = (action, data) => {
-                if (
-                        (data.uri === consts.plugin.ROOT_MANIFEST) 
-                        && (data.error.toString().slice(0, 17) !== "YAMLSemanticError")
-                    ) {
-                        context.commit('setNoInited', true);
+                if (action === 'syntax') {
+                    const problem = {
+                        problem: "Ошибки синтаксиса",
+                        route: (data.error.config || {url: data.uri}).url
+                    };
+                    if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+                        problem.target = "plugin";
+                        problem.title = `${data.uri.slice(19)} [${data.error}]`;
+                    } else {
+                        problem.target = "_blank";
+                        problem.title = `${data.uri} [${data.error}]`;
+                    }
+                    context.commit('appendProblems', [problem]);
+
+                } else if (data.uri === consts.plugin.ROOT_MANIFEST) {
+                    context.commit('setNoInited', true);
                 } else {
                     context.commit('appendProblems', [{
                         problem: "Сетевые ошибки",
