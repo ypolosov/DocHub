@@ -94,7 +94,7 @@ export default {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
     },
     summary() {
-      return (query.expression(query.summaryForAspect(this.goal))
+      return (query.expression(query.summaryForGoal(this.goal))
           .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
     }
   },

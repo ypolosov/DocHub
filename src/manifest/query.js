@@ -399,6 +399,43 @@ const COMPONENT_LOCATIONS_QUERY = `
 )
 `;
 
+const SUMMARY_GOAL_QUERY = `
+(
+    $GOAL_ID := '{%GOAL%}';
+    $MANIFEST := $;
+    $lookup(goals, $GOAL_ID).(
+        $GOAL := $;
+        $FORM := $MANIFEST.forms["goal" in entity].fields;
+        $FIELDS := $append([
+            {
+                "title": "Идентификатор",
+                "content": $GOAL_ID,
+                "field": "id",
+                "required": true
+            },
+            {
+                "title": "Название",
+                "content": title,
+                "field": "title",
+                "required": true
+            },
+            {
+                "title": "Описание",
+                "content": description,
+                "field": "description",
+                "required": true
+            }
+        ], $FORM.$spread().{
+            "title": $.*.title,
+            "required": $.*.required,
+            "content": $lookup($GOAL, $keys()[0]),
+            "field": $keys()[0]
+        });
+    )
+)
+`;
+
+
 const SUMMARY_ASPECT_QUERY = `
 (
     $ASPECT_ID := '{%ASPECT%}';
@@ -793,6 +830,11 @@ export default {
     locationsForComponent(component) {
         return COMPONENT_LOCATIONS_QUERY.replace(/{%COMPONENT%}/g, component)
     },
+    // Сводка по аспекту
+    summaryForGoal(goal) {
+        return SUMMARY_GOAL_QUERY.replace(/{%GOAL%}/g, goal)
+    },
+
     // Запрос по аспекту
     aspect(aspect, context) {
         return SCHEMA_QUERY
