@@ -271,6 +271,12 @@ const MENU_QUERY = `
             "route": 'aspects/'
         },
         {
+            "title": "Цели",
+            "location": 'architect/goals',
+            "icon": 'mdi-target',
+            "route": 'goals/'
+        },
+        {
             "title": 'Документы',
             "location": 'docs',
             "expand": true,
@@ -434,6 +440,17 @@ const ASPECT_LOCATIONS_QUERY = `
 )
 `;
 
+const GOAL_LOCATIONS_QUERY = `
+(
+    $GOAL_ID := '{%GOAL%}';
+    [[$distinct($[$substring(path, 0, $length($ASPECT_ID) + 9) = '/goals/' & $GOAL_ID].location)]
+    .{
+        "link": $,
+        "title": $
+    }]
+)
+`;
+
 const CONTEXTS_QUERY_FOR_ASPECT = `
 (
     $MANIFEST := $;
@@ -574,6 +591,24 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
                 "id": $,
                 "title": $ASPECT.title ? $ASPECT.title : id,
                 "used": $ in $USED_ASPECTS
+            }
+        ) : undefined
+    )]^(id)]
+)`;
+
+const ARCH_MINDMAP_GOALS_QUERY = `
+(
+    $MANIFEST := $;
+    $FILTER := '{%ROOT%}';
+    $FILTER_LN := $length($FILTER);
+    $GOALS := $.goals.$spread().$keys()[0];
+    [[$GOALS[$].(
+        $PREFIX := $substring("" & $, 0, $FILTER_LN + 1);
+        $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
+            $GOAL := $lookup($MANIFEST.goals, $);
+            {
+                "id": $,
+                "title": $GOAL.title ? $GOAL.title : id
             }
         ) : undefined
     )]^(id)]
@@ -772,6 +807,10 @@ export default {
     locationsForAspect(aspect) {
         return ASPECT_LOCATIONS_QUERY.replace(/{%ASPECT%}/g, aspect)
     },
+    // Определение размещения манифестов описывающих цель
+    locationsForGoal(goal) {
+        return GOAL_LOCATIONS_QUERY.replace(/{%GOAL%}/g, goal)
+    },
     // Запрос контекстов в которых встречается аспект
     contextsForAspects(aspect) {
         return CONTEXTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect)
@@ -803,5 +842,9 @@ export default {
     // MindMap по архитектурным аспектам
     archMindMapAspects(root) {
         return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
+    },
+    // MindMap по целям
+    archMindMapGoals(root) {
+        return ARCH_MINDMAP_GOALS_QUERY.replace(/{%ROOT%}/g, root || '');
     }
 }

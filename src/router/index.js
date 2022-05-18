@@ -8,12 +8,14 @@ import config from '../../config'
 import consts from '../consts'
 import Component from "../components/Architecture/Component";
 import Aspect from "../components/Architecture/Aspect";
+import Goal from "../components/Architecture/Goal";
 import Context from "../components/Architecture/Context";
 import Radar from "../components/Techradar/Main";
 import Technology from "../components/Techradar/Technology";
 import Problems from "../components/Problems/Problems";
 import ComponentsMindmap from "../components/Mindmap/ComponentsMindmap";
 import AspectsMindmap from "../components/Mindmap/AspectsMindmap";
+import GoalsMindmap from "../components/Mindmap/GoalsMindmap";
 import gateway from "../idea/gateway"
 import Empty from "../components/Controls/Empty"
 
@@ -72,6 +74,18 @@ const rConfig = {
             name: 'aspects',
             path: '/aspects',
             component: AspectsMindmap,
+            props: middleware
+        },
+        {
+            name: 'goals',
+            path: '/goals',
+            component: GoalsMindmap,
+            props: middleware
+        },
+        {
+            name: 'goal',
+            path: '/architect/goals/:goal',
+            component: Goal,
             props: middleware
         },
         {

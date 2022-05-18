@@ -245,7 +245,11 @@ const parser = {
             this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
             for (const section in manifest) {
-                ['forms', 'namespaces', 'aspects', 'docs', 'contexts', 'components', 'datasets'].indexOf(section) >= 0
+                [
+                    'forms', 'namespaces', 'aspects', 'docs', 
+                    'contexts', 'components', 'datasets',
+                    'goals', 'transforms'
+                ].indexOf(section) >= 0
                 && section !== 'imports' 
                 this.parseEntity(manifest[section],`${mode}/${section}`, uri);
             }
