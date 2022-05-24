@@ -9,6 +9,7 @@ import consts from '../consts'
 import Component from "../components/Architecture/Component";
 import Aspect from "../components/Architecture/Aspect";
 import Goal from "../components/Architecture/Goal";
+import TransfromsGantt from "../components/Gantt/TransformsGantt";
 import Context from "../components/Architecture/Context";
 import Radar from "../components/Techradar/Main";
 import Technology from "../components/Techradar/Technology";
@@ -80,6 +81,12 @@ const rConfig = {
             name: 'goals',
             path: '/goals',
             component: GoalsMindmap,
+            props: middleware
+        },
+        {
+            name: 'transforms',
+            path: '/transforms',
+            component: TransfromsGantt,
             props: middleware
         },
         {

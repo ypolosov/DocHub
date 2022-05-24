@@ -44,10 +44,10 @@
 
 import query from "../../manifest/query";
 import manifest_parser from "../../manifest/manifest_parser";
-import Docs from "./tabs/Docs.vue";
+import Docs from "../Architecture/tabs/Docs.vue";
 import GoalsMindmap from "@/components/Mindmap/GoalsMindmap";
 import Empty from '../Controls/Empty.vue'
-import SrcLocations from './tabs/SrcLocations.vue';
+import SrcLocations from '../Architecture/tabs/SrcLocations.vue';
 
 export default {
   name: 'Goal',

@@ -1,0 +1,17 @@
+transforms:
+  architecture:                             # Идентификатор трансформации
+    title: Развитие описания архитектуры    # Название трансформации
+  architecture.solution:
+    title: Solution архитекутра
+    descrition: Развитие пространства solution архитекутры
+    start: 2022-01-01
+    end: 2022-12-31
+    goals:
+      - 2022.architecture.solution
+  architecture.business:
+    title: Бизнес-архитекутра   
+    descrition: Развитие пространства бизнес-архитекутры 
+    start: 2022-02-01
+    end: 2022-10-30
+    goals:
+      - 2022.architecture.business

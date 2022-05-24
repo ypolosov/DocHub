@@ -1,9 +1,8 @@
 goals:
-  2022.architecture:
-    title: Поддержка архитектурных пространств
-    descrition: Создание слоя solution архитекутры # Описание цели
-  2022.architecture.solution:     # Идентификатор цели
-    title: Solution архитекутра   # Название цели
+  2022.architecture:                              # Идентификатор цели
+    title: Поддержка архитектурных пространств    # Название цели
+  2022.architecture.solution:     
+    title: Solution архитекутра   
     descrition: Создание пространства solution архитекутры # Описание цели
     deadline: 31.12.2022          # Срок реализации
   2022.architecture.business:     

@@ -253,6 +253,23 @@ const MENU_QUERY = `
     $MANIFEST := $;
     [
         {
+            "title": "Стратегия",
+            "location": 'strategy',
+            "icon": 'mdi-flag'
+        },
+        {
+            "title": "Цели",
+            "location": 'strategy/goals',
+            "icon": 'mdi-target',
+            "route": 'goals/'
+        },
+        {
+            "title": "Трансформации",
+            "location": 'strategy/transforms',
+            "icon": 'mdi-delta',
+            "route": 'transforms/'
+        },
+        {
             "title": 'Архитектура',
             "location": 'architect',
             "route": 'architect/',
@@ -269,12 +286,6 @@ const MENU_QUERY = `
             "location": 'architect/aspects',
             "icon": 'visibility',
             "route": 'aspects/'
-        },
-        {
-            "title": "Цели",
-            "location": 'architect/goals',
-            "icon": 'mdi-target',
-            "route": 'goals/'
         },
         {
             "title": 'Документы',
@@ -751,6 +762,16 @@ const PROBLEMS_QUERY = `
 )
 `;
 
+const TRANSFORMS_QUERY = `(
+    transforms.$spread().{
+        "id": $keys()[0],
+        "title": *.title,
+        "start": *.start,
+        "end": *.end,
+        "goals": *.goals
+    }
+)`;
+
 /*
     $FIELD_ERRORS := [
         (
@@ -888,5 +909,9 @@ export default {
     // MindMap по целям
     archMindMapGoals(root) {
         return ARCH_MINDMAP_GOALS_QUERY.replace(/{%ROOT%}/g, root || '');
+    },
+    // Gantt по трансформациям
+    archGanttTransforms() {
+        return TRANSFORMS_QUERY;
     }
 }
