@@ -104,41 +104,36 @@ export default {
           tasks.push(transform);
 
           // Добавляем майлстоны странсформаций
-          let entityLink = null;
-          let start = null;
-          let end = null;
-          let title = null;
-          // eslint-disable-next-line no-debugger
-          debugger;
+          let task = null;
           transform.changes && transform.changes.map((change) => {
-            if (entityLink !== change.link) {
-              if (entityLink) {
-                tasks.push({
-                  start: start.getTime(),
-                  end: end.getTime(),
-                  title,
-                  type : 'milestone',
-                  parentId : transform.id
-                });
-              }
-              entityLink = change.link;
-              start = end = new Date(change.moment);
-              title = change.title;
+            const taskEnd = new Date(change.moment);
+            const taskStart = new Date(change.moment);
+            taskStart.setDate(taskStart.getDate() - 1);
+            if (!task || (task.link !== change.link)) {
+              task && tasks.push(task);
+              task = {
+                id : change.id,
+                title: change.title,
+                start: taskStart.getTime(),
+                end: taskEnd.getTime(),
+                link: change.link,
+                type : 'milestone',
+                parentId : transform.id,
+              };
             } else {
-              const moment = new Date(change.moment);
-              if (start > moment) start = moment;
-              if (end < moment) end = moment;
+              if (task.start > taskStart.getTime()) task.start = taskStart.getTime();
+              if (task.end < taskEnd.getTime()) task.end = taskEnd.getTime();
+              if (start > taskStart) start = taskStart;
+              if (end < taskEnd) end = taskEnd;
             }
+
+            task.duration = task.end - task.start;
+
+            if (transform.start > task.start) transform.start = task.start;
+            if (transform.end < task.end) transform.end = task.end;
+            transform.duration = transform.end - transform.start;
           });
-          if (entityLink) {
-            tasks.push({
-              start: start.getTime(),
-              end: end.getTime(),
-              title,
-              type : 'milestone',
-              parentId : transform.id
-            });
-          }
+          task && tasks.push(task);
         }
         return { start, end };
       };
