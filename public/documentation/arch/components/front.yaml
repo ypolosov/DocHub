@@ -5,6 +5,11 @@ components:
   dochub.front:             # Идентификатор компонента
     title: DocHub           # Название компонента
     entity: component       # Сущность компонента из PlantUML (https://plantuml.com/ru/deployment-diagram)
+    transforms:
+      architecture.business:
+        2022-06-15:
+          aspects:
+            - dochub.transforms
     technologies:           # Используемые технологии
       - JavaScript
       - VUEJS2
@@ -39,6 +44,14 @@ components:
   dochub.front.spa:
     title: SPA приложение DocHub
     entity: component
+    transforms:
+      architecture.business:
+        2022-06-15:
+          aspects:
+            - dochub.transforms
+        2022-06-20:
+          aspects:
+            - dochub.transforms
     technologies:
       - JavaScript
       - VUEJS2

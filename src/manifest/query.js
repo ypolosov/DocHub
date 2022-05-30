@@ -763,13 +763,32 @@ const PROBLEMS_QUERY = `
 `;
 
 const TRANSFORMS_QUERY = `(
-    transforms.$spread().{
-        "id": $keys()[0],
-        "title": *.title,
-        "start": *.start,
-        "end": *.end,
-        "goals": *.goals
-    }
+    $MANIFEST := $;
+    transforms.$spread().(
+        $TRANSFORM_ID := $keys()[0];
+        {
+            "id": $TRANSFORM_ID,
+            "title": *.title,
+            "start": *.start,
+            "end": *.end,
+            "goals": *.goals,
+            "changes": $distinct([
+                $MANIFEST.components.$spread().(
+                    $COMPONENT_ID := $keys()[0];
+                    $COMPONENT := $;
+                    $lookup($.*.transforms, $TRANSFORM_ID).$spread().(
+                         {
+                            "type": "component",
+                            "id": $COMPONENT_ID, 
+                            "link": "/architect/components/" & $COMPONENT_ID,
+                            "title": $COMPONENT.*.title,
+                            "moment": $keys()[0]
+                         }
+                    );
+                )
+            ])^(id, moment)
+        }
+    )
 )`;
 
 /*

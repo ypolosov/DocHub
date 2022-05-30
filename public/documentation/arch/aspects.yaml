@@ -35,4 +35,7 @@ aspects:   # Архитектурные аспекты
     dochub.dataset:
         title: Источники данных
         location: DocHub/Источники данных
+    dochub.transforms:
+        title: Трансформации
+        location: DocHub/Трансформации
 

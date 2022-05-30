@@ -1,6 +1,9 @@
 <template>
-  <div>
-    <gantt-elastic :tasks="tasks" :options="options">
+  <div @wheel="zoom">
+    <gantt-elastic 
+      :tasks="tasks" 
+      :options="options"
+      >
       <gantt-elastic-header slot="header"></gantt-elastic-header>
       <gantt-elastic-footer slot="footer"></gantt-elastic-footer>
     </gantt-elastic>
@@ -25,6 +28,19 @@ export default {
   mounted() {
   },
   methods: {
+    zoom(event) {
+      if (!event.shiftKey) return;
+      let e = window.event || event;
+      switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
+        case 1:
+          this.options.times.timeZoom < 30 && (this.options.times.timeZoom+=0.3);
+          break;
+        case -1:
+          this.options.times.timeZoom > 5 && (this.options.times.timeZoom-=0.3);
+          break;
+      }
+      event.stopPropagation();
+    }
   },
   props: {
     // root: String // Корневой идентификатор
@@ -51,14 +67,12 @@ export default {
           transform.id.split('.').map((partID) => {
             currID = currID ? `${currID}.${partID}` : partID;
             if (!curr.transforms[partID]) {
-              const clone = JSON.parse(JSON.stringify((this.manifest.transforms || {})[currID] || {}));
-              clone.id = currID;
-              clone.label = clone.title || partID;
-              clone.start = new Date(clone.start || Date.now());
-              clone.end = new Date(clone.end || Date.now());
-              clone.type = 'task';
-              clone.transforms = {};
-              curr.transforms[partID] = clone;
+              transform.title = transform.title || partID;
+              transform.start = new Date(transform.start || Date.now());
+              transform.end = new Date(transform.end || Date.now());
+              transform.type = 'task';
+              transform.transforms = {};
+              curr.transforms[partID] = transform;
             }
             curr = curr.transforms[partID];
           });
@@ -80,6 +94,7 @@ export default {
           transform.start = transform.start.getTime();
           transform.end = transform.end.getTime();
           transform.duration = transform.end - transform.start;
+          transform.type = 'task';
           transform.style = {
             base : {
               fill: 'rgb(52, 149, 219)',
@@ -87,6 +102,43 @@ export default {
             }
           };
           tasks.push(transform);
+
+          // Добавляем майлстоны странсформаций
+          let entityLink = null;
+          let start = null;
+          let end = null;
+          let title = null;
+          // eslint-disable-next-line no-debugger
+          debugger;
+          transform.changes && transform.changes.map((change) => {
+            if (entityLink !== change.link) {
+              if (entityLink) {
+                tasks.push({
+                  start: start.getTime(),
+                  end: end.getTime(),
+                  title,
+                  type : 'milestone',
+                  parentId : transform.id
+                });
+              }
+              entityLink = change.link;
+              start = end = new Date(change.moment);
+              title = change.title;
+            } else {
+              const moment = new Date(change.moment);
+              if (start > moment) start = moment;
+              if (end < moment) end = moment;
+            }
+          });
+          if (entityLink) {
+            tasks.push({
+              start: start.getTime(),
+              end: end.getTime(),
+              title,
+              type : 'milestone',
+              parentId : transform.id
+            });
+          }
         }
         return { start, end };
       };
@@ -103,6 +155,9 @@ export default {
       options: {
         maxRows: 100,
         maxHeight: 300,
+        times: {
+          timeZoom: 20
+        },
         title: {
           label: 'Your project title as html (link or whatever...)',
           html: false
@@ -131,7 +186,7 @@ export default {
             {
               id: 1,
               label: 'Название',
-              value: 'label',
+              value: 'title',
               width: 200,
               expander: true
             },
