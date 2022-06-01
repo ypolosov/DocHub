@@ -22,6 +22,17 @@ import Technology from "./components/Techradar/Technology";
 import Radar from "./components/Techradar/Main";
 import PlantUML from "./components/Schema/PlantUML";
 
+window.manifestWorker = new Worker('./manifest/worker.js', { type: 'module' });
+
+window.manifestWorker.onmessage = event => {
+    // eslint-disable-next-line no-console
+    console.log(`Worker result: ${JSON.stringify(event.data)}`);
+};
+
+window.manifestWorker.postMessage(JSON.stringify({
+    data : "TEST!"
+}));
+
 
 window.Vue = Vue;
 window.Router = router;

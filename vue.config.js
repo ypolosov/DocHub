@@ -1,6 +1,7 @@
 
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+const WorkerPlugin = require('worker-plugin');
 
 // const fs = require('fs');
 
@@ -26,7 +27,8 @@ let config = {
                 template: 'src/plugin.html', 
                 inlineSource: '.(woff(2)?|ttf|eot|svg|js|css)$'
             }),
-            new HtmlWebpackInlineSourcePlugin()
+            new HtmlWebpackInlineSourcePlugin(),
+            new WorkerPlugin()
         ]
       }    
 };

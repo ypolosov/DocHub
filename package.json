@@ -12,7 +12,7 @@
     "@mdi/font": "5.9.55",
     "axios": "0.21.1",
     "dateformat": "3.0.3",
-    "gantt-vue": "^1.0.10",
+    "gantt-vue": "1.0.10",
     "jsonata": "1.8.4",
     "swagger-ui": "3.24.3",
     "vue": "2.6.11",
@@ -39,7 +39,8 @@
     "vue-loader": "13.7.3",
     "vue-monaco": "0.3.1",
     "vue-style-loader": "3.1.2",
-    "vue-template-compiler": "2.6.11"
+    "vue-template-compiler": "2.6.11",
+    "worker-plugin": "5.0.1"
   },
   "eslintConfig": {
     "root": true,
