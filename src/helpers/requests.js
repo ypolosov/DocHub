@@ -31,7 +31,7 @@ axios.interceptors.response.use(function (response) {
     return Promise.reject(error);
 });
 
-if(window.$PAPI) {
+if(typeof window !== 'undefined' && window.$PAPI) {
     window.$PAPI.middleware = function (response) {
         if (response.contentType === 'yaml') {
             response.data = YAML.parse(response.data);
@@ -45,15 +45,15 @@ if(window.$PAPI) {
 export default {
     axios,
     isExtarnalURI(uri) {
-      return (uri.slice(0, window.origin.length) !== window.origin) 
+      return (uri.slice(0, origin.length) !== origin) 
         // eslint-disable-next-line no-useless-escape
         && uri.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
     },
     getSourceRoot(){
-        if(window.$IDE_PLUGIN) {
+        if((typeof window !== 'undefined') && window.$IDE_PLUGIN) {
             return "plugin:/idea/source/"
         } else 
-            return window.origin + "/";
+            return origin + "/";
     },
     getGitLabProjectID (uri) {
         let result = undefined;
@@ -165,7 +165,7 @@ export default {
         let params = Object.assign({}, axios_params);
         params.source = this.makeURL(uri, baseURI);
         params.url = params.source.url.toString();
-        if (window.$IDE_PLUGIN && uri.split(':')[0] === 'plugin') {
+        if ((typeof window !== 'undefined') && window.$IDE_PLUGIN && uri.split(':')[0] === 'plugin') {
             return window.$PAPI.request(params);
         } else {
             return axios(params);

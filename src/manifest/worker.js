@@ -1,7 +1,15 @@
-import jsonata from "jsonata";
+// import jsonata from "jsonata";
+
+import loader from './loader';
 
 addEventListener('message', event => {
-    // eslint-disable-next-line no-debugger
-    debugger;
-    postMessage(jsonata('$').evaluate(JSON.parse(event.data)));
+    const data = JSON.parse(event.data);
+    switch (data.action) {
+        case 'load': 
+            loader.load(data.uri);
+            break;
+        default:
+            // eslint-disable-next-line no-console
+            console.error(`Manifest worker: Unknown action ${event.data.action}`);
+    }
 });

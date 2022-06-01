@@ -30,9 +30,9 @@ window.manifestWorker.onmessage = event => {
 };
 
 window.manifestWorker.postMessage(JSON.stringify({
-    data : "TEST!"
+    action: 'load',
+    uri: 'http://localhost:8080/example/root.yaml'
 }));
-
 
 window.Vue = Vue;
 window.Router = router;
