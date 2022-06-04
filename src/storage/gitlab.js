@@ -8,15 +8,27 @@ import manifest_parser from "../manifest/manifest_parser";
 import requests from "../helpers/requests";
 import gateway from '../idea/gateway';
 import consts from '../consts';
+import timemachine from './timemachine';
 
 const axios = require('axios');
 
 export default {
+    modules: {
+        timeMachine:  timemachine
+    },
     state: {
         // Признак загрузки данных
         isReloading: true,
         // Токен досутпа в GitLab
         access_token: null,
+        timeMachine: {
+            // Отображать интервал Timemachine
+            isVisibleTimeRange: false,
+            // События трансформаций
+            changes: [],
+            dateFrom: new Date(),
+            dateTo: new Date()
+        },
         // Обобщенный манифест
         manifest: {},
         // Выявленные Проблемы
@@ -48,6 +60,12 @@ export default {
             state.last_changes = {};
             state.notInited = null;
             state.criticalError = null;
+        },
+        setVisibleTimeRange(state, value) {
+            state.timeMachine.isVisibleTimeRange = value;
+        },
+        setTimeMachineChanges(state, value) {
+            state.timeMachine.changes = value;
         },
         setManifest(state, value) {
             state.manifest = value;

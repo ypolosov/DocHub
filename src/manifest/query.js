@@ -53,8 +53,11 @@ const SCHEMA_CONTEXT = `
                     "title": $COMPONENT.title,
                     "entity": $COMPONENT.entity ? $COMPONENT.entity : 'component',
                     "type": $COMPONENT.type,
+                    "start": $COMPONENT.start,
+                    "expire": $COMPONENT.expire,
                     "namespaces":[$MKNS($NAMESPACES_IDS)],
                     "is_context": $COMPONENT_ID ? ($lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false),
+                    "transforms": $COMPONENT.transforms,
                     "links": [$distinct($COMPONENT.links)[id].(
                         $ID := $.id;
                         $COMPONENT := $ID ? $lookup($MANIFEST.components, $ID);
@@ -791,6 +794,11 @@ const TRANSFORMS_QUERY = `(
     )
 )`;
 
+const TRANSFORM_ALL_CHANGES = `(
+    $distinct(components.*.transforms.*.$spread().$keys()[0])
+)`;
+
+
 /*
     $FIELD_ERRORS := [
         (
@@ -932,5 +940,8 @@ export default {
     // Gantt по трансформациям
     archGanttTransforms() {
         return TRANSFORMS_QUERY;
+    },
+    archAllChangesTransforms() {
+        return TRANSFORM_ALL_CHANGES;
     }
 }

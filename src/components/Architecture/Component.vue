@@ -65,7 +65,8 @@ import SrcLocations from './tabs/SrcLocations.vue';
 import Docs from "./tabs/Docs.vue";
 
 export default {
-  name: 'Component',
+  name: 'ArchComponent',
+  isVisibleTimeRange: true,
   components: {
     Docs,
     ComponentsMindmap,
@@ -75,7 +76,18 @@ export default {
   },
   methods: {
     goToLink() {
-
+    },
+    refreshTransitionsChanges() {
+      this.$store.commit('setTimeMachineChanges', query.expression(query.archAllChangesTransforms())
+          .evaluate(this.manifest) || []);
+    }
+  },
+  mounted() {
+    this.refreshTransitionsChanges();
+  },
+  watch: {
+    manifest() {
+      this.refreshTransitionsChanges();
     }
   },
   computed: {

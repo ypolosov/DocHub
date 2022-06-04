@@ -41,8 +41,6 @@ import query from "../manifest/query";
 
 export default {
   name: 'Menu',
-  mounted () {
-  },
   methods: {
     isMenuItemSelected (item) {
       return item.route === this.currentRoute;

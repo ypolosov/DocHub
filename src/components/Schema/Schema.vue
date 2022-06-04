@@ -182,6 +182,34 @@ export default {
       })();
       return `[[${url} ${title || id}]]`;
     },
+    // Пределяем статус сущности в заданном интервале времени (dateFrom..dateTo)
+    getTMEntytyStatus(entity) {
+      let result = 'no-change'; // По умолчанию статус компонента - без изменений
+      // Проверяем вхождение в во временной интервал отображения
+      const componentStart = entity.start ? new Date(entity.start) : null;
+      const componentExpire = entity.expire ? new Date(entity.expire) : null;
+      if (this.dateFrom && this.dateTo) {
+        if (componentStart) {
+          // eslint-disable-next-line no-debugger
+          debugger;
+          // Если компонент будет создан позже интервала дат
+          if (componentStart > this.dateTo) 
+            result = 'no-actual'
+          // Если компонент будет создан в интервале, меняем статус на создаваемый
+          else if ((componentStart >= this.dateFrom) && (componentStart <= this.dateTo))
+            result = 'to-create';  
+        }
+        if (componentExpire) {
+          // Если компонент перестал существовать до выбранного интервала, пропускаем его
+          if (componentExpire < this.dateFrom) 
+            result = 'no-actual'
+            // Если компонент будет создан в интервале, меняем статус на создаваемый
+          else if ((componentExpire >= this.dateFrom) && (componentExpire <= this.dateTo))
+            result = 'to-expire';  
+        }
+      }
+      return result;
+    }
   },
   computed: {
     extraLinks() {
@@ -218,6 +246,8 @@ export default {
       }
 
       (this.schema.components || []).map((component) => {
+        component.tmStatus = this.getTMEntytyStatus(component);
+        if (component.tmStatus === 'no-actual') return;
         // Разбираем компонент
         expandComponent(component, false);
         // Разбираем зависимости компонента
@@ -225,10 +255,6 @@ export default {
           expandComponent(link, true);
           structure.links[`${component.id} ${link.direction} ${link.id}`] =
               Object.assign(link, { linkFrom: component.id, linkTo: link.id});
-          /*
-          structure.links[`[${component.id}] ${link.direction} [${link.id}]`] =
-              Object.assign(link, { linkFrom: component.id, linkTo: link.id});
-          */
         });
       });
 
@@ -315,7 +341,7 @@ export default {
           // Формируем компоненты
           for (const componentID in namespace.components) {
             const component = namespace.components[componentID];
-            if (!this.extraLinks && component.extra)
+            if ((!this.extraLinks && component.extra))
               continue;
             notEmpty = true;
             const title = this.makeRef('component', component.id, component.title);
@@ -334,6 +360,10 @@ export default {
             // Формируем список аспектов
             const aspectList = [];
             (component.aspects || []).map((aspect) => {
+              if(component.transforms) {
+                // eslint-disable-next-line no-debugger
+                // debugger;
+              }
               let aspectTitle = this.makeRef('aspect', aspect.id, aspect.title);
               aspectList.push(aspectTitle);
             });
@@ -391,6 +421,8 @@ export default {
   },
   props: {
     schema: Object,
+    dateFrom: Date,
+    dateTo: Date,
     notation: { // Нотация
       type: String,
       default: 'PlantUML',

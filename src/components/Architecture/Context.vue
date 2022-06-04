@@ -9,6 +9,8 @@
         <schema 
           v-else
           :schema="schema"
+          :dateFrom = "dateFrom"
+          :dateTo = "dateTo"
         ></schema>
       </template>
     </div>
@@ -24,6 +26,7 @@ import Empty from '../Controls/Empty.vue'
 
 export default {
   name: 'Context',
+  isVisibleTimeRange: true,
   components: {
     Schema,
     Plantuml,
@@ -60,6 +63,12 @@ export default {
     },
     isCustomUML () {
       return typeof this.schema.uml === 'string';
+    },
+    dateFrom() {
+      return this.$store.state.timeMachine.dateFrom;
+    },
+    dateTo() {
+      return this.$store.state.timeMachine.dateTo;
     }
   },
   props: {

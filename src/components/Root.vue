@@ -32,6 +32,10 @@
         </v-app-bar-nav-icon>
         <v-toolbar-title style="cursor: pointer" @click="onLogoClick">DocHub</v-toolbar-title>
         <v-spacer></v-spacer>
+        <template v-if="isVisibleTimeRange">
+          <div>Интервал:</div>
+          <time-range></time-range>
+        </template>
         <v-btn v-if="isPlugin" icon title="Найти в коде" @click="gotoCode">
           <v-icon class="material-icons" style="display: inline">search</v-icon>
         </v-btn>
@@ -79,6 +83,7 @@
 import Menu from "./Menu";
 import PluginInit from '../idea/components/Init.vue'
 import Problems from './Problems/Problems.vue'
+import TimeRange from './TimeMachine/TimeRange.vue'
 
 const minDrawerSize = 200;
 const defaultDrawerSize = 300;
@@ -88,7 +93,8 @@ export default {
   components: {
     Menu,
     PluginInit,
-    Problems
+    Problems,
+    TimeRange
   },
   mounted() {
     const el = this.$refs.drawer.$el;
@@ -154,6 +160,9 @@ export default {
     }
   },
   computed: {
+    isVisibleTimeRange() {
+      return this.$store.state.timeMachine.isVisibleTimeRange;
+    },
     isLoading() {
       return this.$store.state.isReloading;
     },

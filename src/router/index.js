@@ -22,7 +22,11 @@ import Empty from "../components/Controls/Empty"
 
 Vue.use(Router)
 
-let middleware = (route) => {
+let middleware = function (route, protoRoute) {
+    // Отображаем выбор экспозиции дат для timemachine если это требуется
+    window.Vuex.commit('setVisibleTimeRange', protoRoute.component && protoRoute.component.isVisibleTimeRange);
+
+    // Проверяем авторизацию в gitlab
     if (config.oauth !== false && !window.Vuex.state.access_token) {
         window.location = new URL(
             `/oauth/authorize?client_id=${config.oauth.APP_ID}`
@@ -144,6 +148,13 @@ const rConfig = {
         },
     ]
 };
+
+rConfig.routes.map(function (route) {
+    const protoRoute = route;
+    route.props = (route) => {
+        return middleware(route, protoRoute);
+    };
+});
 
 if (process.env.VUE_APP_DOCHUB_MODE !== "plugin") {
     rConfig.mode = 'history';

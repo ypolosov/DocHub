@@ -44,6 +44,8 @@ components:
   dochub.front.spa:
     title: SPA приложение DocHub
     entity: component
+    start: 2022-06-01
+    expire: 2022-06-30
     transforms:
       architecture.business:
         2022-06-15:
@@ -52,6 +54,10 @@ components:
         2022-06-20:
           aspects:
             - dochub.transforms
+        2022-06-21:
+          title: TEST
+          technologies:
+            - Go
     technologies:
       - JavaScript
       - VUEJS2
