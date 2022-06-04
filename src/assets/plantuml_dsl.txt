@@ -112,8 +112,8 @@ skinparam {
 
 
 'Компоненты
-!unquoted procedure $System($ID, $ACName, $AType = "")
-    component $ID[
+!unquoted procedure $System($ID, $ACName, $AType = "", $TMStatus = "")
+    component $ID <<$TMStatus>>[
         <b>$ACName</b>
         ====
 !endprocedure
@@ -125,6 +125,19 @@ skinparam {
 !unquoted procedure $SystemAspect($func="", $AType = "")
     * $func
 !endprocedure
+
+
+'Стили Если компонент создается
+skinparam component<<to-create>> {
+	borderColor #F00
+}
+
+'Стили Если компонент к удалению
+skinparam component<<to-expire>> {
+	borderColor darkgray
+    FontColor darkgray
+}
+
 
 'Стили Person
 skinparam component<<Person>> {

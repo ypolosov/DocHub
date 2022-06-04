@@ -167,7 +167,7 @@ export default {
         default: this.postRenderDot(svg);
       }
     },
-    makeRef(type, id, title) {
+    makeRef(type, id, title, tmStatus) {
       const url = (() => {
         switch (type) {
           case 'context':
@@ -180,7 +180,13 @@ export default {
             return (new URL(`docs/${id}`, location.origin)).toString();
         }
       })();
-      return `[[${url} ${title || id}]]`;
+
+      const ico = {
+        'to-create': '<size:16><color:#F00><&plus></color></size> ',
+        'to-expire': '<size:16><color:#F00><&delete></color></size> ',
+      }[tmStatus || 'no-change'] || '';
+
+      return `${ico}[[${url} ${title || id}]]`;
     },
     // Пределяем статус сущности в заданном интервале времени (dateFrom..dateTo)
     getTMEntytyStatus(entity) {
@@ -344,7 +350,7 @@ export default {
             if ((!this.extraLinks && component.extra))
               continue;
             notEmpty = true;
-            const title = this.makeRef('component', component.id, component.title);
+            const title = this.makeRef('component', component.id, component.title, component.tmStatus);
             // Если компонент является системой, описываем его через DSL
             let entity = component.entity.toString();
             // todo Костыль для совместимости. Нужно будет удалить, когда все перейдут на новый синтаксис
@@ -370,7 +376,7 @@ export default {
 
             // Если сущность описана с "$", предполагается, что это DSL шаблон
             if (entity.slice(0,1) === '$') {
-              result += `${entity}(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n`;
+              result += `${entity}(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''}, "${component.tmStatus}")\n`;
               aspectList.map((prop) => {
                 result += `${entity}Aspect("${prop}")\n`;
               });
@@ -379,7 +385,7 @@ export default {
               result += `\n${entity}End()\n`
             } else {
               if (aspectList.length || component.is_context) {
-                result += `${component.entity} ${component.id}`;
+                result += `${component.entity} ${component.id} <<${component.tmStatus}>>`;
                 result += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n`;
                 result += component.is_context ? `---\n[[/architect/contexts/${component.id} ≫≫]]\n]`: `]`;
               } else {

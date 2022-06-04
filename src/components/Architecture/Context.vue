@@ -43,6 +43,14 @@ export default {
         // eslint-disable-next-line no-console
           console.error(err);
         })
+    },
+    refreshTransitionsChanges() {
+      this.$store.commit('setTimeMachineChanges', this.changes);
+    }
+  },
+  watch: {
+    schema() {
+      this.refreshTransitionsChanges();
     }
   },
   computed: {
@@ -54,6 +62,9 @@ export default {
     },
     basePath() {
       return (this.$store.state.sources.find((item) => item.path === `/contexts/${this.context}`) || {}).location;
+    },
+    changes() {
+      return query.expression(query.archAllChangesByContext()).evaluate(this.schema) || [];
     },
     schema () {
       const asIs = this.$store.state.manifest[manifest_parser.MODE_AS_IS];

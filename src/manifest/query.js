@@ -798,6 +798,13 @@ const TRANSFORM_ALL_CHANGES = `(
     $distinct(components.*.transforms.*.$spread().$keys()[0])
 )`;
 
+const ALL_CHANGES_BY_CONTEXT = `(
+    $distinct(
+        components.(
+            $append(transforms.*.$spread().$keys()[0], [start, expire])
+        )
+    )
+)`;
 
 /*
     $FIELD_ERRORS := [
@@ -937,11 +944,15 @@ export default {
     archMindMapGoals(root) {
         return ARCH_MINDMAP_GOALS_QUERY.replace(/{%ROOT%}/g, root || '');
     },
+    // Time Machine 
     // Gantt по трансформациям
     archGanttTransforms() {
         return TRANSFORMS_QUERY;
     },
     archAllChangesTransforms() {
         return TRANSFORM_ALL_CHANGES;
+    },
+    archAllChangesByContext() {
+        return ALL_CHANGES_BY_CONTEXT;
     }
 }
