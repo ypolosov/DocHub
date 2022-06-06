@@ -15,8 +15,12 @@ export default {
     state: {
         // Признак загрузки данных
         isReloading: true,
+        // Идет процесс авторизации в gitlab
+        isOAuthProcess: null,
         // Токен досутпа в GitLab
         access_token: null,
+        // Токен бновления access_token досутпа в GitLab
+        refresh_token: null,
         // Обобщенный манифест
         manifest: {},
         // Выявленные Проблемы
@@ -55,12 +59,19 @@ export default {
         setSources(state, value) {
             state.sources = value;
         },
+        setIsOAuthProcess(state, value) {
+            state.isOAuthProcess = value;
+        },
         setIsReloading(state, value) {
             state.isReloading = value;
         },
         setAccessToken(state, value) {
             state.access_token = value;
-            cookie.set('git_access_token', value, 1);
+//            cookie.set('git_access_token', value, 1);
+        },
+        setRefreshToken(state, value) {
+            state.refresh_token = value;
+//            cookie.set('git_access_token', value, 1);
         },
         setDiffFormat(state, value) {
             state.diff_format = value;
@@ -90,10 +101,10 @@ export default {
             context.commit('setRenderCore', 
                 process.env.VUE_APP_DOCHUB_MODE === "plugin" ? 'smetana' : 'graphviz'
             );
-            const access_token = cookie.get('git_access_token');
-            if (access_token) {
-                context.commit('setAccessToken', access_token);
-            }
+            // const access_token = cookie.get('git_access_token');
+            // if (access_token) {
+            //  context.commit('setAccessToken', access_token);
+            //}
             context.dispatch('reloadAll');
             let diff_format = cookie.get('diff_format');
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
@@ -163,10 +174,48 @@ export default {
             });
         },
 
+        // Вызывается при необходимости получить access_token
+        refreshAccessToken(context, OAuthCode) {
+            const params = OAuthCode ? {              
+                grant_type: 'authorization_code',
+                code: OAuthCode
+            }: {
+                grant_type: 'refresh_token',
+                refresh_token: context.state.refresh_token
+            };
+            
+            if (OAuthCode) context.commit('setIsOAuthProcess', true);
+
+            const OAuthURL = (new URL('/oauth/token', config.gitlab_server)).toString();
+
+            axios({
+                method: 'post',
+                url: OAuthURL,
+                params: Object.assign({
+                    client_id: config.oauth.APP_ID,
+                    redirect_uri: (new URL(consts.pages.OAUTH_CALLBACK_PAGE, window.location)).toString(),
+                }, params)
+            })
+            .then((response) => {
+                context.commit('setAccessToken', response.data.access_token);
+                context.commit('setRefreshToken', response.data.refresh_token);
+                setTimeout(() => context.dispatch('refreshAccessToken'), (response.data.expires_in - 10) * 1000);
+                if (OAuthCode) context.dispatch('reloadAll');
+            }).catch((e) => {
+                context.commit('appendProblems', [{
+                    problem: "Сетевые ошибки",
+                    route: OAuthURL,
+                    target: "_blank",
+                    title: `Ошибка авторизации GitLab OAuth [${e.toString()}]`
+                }]);
+                // eslint-disable-next-line no-console
+                console.error('Ошибка авторизации GitLab OAuth ', e);
+            }).finally(() => context.commit('setIsOAuthProcess', false));
+        },
+
         // Need to call when gitlab takes callback's rout with oauth code
-        onReceivedOAuthToken(context, access_token) {
-            context.commit('setAccessToken', access_token);
-            context.dispatch('reloadAll');
+        onReceivedOAuthCode(context, OAuthCode) {
+            context.dispatch('refreshAccessToken', OAuthCode);
         },
 
         // Reload root manifest

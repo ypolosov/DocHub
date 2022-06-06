@@ -20,7 +20,7 @@ import Empty from "../components/Controls/Empty"
 Vue.use(Router)
 
 let middleware = (route) => {
-    if (config.oauth !== false && !window.Vuex.state.access_token) {
+    if (config.oauth !== false && !window.Vuex.state.isOAuthProcess && !window.Vuex.state.access_token) {
         window.location = new URL(
             `/oauth/authorize?client_id=${config.oauth.APP_ID}`
             + `&redirect_uri=` + new URL(consts.pages.OAUTH_CALLBACK_PAGE, window.location)
@@ -137,11 +137,11 @@ if (process.env.VUE_APP_DOCHUB_MODE !== "plugin") {
         {
             path: '/sso/gitlab/authentication',
             redirect(route) {
-                const accessToken = Object.keys(route.query).length
-                    ? route.query.access_token || route.query.code
-                    : new URLSearchParams(route.hash.substr(1)).get('access_token');
-                if (accessToken) {
-                    window.Vuex.dispatch('onReceivedOAuthToken', accessToken);
+                const OAuthCode = Object.keys(route.query).length
+                    ? route.query.code
+                    : new URLSearchParams(route.hash.substr(1)).get('code');
+                if (OAuthCode) {
+                    window.Vuex.dispatch('onReceivedOAuthCode', OAuthCode);
                     return {
                         path: '/main',
                         query: {},
