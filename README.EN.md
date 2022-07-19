@@ -80,8 +80,8 @@ Dochub is regular vuejs single page application (spa).
 
 **Requirements:**
 
-* docker >= 20
-* docker-compose >= 3.8
+* docker >= **v20**
+* docker-compose >= **v2.2.3**
 
 
 ```bash
