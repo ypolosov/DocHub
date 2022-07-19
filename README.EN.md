@@ -85,6 +85,8 @@ Dochub is regular vuejs single page application (spa).
 
 
 ```bash
+export DOCKER_BUILDKIT=1 # or configure in daemon.json
+export COMPOSE_DOCKER_CLI_BUILD=1
 git clone git@github.com:RabotaRu/DocHub.git
 cd DocHub
 docker-compose up --build
