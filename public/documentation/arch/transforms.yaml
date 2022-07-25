@@ -15,3 +15,11 @@ transforms:
 #    end: 2022-10-30
     goals:
       - 2022.architecture.business
+  architecture.msa:
+    title: Миграция в MSA  
+    descrition: Все плохо, хотим микросервисы
+    start: 2022-08-01
+    end: 2022-10-30
+    goals:
+      - 2022.architecture.business
+      - 2022.architecture.solution

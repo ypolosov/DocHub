@@ -1,4 +1,6 @@
 goals:
+  2022:             
+    title: 2022 год 
   2022.architecture:                              # Идентификатор цели
     title: Поддержка архитектурных пространств    # Название цели
   2022.architecture.solution:     
