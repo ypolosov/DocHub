@@ -2,6 +2,7 @@
 node_modules
 /dist
 /certs
+/gitlab
 
 /public/workspace/*
 

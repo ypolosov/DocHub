@@ -22,16 +22,16 @@ import Empty from "../components/Controls/Empty"
 
 Vue.use(Router)
 
-let middleware = function (route, protoRoute) {
+let middleware = (route, protoRoute) => {
     // Отображаем выбор экспозиции дат для timemachine если это требуется
     window.Vuex.commit('setVisibleTimeRange', protoRoute.component && protoRoute.component.isVisibleTimeRange);
 
     // Проверяем авторизацию в gitlab
-    if (config.oauth !== false && !window.Vuex.state.access_token) {
+    if (config.oauth !== false && !window.Vuex.state.isOAuthProcess && !window.Vuex.state.access_token) {
         window.location = new URL(
             `/oauth/authorize?client_id=${config.oauth.APP_ID}`
             + `&redirect_uri=` + new URL(consts.pages.OAUTH_CALLBACK_PAGE, window.location)
-            + `&response_type=token&state=none&scope=${config.oauth.REQUESTED_SCOPES}`
+            + `&response_type=code&state=none&scope=${config.oauth.REQUESTED_SCOPES}`
             + '&' + Math.floor(Math.random() * 10000)
             , config.gitlab_server
         );
@@ -169,11 +169,11 @@ if (process.env.VUE_APP_DOCHUB_MODE !== "plugin") {
         {
             path: '/sso/gitlab/authentication',
             redirect(route) {
-                const accessToken = Object.keys(route.query).length
-                    ? route.query.access_token
-                    : new URLSearchParams(route.hash.substr(1)).get('access_token');
-                if (accessToken) {
-                    window.Vuex.dispatch('onReceivedOAuthToken', accessToken);
+                const OAuthCode = Object.keys(route.query).length
+                    ? route.query.code
+                    : new URLSearchParams(route.hash.substr(1)).get('code');
+                if (OAuthCode) {
+                    window.Vuex.dispatch('onReceivedOAuthCode', OAuthCode);
                     return {
                         path: '/main',
                         query: {},
