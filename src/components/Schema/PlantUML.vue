@@ -17,8 +17,30 @@
       @mouseup.prevent="onMouseUp"
       @mouseleave.prevent="onMouseUp"
       @wheel="proxyScrollEvent"
+      @contextmenu="showMenu"
     >
     </div>
+    <v-menu
+      v-model="menu.show"
+      :position-x="menu.x"
+      :position-y="menu.y"
+      absolute
+      offset-y
+    >
+      <v-list>
+        <v-list-item
+          v-for="(item, index) in menu.items"
+          :key="index"
+          link
+        >
+          <v-list-item-title
+            @click="item.on"
+          >
+            {{ item.title }}
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </div>
 </template>
 
@@ -206,6 +228,28 @@ export default {
           this.isLoading = false;
         });
       });
+    },
+    showMenu(event) {
+      event.preventDefault()
+      this.menu.show = false;
+      this.menu.x = event.clientX;
+      this.menu.y = event.clientY;
+      this.$nextTick(() => {
+        this.menu.show = true;
+      });
+    },
+    // Сохранение SVG на диск
+    onUpload() {
+      const svgString = new XMLSerializer().serializeToString(this.svgEl);
+      const svgDecoded = window.btoa(unescape(encodeURIComponent(svgString)));
+      const svgUrl = `data:image/svg+xml;base64,${svgDecoded}`;
+
+      const link = document.createElement('a');
+      link.href = svgUrl;
+      link.download = 'download.svg';
+      document.body.appendChild(link);
+      link.click();
+      this.$nextTick(() => document.body.removeChild(link));
     }
   },
   computed: {
@@ -246,6 +290,14 @@ export default {
   },
   data() {
     return {
+      menu: { // Контекстное меню
+        show: false,  // Признак отображения
+        x : 0,  // Позиция x
+        y : 0,  // Позиция y
+        items: [
+          { title: 'Сохранить на диск', on: this.onUpload }
+        ]
+      },
       render: true,
       rerenderTimer: null,
       svg: '',
