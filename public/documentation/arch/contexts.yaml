@@ -26,6 +26,20 @@ contexts:   # Контексты представления архитектур
         location: DocHub/Компонентная архитектура
         components:
             - dochub.front.spa.*
+    dochub.custom:
+        title: Компоненты эксперта R.Piontik
+        location: DocHub/Свободная диаграмма
+        extra-links: false  # Отключаем вывод связанных компонентов, явно не определенных в контексте
+        source: >           # Отбираем все компоненты у которых кастомное поле "expert" = "R.Piontik"
+            (
+                $ ~> | $ | {
+                    "components": $merge(components.$spread().(
+                        $.*.expert = 'R.Piontik' ? $ : {}
+                    )) 
+                } |
+            )
+        components:
+            - dochub.*
     dochub.front.spa.blank:
         title: Карточка объекта
         components:

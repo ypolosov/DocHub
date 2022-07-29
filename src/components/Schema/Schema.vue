@@ -2,6 +2,8 @@
   <plantuml
       :uml = "uml"
       :postrender = "postrender"
+      :source-available = "true"
+      @copysource = "copyJsonSource"
   ></plantuml>
 </template>
 
@@ -13,6 +15,7 @@ import C4ModelDSL from "!!raw-loader!../../assets/c4model_dsl.txt";
 import SberDSL from "!!raw-loader!../../assets/sber_dsl.txt";
 import manifest_parser from "@/manifest/manifest_parser";
 import requests from "@/helpers/requests";
+import copyToClipboard from "../../helpers/clipboard";
 
 export default {
   name: 'Schema',
@@ -20,6 +23,10 @@ export default {
     "plantuml" : PlantUML
   },
   methods: {
+    // Копирует данные для схемы в формате JSON
+    copyJsonSource() {
+      copyToClipboard(JSON.stringify(this.schema));
+    },
     createSVGElement(tag) {
       return document.createElementNS("http://www.w3.org/2000/svg", tag);
     },

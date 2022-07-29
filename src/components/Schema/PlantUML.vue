@@ -49,6 +49,9 @@
 import axios from 'axios';
 import plantUML from '../../helpers/plantuml'
 import requests from '../../helpers/requests';
+import copyToClipboard from '../../helpers/clipboard';
+
+const EVENT_COPY_SOURCE_TO_CLIPBOARD = 'copysource';
 
 export default {
   name: 'PlantUML',
@@ -122,8 +125,6 @@ export default {
       if (event.shiftKey) return false;
       const ref = event.currentTarget.href.baseVal;
       if (!ref.length) return false;
-      // eslint-disable-next-line no-console
-      console.info(`onClickRef`, ref);
       try {
         if (requests.isExtarnalURI(ref)) {
           window.open(ref, 'blank_');
@@ -258,7 +259,7 @@ export default {
         link.click();
         this.$nextTick(() => document.body.removeChild(link));
       }
-    }
+    },
   },
   computed: {
     viewBox () {
@@ -292,9 +293,13 @@ export default {
       this.reloadSVG();
     }
   },
+  emits: [
+    EVENT_COPY_SOURCE_TO_CLIPBOARD // Копирование источника данных
+  ],
   props: {
     uml: String,          // PlantUML диаграмма
     postrender: Function, // POST обработчик
+    sourceAvailable: Boolean
   },
   data() {
     return {
@@ -302,9 +307,14 @@ export default {
         show: false,  // Признак отображения
         x : 0,  // Позиция x
         y : 0,  // Позиция y
-        items: [
-          { title: 'Сохранить на диск', on: this.onDownload }
-        ]
+        items: (() => {
+            const result = [
+              { title: 'Сохранить на диск', on: this.onDownload },
+              { title: 'Копировать PlantUML', on: () => copyToClipboard(this.uml) }
+            ];
+            this.sourceAvailable && result.push({ title: 'Копировать JSON', on: () => this.$emit(EVENT_COPY_SOURCE_TO_CLIPBOARD) });
+            return result;
+        }).call()
       },
       render: true,
       rerenderTimer: null,

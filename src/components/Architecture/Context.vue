@@ -1,6 +1,12 @@
 <template>
     <div>
       <empty v-if="isEmpty"></empty>
+      <template v-else-if="error">
+        <v-alert :value="true" color="error" icon="warning">
+          Возникла ошибка при генерации контекста [{{context}}]
+          <br>[{{error}}]
+        </v-alert>
+      </template>
       <template v-else>
         <plantuml 
           v-if="isCustomUML && customUML" 
@@ -21,6 +27,7 @@ import query from "../../manifest/query";
 import Plantuml from "../Schema/PlantUML";
 import requests from "../../helpers/requests";
 import Empty from '../Controls/Empty.vue'
+import datasets from '../../helpers/datasets';
 
 export default {
   name: 'Context',
@@ -28,6 +35,9 @@ export default {
     Schema,
     Plantuml,
     Empty
+  },
+  mounted(){
+    this.refresh();
   },
   methods : {
     reloadCustomUML () {
@@ -40,6 +50,18 @@ export default {
         // eslint-disable-next-line no-console
           console.error(err);
         })
+    },
+    refresh() {
+      this.refresher && clearTimeout(this.refresher);
+      this.dataset = null;
+      this.refresher = setTimeout(() => {
+        this.provider.getData(this.manifest, this.contextParams)
+        .then((dataset) => {
+          this.dataset = dataset
+        })
+        .catch((e) => this.error = e)
+        .finally(() => this.refresher = null);
+      }, 50);
     }
   },
   computed: {
@@ -49,24 +71,46 @@ export default {
     manifest() {
       return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
     },
+    contextParams() {
+      return Object.assign({'source': '($)'}, (this.manifest.contexts || {})[this.context] || {}) ;
+    },
     basePath() {
       return (this.$store.state.sources.find((item) => item.path === `/contexts/${this.context}`) || {}).location;
     },
     schema () {
-      const asIs = this.$store.state.manifest[manifest_parser.MODE_AS_IS];
       this.$nextTick(this.reloadCustomUML);
-      const result = query.expression(query.context(this.context, this.location)).evaluate(asIs) || {};
+      const result = query.expression(query.context(this.context, this.location)).evaluate(this.dataset) || {};
       return result;
     },
     isCustomUML () {
       return typeof this.schema.uml === 'string';
     }
   },
+  watch: {
+    context () { 
+      this.refresh() 
+    },
+    manifest () { 
+      this.refresh() 
+    }
+  },
   props: {
     context: String
   },
   data() {
+    const provider = datasets();
+    provider.dsResolver = (id) => {
+      return {
+        subject: (this.manifest.contexts || {})[id],
+        baseURI: (this.$store.state.sources.find((item) => item.path === `/contexts/${id}`) || {}).location
+      }
+    };
+
     return {
+      provider,
+      error: null,
+      dataset: null,
+      refresher: null,
       customUML: null
     };
   }

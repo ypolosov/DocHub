@@ -99,8 +99,6 @@ export default {
       return this.docParams.headers || [];
     },
     perPage() {
-      // eslint-disable-next-line no-debugger
-      debugger
       return this.docParams["per-page"];
     }
   },
