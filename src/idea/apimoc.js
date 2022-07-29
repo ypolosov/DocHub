@@ -29,5 +29,11 @@ export default {
     goto(source, entity, id) {
         // eslint-disable-next-line no-console
         console.info(`Call goto ${source}#${entity}\\${id}`);
+    },
+    download(content, title, description) {
+        // eslint-disable-next-line no-console
+        console.info(`${title}:${description}`);
+        // eslint-disable-next-line no-console
+        console.info('Content', content);
     }
 }
