@@ -239,17 +239,25 @@ export default {
       });
     },
     // Сохранение SVG на диск
-    onUpload() {
-      const svgString = new XMLSerializer().serializeToString(this.svgEl);
-      const svgDecoded = window.btoa(unescape(encodeURIComponent(svgString)));
-      const svgUrl = `data:image/svg+xml;base64,${svgDecoded}`;
+    onDownload() {
+      if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
+        window.$PAPI.download(
+            new XMLSerializer().serializeToString(this.svgEl),
+            "Сохранение диаграммы",
+            "Выберите файл для сохранения диграммы"
+          );
+      } else {
+        const svgString = new XMLSerializer().serializeToString(this.svgEl);
+        const svgDecoded = window.btoa(unescape(encodeURIComponent(svgString)));
+        const svgUrl = `data:image/svg+xml;base64,${svgDecoded}`;
 
-      const link = document.createElement('a');
-      link.href = svgUrl;
-      link.download = 'download.svg';
-      document.body.appendChild(link);
-      link.click();
-      this.$nextTick(() => document.body.removeChild(link));
+        const link = document.createElement('a');
+        link.href = svgUrl;
+        link.download = 'download.svg';
+        document.body.appendChild(link);
+        link.click();
+        this.$nextTick(() => document.body.removeChild(link));
+      }
     }
   },
   computed: {
@@ -295,7 +303,7 @@ export default {
         x : 0,  // Позиция x
         y : 0,  // Позиция y
         items: [
-          { title: 'Сохранить на диск', on: this.onUpload }
+          { title: 'Сохранить на диск', on: this.onDownload }
         ]
       },
       render: true,
