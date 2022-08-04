@@ -107,3 +107,6 @@ docs:
       subjects:
         - dochub.front
       source: config/config.md
+    dochub.context.source:
+      type: plantuml
+      source: context_source.puml
