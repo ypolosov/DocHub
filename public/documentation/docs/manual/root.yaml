@@ -1,5 +1,6 @@
 imports:
   - docs/root.yaml
+  - rules/root.yaml
 docs:
     dochub.manual:
         location: DocHub/Руководство
