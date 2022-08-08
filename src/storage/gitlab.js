@@ -8,6 +8,7 @@ import manifest_parser from "../manifest/manifest_parser";
 import requests from "../helpers/requests";
 import gateway from '../idea/gateway';
 import consts from '../consts';
+import rules from '../helpers/rules'
 
 const axios = require('axios');
 
@@ -67,11 +68,9 @@ export default {
         },
         setAccessToken(state, value) {
             state.access_token = value;
-//            cookie.set('git_access_token', value, 1);
         },
         setRefreshToken(state, value) {
             state.refresh_token = value;
-//            cookie.set('git_access_token', value, 1);
         },
         setDiffFormat(state, value) {
             state.diff_format = value;
@@ -101,10 +100,6 @@ export default {
             context.commit('setRenderCore', 
                 process.env.VUE_APP_DOCHUB_MODE === "plugin" ? 'smetana' : 'graphviz'
             );
-            // const access_token = cookie.get('git_access_token');
-            // if (access_token) {
-            //  context.commit('setAccessToken', access_token);
-            //}
             context.dispatch('reloadAll');
             let diff_format = cookie.get('diff_format');
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
@@ -118,6 +113,7 @@ export default {
                 if (!Object.keys(context.state.manifest || {}).length && (context.state.problems ||[]).length) {
                     context.commit('setCriticalError', true);
                 }
+                rules(parser.manifest[manifest_parser.MODE_AS_IS]);
             };
             parser.onStartReload = () => {
                 context.commit('setNoInited', false);
@@ -153,7 +149,6 @@ export default {
             let changes = {};
             let refreshTimer = null;
             gateway.appendListener('source/changed', (data) => {
-                // eslint-disable-next-line no-console
                 if (data) {
                     changes = Object.assign(changes, data);
                     if (refreshTimer) clearTimeout(refreshTimer);

@@ -1,4 +1,11 @@
 docs:
+    dochub.rules:
+        location: DocHub/Руководство/Правила
+        description: Подсистема контроля
+        type: markdown
+        source: rules.md
+        subjects:
+          - dochub
     dochub.rules.validators:
         location: DocHub/Руководство/Правила/Валидаторы
         description: Валидаторы
