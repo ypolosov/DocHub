@@ -22,6 +22,7 @@ import Technology from "./components/Techradar/Technology";
 import Radar from "./components/Techradar/Main";
 import PlantUML from "./components/Schema/PlantUML";
 
+import '@/assets/styles/main.css';
 
 window.Vue = Vue;
 window.Router = router;
