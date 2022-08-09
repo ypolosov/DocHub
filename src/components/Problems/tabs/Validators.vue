@@ -5,7 +5,7 @@
         <span class="title">Валидаторы</span>
       </v-card-title>
       <v-card-text class="headline font-weight-bold">
-        <tree :items="items" style="overflow-x: auto"></tree>
+        <tree :items="items" style="overflow-x: auto" v-model="subject"></tree>
       </v-card-text>
     </v-card>
 </template>
@@ -13,9 +13,6 @@
 <script>
 
 import Tree from "../../Controls/Tree.vue";
-import jsonata from "jsonata";
-import query from "../../../manifest/query";
-import manifest_parser from "../../../manifest/manifest_parser";
 
 export default {
   name: 'Validators',
@@ -23,19 +20,23 @@ export default {
     Tree
   },
   computed: {
+    problems() {
+      return this.$store.state.problems || [];
+    },
     items () {
       let counter = 0;
       const result = [];
       const expandItem = (expitem) => {
         let node = result;
-        expitem.location.split('/').map((title, index, arr) => {
+        expitem.id.split('.').map((title, index, arr) => {
           let item = node.find((element) => element.title === title)
           if (!item) {
             node.push(
                 item = {
                   title: title,
                   key: `${title}_${counter++}`,
-                  items: []
+                  items: [],
+                  parent: node
                 }
             );
           }
@@ -44,11 +45,23 @@ export default {
           }
           node = item.items;
         });
+        (expitem.items || []).map((item) => {
+          const problem = {
+            title: item.uid,
+            key: item.uid,
+            items: [],
+            link: `/problems/${item.uid}`,
+            selected: this.subject === item.uid
+          };
+
+          if (problem.selected)
+            for(let parent = node; parent; parent = parent.parent) 
+              parent.expand = true;
+
+          node.push(problem);
+        });
       }
-      const docs =
-          (jsonata(query.docsForSubject(this.subject))
-              .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
-      docs.map((item) => expandItem(item));
+      this.problems.map((item) => expandItem(item));
       return result;
     }    
   },

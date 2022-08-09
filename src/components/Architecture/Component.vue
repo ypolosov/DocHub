@@ -65,7 +65,7 @@ import SrcLocations from './tabs/SrcLocations.vue';
 import Docs from "./tabs/Docs.vue";
 
 export default {
-  name: 'Component',
+  name: 'ArchComponent',
   components: {
     Docs,
     ComponentsMindmap,

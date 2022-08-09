@@ -3,7 +3,6 @@ import cookie from 'vue-cookie';
 import GitHelper from '../helpers/gitlab'
 import parser from '../manifest/manifest_parser';
 import Vue from 'vue';
-import query from "../manifest/query";
 import manifest_parser from "../manifest/manifest_parser";
 import requests from "../helpers/requests";
 import gateway from '../idea/gateway';
@@ -80,8 +79,9 @@ export default {
             Vue.set(state.last_changes, value.id, value.payload);
         },
         appendProblems(state, value) {
-            state.problems = query.expression("$distinct($)")
-                .evaluate(JSON.parse(JSON.stringify((state.problems || []).concat(value)))) || [];
+            // eslint-disable-next-line no-debugger
+            debugger;
+            state.problems = state.problems.concat([value]);
         },
         setRenderCore(state, value) {
             state.renderCore = value;
@@ -107,13 +107,17 @@ export default {
                 context.commit('setManifest', Object.freeze(parser.manifest));
                 context.commit('setSources', Object.freeze(parser.mergeMap));
                 context.commit('setIsReloading', false);
-                context.commit('appendProblems', 
-                    query.expression(query.problems())
-                    .evaluate(parser.manifest[manifest_parser.MODE_AS_IS]) || []);
-                if (!Object.keys(context.state.manifest || {}).length && (context.state.problems ||[]).length) {
+                if (!Object.keys(context.state.manifest || {}).length) {
                     context.commit('setCriticalError', true);
                 }
-                rules(parser.manifest[manifest_parser.MODE_AS_IS]);
+                rules(parser.manifest[manifest_parser.MODE_AS_IS],
+                    (problems) => context.commit('appendProblems', problems),
+                    (error) => {
+                        // eslint-disable-next-line no-console
+                        console.error(error);
+                        // eslint-disable-next-line no-debugger
+                        debugger;
+                    });
             };
             parser.onStartReload = () => {
                 context.commit('setNoInited', false);

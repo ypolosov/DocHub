@@ -1,6 +1,6 @@
 <template>
   <ul class="items">
-    <li class="item" v-for="item in items" :key="item.key">
+    <li :class="{'item': true, 'selected' : item.selected}" v-for="item in items" :key="item.key">
       <v-icon class="expand-ico" v-if="item.items && item.items.length" @click="onExpand(item)">
         <template v-if="expands[item.key]">expand_more</template>
         <template v-else>chevron_right</template>
@@ -34,7 +34,8 @@ const TreeItem = {
   computed: {
   },
   props: {
-    items: Array
+    selected: String,
+    items: Array,
   },
   data() {
     return {
@@ -53,17 +54,28 @@ export default Object.assign(TreeItem, {
 
 <style scoped>
 
-.items {
-  list-style-type: none;
-  padding-left: 28px;
-  font-size: 16px;
-}
+  .items {
+    list-style-type: none;
+    padding-left: 28px;
+    font-size: 16px;
+  }
 
-.expand-ico {
-  margin-left: -28px;
-}
+  .expand-ico {
+    margin-left: -28px;
+  }
 
-.item {
-}
+  .item {
+    padding-left: 4px;
+    padding-right: 4px;
+    width: fit-content;
+  }
+
+  .item.selected {
+    background: rgb(52, 149, 219);
+  }
+
+  .item.selected * {
+    color: #fff !important;
+  }
 
 </style>

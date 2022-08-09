@@ -112,6 +112,12 @@ const rConfig = {
         },
         {
             name: 'problems',
+            path: '/problems/:subject',
+            component: Problems,
+            props: middleware
+        },
+        {
+            name: 'problems',
             path: '/problems',
             component: Problems,
             props: middleware
