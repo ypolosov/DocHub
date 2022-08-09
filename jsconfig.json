@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2020",
+    "types": [
+      "vuetify",
+      "webpack-env"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "types"
+  ],
+  "include": [
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ]
+}
