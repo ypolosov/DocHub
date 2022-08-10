@@ -11,44 +11,48 @@
                 <v-icon left>settings</v-icon>
                 <span class="title">Сводка</span>
               </v-card-title>
+
               <v-card-text class="headline font-weight-bold">
                 <v-list>
                   <v-list-item :key="item.title" v-for="(item) in summary" :link="!!item.link">
                     <v-list-item-content  @click="goToLink(item.link)">
-                      <v-list-item-subtitle v-text="item.title"></v-list-item-subtitle>
-                      <v-list-item-title v-if = "item.onclick" :title="item.hint">
-                        <a @click="item.onclick">{{item.content}}</a>
+                      <v-list-item-subtitle v-text="item.title" />
+                      
+                      <v-list-item-title>
+                        <v-icon v-if="item.required && !item.content" left color="red">error</v-icon>
+                        <a v-else-if="item.onclick" @click="item.onclick">{{ item.content }}</a>
+                        <span v-else>{{ item.content }}</span>
                       </v-list-item-title>
-                      <v-list-item-title v-else v-html="item.content" :title="item.hint"
-                      ></v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list>
               </v-card-text>
             </v-card>
+
             <Docs :subject="component"></Docs>
+
             <v-card class="card-item" xs12 md12 style="margin-top: 12px">
               <v-card-title>
                 <v-icon left>description</v-icon>
                 <span class="title">Иерархия</span>
               </v-card-title>
               <v-card-text class="headline font-weight-bold">
-                <components-mindmap :root="component" links="component"></components-mindmap>
+                <components-mindmap :root="component" links="component" />
               </v-card-text>
             </v-card>
-            <src-locations :locations="srcLocations">
-            </src-locations>
+
+            <src-locations :locations="srcLocations" />
           </v-container>
         </v-layout>
       </v-flex>
+
       <v-flex xs12 md7 d-flex>
         <tab-contexts 
           v-if="contexts.length" style="width: 100%"
           :contexts = "contexts"
           :manifest = "manifest"
           d-flex
-        >
-        </tab-contexts>  
+        />
       </v-flex>
     </v-layout>
   </v-container>
@@ -56,8 +60,8 @@
 
 <script>
 
-import query from "../../manifest/query";
-import manifest_parser from "../../manifest/manifest_parser";
+import query from "@/manifest/query";
+import manifest_parser from "@/manifest/manifest_parser";
 import ComponentsMindmap from "@/components/Mindmap/ComponentsMindmap";
 import TabContexts from './tabs/TabContext.vue'
 import Empty from '../Controls/Empty.vue'
@@ -124,7 +128,7 @@ export default {
     }
   },
   props: {
-    component: String
+    component: { type: String, default: '' }
   },
   data() {
     return {
@@ -135,9 +139,7 @@ export default {
 </script>
 
 <style scoped>
-
-.card-item {
-  width: 100%;
-}
-
+  .card-item {
+    width: 100%;
+  }
 </style>
