@@ -24,24 +24,27 @@ export default {
       return this.$store.state.problems || [];
     },
     items () {
-      let counter = 0;
       const result = [];
+      const stack = [];
       const expandItem = (expitem) => {
         let node = result;
-        expitem.id.split('.').map((title, index, arr) => {
-          let item = node.find((element) => element.title === title)
+        expitem.id.split('.').map((partKey, index, arr) => {
+          const key = arr.slice(0, index + 1).join('.');
+          let item = node.find((element) => element.key === key)
           if (!item) {
             node.push(
                 item = {
-                  title: title,
-                  key: `${title}_${counter++}`,
+                  title: partKey,
+                  key,
                   items: [],
-                  parent: node
+                  parent: node,
                 }
             );
           }
+          stack.push(item);
           if (arr.length - 1 === index) {
             item.link = expitem.link;
+            item.title = expitem.title || partKey;
           }
           node = item.items;
         });
@@ -54,9 +57,9 @@ export default {
             selected: this.subject === item.uid
           };
 
-          if (problem.selected)
-            for(let parent = node; parent; parent = parent.parent) 
-              parent.expand = true;
+          if (problem.selected) {
+            stack.forEach((item) => item.expand = true);
+          }
 
           node.push(problem);
         });

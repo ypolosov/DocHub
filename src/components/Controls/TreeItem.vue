@@ -22,7 +22,16 @@
 
 const TreeItem = {
   name: 'TreeItem',
+  mounted() {
+    this.refreshExpand(this.items);
+  },
   methods: {
+    refreshExpand(items) {
+      items.map((item) => {
+        if (item.expand) 
+          this.$set(this.expands, item.key, item);
+      });
+    },
     onExpand(item) {
       if (this.expands[item.key]) {
         this.$set(this.expands, item.key, false);
@@ -33,8 +42,12 @@ const TreeItem = {
   },
   computed: {
   },
+  watch: {
+    items(items) {
+      this.refreshExpand(items);
+    }
+  },
   props: {
-    selected: String,
     items: Array,
   },
   data() {

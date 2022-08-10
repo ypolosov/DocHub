@@ -79,8 +79,6 @@ export default {
             Vue.set(state.last_changes, value.id, value.payload);
         },
         appendProblems(state, value) {
-            // eslint-disable-next-line no-debugger
-            debugger;
             state.problems = state.problems.concat([value]);
         },
         setRenderCore(state, value) {
