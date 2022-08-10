@@ -10,7 +10,7 @@
           </v-layout>
         </v-flex>
         <v-flex xs12 md7 d-flex>
-          <problem-blank :subject="subject"></problem-blank>
+          <problem-blank v-if="subject" :subject="subject"></problem-blank>
         </v-flex>
       </v-layout>
     </v-container>

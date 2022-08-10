@@ -26,8 +26,10 @@ export default {
     items () {
       const result = [];
       const stack = [];
+      // Строим дерево валидаторов
       const expandItem = (expitem) => {
         let node = result;
+        // Разбираем ключ
         expitem.id.split('.').map((partKey, index, arr) => {
           const key = arr.slice(0, index + 1).join('.');
           let item = node.find((element) => element.key === key)
@@ -48,6 +50,7 @@ export default {
           }
           node = item.items;
         });
+        // Разбираем отклонения
         (expitem.items || []).map((item) => {
           const problem = {
             title: item.uid,
@@ -57,6 +60,7 @@ export default {
             selected: this.subject === item.uid
           };
 
+          // Если отклонение выбрано (как параметр в URL) открываем дерево до него
           if (problem.selected) {
             stack.forEach((item) => item.expand = true);
           }
@@ -65,6 +69,18 @@ export default {
         });
       }
       this.problems.map((item) => expandItem(item));
+
+      // Сортируем дерево отклонений
+      const sort = (items) => {
+        items.sort((item1, item2) => {
+          if (!item1.items.length && item2.items.length > 0) return 1;
+          else if (item1.items.length > 0 && !item2.items.length) return -1;
+          return 0;
+        });
+        items.map((item) => item.items.length && sort(item.items));
+      };
+      sort(result);
+
       return result;
     }    
   },
