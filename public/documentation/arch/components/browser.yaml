@@ -14,7 +14,7 @@ components:
   #***********************************************************
   dochub.browser.localstorage:
     title: LocalStorage
-    entity: component
+    entity: database
     technologies:
       - Chrome
       - Firefox

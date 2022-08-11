@@ -22,7 +22,6 @@
 
 <script>
 import Schema from '../Schema/Schema';
-import manifest_parser from "../../manifest/manifest_parser";
 import query from "../../manifest/query";
 import Plantuml from "../Schema/PlantUML";
 import requests from "../../helpers/requests";
@@ -67,9 +66,6 @@ export default {
   computed: {
     isEmpty() {
       return !(this.manifest.contexts || {})[this.context];
-    },
-    manifest() {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
     },
     contextParams() {
       return Object.assign({'source': '($)'}, (this.manifest.contexts || {})[this.context] || {}) ;

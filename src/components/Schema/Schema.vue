@@ -13,7 +13,6 @@ import PlantUML from "./PlantUML";
 import PlantUMLDSL from "!!raw-loader!../../assets/plantuml_dsl.txt";
 import C4ModelDSL from "!!raw-loader!../../assets/c4model_dsl.txt";
 import SberDSL from "!!raw-loader!../../assets/sber_dsl.txt";
-import manifest_parser from "@/manifest/manifest_parser";
 import requests from "@/helpers/requests";
 import copyToClipboard from "../../helpers/clipboard";
 
@@ -193,10 +192,6 @@ export default {
   computed: {
     extraLinks() {
       return !('extra' in this.schema) || (this.schema.extra !== false);
-    },
-
-    manifest() {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
     },
 
     renderCore() {

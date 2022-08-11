@@ -5,11 +5,14 @@
         <template v-if="expands[item.key]">expand_more</template>
         <template v-else>chevron_right</template>
       </v-icon>
+      <v-icon class="item-ico" v-if="item.icon" :style="item.iconStyle">
+        {{item.icon}}
+      </v-icon>
       <router-link v-if="item.link" :to="item.link">
-        {{item.title}}
+        {{getTitleOfItem(item)}}
       </router-link>
       <template v-else>
-        {{item.title}}
+        {{getTitleOfItem(item)}}
       </template>
       <template v-if="item.items && expands[item.key]">
         <tree-item :items="item.items"></tree-item>
@@ -26,6 +29,9 @@ const TreeItem = {
     this.refreshExpand(this.items);
   },
   methods: {
+    getTitleOfItem(item) {
+      return item.count ? `${item.title} (${item.count})` : item.title;
+    },
     refreshExpand(items) {
       items.map((item) => {
         if (item.expand) 

@@ -1,20 +1,14 @@
 <template>
-  <div>
-    <v-container grid-list-xl fluid>
-      <v-layout wrap>
-        <v-flex xs12 md5 d-flex>
-          <v-layout wrap>
-            <v-container grid-list-xl fluid>
-              <Validators :subject="subject"></Validators>
-            </v-container>
-          </v-layout>
-        </v-flex>
-        <v-flex xs12 md7 d-flex>
-          <problem-blank v-if="subject" :subject="subject"></problem-blank>
-        </v-flex>
-      </v-layout>
-    </v-container>
-  </div>
+  <v-container grid-list-xl fluid>
+    <v-layout wrap>
+      <v-flex xs12 md5 d-flex>
+          <Validators :subject="subject"></Validators>
+      </v-flex>
+      <v-flex xs12 md7 d-flex>
+        <problem-blank v-if="subject" :subject="subject"></problem-blank>
+      </v-flex>
+    </v-layout>
+  </v-container>
 </template>
 
 <script>

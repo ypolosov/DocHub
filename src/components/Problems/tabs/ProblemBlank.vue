@@ -89,10 +89,11 @@
 <script>
 
 import requests from '../../../helpers/requests';
-import manifest_parser from "../../../manifest/manifest_parser";
+import Mixin from "../mixin"
 
 export default {
   name: 'Validators',
+  mixins: [Mixin],
   methods: {
     isExternalURI: requests.isExtarnalURI
   },
@@ -102,22 +103,13 @@ export default {
       let validator = null;
       for(let i = 0; i < this.problems.length && !content; i++ ) {
         validator = this.problems[i];
-        content = validator.items.find((problem) => problem.uid === this.subject)
+        content = validator.items.find((problem) => (problem || {}).uid === this.subject)
       }
       return {
         content,
         validator,
         exception: this.exceptions[this.subject]
       };
-    },
-    problems() {
-      return this.$store.state.problems || [];
-    },
-    exceptions() {
-      return (this.manifest.rules || {}).exceptions || {};
-    },
-    manifest () {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
     },
   },
   props: {

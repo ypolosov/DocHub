@@ -57,7 +57,6 @@
 <script>
 
 import query from "../../manifest/query";
-import manifest_parser from "../../manifest/manifest_parser";
 import ComponentsMindmap from "@/components/Mindmap/ComponentsMindmap";
 import TabContexts from './tabs/TabContext.vue'
 import Empty from '../Controls/Empty.vue'
@@ -93,9 +92,6 @@ export default {
           }
         </style>
       `;
-    },
-    manifest () {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
     },
     contexts() {
       return [{

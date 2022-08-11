@@ -7,7 +7,6 @@
 import Plantuml from "../Schema/PlantUML";
 import docs from "../../helpers/docs";
 import requests from "../../helpers/requests";
-import manifest_parser from "../../manifest/manifest_parser";
 
 export default {
   name: 'DocPlantUML',
@@ -37,9 +36,6 @@ export default {
     url () { this.refresh() }
   },
   computed: {
-    manifest() {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
-    },
     url () {
       const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
       return profile ?
