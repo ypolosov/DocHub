@@ -1,5 +1,5 @@
 <template>
-    <v-card class="card-item">
+    <v-card class="card-item" >
       <v-card-title>
         <v-icon left style="color:#f00">report_problem</v-icon>
         <span class="title">Валидаторы</span>
@@ -16,7 +16,7 @@
             Исключения
           </v-btn>
         </v-btn-toggle>
-        <tree :items="items" style="overflow-x: auto" v-model="subject"></tree>
+        <tree :items="items" class="tree" style="overflow-x: auto" v-model="subject" ></tree>
       </v-card-text>
     </v-card>
 </template>
@@ -48,6 +48,8 @@ export default {
                 item = {
                   title: partKey,
                   key,
+                  icon: 'check',
+                  iconStyle: 'color:#1B5E20',
                   items: [],
                   parent: node,
                   count: 0
@@ -94,6 +96,10 @@ export default {
         stack.forEach((item) => { 
           // Индексируем счетчики проблем
           item.count += node.length; 
+          if (item.count) {
+            item.icon = "error";
+            item.iconStyle = "color:#F00";
+          }
         });
       }
       this.problems.map((item) => expandItem(item));
@@ -140,4 +146,10 @@ export default {
   .toggle-filter * {
     height: 24px !important;
   }
+
+  .tree {
+    overflow: auto;
+    white-space: nowrap !important;
+  }
+
 </style>

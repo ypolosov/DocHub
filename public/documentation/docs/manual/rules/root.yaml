@@ -24,7 +24,7 @@ docs:
         description: Пример стандарта
         type: markdown
         source: standard.md
-    dochub.exceptions.examples.dochub_front:
+    dochub.exceptions.examples.doc_markdown:
         description: Пример основания для исключения
         type: markdown
         source: exreason.md

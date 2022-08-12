@@ -5,7 +5,8 @@ components:
   dochub.front:             # Идентификатор компонента
     title: DocHub           # Название компонента
     entity: component       # Сущность компонента из PlantUML (https://plantuml.com/ru/deployment-diagram)
-    source: ss./              # Произвольное поле определенное в forms указывающее на исходный код
+    source: ./              # Произвольное поле определенное в forms указывающее на исходный код
+    expert: R.Piontik       # Эксперт по компоненту
     technologies:           # Используемые технологии
       - JavaScript
       - VUEJS2

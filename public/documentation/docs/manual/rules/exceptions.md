@@ -7,15 +7,13 @@
 ```yaml
 ...
 rules:
-  exceptions:                                             # Исключения для валидаторов
-    "expert-component-dochub.front":                      # UID ошибки для исключения
-      reason: >                                           # Причина исключения
-        Это пример исключения на обязательное заполнение
-        поля "expert" для компонента "dochub.front"
-      cause: dochub.exceptions.examples.dochub_front      # Документ-основание исключения
-...
+  exceptions:                                               # Исключения для валидаторов
+    "source-component-dochub.front.spa.blank.doc.markdown": # UID ошибки для исключения
+      reason: >                                             # Причина исключения
+        Пример исключения для указания исходных кодов
+      cause: /docs/dochub.exceptions.examples.doc_markdown  # Документ-основание исключения...
 ```
 
-В примере создано исключение для валидатра "dochub.experts" при проверке компонента "dochub.front".
+В примере создано исключение для валидатра "dochub.source".
 
 Это все.
