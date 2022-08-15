@@ -75,8 +75,7 @@ export default {
     }
   },
   props: {
-    contexts: Array,
-    manifest: Object
+    contexts: Array
   },
   data() {
     return {

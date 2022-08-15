@@ -54,7 +54,6 @@
         <tab-contexts 
           v-if="contexts.length" style="width: 100%"
           :contexts = "contexts"
-          :manifest = "manifest"
           d-flex
         >
         </tab-contexts>  

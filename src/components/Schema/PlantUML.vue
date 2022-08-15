@@ -142,8 +142,6 @@ export default {
     },
     doResize() {
       if (!this.svgEl || !this.svgEl.clientWidth || !this.svgEl.clientHeight) return;
-      // eslint-disable-next-line no-debugger
-      // debugger;
       
       const originWidth = this.viewBox.width;
 
