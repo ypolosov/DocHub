@@ -52,12 +52,13 @@ export default {
   computed: {
     schema () {
       if (!this.context) return null;
-      let expression;
-      if (this.context.type === 'component') {
-        expression = query.expression(query.component(this.context.id));
-      } else {
-        expression = query.expression(query.context(this.context.id));
-      }
+
+      const expression = query.expression(
+        this.context.type === 'component' ? 
+          query.component(this.context.id) :
+          query.context(this.context.id)
+      );
+
       return expression.evaluate(this.manifest);
     },
     context: {
@@ -85,8 +86,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-
-
-</style>

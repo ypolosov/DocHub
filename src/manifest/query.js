@@ -340,9 +340,10 @@ const SUMMARY_COMPONENT_QUERY = `
     $MANIFEST := $;
     $lookup(components, $COMPONENT_ID).(
         $COMPONENT := $;
-        $ENTYTY := entity;
-        $FORM := $MANIFEST.forms[$ENTYTY in entity].fields;
-        $FIELDS := $append([
+        $ENTITY := $.entity;
+        $FORM := $MANIFEST.forms[entity.$contains($ENTITY)].fields;
+        
+        $append([
             {
                 "title": "Идентификатор",
                 "content": $COMPONENT_ID,
@@ -355,11 +356,11 @@ const SUMMARY_COMPONENT_QUERY = `
                 "field": "title",
                 "required": true
             }
-        ], $FORM.$spread().{
+        ], $merge($FORM).$spread().{
             "title": $.*.title,
             "required": $.*.required,
-            "content": $lookup($COMPONENT, $keys()[0]),
-            "field": $keys()[0]
+            "content": $lookup($COMPONENT, $.$keys()),
+            "field": $.$keys()
         });
     )
 )
@@ -586,7 +587,7 @@ export default {
             core : jsonata(expression),
             evaluate(context, def) {
                 try {
-                    return  Object.freeze(this.core.evaluate(context));
+                    return Object.freeze(this.core.evaluate(context));
                 } catch(e) {
                     // eslint-disable-next-line no-console
                     console.error('JSONata error:');
@@ -613,7 +614,6 @@ export default {
         });
         return obj;
     },
-
     // Меню
     menu () {
         return MENU_QUERY;
