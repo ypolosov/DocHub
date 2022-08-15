@@ -40,7 +40,7 @@
                 <v-list-item-content>
                   <v-list-item-subtitle>Описание проблемы</v-list-item-subtitle>
                   <v-list-item-title>
-                    {{problem.content.description}}
+                    <pre>{{problem.content.description}}</pre>
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -68,7 +68,7 @@
                   <v-list-item-content>
                     <v-list-item-subtitle>Причина исключения</v-list-item-subtitle>
                     <v-list-item-title>
-                      {{problem.exception.reason}}
+                      <pre>{{problem.exception.reason}}</pre>
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>

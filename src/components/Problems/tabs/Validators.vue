@@ -9,10 +9,10 @@
           <v-btn value="all">
             Все
           </v-btn>
-          <v-btn value="problems">
+          <v-btn value="error">
             Отклонения
           </v-btn>
-          <v-btn value="exceptions">
+          <v-btn value="warning">
             Исключения
           </v-btn>
         </v-btn-toggle>
@@ -52,6 +52,8 @@ export default {
                   iconStyle: 'color:#1B5E20',
                   items: [],
                   parent: node,
+                  countProblems: 0,
+                  countExceptions: 0,
                   count: 0
                 }
             );
@@ -64,9 +66,11 @@ export default {
           node = item.items;
         });
         // Разбираем отклонения
+        let countProblems = 0;
+        let countExceptions = 0;
         (expitem.items || []).map((item) => {
           const problem = {
-            title: item.uid,
+            title: item.title || item.uid,
             key: item.uid,
             icon: 'error',
             iconStyle: 'color:#F00',
@@ -78,11 +82,12 @@ export default {
           if(this.exceptions[item.uid]) {
             problem.icon = 'warning';
             problem.iconStyle = 'color:#FF6F00';
-          } 
+            countExceptions++;
+          } else countProblems++;
 
           if (
-              (this.filter === 'problems' && problem.icon !== 'error')
-              || (this.filter === 'exceptions' && problem.icon !== 'warning')
+              (this.filter === 'error' && problem.icon !== 'error')
+              || (this.filter === 'warning' && problem.icon !== 'warning')
             ) return;
 
           // Если отклонение выбрано (как параметр в URL) открываем дерево до него
@@ -95,10 +100,20 @@ export default {
         // Обходим дерево до корня
         stack.forEach((item) => { 
           // Индексируем счетчики проблем
-          item.count += node.length; 
-          if (item.count) {
+          item.countProblems += countProblems; 
+          item.countExceptions += countExceptions;
+          switch (this.filter) {
+            case 'error': item.count += countProblems; break;
+            case 'warning': item.count += countExceptions; break;
+            default: item.count += countProblems + countExceptions;
+          }
+          
+          if (item.countProblems) {
             item.icon = "error";
             item.iconStyle = "color:#F00";
+          } else if (item.countExceptions) {
+            item.icon = "warning";
+            item.iconStyle = "color:#FF6F00";
           }
         });
       }
@@ -125,7 +140,7 @@ export default {
   },
   data() {
     return {
-      filter: 'problems'
+      filter: 'error'
     };
   }
 };

@@ -8,6 +8,7 @@ import requests from "../helpers/requests";
 import gateway from '../idea/gateway';
 import consts from '../consts';
 import rules from '../helpers/rules'
+import crc16 from '@/helpers/crc16';
 
 const axios = require('axios');
 
@@ -95,6 +96,10 @@ export default {
     actions: {
         // Action for init store
         init(context) {
+            const errors = {
+                syntax: null,
+                net: null
+            };
             context.commit('setRenderCore', 
                 process.env.VUE_APP_DOCHUB_MODE === "plugin" ? 'smetana' : 'graphviz'
             );
@@ -102,6 +107,11 @@ export default {
             let diff_format = cookie.get('diff_format');
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
             parser.onReloaded = (parser) => {
+                // Регистрируем обнаруженные ошибки
+                errors.syntax && context.commit('appendProblems', errors.syntax);
+                errors.net && context.commit('appendProblems', errors.net);
+
+                // Обновляем манифест и фризим объекты
                 context.commit('setManifest', Object.freeze(parser.manifest));
                 context.commit('setSources', Object.freeze(parser.mergeMap));
                 context.commit('setIsReloading', false);
@@ -122,29 +132,51 @@ export default {
                 context.commit('setIsReloading', true);
             }
             parser.onError = (action, data) => {
+                // eslint-disable-next-line no-debugger
+                debugger;
+                const error = data.error || {};
+                const url = (data.error.config || {url: data.uri}).url;
+                const uid = "$" + crc16(url);
                 if (action === 'syntax') {
-                    const problem = {
-                        problem: "Ошибки синтаксиса",
-                        route: (data.error.config || {url: data.uri}).url
-                    };
-                    if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
-                        problem.target = "plugin";
-                        problem.title = `${data.uri.slice(19)} [${data.error}]`;
-                    } else {
-                        problem.target = "_blank";
-                        problem.title = `${data.uri} [${data.error}]`;
+                    if (!errors.syntax) {
+                        errors.syntax = {
+                            id: "$error.syntax",
+                            title: "Ошибка синтаксиса",
+                            items: []
+                        }
                     }
-                    context.commit('appendProblems', [problem]);
-
+                    const source = error.source || {};
+                    const range = source.range || {};
+                    if (!errors.syntax.items.find((item) => item.uid === uid)) {
+                        errors.syntax.items.push({
+                            uid,
+                            title: url,
+                            correction: "Исправьте ошибку в файле",
+                            description: "Допущена синтаксиеческая ошибка при описании манифеста:\n\n"
+                                + `${error.toString()}\n`
+                                + `Код: ${source.toString()}`
+                                + `Диапазон: ${range.start || "--"}..${range.end || "--"}`,
+                            location: url
+                        });
+                    }
                 } else if (data.uri === consts.plugin.ROOT_MANIFEST) {
                     context.commit('setNoInited', true);
                 } else {
-                    context.commit('appendProblems', [{
-                        problem: "Сетевые ошибки",
-                        route: (data.error.config || {url: data.uri}).url,
-                        target: "_blank",
-                        title: `${data.uri} [${data.error}]`
-                    }]);
+                    if (!errors.net) {
+                        errors.net = {
+                            id: "$error.net",
+                            title: "Сетевые ошибки",
+                            items: []
+                        }
+                    }
+                    errors.net.items.push({
+                        uid,
+                        title: url,
+                        correction: "Устраните сетевую ошибку",
+                        description: "Возникла сетевая ошибка:\n\n"
+                            + `${error.toString()}\n`,
+                        location: url
+                    });
                 }
             };
 
