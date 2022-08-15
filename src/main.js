@@ -21,7 +21,10 @@ import Component from "./components/Architecture/Component";
 import Technology from "./components/Techradar/Technology";
 import Radar from "./components/Techradar/Main";
 import PlantUML from "./components/Schema/PlantUML";
+import GlobalMixin from './mixins/global'
+import '@/assets/styles/main.css';
 
+/*
 window.manifestWorker = new Worker('./manifest/worker.js', { type: 'module' });
 
 window.manifestWorker.onmessage = event => {
@@ -33,6 +36,7 @@ window.manifestWorker.postMessage(JSON.stringify({
     action: 'load',
     uri: 'http://localhost:8080/example/root.yaml'
 }));
+*/
 
 window.Vue = Vue;
 window.Router = router;
@@ -57,6 +61,8 @@ Vue.component('dochub-image', Image);
 Vue.component('dochub-technology', Technology);
 Vue.component('dochub-radar', Radar);
 Vue.component('dochub-plantuml', PlantUML);
+
+Vue.mixin(GlobalMixin);
 
 new Vue(Object.assign({
     el: '#app',

@@ -360,9 +360,10 @@ const SUMMARY_COMPONENT_QUERY = `
     $MANIFEST := $;
     $lookup(components, $COMPONENT_ID).(
         $COMPONENT := $;
-        $ENTYTY := entity;
-        $FORM := $MANIFEST.forms[$ENTYTY in entity].fields;
-        $FIELDS := $append([
+        $ENTITY := $.entity;
+        $FORM := $MANIFEST.forms[entity.$contains($ENTITY)].fields;
+        
+        $append([
             {
                 "title": "Идентификатор",
                 "content": $COMPONENT_ID,
@@ -375,11 +376,11 @@ const SUMMARY_COMPONENT_QUERY = `
                 "field": "title",
                 "required": true
             }
-        ], $FORM.$spread().{
+        ], $merge($FORM).$spread().{
             "title": $.*.title,
             "required": $.*.required,
-            "content": $lookup($COMPONENT, $keys()[0]),
-            "field": $keys()[0]
+            "content": $lookup($COMPONENT, $.$keys()),
+            "field": $.$keys()
         });
     )
 )
@@ -665,106 +666,6 @@ const ARCH_MINDMAP_GOALS_QUERY = `
     )]^(id)]
 )`;
 
-const PROBLEMS_QUERY = `
-(
-    $MANIFEST := $;
-    $NOFOUND_COMPONENTS := [
-        $map($distinct($MANIFEST.contexts.*.components), function($v) {
-            (
-                $COMPONENT := $lookup($MANIFEST.components, $v);
-                $exists($COMPONENT) or $substring($v, -2) = ".*" ? undefined : {
-                    "problem": 'Несуществующие компонент',
-                    "id": $v,
-                    "title": "Ссылка на несуществующий компонент [" & $v & "]",
-                    "route": '/architect/components/' & $v
-                }
-            )
-        })
-    ];    
-    $LOST_COMPONENTS := [
-        components.$spread().{
-            "problem": 'Компонент вне контекста',
-            "id": $keys()[0],
-            "title": *.title,
-            "route": '/architect/components/' & $keys()[0]
-        }.(
-            $ID := id;
-            $exists($MANIFEST.contexts.*.components[$wcard($ID, $)]) 
-            ? undefined
-            : $
-        )
-    ];
-    $UNDEFINED_NAMESPACES := (
-        $ens := function($id) {
-            (
-                $ids := $split($id, ".");
-                $join($map($ids, function($v, $i, $a) {
-                        $i < $count($ids) - 1 ? $v : undefined
-                }), ".")
-            )
-        };
-        [
-            components.$spread().{
-                "id": $keys()[0],
-                "route": "architect/components/" & $keys()[0],
-                "title": title,
-                "namespace": $ens($keys()[0]),
-                "entity": "компоненте"
-            }
-        ].(
-            $SELF := $lookup($MANIFEST.components, namespace); 
-            $SELF := $SELF ? $SELF : $lookup($MANIFEST.namespaces, namespace); 
-            $exists($SELF) ? undefined :
-            {
-                "problem": 'Идентификаторы без описания',
-                "route": route,
-                "title": namespace & " в " & entity & " " & title & " [" & id & "]"
-            }
-        )
-    );
-    $UNDEFINED_COMPONENT := 
-        [
-            components.$spread().(
-                $COMPONENT_ID := $keys()[0];
-                $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
-                $COMPONENT.presentations.links[$not($exists($lookup($MANIFEST.components, id)))].(
-                    id ?
-                    {
-                        "problem": 'Компоненты не описаны',
-                        'route': '/architect/components/' & $COMPONENT_ID,
-                        "title": "Зависимость [" & id & "] не описана для компонента " & $COMPONENT_ID
-                    } : undefined
-                )
-            )
-        ];
-    $UNDEFINED_ASPECT := 
-        [
-            components.$spread().(
-                $COMPONENT_ID := $keys()[0];
-                $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
-                $COMPONENT.aspects.(
-                    $lookup($MANIFEST.aspects, $ ? $ : " ") ? undefined :                     
-                    {
-                        "problem": 'Аспекты не определены',
-                        'route': '/architect/aspects/' & $,
-                        "title": $ 
-                            ? "Аспект не описан [" & $ & "]"
-                            : "Ошибка ссылки на аспект в компоненте [" & $COMPONENT_ID & "]"
-                    }
-                )
-            )
-        ];
-    [
-        $distinct($NOFOUND_COMPONENTS),
-        $distinct($UNDEFINED_CONTEXTS),
-        $distinct($LOST_COMPONENTS),
-        $distinct($UNDEFINED_NAMESPACES),
-        $distinct($UNDEFINED_COMPONENT),
-        $distinct($UNDEFINED_ASPECT)
-    ]
-)
-`;
-
 const TRANSFORMS_QUERY = `(
     $MANIFEST := $;
     transforms.$spread().(
@@ -833,7 +734,7 @@ export default {
             core : jsonata(expression),
             evaluate(context, def) {
                 try {
-                    return  Object.freeze(this.core.evaluate(context));
+                    return Object.freeze(this.core.evaluate(context));
                 } catch(e) {
                     // eslint-disable-next-line no-console
                     console.error('JSONata error:');
@@ -860,7 +761,6 @@ export default {
         });
         return obj;
     },
-
     // Меню
     menu () {
         return MENU_QUERY;
@@ -923,10 +823,6 @@ export default {
     // Карточка технологии
     summaryForTechnology(technology) {
         return TECHNOLOGY_QUERY.replace(/{%TECH_ID%}/g, technology);
-    },
-    // Выявление проблем
-    problems() {
-        return PROBLEMS_QUERY;
     },
     // Документы для сущности
     docsForSubject(entity) {

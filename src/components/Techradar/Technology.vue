@@ -31,7 +31,6 @@
 
 import query from "../../manifest/query";
 import jsonata from "jsonata";
-import manifest_parser from "../../manifest/manifest_parser";
 
 export default {
   name: 'TRTechniques',
@@ -43,7 +42,7 @@ export default {
   computed: {
     summary () {
       return (jsonata(query.summaryForTechnology(this.technology))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || [])
+          .evaluate(this.manifest) || [])
     }
   },
   props: {

@@ -14,7 +14,6 @@
 
 import Swagger from "./DocSwagger";
 import Plantuml from "./DocPlantUML";
-import manifest_parser from "../../manifest/manifest_parser";
 import DocMarkdown from "./DocMarkdown";
 import DocTable from "./DocTable.vue"
 import Empty from '../Controls/Empty.vue'
@@ -37,7 +36,7 @@ export default {
       return !this.docs[this.document];
     },
     docs() {
-      return (this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {}).docs || {};
+      return (this.manifest).docs || {};
     },
     docType () {
       return ((this.docs[this.document] || {}).type || 'unknown').toLowerCase();

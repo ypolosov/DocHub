@@ -1,15 +1,18 @@
 <template>
   <ul class="items">
-    <li class="item" v-for="item in items" :key="item.key">
+    <li :class="{'item': true, 'selected' : item.selected}" v-for="item in items" :key="item.key">
       <v-icon class="expand-ico" v-if="item.items && item.items.length" @click="onExpand(item)">
         <template v-if="expands[item.key]">expand_more</template>
         <template v-else>chevron_right</template>
       </v-icon>
+      <v-icon class="item-ico" v-if="item.icon" :style="item.iconStyle">
+        {{item.icon}}
+      </v-icon>
       <router-link v-if="item.link" :to="item.link">
-        {{item.title}}
+        {{getTitleOfItem(item)}}
       </router-link>
       <template v-else>
-        {{item.title}}
+        {{getTitleOfItem(item)}}
       </template>
       <template v-if="item.items && expands[item.key]">
         <tree-item :items="item.items"></tree-item>
@@ -22,7 +25,19 @@
 
 const TreeItem = {
   name: 'TreeItem',
+  mounted() {
+    this.refreshExpand(this.items);
+  },
   methods: {
+    getTitleOfItem(item) {
+      return item.count ? `${item.title} (${item.count})` : item.title;
+    },
+    refreshExpand(items) {
+      items.map((item) => {
+        if (item.expand) 
+          this.$set(this.expands, item.key, item);
+      });
+    },
     onExpand(item) {
       if (this.expands[item.key]) {
         this.$set(this.expands, item.key, false);
@@ -33,8 +48,13 @@ const TreeItem = {
   },
   computed: {
   },
+  watch: {
+    items(items) {
+      this.refreshExpand(items);
+    }
+  },
   props: {
-    items: Array
+    items: Array,
   },
   data() {
     return {
@@ -53,17 +73,28 @@ export default Object.assign(TreeItem, {
 
 <style scoped>
 
-.items {
-  list-style-type: none;
-  padding-left: 28px;
-  font-size: 16px;
-}
+  .items {
+    list-style-type: none;
+    padding-left: 28px;
+    font-size: 16px;
+  }
 
-.expand-ico {
-  margin-left: -28px;
-}
+  .expand-ico {
+    margin-left: -28px;
+  }
 
-.item {
-}
+  .item {
+    padding-left: 4px;
+    padding-right: 4px;
+    width: fit-content;
+  }
+
+  .item.selected {
+    background: rgb(52, 149, 219);
+  }
+
+  .item.selected * {
+    color: #fff !important;
+  }
 
 </style>

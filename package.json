@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "test": "jest --watch",
     "meta-import": "node src/tools/meta/import.js"
   },
   "dependencies": {
@@ -13,7 +14,7 @@
     "axios": "0.21.1",
     "dateformat": "3.0.3",
     "gantt-vue": "1.0.10",
-    "jsonata": "1.8.4",
+    "jsonata": "1.8.6",
     "swagger-ui": "3.24.3",
     "vue": "2.6.11",
     "vue-code-diff": "0.0.4",
@@ -25,6 +26,7 @@
     "yaml": "1.10.2"
   },
   "devDependencies": {
+    "@types/jest": "28.1.6",
     "@vue/cli-plugin-babel": "4.2.2",
     "@vue/cli-plugin-eslint": "4.2.2",
     "@vue/cli-service": "4.2.2",
@@ -34,6 +36,7 @@
     "eslint": "5.16.0",
     "eslint-plugin-vue": "5.2.3",
     "html-webpack-inline-source-plugin": "0.0.10",
+    "jest": "28.1.3",
     "postcss-loader": "2.0.8",
     "raw-loader": "4.0.2",
     "vue-loader": "13.7.3",
@@ -51,7 +54,6 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
     "parserOptions": {
       "parser": "babel-eslint"
     }

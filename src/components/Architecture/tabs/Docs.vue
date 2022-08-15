@@ -15,7 +15,6 @@
 import Tree from "../../Controls/Tree.vue";
 import jsonata from "jsonata";
 import query from "../../../manifest/query";
-import manifest_parser from "../../../manifest/manifest_parser";
 
 export default {
   name: 'Docs',
@@ -47,7 +46,7 @@ export default {
       }
       const docs =
           (jsonata(query.docsForSubject(this.subject))
-              .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
+              .evaluate(this.manifest) || []);
       docs.map((item) => expandItem(item));
       return result;
     }    

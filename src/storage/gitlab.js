@@ -3,12 +3,13 @@ import cookie from 'vue-cookie';
 import GitHelper from '../helpers/gitlab'
 import parser from '../manifest/manifest_parser';
 import Vue from 'vue';
-import query from "../manifest/query";
 import manifest_parser from "../manifest/manifest_parser";
 import requests from "../helpers/requests";
 import gateway from '../idea/gateway';
 import consts from '../consts';
 import timemachine from './timemachine';
+import rules from '../helpers/rules'
+import crc16 from '@/helpers/crc16';
 
 const axios = require('axios');
 
@@ -86,11 +87,9 @@ export default {
         },
         setAccessToken(state, value) {
             state.access_token = value;
-//            cookie.set('git_access_token', value, 1);
         },
         setRefreshToken(state, value) {
             state.refresh_token = value;
-//            cookie.set('git_access_token', value, 1);
         },
         setDiffFormat(state, value) {
             state.diff_format = value;
@@ -100,8 +99,7 @@ export default {
             Vue.set(state.last_changes, value.id, value.payload);
         },
         appendProblems(state, value) {
-            state.problems = query.expression("$distinct($)")
-                .evaluate(JSON.parse(JSON.stringify((state.problems || []).concat(value)))) || [];
+            state.problems = state.problems.concat([value]);
         },
         setRenderCore(state, value) {
             state.renderCore = value;
@@ -117,62 +115,93 @@ export default {
     actions: {
         // Action for init store
         init(context) {
+            const errors = {
+                syntax: null,
+                net: null
+            };
             context.commit('setRenderCore', 
                 process.env.VUE_APP_DOCHUB_MODE === "plugin" ? 'smetana' : 'graphviz'
             );
-            // const access_token = cookie.get('git_access_token');
-            // if (access_token) {
-            //  context.commit('setAccessToken', access_token);
-            //}
             context.dispatch('reloadAll');
             let diff_format = cookie.get('diff_format');
             context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
             parser.onReloaded = (parser) => {
+                // Регистрируем обнаруженные ошибки
+                errors.syntax && context.commit('appendProblems', errors.syntax);
+                errors.net && context.commit('appendProblems', errors.net);
+
+                // Обновляем манифест и фризим объекты
                 context.commit('setManifest', Object.freeze(parser.manifest));
                 context.commit('setSources', Object.freeze(parser.mergeMap));
                 context.commit('setIsReloading', false);
-                context.commit('appendProblems', 
-                    query.expression(query.problems())
-                    .evaluate(parser.manifest[manifest_parser.MODE_AS_IS]) || []);
-                if (!Object.keys(context.state.manifest || {}).length && (context.state.problems ||[]).length) {
+                if (!Object.keys(context.state.manifest || {}).length) {
                     context.commit('setCriticalError', true);
                 }
+                rules(parser.manifest[manifest_parser.MODE_AS_IS],
+                    (problems) => context.commit('appendProblems', problems),
+                    (error) => {
+                        // eslint-disable-next-line no-console
+                        console.error(error);
+                        // eslint-disable-next-line no-debugger
+                        debugger;
+                    });
             };
             parser.onStartReload = () => {
                 context.commit('setNoInited', false);
                 context.commit('setIsReloading', true);
             }
             parser.onError = (action, data) => {
+                // eslint-disable-next-line no-debugger
+                debugger;
+                const error = data.error || {};
+                const url = (data.error.config || {url: data.uri}).url;
+                const uid = "$" + crc16(url);
                 if (action === 'syntax') {
-                    const problem = {
-                        problem: "Ошибки синтаксиса",
-                        route: (data.error.config || {url: data.uri}).url
-                    };
-                    if (process.env.VUE_APP_DOCHUB_MODE === "plugin") {
-                        problem.target = "plugin";
-                        problem.title = `${data.uri.slice(19)} [${data.error}]`;
-                    } else {
-                        problem.target = "_blank";
-                        problem.title = `${data.uri} [${data.error}]`;
+                    if (!errors.syntax) {
+                        errors.syntax = {
+                            id: "$error.syntax",
+                            title: "Ошибка синтаксиса",
+                            items: []
+                        }
                     }
-                    context.commit('appendProblems', [problem]);
-
+                    const source = error.source || {};
+                    const range = source.range || {};
+                    if (!errors.syntax.items.find((item) => item.uid === uid)) {
+                        errors.syntax.items.push({
+                            uid,
+                            title: url,
+                            correction: "Исправьте ошибку в файле",
+                            description: "Допущена синтаксиеческая ошибка при описании манифеста:\n\n"
+                                + `${error.toString()}\n`
+                                + `Код: ${source.toString()}`
+                                + `Диапазон: ${range.start || "--"}..${range.end || "--"}`,
+                            location: url
+                        });
+                    }
                 } else if (data.uri === consts.plugin.ROOT_MANIFEST) {
                     context.commit('setNoInited', true);
                 } else {
-                    context.commit('appendProblems', [{
-                        problem: "Сетевые ошибки",
-                        route: (data.error.config || {url: data.uri}).url,
-                        target: "_blank",
-                        title: `${data.uri} [${data.error}]`
-                    }]);
+                    if (!errors.net) {
+                        errors.net = {
+                            id: "$error.net",
+                            title: "Сетевые ошибки",
+                            items: []
+                        }
+                    }
+                    errors.net.items.push({
+                        uid,
+                        title: url,
+                        correction: "Устраните сетевую ошибку",
+                        description: "Возникла сетевая ошибка:\n\n"
+                            + `${error.toString()}\n`,
+                        location: url
+                    });
                 }
             };
 
             let changes = {};
             let refreshTimer = null;
             gateway.appendListener('source/changed', (data) => {
-                // eslint-disable-next-line no-console
                 if (data) {
                     changes = Object.assign(changes, data);
                     if (refreshTimer) clearTimeout(refreshTimer);

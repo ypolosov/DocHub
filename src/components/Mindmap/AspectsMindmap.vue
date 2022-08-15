@@ -6,7 +6,6 @@
 
 import PlantUML from "../Schema/PlantUML";
 import query from "../../manifest/query";
-import manifest_parser from "../../manifest/manifest_parser";
 
 export default {
   name: 'AspectsMindMap',
@@ -22,7 +21,7 @@ export default {
   },
   computed: {
     uml () {
-      const asis = this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
+      const asis = this.manifest;
       const nodes = query.expression(query.archMindMapAspects(this.root)).evaluate(asis);
       let uml = '@startwbs\n* Аспекты\n';
 

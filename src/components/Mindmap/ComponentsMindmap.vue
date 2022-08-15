@@ -7,7 +7,6 @@
 import PlantUML from "../Schema/PlantUML";
 import query from "../../manifest/query";
 import jsonata from 'jsonata';
-import manifest_parser from "../../manifest/manifest_parser";
 
 export default {
   name: 'ComponentsMindMap',
@@ -32,7 +31,7 @@ export default {
   },
   computed: {
     uml () {
-      const asis = this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
+      const asis = this.manifest;
       const nodes = jsonata(query.archMindMapComponents(this.root)).evaluate(asis);
       const namespaces = asis.namespaces || {};
       const contexts = asis.contexts || {};

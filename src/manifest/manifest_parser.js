@@ -215,10 +215,20 @@ const parser = {
         }
     },
 
+    // Создает базовый манифест
+    makeBaseManifest() {
+        // По умолчанию подключаем контроль ядра метамодели
+        if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_METAMODEL || "y").toLowerCase() === "y" ) {
+            const YAML = require('yaml');
+            const baseYAML = require("!!raw-loader!../assets/base.yaml").default;
+            return YAML.parse(baseYAML);
+        } else return {}
+    },
+
     // Подключение манифеста
     import(uri, subimport) {
         if (!subimport) {
-            this.manifest = {};
+            this.manifest = { [this.MODE_AS_IS] : this.merge({}, this.makeBaseManifest(), uri)};
             this.mergeMap = [];
             touchProjects = {};
             this.incReqCounter();

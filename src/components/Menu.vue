@@ -17,7 +17,7 @@
               class="menu-item-header error--text"
               @click="onClickMenuItem(item)"
           >
-            {{ item.title }} ({{ problems.length }})
+            {{ item.title }} ({{ problemsCount }})
           </v-subheader>
           <v-subheader
               v-else
@@ -36,7 +36,6 @@
 
 <script>
 
-import manifest_parser from "../manifest/manifest_parser";
 import query from "../manifest/query";
 
 export default {
@@ -61,8 +60,19 @@ export default {
     },
   },
   computed: {
+    // Выясняем сколько значимых отклонений зафиксировано
+    // исключения не учитываем
+    problemsCount() {
+      let result = 0;
+      this.problems.map((validator) => {
+        (validator.items || []).map((problem) => 
+          !((this.manifest.rules || {}).exceptions || {})[problem.uid] && result ++
+        );
+      }); 
+      return result;
+    },
     problems() {
-      return this.$store.state.problems;
+      return this.$store.state.problems || [];
     },
     menu () {
       const result = [];
@@ -93,7 +103,7 @@ export default {
 
     treeMenu () {
       const result = { items: {} };
-      (query.expression(query.menu()).evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []).map((item) => {
+      (query.expression(query.menu()).evaluate(this.manifest) || []).map((item) => {
         const location = item.location.split('/');
         let node = result;
         let key = null;
