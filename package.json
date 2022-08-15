@@ -13,7 +13,7 @@
     "@mdi/font": "5.9.55",
     "axios": "0.21.1",
     "dateformat": "3.0.3",
-    "jsonata": "1.8.4",
+    "jsonata": "1.8.6",
     "swagger-ui": "3.24.3",
     "vue": "2.6.11",
     "vue-code-diff": "0.0.4",

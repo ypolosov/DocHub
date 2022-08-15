@@ -48,7 +48,6 @@
 <script>
 
 import query from "../../manifest/query";
-import manifest_parser from "../../manifest/manifest_parser";
 import crc16 from "../../helpers/crc16";
 
 export default {
@@ -101,7 +100,7 @@ export default {
     },
     showSections() {
       let result = {};
-      const manifest = this.$store.state.manifest[manifest_parser.MODE_AS_IS];
+      const manifest = this.manifest;
       if (manifest) {
         if (this.section) {
           manifest.technologies && manifest.technologies && manifest.technologies.sections
@@ -141,7 +140,7 @@ export default {
       const result = [];
       let index = 1;
       (query.expression(query.collectTechnologies())
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []).forEach((item) => {
+          .evaluate(this.manifest) || []).forEach((item) => {
             if (this.section && this.section.toLowerCase() !== item.section.key.toLowerCase())
               return;
             const ring = this.getRingOfStatus(item.status || "trial");

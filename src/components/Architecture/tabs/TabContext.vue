@@ -76,8 +76,7 @@ export default {
     }
   },
   props: {
-    contexts: { type: Array, default: () => ([]) },
-    manifest: { type: Object, default: () => ({}) },
+    contexts: Array
   },
   data() {
     return {

@@ -61,7 +61,6 @@
 <script>
 
 import query from "@/manifest/query";
-import manifest_parser from "@/manifest/manifest_parser";
 import ComponentsMindmap from "@/components/Mindmap/ComponentsMindmap";
 import TabContexts from './tabs/TabContext.vue'
 import Empty from '../Controls/Empty.vue'
@@ -69,7 +68,7 @@ import SrcLocations from './tabs/SrcLocations.vue';
 import Docs from "./tabs/Docs.vue";
 
 export default {
-  name: 'Component',
+  name: 'ArchComponent',
   components: {
     Docs,
     ComponentsMindmap,
@@ -97,9 +96,6 @@ export default {
           }
         </style>
       `;
-    },
-    manifest () {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
     },
     contexts() {
       return [{

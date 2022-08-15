@@ -54,7 +54,6 @@
         <tab-contexts 
           v-if="contexts.length" style="width: 100%"
           :contexts = "contexts"
-          :manifest = "manifest"
           d-flex
         >
         </tab-contexts>  
@@ -67,7 +66,6 @@
 <script>
 
 import query from "../../manifest/query";
-import manifest_parser from "../../manifest/manifest_parser";
 import Docs from "./tabs/Docs.vue";
 import AspectsMindmap from "@/components/Mindmap/AspectsMindmap";
 import TabContexts from './tabs/TabContext.vue'
@@ -120,15 +118,12 @@ export default {
     components() {
       return query.expression(query.componentsForAspects(this.aspect)).evaluate(this.manifest) || [];
     },
-    manifest () {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS];
-    },
     contexts() {
       return query.expression(query.contextsForAspects(this.aspect)).evaluate(this.manifest) || [];
     },
     summary() {
       return (query.expression(query.summaryForAspect(this.aspect))
-          .evaluate(this.$store.state.manifest[manifest_parser.MODE_AS_IS]) || []);
+          .evaluate(this.manifest) || []);
     }
   },
   props: {

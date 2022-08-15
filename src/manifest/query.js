@@ -580,126 +580,6 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
     )]^(id)]
 )`;
 
-const PROBLEMS_QUERY = `
-(
-    $MANIFEST := $;
-    $NOFOUND_COMPONENTS := [
-        $map($distinct($MANIFEST.contexts.*.components), function($v) {
-            (
-                $COMPONENT := $lookup($MANIFEST.components, $v);
-                $exists($COMPONENT) or $substring($v, -2) = ".*" ? undefined : {
-                    "problem": 'Несуществующие компонент',
-                    "id": $v,
-                    "title": "Ссылка на несуществующий компонент [" & $v & "]",
-                    "route": '/architect/components/' & $v
-                }
-            )
-        })
-    ];    
-    $LOST_COMPONENTS := [
-        components.$spread().{
-            "problem": 'Компонент вне контекста',
-            "id": $keys()[0],
-            "title": *.title,
-            "route": '/architect/components/' & $keys()[0]
-        }.(
-            $ID := id;
-            $exists($MANIFEST.contexts.*.components[$wcard($ID, $)]) 
-            ? undefined
-            : $
-        )
-    ];
-    $UNDEFINED_NAMESPACES := (
-        $ens := function($id) {
-            (
-                $ids := $split($id, ".");
-                $join($map($ids, function($v, $i, $a) {
-                        $i < $count($ids) - 1 ? $v : undefined
-                }), ".")
-            )
-        };
-        [
-            components.$spread().{
-                "id": $keys()[0],
-                "route": "architect/components/" & $keys()[0],
-                "title": title,
-                "namespace": $ens($keys()[0]),
-                "entity": "компоненте"
-            }
-        ].(
-            $SELF := $lookup($MANIFEST.components, namespace); 
-            $SELF := $SELF ? $SELF : $lookup($MANIFEST.namespaces, namespace); 
-            $exists($SELF) ? undefined :
-            {
-                "problem": 'Идентификаторы без описания',
-                "route": route,
-                "title": namespace & " в " & entity & " " & title & " [" & id & "]"
-            }
-        )
-    );
-    $UNDEFINED_COMPONENT := 
-        [
-            components.$spread().(
-                $COMPONENT_ID := $keys()[0];
-                $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
-                $COMPONENT.presentations.links[$not($exists($lookup($MANIFEST.components, id)))].(
-                    id ?
-                    {
-                        "problem": 'Компоненты не описаны',
-                        'route': '/architect/components/' & $COMPONENT_ID,
-                        "title": "Зависимость [" & id & "] не описана для компонента " & $COMPONENT_ID
-                    } : undefined
-                )
-            )
-        ];
-    $UNDEFINED_ASPECT := 
-        [
-            components.$spread().(
-                $COMPONENT_ID := $keys()[0];
-                $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
-                $COMPONENT.aspects.(
-                    $lookup($MANIFEST.aspects, $ ? $ : " ") ? undefined :                     
-                    {
-                        "problem": 'Аспекты не определены',
-                        'route': '/architect/aspects/' & $,
-                        "title": $ 
-                            ? "Аспект не описан [" & $ & "]"
-                            : "Ошибка ссылки на аспект в компоненте [" & $COMPONENT_ID & "]"
-                    }
-                )
-            )
-        ];
-    [
-        $distinct($NOFOUND_COMPONENTS),
-        $distinct($UNDEFINED_CONTEXTS),
-        $distinct($LOST_COMPONENTS),
-        $distinct($UNDEFINED_NAMESPACES),
-        $distinct($UNDEFINED_COMPONENT),
-        $distinct($UNDEFINED_ASPECT)
-    ]
-)
-`;
-
-/*
-    $FIELD_ERRORS := [
-        (
-            $MANIFEST := $;
-            [components.$spread().(
-                $COMPONENT := $;
-                $ID := $keys()[0];
-                $.*.expert ? undefined : {
-                    "problem": "Ошибки в полях",
-                    "id": $ID,
-                    "title": "Не указан эксперт в компоненте [" & $COMPONENT.*.title & "]",
-                    "route": '/architect/components/' & $ID
-                }
-            )]
-        )
-    ];
-*/
-
-// $distinct($FIELD_ERRORS),
-
 export default {
     expression(expression) {
         const obj = {
@@ -787,10 +667,6 @@ export default {
     // Карточка технологии
     summaryForTechnology(technology) {
         return TECHNOLOGY_QUERY.replace(/{%TECH_ID%}/g, technology);
-    },
-    // Выявление проблем
-    problems() {
-        return PROBLEMS_QUERY;
     },
     // Документы для сущности
     docsForSubject(entity) {
