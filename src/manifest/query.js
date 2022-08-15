@@ -1,4 +1,4 @@
-import jsonata from "jsonata";
+import jsonata from 'jsonata';
 
 
 const SCHEMA_CONTEXT = `
@@ -581,103 +581,103 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
 )`;
 
 export default {
-    expression(expression) {
-        const obj = {
-            expression,
-            core : jsonata(expression),
-            evaluate(context, def) {
-                try {
-                    return Object.freeze(this.core.evaluate(context));
-                } catch(e) {
-                    // eslint-disable-next-line no-console
-                    console.error('JSONata error:');
-                    // eslint-disable-next-line no-console
-                    console.log(this.expression.slice(0, e.position) + "%c" + this.expression.slice(e.position), "color:red" );
-                    // eslint-disable-next-line no-console
-                    console.error(e);
-                    return def;
-                }
-            }
-        }
-        obj.core.registerFunction("wcard", (id, template) => {
-            if (!id || !template) return false;
-            const idStruct = id.split('.');
-            const tmlStruct = template.split('.');
-            if (tmlStruct.length < idStruct) return false;
-            for (let i = 0; i < tmlStruct.length; i++) {
-                const pice = tmlStruct[i];
-                if (pice === "**") return true;
-                if (pice === "*") continue;
-                if (pice !== idStruct[i]) return false;
-            }
-            return idStruct.length === tmlStruct.length;
-        });
-        return obj;
-    },
-    // Меню
-    menu () {
-        return MENU_QUERY;
-    },
-    // Запрос по контексту
-    context(context) {
-        return SCHEMA_CONTEXT.replace(/{%CONTEXT_ID%}/g, context);
-    },
-    // Запрос по компоненту
-    component(component) {
-        return SCHEMA_COMPONENT.replace(/{%COMPONENT_ID%}/g, component)
-    },
-    // Запрос контекстов в которых встречается компонент
-    contextsForComponent(component) {
-        return CONTEXTS_QUERY_FOR_COMPONENT.replace(/{%COMPONENT%}/g, component)
-    },
-    // Сводка по компоненту
-    summaryForComponent(component) {
-        return SUMMARY_COMPONENT_QUERY.replace(/{%COMPONENT%}/g, component)
-    },
-    // Определение размещения манифестов описывающих компонент
-    locationsForComponent(component) {
-        return COMPONENT_LOCATIONS_QUERY.replace(/{%COMPONENT%}/g, component)
-    },
-    // Запрос по аспекту
-    aspect(aspect, context) {
-        return SCHEMA_QUERY
-            .replace(/{%CONTEXT_ID%}/g, context || 'self')
-            .replace(/{%CONDITIONS%}/g, `'${aspect}' in aspects.id`)
-    },
-    // Сводка по аспекту
-    summaryForAspect(aspect) {
-        return SUMMARY_ASPECT_QUERY.replace(/{%ASPECT%}/g, aspect)
-    },
-    // Определение размещения манифестов описывающих аспект
-    locationsForAspect(aspect) {
-        return ASPECT_LOCATIONS_QUERY.replace(/{%ASPECT%}/g, aspect)
-    },
-    // Запрос контекстов в которых встречается аспект
-    contextsForAspects(aspect) {
-        return CONTEXTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect)
-    },
-    // Запрос компонентов в которых встречается аспект
-    componentsForAspects(aspect) {
-        return COMPONENTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect)
-    },
-    // Сбор информации об использованных технологиях
-    collectTechnologies() {
-        return TECHNOLOGIES_QUERY;
-    },
-    // Карточка технологии
-    summaryForTechnology(technology) {
-        return TECHNOLOGY_QUERY.replace(/{%TECH_ID%}/g, technology);
-    },
-    // Документы для сущности
-    docsForSubject(entity) {
-        return DOCUMENTS_FOR_ENTITY_QUERY.replace(/{%ENTITY%}/g, entity);
-    },
-    // MindMap по архитектурным компонентам
-    archMindMapComponents(root) {
-        return ARCH_MINDMAP_COMPONENTS_QUERY.replace(/{%ROOT%}/g, root || '');
-    },
-    // MindMap по архитектурным аспектам
-    archMindMapAspects(root) {
-        return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
-    }
-}
+	expression(expression) {
+		const obj = {
+			expression,
+			core : jsonata(expression),
+			evaluate(context, def) {
+				try {
+					return Object.freeze(this.core.evaluate(context));
+				} catch(e) {
+					// eslint-disable-next-line no-console
+					console.error('JSONata error:');
+					// eslint-disable-next-line no-console
+					console.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red' );
+					// eslint-disable-next-line no-console
+					console.error(e);
+					return def;
+				}
+			}
+		};
+		obj.core.registerFunction('wcard', (id, template) => {
+			if (!id || !template) return false;
+			const idStruct = id.split('.');
+			const tmlStruct = template.split('.');
+			if (tmlStruct.length < idStruct) return false;
+			for (let i = 0; i < tmlStruct.length; i++) {
+				const pice = tmlStruct[i];
+				if (pice === '**') return true;
+				if (pice === '*') continue;
+				if (pice !== idStruct[i]) return false;
+			}
+			return idStruct.length === tmlStruct.length;
+		});
+		return obj;
+	},
+	// Меню
+	menu() {
+		return MENU_QUERY;
+	},
+	// Запрос по контексту
+	context(context) {
+		return SCHEMA_CONTEXT.replace(/{%CONTEXT_ID%}/g, context);
+	},
+	// Запрос по компоненту
+	component(component) {
+		return SCHEMA_COMPONENT.replace(/{%COMPONENT_ID%}/g, component);
+	},
+	// Запрос контекстов в которых встречается компонент
+	contextsForComponent(component) {
+		return CONTEXTS_QUERY_FOR_COMPONENT.replace(/{%COMPONENT%}/g, component);
+	},
+	// Сводка по компоненту
+	summaryForComponent(component) {
+		return SUMMARY_COMPONENT_QUERY.replace(/{%COMPONENT%}/g, component);
+	},
+	// Определение размещения манифестов описывающих компонент
+	locationsForComponent(component) {
+		return COMPONENT_LOCATIONS_QUERY.replace(/{%COMPONENT%}/g, component);
+	},
+	// Запрос по аспекту
+	aspect(aspect, context) {
+		return SCHEMA_QUERY
+			.replace(/{%CONTEXT_ID%}/g, context || 'self')
+			.replace(/{%CONDITIONS%}/g, `'${aspect}' in aspects.id`);
+	},
+	// Сводка по аспекту
+	summaryForAspect(aspect) {
+		return SUMMARY_ASPECT_QUERY.replace(/{%ASPECT%}/g, aspect);
+	},
+	// Определение размещения манифестов описывающих аспект
+	locationsForAspect(aspect) {
+		return ASPECT_LOCATIONS_QUERY.replace(/{%ASPECT%}/g, aspect);
+	},
+	// Запрос контекстов в которых встречается аспект
+	contextsForAspects(aspect) {
+		return CONTEXTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect);
+	},
+	// Запрос компонентов в которых встречается аспект
+	componentsForAspects(aspect) {
+		return COMPONENTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect);
+	},
+	// Сбор информации об использованных технологиях
+	collectTechnologies() {
+		return TECHNOLOGIES_QUERY;
+	},
+	// Карточка технологии
+	summaryForTechnology(technology) {
+		return TECHNOLOGY_QUERY.replace(/{%TECH_ID%}/g, technology);
+	},
+	// Документы для сущности
+	docsForSubject(entity) {
+		return DOCUMENTS_FOR_ENTITY_QUERY.replace(/{%ENTITY%}/g, entity);
+	},
+	// MindMap по архитектурным компонентам
+	archMindMapComponents(root) {
+		return ARCH_MINDMAP_COMPONENTS_QUERY.replace(/{%ROOT%}/g, root || '');
+	},
+	// MindMap по архитектурным аспектам
+	archMindMapAspects(root) {
+		return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
+	}
+};

@@ -1,147 +1,143 @@
 <template>
   <div class="space">
-    <dochub-anchor id=""></dochub-anchor>
-    <div v-if="toc" class="toc" v-html="toc"></div>
+    <dochub-anchor id="" />
+    <div v-if="toc" class="toc" v-html="toc" />
     <markdown
-        v-if="this.markdown"
-        style="padding: 12px"
-        toc
-        :breaks="false"
-        :html="false"
-        v-show="false"
-        v-on:toc-rendered="tocRendered"
-        v-on:rendered="rendered"
-    >
-      {{this.markdown}}
+      v-if="markdown"
+      v-show="false"
+      style="padding: 12px"
+      toc
+      v-bind:breaks="false"
+      v-bind:html="false"
+      v-on:toc-rendered="tocRendered"
+      v-on:rendered="rendered">
+      {{ markdown }}
     </markdown>
-    <final-markdown v-if="showDocument && outHTML" :template="outHTML" :baseURI="url"></final-markdown>
+    <final-markdown v-if="showDocument && outHTML" v-bind:template="outHTML" v-bind:base-u-r-i="url" />
     <v-progress-circular
-        :size="64"
-        :width="7"
-        style="left: 50%; top: 50%; position: absolute; margin-left: -32px; margin-top: -32px;"
-        v-else
-        :value="60"
-        color="primary"
-        indeterminate
-    ></v-progress-circular>
+      v-else
+      v-bind:size="64"
+      v-bind:width="7"
+      style="left: 50%; top: 50%; position: absolute; margin-left: -32px; margin-top: -32px;"
+      v-bind:value="60"
+      color="primary"
+      indeterminate />
   </div>
 </template>
 
 <script>
-import docs from "../../helpers/docs";
-import requests from "../../helpers/requests";
-import markdown from 'vue-markdown';
-import DocMarkdownObject from "./DocHubObject";
+  import docs from '../../helpers/docs';
+  import requests from '../../helpers/requests';
+  import markdown from 'vue-markdown';
+  import DocMarkdownObject from './DocHubObject';
 
-export default {
-  name: 'DocMarkdown',
-  components: {
-    markdown,
-    finalMarkdown: {
-      components: {
-        "dochub-object": DocMarkdownObject
-      },
-      props: {
-        template: String,
-        baseURI: String
-      },
-      created () {
-        this.$options.template = `<div class="markdown-document">${this.template}</div>`;
-      },
-      mounted () {
-        this.refactoringRefs();
-      },
-      methods: {
-        refactoringRefs() {
-          const refs = this.$el.querySelectorAll('a');
-          for (let i = 0; i < refs.length; i++) {
-            try {
-              const href = refs[i].href;
-              const url = new URL(href);
-              if (
+  export default {
+    name: 'DocMarkdown',
+    components: {
+      markdown,
+      finalMarkdown: {
+        components: {
+          'dochub-object': DocMarkdownObject
+        },
+        props: {
+          template: { type: String, default: '' },
+          baseURI: { type: String, default: '' },
+          document: { type: String, default: '' }
+        },
+        created() {
+          this.$options.template = `<div class="markdown-document">${this.template}</div>`;
+        },
+        mounted() {
+          this.refactoringRefs();
+        },
+        methods: {
+          refactoringRefs() {
+            const refs = this.$el.querySelectorAll('a');
+            for (let i = 0; i < refs.length; i++) {
+              try {
+                const href = refs[i].href;
+                const url = new URL(href);
+                if (
                   url.origin === document.location.origin
                   && (['architect', 'docs'].indexOf(url.pathname.split('/')[1].toLocaleLowerCase()) >= 0)
-              ) {
-                refs[i].addEventListener("click", (event) => {
-                  event.preventDefault();
-                  this.$router.push({ path: href.substring(url.origin.length) });
-                });
+                ) {
+                  refs[i].addEventListener('click', (event) => {
+                    event.preventDefault();
+                    this.$router.push({ path: href.substring(url.origin.length) });
+                  });
+                }
+              } catch (e) {
+                // eslint-disable-next-line no-console
+                console.warn(e);
               }
-            } catch (e) {
-              // eslint-disable-next-line no-console
-              console.warn(e);
             }
           }
         }
       }
-    }
-  },
-  mounted() {
-    this.refresh();
-  },
-  methods: {
-    // eslint-disable-next-line no-unused-vars
-    rendered(outHtml) {
-      if (this.outHTML !== outHtml) {
-        this.outHTML = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" ');
-        this.showDocument = false;
-        this.$nextTick(() => {
-          this.showDocument = true;
-          window.location.hash && setTimeout(() => window.location.href = window.location.hash, 50);
-        });
-        this.markdown = null;
-      }
     },
-    tocRendered (tocHTML) {
-      this.toc = tocHTML;
+    data() {
+      return {
+        showDocument: false,
+        toc: '',
+        markdown: '',
+        outHTML: ''
+      };
     },
-    refresh() {
-      if (!this.url) {
-        this.markdown = '';
-        return;
-      }
-      this.outHTML = '';
-      this.showDocument = false;
-      this.toc = '';
-      setTimeout(() => {
-        requests.request(this.url).then((response) => {
-          // eslint-disable-next-line no-console
-          this.markdown = response.data.toString();
-          if (this.markdown.length === 0)
-            this.markdown = "Здесь пусто :(";
-        })
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error(e, `Ошибка запроса (1) [${this.url}]`, e);
-        });
-      }, 50);
-    }
-  },
-  watch: {
-    url () { this.refresh() }
-  },
-  computed: {
-    url () {
-      const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
-      return profile ?
+    computed: {
+      url() {
+        const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
+        return profile ?
           docs.urlFromProfile(profile,
-              (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
+                              (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
           )
           : '';
+      }
+    },
+    watch: {
+      url() { this.refresh(); }
+    },
+    mounted() {
+      this.refresh();
+    },
+    methods: {
+      // eslint-disable-next-line no-unused-vars
+      rendered(outHtml) {
+        if (this.outHTML !== outHtml) {
+          this.outHTML = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" ');
+          this.showDocument = false;
+          this.$nextTick(() => {
+            this.showDocument = true;
+            window.location.hash && setTimeout(() => window.location.href = window.location.hash, 50);
+          });
+          this.markdown = null;
+        }
+      },
+      tocRendered(tocHTML) {
+        this.toc = tocHTML;
+      },
+      refresh() {
+        if (!this.url) {
+          this.markdown = '';
+          return;
+        }
+        this.outHTML = '';
+        this.showDocument = false;
+        this.toc = '';
+        setTimeout(() => {
+          requests.request(this.url).then((response) => {
+            // eslint-disable-next-line no-console
+            this.markdown = response.data.toString();
+            if (this.markdown.length === 0)
+              this.markdown = 'Здесь пусто :(';
+          })
+            .catch((e) => {
+              // eslint-disable-next-line no-console
+              console.error(e, `Ошибка запроса (1) [${this.url}]`, e);
+            });
+        }, 50);
+      }
     }
-  },
-  props: {
-    document: String
-  },
-  data() {
-    return {
-      showDocument: false,
-      toc: '',
-      markdown: '',
-      outHTML: ''
-    };
-  }
-};
+  };
 </script>
 
 <style>

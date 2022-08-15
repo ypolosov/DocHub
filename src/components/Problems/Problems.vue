@@ -2,10 +2,10 @@
   <v-container grid-list-xl fluid>
     <v-layout wrap>
       <v-flex xs12 md5 d-flex>
-          <Validators :subject="subject"></Validators>
+        <validators v-bind:subject="subject" />
       </v-flex>
       <v-flex xs12 md7 d-flex>
-        <problem-blank v-if="subject" :subject="subject"></problem-blank>
+        <problem-blank v-if="subject" v-bind:subject="subject" />
       </v-flex>
     </v-layout>
   </v-container>
@@ -13,28 +13,28 @@
 
 <script>
 
-import Validators from './tabs/Validators.vue'
-import ProblemBlank from './tabs/ProblemBlank.vue';
+  import Validators from './tabs/Validators.vue';
+  import ProblemBlank from './tabs/ProblemBlank.vue';
 
-export default {
-  name: 'Problems',
-  components: {
-    Validators,
-    ProblemBlank
-  },
-  props: {
-    subject: String
-  },
-  methods: {
-    onGoto(route) {
-      window.$PAPI.goto(route);
+  export default {
+    name: 'Problems',
+    components: {
+      Validators,
+      ProblemBlank
+    },
+    props: {
+      subject: { type: String, default: '' }
+    },
+    data() {
+      return {
+      };
+    },
+    methods: {
+      onGoto(route) {
+        window.$PAPI.goto(route);
+      }
     }
-  },
-  data() {
-    return {
-    };
-  }
-};
+  };
 </script>
 
 <style scoped>
