@@ -28,11 +28,9 @@
 </template>
 
 <script>
-
   import Radar from './Radar';
 
   export default {
-    name: 'TRTechniques',
     components:{
       Radar
     },
@@ -62,25 +60,20 @@
 </script>
 
 <style scoped>
-
 ul .section-header {
   margin-bottom: 16px;
 }
-
 ul.sections {
   list-style-type: none;
   font-weight: 700;
   font-size: 12px;
 }
-
 ul.sections li {
   margin-left: 0px;
 }
-
 ul.section-record {
   font-weight: 300;
   list-style-type: none;
   margin-top: 6px;
 }
-
 </style>

@@ -12,9 +12,9 @@
 
 <script>
 
-  import Swagger from './DocSwagger';
-  import Plantuml from './DocPlantUML';
-  import DocMarkdown from './DocMarkdown';
+  import Swagger from './DocSwagger.vue';
+  import Plantuml from './DocPlantUML.vue';
+  import DocMarkdown from './DocMarkdown.vue';
   import DocTable from './DocTable.vue';
   import Empty from '../Controls/Empty.vue';
 

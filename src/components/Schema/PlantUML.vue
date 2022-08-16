@@ -56,6 +56,9 @@
       postrender: { type: Function, default: () => {} }, // POST обработчик
       sourceAvailable: { type: Boolean, default: false }
     },
+    emits: [
+      EVENT_COPY_SOURCE_TO_CLIPBOARD // Копирование источника данных
+    ],
     data() {
       return {
         menu: { // Контекстное меню
@@ -322,10 +325,7 @@
           this.$nextTick(() => document.body.removeChild(link));
         }
       }
-    },
-    emits: [
-      EVENT_COPY_SOURCE_TO_CLIPBOARD // Копирование источника данных
-    ]
+    }
   };
 </script>
 

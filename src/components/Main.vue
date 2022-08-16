@@ -1,5 +1,7 @@
 <template>
-  <dochub-doc v-bind:document="document" />
+  <div>
+    <dochub-doc v-bind:document="document" />
+  </div>
 </template>
 
 <script>

@@ -35,7 +35,6 @@
   import jsonata from 'jsonata';
 
   export default {
-    name: 'TRTechniques',
     components:{
     },
     props: {

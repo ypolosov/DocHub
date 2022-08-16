@@ -4,7 +4,6 @@
     <div v-if="toc" class="toc" v-html="toc" />
     <markdown
       v-if="markdown"
-      v-show="false"
       style="padding: 12px"
       toc
       v-bind:breaks="false"
@@ -26,11 +25,11 @@
 </template>
 
 <script>
-  import docs from '../../helpers/docs';
-  import requests from '../../helpers/requests';
+  import docs from '@/helpers/docs';
+  import requests from '@/helpers/requests';
   import markdown from 'vue-markdown';
   import DocMarkdownObject from './DocHubObject';
-
+  
   export default {
     name: 'DocMarkdown',
     components: {
@@ -41,8 +40,7 @@
         },
         props: {
           template: { type: String, default: '' },
-          baseURI: { type: String, default: '' },
-          document: { type: String, default: '' }
+          baseURI: { type: String, default: '' }
         },
         created() {
           this.$options.template = `<div class="markdown-document">${this.template}</div>`;
@@ -74,6 +72,9 @@
           }
         }
       }
+    },
+    props: {
+      document: { type: String, default: '' }
     },
     data() {
       return {
@@ -141,22 +142,18 @@
 </script>
 
 <style>
-
 .dochub-object {
   margin-top: 24px;
   margin-bottom: 24px;
 }
-
 .space {
   padding: 24px;
   position: relative;
   min-height: 100vh;
 }
-
 .toc {
   margin-bottom: 24px;
 }
-
 pre {
   display: block;
   padding: 9.5px;
@@ -171,7 +168,6 @@ pre {
   border-radius: 4px;
   overflow: auto;
 }
-
 code[class*="language-"], pre[class*="language-"] {
   color: black;
   font-weight: 300;
@@ -195,40 +191,32 @@ code[class*="language-"], pre[class*="language-"] {
   font-size: inherit;
   border-radius: 0;
 }
-
 .toc-anchor {
   display: none;
 }
-
 code[class*="language-"]::before, pre[class*="language-"]::before,
 code[class*="language-"]::after, pre[class*="language-"]::after
 {
   content: none !important;
 }
-
 .markdown-document table {
   border: solid #ccc 1px;
 }
-
 .markdown-document table.table td {
   padding-left: 6px;
   padding-right: 6px;
 }
-
 .markdown-document table thead th * {
   color: #fff !important;
 }
-
 .markdown-document table thead th  {
   background: rgb(52, 149, 219);
   color: #fff !important;
   height: 40px;
 }
-
 .markdown-document table.table thead th {
   padding: 6px;
 }
-
 .markdown-document h1,
 .markdown-document h2,
 .markdown-document h3,
@@ -238,15 +226,12 @@ code[class*="language-"]::after, pre[class*="language-"]::after
   margin-bottom: 18px;
   clear:both;
 }
-
 .markdown-document h1:first-child {
   margin-top: 12px;
 }
-
 .markdown-document ul,
 .markdown-document ol
 {
   margin-bottom: 18px;
 }
-
 </style>
