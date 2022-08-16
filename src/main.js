@@ -2,26 +2,27 @@
 import '@mdi/font/css/materialdesignicons.css';
 // See icons https://fonts.google.com/icons?selected=Material+Icons
 import Axios from 'axios';
-import 'swagger-ui/dist/swagger-ui.css';
 import Vue from 'vue';
 import VueCookie from 'vue-cookie';
 import Vuetify from 'vuetify';
-import 'vuetify/dist/vuetify.min.css';
 import Vuex from 'vuex';
 import Root from './components/Root.vue';
 import router from './router';
 
-import Aspect from './components/Architecture/Aspect';
-import Component from './components/Architecture/Component';
-import Context from './components/Architecture/Context';
+import Aspect from './components/Architecture/Aspect.vue';
+import Component from './components/Architecture/Component.vue';
+import Context from './components/Architecture/Context.vue';
 import DocHubDoc from './components/Docs/DocHubDoc.vue';
-import PlantUML from './components/Schema/PlantUML';
-import Radar from './components/Techradar/Main';
-import Technology from './components/Techradar/Technology';
-import Anchor from './components/Tools/Anchor';
-import Image from './components/Tools/Image';
+import PlantUML from './components/Schema/PlantUML.vue';
+import Radar from './components/Techradar/Main.vue';
+import Technology from './components/Techradar/Technology.vue';
+import Anchor from './components/Tools/Anchor.vue';
+import Image from './components/Tools/Image.vue';
 import GlobalMixin from './mixins/global';
 import gitlab from './storage/gitlab';
+
+import 'swagger-ui/dist/swagger-ui.css';
+import 'vuetify/dist/vuetify.min.css';
 
 import '@/assets/styles/main.css';
 
