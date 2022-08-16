@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "corp": "set NODE_OPTIONS=--openssl-legacy-provider && npx vue-cli-service serve",
     "test": "jest --watch",
     "meta-import": "node src/tools/meta/import.js"
   },
@@ -25,22 +26,20 @@
     "yaml": "1.10.2"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "7.18.9",
     "@babel/plugin-proposal-nullish-coalescing-operator": "7.18.6",
     "@babel/plugin-proposal-optional-chaining": "7.18.9",
     "@types/jest": "28.1.6",
     "@vue/cli-plugin-babel": "4.2.2",
     "@vue/cli-plugin-eslint": "4.2.2",
     "@vue/cli-service": "4.2.2",
-    "babel-eslint": "10.1.0",
-    "babel-loader": "8.0.6",
     "css-loader": "3.4.2",
-    "eslint": "5.16.0",
-    "eslint-plugin-vue": "5.2.3",
+    "eslint": "7.32.0",
+    "eslint-plugin-vue": "7.20.0",
     "html-webpack-inline-source-plugin": "0.0.10",
     "jest": "28.1.3",
     "postcss-loader": "2.0.8",
     "raw-loader": "4.0.2",
-    "vue-loader": "13.7.3",
     "vue-monaco": "0.3.1",
     "vue-style-loader": "3.1.2",
     "vue-template-compiler": "2.6.11"

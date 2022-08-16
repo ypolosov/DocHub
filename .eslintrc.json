@@ -1,5 +1,6 @@
 {
 	"env": {
+		"es6": true,
 		"browser": true,
 		"node": true,
 		"jest": true
@@ -9,6 +10,7 @@
 		"plugin:vue/recommended"
 	],
 	"parserOptions": {
+		"parser": "@babel/eslint-parser",
 		"ecmaVersion": 10,
 		"sourceType": "module"
 	},

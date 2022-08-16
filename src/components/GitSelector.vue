@@ -12,7 +12,7 @@
     placeholder="Выбери из списка размещение"
     prepend-icon="mdi-source-repository"
     return-object>
-    <template v-slot:selection="data">
+    <template #selection="data">
       <v-chip
         v-bind="data.attrs"
         close
@@ -23,7 +23,7 @@
         {{ data.item.name }}
       </v-chip>
     </template>
-    <template v-slot:item="data">
+    <template #item="data">
       <v-list-item-avatar>
         <v-icon>{{ getIcon(data.item) }}</v-icon>
       </v-list-item-avatar>

@@ -17,10 +17,10 @@
         <line
           x1="300"
           y1="300"
-          v-bind:x2="section.line.x"
-          v-bind:y2="section.line.y"
+          v-bind:x2="item.line.x"
+          v-bind:y2="item.line.y"
           class="section-line" />
-        <text class="section-title" text-anchor="middle" v-on:click="onClickSection(section)">
+        <text class="section-title" text-anchor="middle" v-on:click="onClickSection(item)">
           <textPath v-bind:startOffset="`${(item.title.angle / 360 * 100 + 25)%100}%`" xlink:href="#outsideTextPath">
             {{ item.title.title }}
           </textPath>
