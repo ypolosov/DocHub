@@ -29,6 +29,8 @@
   import requests from '@/helpers/requests';
   import markdown from 'vue-markdown';
   import DocMarkdownObject from './DocHubObject';
+  import DocMixin from './DocMixin';
+  import mustache from 'mustache';
   
   export default {
     name: 'DocMarkdown',
@@ -73,22 +75,20 @@
         }
       }
     },
-    props: {
-      document: { type: String, default: '' }
-    },
+    mixins: [DocMixin],
     data() {
       return {
         showDocument: false,
         toc: '',
+
         markdown: '',
         outHTML: ''
       };
     },
     computed: {
       url() {
-        const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
-        return profile ?
-          docs.urlFromProfile(profile,
+        return this.profile ?
+          docs.urlFromProfile(this.profile,
                               (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
           )
           : '';
@@ -124,18 +124,24 @@
         this.outHTML = '';
         this.showDocument = false;
         this.toc = '';
+        // Получаем шаблон документа
         setTimeout(() => {
           requests.request(this.url).then((response) => {
             // eslint-disable-next-line no-console
-            this.markdown = response.data.toString();
-            if (this.markdown.length === 0)
+            let content = response.data.toString();
+            if (content.length === 0)
               this.markdown = 'Здесь пусто :(';
+            else if (this.isTemplate) {
+              content = mustache.render(content, this.source.dataset);
+            }
+            this.markdown = content;
           })
             .catch((e) => {
               // eslint-disable-next-line no-console
               console.error(e, `Ошибка запроса (1) [${this.url}]`, e);
             });
         }, 50);
+        this.sourceRefresh();
       }
     }
   };

@@ -1,6 +1,5 @@
 import jsonata from 'jsonata';
 
-
 const SCHEMA_CONTEXT = `
 (
     $MANIFEST := $;
@@ -581,10 +580,16 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
 )`;
 
 export default {
-	expression(expression) {
+	// Создает объект запроса JSONata
+	//  expression - JSONata выражение
+	//  self - объект, который вызывает запрос (доступен по $self в запросе)
+	expression(expression, self_) {
 		const obj = {
 			expression,
 			core : jsonata(expression),
+			// Исполняет запрос
+			//  context - контекст исполнения запроса
+			//  def - если возникла ошибка, будет возращено это значение
 			evaluate(context, def) {
 				try {
 					return Object.freeze(this.core.evaluate(context));
@@ -599,6 +604,7 @@ export default {
 				}
 			}
 		};
+		obj.core.assign('self', self_);
 		obj.core.registerFunction('wcard', (id, template) => {
 			if (!id || !template) return false;
 			const idStruct = id.split('.');

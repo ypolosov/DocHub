@@ -45,12 +45,20 @@ docs:
     location: DocHub/Руководство/Документы/Таблицы
     description: Markdown
     type: markdown
+    autor: R.Piontik
+    source: >
+      (
+        {
+          "id": $self._id,
+          "autor": $self.autor
+        }
+      )
     subjects:
       - dochub.front
       - dochub.front.spa
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
-    source: tables.md
+    template: tables.md
   dochub.example.pml:
     type: PlantUML
     subjects:
