@@ -66,13 +66,3 @@
     }
   };
 </script>
-
-<style>
-
-.v-application code {
-  background-color: transparent;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
-</style>

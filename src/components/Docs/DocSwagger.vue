@@ -97,11 +97,4 @@
 .swagger-ui .info .main {
   background: #3495db;
 }
-
-.v-application code {
-  background-color: transparent;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
 </style>

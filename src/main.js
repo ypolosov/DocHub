@@ -51,14 +51,19 @@ Vue.component('DochubRadar', Radar);
 Vue.component('DochubPlantuml', PlantUML);
 
 Vue.mixin(GlobalMixin);
+Vue.config.ignoredElements = ['asyncapi-component'];
 
-new Vue(Object.assign({
-	el: '#app',
+const vuetify = new Vuetify({
+	icons: {
+		iconfont: 'mdi'
+	}
+});
+
+new Vue({
 	router,
-	vuetify: new Vuetify({
-		icons: {
-			iconfont: 'mdi' // default - only for display purposes
-		}
-	}),
+	render(createElement) {
+		return createElement(Root);
+	},
+	vuetify,
 	store
-}, Root));
+}).$mount('#app');
