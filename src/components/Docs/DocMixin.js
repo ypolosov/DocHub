@@ -1,4 +1,5 @@
 import datasets from '../../helpers/datasets';
+import docs from '@/helpers/docs';
 
 const SOURCE_PENGING = 'pending';
 const SOURCE_READY = 'ready';
@@ -28,6 +29,12 @@ export default {
 		},
 		profile() {
 			return (this.manifest.docs || {})[this.document] || {};
+		},
+		url() {
+			return this.profile ?
+				docs.urlFromProfile(this.profile,
+					(this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
+				): '';
 		}
 	},
 	props: {
@@ -49,5 +56,11 @@ export default {
 				dataset: null
 			}
 		};
+	},
+	watch: {
+		url() { this.refresh(); }
+	},
+	mounted() {
+		this.refresh();
 	}
 };

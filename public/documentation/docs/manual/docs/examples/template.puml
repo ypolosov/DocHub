@@ -1,5 +1,7 @@
 @startuml
-title Компоненты встречающиеся в описании архитектуры
-{{entity}} {{entity}} as {{entity}}
+title Сущности использованные при описании архитектуры
+{{#entities}}
+{{{.}}} {{{.}}} as {{{.}}}
+{{/entities}}
 'component component as component
 @enduml

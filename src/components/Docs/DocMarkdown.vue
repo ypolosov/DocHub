@@ -25,7 +25,6 @@
 </template>
 
 <script>
-  import docs from '@/helpers/docs';
   import requests from '@/helpers/requests';
   import markdown from 'vue-markdown';
   import DocMarkdownObject from './DocHubObject';
@@ -80,25 +79,9 @@
       return {
         showDocument: false,
         toc: '',
-
         markdown: '',
         outHTML: ''
       };
-    },
-    computed: {
-      url() {
-        return this.profile ?
-          docs.urlFromProfile(this.profile,
-                              (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
-          )
-          : '';
-      }
-    },
-    watch: {
-      url() { this.refresh(); }
-    },
-    mounted() {
-      this.refresh();
     },
     methods: {
       // eslint-disable-next-line no-unused-vars

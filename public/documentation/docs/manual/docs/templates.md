@@ -38,7 +38,7 @@
 ```
 
 Код шаблона:
-```
+```mustache
 {{=<% %>=}}
 
 Результат:
@@ -64,6 +64,40 @@
 
 ## PlantUML
 
+Доступна генерация PlantUML документов:
+```yaml
+  dochub.templates.pml: # Пример генерации PlantUML документа по шаблону
+    type: PlantUML
+    source: >
+      (
+        {
+          "entities": $distinct([     /* Получаем все использованные сущности при описании архитектуры */ 
+              components.*.entity
+          ])
+        }
+      )
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    template: examples/template.puml
+```
+
+Код шаблона:
+```mustache
+{{=<% %>=}}
+@startuml
+title Сущности использованные при описании архитектуры
+{{#entities}}
+{{{.}}} {{{.}}} as {{{.}}}
+{{/entities}}
+'component component as component
+@enduml
+<%={{ }}=%>
+```
+
+Результат:
 ![PlantUML по шаблону](@document/dochub.templates.pml)
 
 [Далее](/docs/dochub.datasets) 

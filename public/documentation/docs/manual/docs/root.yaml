@@ -96,10 +96,12 @@ docs:
     template: templates.md  # Шаблон документа
   dochub.templates.pml: # Пример генерации PlantUML документа по шаблону
     type: PlantUML
-    source2: >
+    source: >
       (
         {
-          "entity": "component"
+          "entities": $distinct([     /* Получаем все использованные сущности при описании архитектуры */ 
+              components.*.entity
+          ])
         }
       )
     subjects:
@@ -107,7 +109,7 @@ docs:
       - dochub.front.spa
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
-    source: examples/template.puml
+    template: examples/template.puml
   dochub.example.pml:
     type: PlantUML
     subjects:
