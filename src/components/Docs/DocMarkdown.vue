@@ -4,7 +4,7 @@
     <div v-if="toc" class="toc" v-html="toc" />
     <markdown
       v-if="markdown"
-      style="padding: 12px"
+      class="pa-3"
       toc
       v-bind:breaks="false"
       v-bind:html="false"
@@ -163,7 +163,7 @@
 .toc {
   margin-bottom: 24px;
 }
-pre {
+.markdown-document pre {
   display: block;
   padding: 9.5px;
   margin: 0 0 10px;
@@ -177,7 +177,8 @@ pre {
   border-radius: 4px;
   overflow: auto;
 }
-code[class*="language-"], pre[class*="language-"] {
+.markdown-document code[class*="language-"], 
+.markdown-document pre[class*="language-"] {
   color: black;
   font-weight: 300;
   background: none;
@@ -197,14 +198,14 @@ code[class*="language-"], pre[class*="language-"] {
   -ms-hyphens: none;
   hyphens: none;
   padding: 0;
-  font-size: inherit;
+  font-size: 13px;
   border-radius: 0;
 }
 .toc-anchor {
   display: none;
 }
-code[class*="language-"]::before, pre[class*="language-"]::before,
-code[class*="language-"]::after, pre[class*="language-"]::after
+.markdown-document code[class*="language-"]::before, pre[class*="language-"]::before,
+.markdown-document code[class*="language-"]::after, pre[class*="language-"]::after
 {
   content: none !important;
 }

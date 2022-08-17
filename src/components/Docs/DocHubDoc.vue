@@ -1,18 +1,21 @@
 <template>
   <div>
     <empty v-if="isEmpty" />
-    <template v-else>
-      <swagger v-if="isContract" v-bind:document="document" />
-      <plantuml v-if="isPlantUML" v-bind:document="document" />
-      <doc-markdown v-if="isMarkdown" v-bind:document="document" />
-      <doc-table v-if="isTable" v-bind:document="document" />
-    </template>
+
+    <div v-else>
+      <async-api-component v-if="docType === DocTypes.ASYNCAPI" v-bind:document="document" />
+      <swagger v-if="docType === DocTypes.OPENAPI" v-bind:document="document" />
+      <plantuml v-if="docType === DocTypes.PLANTUML" v-bind:document="document" />
+      <doc-markdown v-if="docType === DocTypes.MARKDOWN" v-bind:document="document" />
+      <doc-table v-if="docType === DocTypes.TABLE" v-bind:document="document" />
+    </div>
   </div>
 </template>
 
 <script>
-
+  import { DocTypes } from '@/components/Docs/enums/doc-types.enum';
   import Swagger from './DocSwagger.vue';
+  import AsyncApiComponent from '@/components/Docs/DocAsyncApi.vue';
   import Plantuml from './DocPlantUML.vue';
   import DocMarkdown from './DocMarkdown.vue';
   import DocTable from './DocTable.vue';
@@ -21,6 +24,7 @@
   export default {
     name: 'Document',
     components: {
+      AsyncApiComponent,
       Plantuml,
       Swagger,
       DocMarkdown,
@@ -31,7 +35,9 @@
       document: { type: String, default: '' }
     },
     data() {
-      return {};
+      return {
+        DocTypes
+      };
     },
     computed: {
       isEmpty() {
@@ -42,18 +48,6 @@
       },
       docType() {
         return ((this.docs[this.document] || {}).type || 'unknown').toLowerCase();
-      },
-      isContract() {
-        return this.docType === 'openapi';
-      },
-      isPlantUML() {
-        return this.docType === 'plantuml';
-      },
-      isMarkdown() {
-        return this.docType === 'markdown';
-      },
-      isTable() {
-        return this.docType === 'table';
       }
     },
     mounted() {
@@ -62,7 +56,3 @@
     }
   };
 </script>
-
-<style>
-
-</style>

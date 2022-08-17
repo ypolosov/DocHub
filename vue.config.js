@@ -16,6 +16,7 @@ let config = {
         ],
         */
 	},
+	transpileDependencies: ['vueitfy'],
 	configureWebpack: {
 		optimization: {
 			splitChunks: false 

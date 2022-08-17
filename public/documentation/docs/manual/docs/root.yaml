@@ -13,7 +13,7 @@ docs:
       - dochub.front.spa.blank.doc
     source: docs.md
   dochub.markdown:
-    location: DocHub/Руководство/Документы/Markdwon
+    location: DocHub/Руководство/Документы/Markdown
     description: Markdown
     autor: R.Piontik
     type: markdown
@@ -34,6 +34,16 @@ docs:
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     source: plantuml.md
+  dochub.asyncapi:
+    location: DocHub/Руководство/Документы/AsyncApi
+    description: Markdown
+    type: markdown
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: asyncapi.md
   dochub.swagger:
     location: DocHub/Руководство/Документы/Swagger
     description: Swagger
@@ -114,3 +124,11 @@ docs:
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     source: examples/example.yaml
+  dochub.example.asyncapi:
+    type: AsyncApi
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: examples/asyncapi.yaml
