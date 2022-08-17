@@ -4,6 +4,7 @@ docs:
   dochub.docs:
     location: DocHub/Руководство/Документы
     description: Документы
+    autor: R.Piontik        # Кастомное поле - Автор документа
     type: markdown
     subjects:
       - dochub.front
@@ -14,6 +15,7 @@ docs:
   dochub.markdown:
     location: DocHub/Руководство/Документы/Markdwon
     description: Markdown
+    autor: R.Piontik
     type: markdown
     subjects:
       - dochub.front
@@ -23,7 +25,8 @@ docs:
     source: markdown.md
   dochub.plantuml:
     location: DocHub/Руководство/Документы/PlantUML
-    description: Markdown
+    description: PlantUML
+    autor: R.Piontik
     type: markdown
     subjects:
       - dochub.front
@@ -33,7 +36,8 @@ docs:
     source: plantuml.md
   dochub.swagger:
     location: DocHub/Руководство/Документы/Swagger
-    description: Markdown
+    description: Swagger
+    autor: R.Piontik
     type: markdown
     subjects:
       - dochub.front
@@ -43,14 +47,35 @@ docs:
     source: swagger.md
   dochub.tables:
     location: DocHub/Руководство/Документы/Таблицы
-    description: Markdown
-    type: markdown
+    description: Таблицы
     autor: R.Piontik
-    source: >
+    type: markdown
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: tables.md
+  dochub.templates:         # Пример генерации документа по шаблону
+    location: DocHub/Руководство/Документы/Шаблоны
+    description: Шаблоны
+    type: markdown
+    autor: R.Piontik        # Кастомное поле - Автор документа
+    approvers:              # Кастомное поле - список согласующих
+      - P.Petrov
+      - S.Sidorov
+      - N.Nikolaev
+    source: >               # JSONata запрос для формирования параметров шаблона
       (
         {
-          "id": $self._id,
-          "autor": $self.autor
+          "id": $self._id,              /* Идентификатор документа */
+          "autor": $self.autor,         /* Автор документа */
+          "approvers": $self.approvers, /* Согласующие */
+          "docs": [docs.$spread().{     /* Другие документы автора */
+            "id": $keys()[0],
+            "title": *.description,
+            "autor": *.autor
+          }][autor=$self.autor]
         }
       )
     subjects:
@@ -58,7 +83,7 @@ docs:
       - dochub.front.spa
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
-    template: tables.md
+    template: templates.md  # Шаблон документа
   dochub.example.pml:
     type: PlantUML
     subjects:

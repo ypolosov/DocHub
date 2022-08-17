@@ -104,7 +104,10 @@
       // eslint-disable-next-line no-unused-vars
       rendered(outHtml) {
         if (this.outHTML !== outHtml) {
-          this.outHTML = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" ');
+          this.outHTML = outHtml
+            .replace(/<img /g, '<dochub-object :baseURI="baseURI" ')
+            .replace(/\{\{/g, '<span v-pre>{{</span>')
+            .replace(/\}\}/g, '<span v-pre>}}</span>');
           this.showDocument = false;
           this.$nextTick(() => {
             this.showDocument = true;
