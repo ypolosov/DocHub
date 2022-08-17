@@ -62,4 +62,8 @@
   * [{{title}}](/docs/{{id}})
 {{/docs}}
 
+## PlantUML
+
+![PlantUML по шаблону](@document/dochub.templates.pml)
+
 [Далее](/docs/dochub.datasets) 

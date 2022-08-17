@@ -56,7 +56,7 @@ docs:
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     source: tables.md
-  dochub.templates:         # Пример генерации документа по шаблону
+  dochub.templates:         # Пример генерации markdown документа по шаблону
     location: DocHub/Руководство/Документы/Шаблоны
     description: Шаблоны
     type: markdown
@@ -84,6 +84,20 @@ docs:
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     template: templates.md  # Шаблон документа
+  dochub.templates.pml: # Пример генерации PlantUML документа по шаблону
+    type: PlantUML
+    source2: >
+      (
+        {
+          "entity": "component"
+        }
+      )
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: examples/template.puml
   dochub.example.pml:
     type: PlantUML
     subjects:

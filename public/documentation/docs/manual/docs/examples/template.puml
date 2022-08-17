@@ -1,0 +1,5 @@
+@startuml
+title Компоненты встречающиеся в описании архитектуры
+{{entity}} {{entity}} as {{entity}}
+'component component as component
+@enduml
