@@ -92,7 +92,6 @@ title Сущности использованные при описании ар
 {{#entities}}
 {{{.}}} {{{.}}} as {{{.}}}
 {{/entities}}
-'component component as component
 @enduml
 <%={{ }}=%>
 ```

@@ -33,7 +33,7 @@
           } else this.uml = content;
         }).catch((e) => {
           // eslint-disable-next-line no-console
-          console.error(e, `Ошибка запроса (2) [${this.url}]`, e);
+          console.error(`Ошибка запроса [${this.url}]`, e);
         });
         this.sourceRefresh();
       }
