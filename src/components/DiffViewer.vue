@@ -387,13 +387,6 @@
 </script>
 
 <style>
-
-.v-application code {
-  background-color: transparent;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
 .opblock::before {
   position: absolute;
   margin-left: -26px;
@@ -416,5 +409,4 @@
   width: 100%;
   position: relative;
 }
-
 </style>
