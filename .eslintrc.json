@@ -5,6 +5,9 @@
 		"node": true,
 		"jest": true
 	},
+	"globals": {
+		"vscode": "readonly"
+	},
 	"extends": [
 		"eslint:recommended",
 		"plugin:vue/recommended"
