@@ -58,7 +58,7 @@ components:
 
 Представление документа в DocHub:
 
-![AsyncApi контракт](@document/dochub.example.asyncapi)
+![AsyncAPI контракт](@document/dochub.example.asyncapi)
 
 
 [Далее](/docs/dochub.markdown)
