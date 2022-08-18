@@ -1,6 +1,9 @@
 imports:
   - examples/table.yaml
 docs:
+  # *****************************************  
+  #        Руководство по документам 
+  # *****************************************  
   dochub.docs:
     location: DocHub/Руководство/Документы
     description: Документы
@@ -66,6 +69,36 @@ docs:
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     source: tables.md
+  # *****************************************  
+  #            Примеры документов
+  # *****************************************  
+  dochub.example.pml:
+    type: PlantUML
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: examples/example.puml
+  dochub.example.swgr:
+    type: OpenAPI
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: examples/example.yaml
+  dochub.example.asyncapi:
+    type: AsyncApi
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: examples/asyncapi.yaml
+  # *****************************************  
+  #                 Шаблоны
+  # *****************************************  
   dochub.templates:         # Пример генерации markdown документа по шаблону
     location: DocHub/Руководство/Документы/Шаблоны
     description: Шаблоны
@@ -110,27 +143,16 @@ docs:
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     template: examples/template.puml
-  dochub.example.pml:
-    type: PlantUML
-    subjects:
-      - dochub.front
-      - dochub.front.spa
-      - dochub.front.spa.blank
-      - dochub.front.spa.blank.doc
-    source: examples/example.puml
-  dochub.example.swgr:
-    type: OpenAPI
-    subjects:
-      - dochub.front
-      - dochub.front.spa
-      - dochub.front.spa.blank
-      - dochub.front.spa.blank.doc
-    source: examples/example.yaml
-  dochub.example.asyncapi:
-    type: AsyncApi
-    subjects:
-      - dochub.front
-      - dochub.front.spa
-      - dochub.front.spa.blank
-      - dochub.front.spa.blank.doc
-    source: examples/asyncapi.yaml
+  dochub.templates.asyncapi: # Пример генерации AsyncAPI документа по шаблону
+    type: AsyncAPI
+    source: >
+      (
+        $BODY := $mergedeep([components.*.asyncapi]);
+        {
+            "content": [$BODY.$spread().{
+                "field": $keys()[0],
+                "body": $string($lookup($, $keys()[0]))
+            }]
+        }
+      )
+    template: examples/asyncapi_template.json

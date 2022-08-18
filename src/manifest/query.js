@@ -339,7 +339,7 @@ const SUMMARY_COMPONENT_QUERY = `
     $MANIFEST := $;
     $lookup(components, $COMPONENT_ID).(
         $COMPONENT := $;
-        $ENTITY := $.entity;
+        $ENTITY := $.entity ? $.entity : "component";
         $FORM := $MANIFEST.forms[entity.$contains($ENTITY)].fields;
         
         $append([
@@ -579,6 +579,44 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
     )]^(id)]
 )`;
 
+function wcard(id, template) {
+	if (!id || !template) return false;
+	const idStruct = id.split('.');
+	const tmlStruct = template.split('.');
+	if (tmlStruct.length < idStruct) return false;
+	for (let i = 0; i < tmlStruct.length; i++) {
+		const pice = tmlStruct[i];
+		if (pice === '**') return true;
+		if (pice === '*') continue;
+		if (pice !== idStruct[i]) return false;
+	}
+	return idStruct.length === tmlStruct.length;
+}
+
+function mergeDeep(sources) {
+	function mergeDeep(target, sources) {
+		function isObject(item) {
+			return (item && typeof item === 'object' && !Array.isArray(item));
+		}
+		
+		if (!sources.length) return target;
+		const source = sources.shift();
+
+		if (isObject(target) && isObject(source)) {
+			for (const key in source) {
+				if (isObject(source[key])) {
+					if (!target[key]) Object.assign(target, { [key]: {} });
+					mergeDeep(target[key], [source[key]]);
+				} else {
+					Object.assign(target, { [key]: source[key] });
+				}
+			}
+		}
+		return mergeDeep(target, sources);
+	}
+	return mergeDeep({}, sources);
+}
+
 export default {
 	// Создает объект запроса JSONata
 	//  expression - JSONata выражение
@@ -605,19 +643,8 @@ export default {
 			}
 		};
 		obj.core.assign('self', self_);
-		obj.core.registerFunction('wcard', (id, template) => {
-			if (!id || !template) return false;
-			const idStruct = id.split('.');
-			const tmlStruct = template.split('.');
-			if (tmlStruct.length < idStruct) return false;
-			for (let i = 0; i < tmlStruct.length; i++) {
-				const pice = tmlStruct[i];
-				if (pice === '**') return true;
-				if (pice === '*') continue;
-				if (pice !== idStruct[i]) return false;
-			}
-			return idStruct.length === tmlStruct.length;
-		});
+		obj.core.registerFunction('wcard', wcard);
+		obj.core.registerFunction('mergedeep', mergeDeep);
 		return obj;
 	},
 	// Меню

@@ -7,6 +7,8 @@
 
 Предоставляется возможность динамически создавать документы:
 ```yaml
+docs:
+  ...
   dochub.templates:         # Пример генерации документа по шаблону
     location: DocHub/Руководство/Документы/Шаблоны
     description: Markdown
@@ -35,12 +37,12 @@
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     template: templates.md  # Шаблон документа
+  ...
 ```
 
 Код шаблона:
 ```mustache
 {{=<% %>=}}
-
 Результат:
 * Идентификатор документа: **{{id}}**
 * Автор: **{{autor}}**
@@ -49,7 +51,6 @@
 {{#docs}}
   * [{{title}}](/docs/{{id}})
 {{/docs}}
-
 <%={{ }}=%>
 ```
 
@@ -66,6 +67,8 @@
 
 Доступна генерация PlantUML документов:
 ```yaml
+docs:
+  ...
   dochub.templates.pml: # Пример генерации PlantUML документа по шаблону
     type: PlantUML
     source: >
@@ -82,6 +85,7 @@
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     template: examples/template.puml
+  ...
 ```
 
 Код шаблона:
@@ -98,5 +102,156 @@ title Сущности использованные при описании ар
 
 Результат:
 ![PlantUML по шаблону](@document/dochub.templates.pml)
+
+## AsyncAPI
+
+Важным приемуществом шаблонов, является возможность консолидации фрагментированных
+артефактов в один. Например, можно в каждом отдельном компоненте описать контракты, а затем 
+собрать общий.
+
+Манифест документа:
+```yaml
+docs:
+  ...
+  dochub.templates.asyncapi: # Пример генерации AsyncAPI документа по шаблону
+    type: AsyncAPI
+    source: >
+      (
+        $BODY := $mergedeep([components.*.asyncapi]);
+        {
+            "content": [$BODY.$spread().{
+                "field": $keys()[0],
+                "body": $string($lookup($, $keys()[0]))
+            }]
+        }
+      )
+    template: examples/asyncapi_template.json
+  ...
+```
+
+Шаблон:
+```mustache
+{{=<% %>=}}
+{
+  "asyncapi": "2.4.0",
+  "info": {
+    "title": "Пример генерации асинхронных контрактов",
+    "version": "1.0.0",
+    "description": "Информация о контрактах собирается по всей архитектуре"
+  }
+  {{#content}}
+    ,"{{field}}":{{&body}}
+  {{/content}}
+}
+<%={{ }}=%>
+```
+
+
+Манифест компонентов:
+```yaml
+components:
+  ...
+  #***********************************************************
+  #               Компонет-пример сервиса заказов
+  #***********************************************************
+  dochub.examples.orders:
+    title: Сервис управления заказами
+    entity: component
+    technologies:
+      - PHP
+    asyncapi:     # Кастомное поле, созданное для примера сборки контрактов из архитектуры через шаблоны
+      servers:
+        orders:
+          url: mqtt://order.host.net
+          protocol: mqtt
+          description: Orders gateway
+      channels:
+        order/create:
+          subscribe:
+            operationId: emitOrderCreate
+            message:
+              $ref: "#/components/messages/OrderCreate"
+      components:
+        messages:
+          OrderCreate:
+            name: orderCreate
+            title: Создание заказа
+            contentType: application/json
+            payload:
+              $ref: "#/components/schemas/order"
+        schemas:
+          order:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              customer:
+                type: string
+                format: uuid
+              curr:
+                type: string
+                description: "Валюта"
+              value:
+                type: number
+                description: "Сумма"
+              createdAt:
+                type: string
+                format: date-time
+                description: "Момент создания"
+  #***********************************************************
+  #               Компонет-пример сервиса оплаты
+  #***********************************************************
+  dochub.examples.payment:
+    title: Сервис оплаты   
+    entity: component
+    expert: R.Piontik
+    technologies:
+      - SberPay
+      - Go
+    asyncapi:     # Кастомное поле, созданное для примера сборки контрактов из архитектуры через шаблоны
+      servers:
+        payments:
+          url: mqtt://pay.host.net
+          protocol: mqtt
+          description: Payment gateway
+      channels:
+        pay/payment:
+          subscribe:
+            operationId: emitPayment
+            message:
+              $ref: "#/components/messages/Payment"
+      components:
+        messages:
+          Payment:
+            name: payment
+            title: Оплата
+            summary: Сообщение по оплате
+            contentType: application/json
+            payload:
+              $ref: "#/components/schemas/payment"
+        schemas:
+          payment:
+            type: object
+            properties:
+              account:
+                type: string
+                description: "Номер счета"
+              curr:
+                type: string
+                description: "Валюта"
+              value:
+                type: number
+                description: "Сумма"
+              createdAt:
+                type: string
+                format: date-time
+                description: "Момент создания"
+  ...
+```
+
+Результат:
+![AsyncAPI по шаблону](@document/dochub.templates.asyncapi)
+
 
 [Далее](/docs/dochub.datasets) 
