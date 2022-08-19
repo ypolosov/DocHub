@@ -1,0 +1,9 @@
+contexts:
+  #***********************************************************
+  #               Rjyntrcn-пример сервиса заказов
+  #***********************************************************
+  dochub.example:
+    title: Контектс-пример
+    components:
+      - dochub.examples.orders
+      - dochub.examples.payment
