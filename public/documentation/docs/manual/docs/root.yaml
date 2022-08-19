@@ -156,3 +156,16 @@ docs:
         }
       )
     template: examples/asyncapi_template.json
+  dochub.templates.openapi: # Пример генерации OpenAPI документа по шаблону
+    type: OpenAPI
+    source: >
+      (
+        $BODY := $mergedeep([components.*.openapi]);
+        {
+            "content": [$BODY.$spread().{
+                "field": $keys()[0],
+                "body": $string($lookup($, $keys()[0]))
+            }]
+        }
+      )
+    template: examples/openapi_template.json

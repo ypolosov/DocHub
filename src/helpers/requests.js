@@ -18,9 +18,11 @@ axios.interceptors.request.use(function(params) {
 });
 
 axios.interceptors.response.use(function(response) {
+	if (response.config.responseHook) 
+		response = response.config.responseHook(response);
 	if (!response.config.raw && typeof response.data === 'string' ) {
 		const url = response.config.url.toLowerCase();
-		if (url.indexOf('.json/raw') >= 0)
+		if ((url.indexOf('.json/raw') >= 0) || (url.slice(-5) === '.json'))
 			response.data = JSON.parse(response.data);
 		else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
 			response.data = YAML.parse(response.data);
@@ -162,7 +164,8 @@ export default {
 	},
 
 	// axios_params - параметры передавамые в axios 
-	// 		raw - если true не будет отрабатываеть interceptor на конвертацию респонса из JSON/YAML в объект
+	// 		responseHook - содержит функцию обработыки ответа перед работой interceptors
+	//		raw - если true возвращает ответ без обработки
 	request(uri, baseURI, axios_params) {
 		let params = Object.assign({}, axios_params);
 		params.source = this.makeURL(uri, baseURI);

@@ -254,4 +254,109 @@ components:
 ![AsyncAPI по шаблону](@document/dochub.templates.asyncapi)
 
 
+## OpenAPI
+
+Аналогично AsyncAPI можно собрать единый контракт для OpenAPI.
+
+Манифест документа:
+```yaml
+docs:
+  ...
+  dochub.templates.openapi: # Пример генерации OpenAPI документа по шаблону
+    type: OpenAPI
+    source: >
+      (
+        $BODY := $mergedeep([components.*.openapi]);
+        {
+            "content": [$BODY.$spread().{
+                "field": $keys()[0],
+                "body": $string($lookup($, $keys()[0]))
+            }]
+        }
+      )
+    template: examples/openapi_template.json
+  ...
+```
+
+Шаблон:
+```mustache
+{{=<% %>=}}
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Пример шаблона OpenAPI",
+    "description": "Контракты собираются из нескольких компонентов архитетуры"
+  },
+  "servers": [
+    {
+      "url": "http://host.net",
+      "description": "Сервис заказов"
+    }
+  ]
+  {{#content}}
+    ,"{{field}}":{{&body}}
+  {{/content}}
+}
+<%={{ }}=%>
+```
+
+Манифест компонентов:
+```yaml
+components:
+  ..
+  #***********************************************************
+  #               Компонет-пример сервиса заказов
+  #***********************************************************
+  dochub.examples.orders:
+    title: Сервис управления заказами
+    entity: component
+    technologies:
+      - PHP
+    ...
+    openapi: # Кастомное поле, созданное для примера сборки контрактов из архитектуры через шаблоны
+      paths:
+        /orders:
+          get:
+            summary: Получение списка заказов
+            responses:
+              '200':    # status code
+                content:
+                  application/json:
+                    schema:
+                      type: array
+                      items:
+                        type: string
+                        format: uid
+  #***********************************************************
+  #               Компонет-пример сервиса оплаты
+  #***********************************************************
+  dochub.examples.payment:
+    title: Сервис оплаты   
+    entity: component
+    expert: R.Piontik
+    technologies:
+      - SberPay
+      - Go
+    ...
+    openapi: # Кастомное поле, созданное для примера сборки контрактов из архитектуры через шаблоны
+      paths:
+        /payments:
+          get:
+            summary: Получение списка счетов
+            responses:
+              '200':    # status code
+                content:
+                  application/json:
+                    schema:
+                      type: array
+                      items:
+                        type: string
+                        format: uid
+    ...
+```
+
+Результат:
+![OpenAPI по шаблону](@document/dochub.templates.openapi)
+
+
 [Далее](/docs/dochub.datasets) 

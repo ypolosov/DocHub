@@ -3,13 +3,17 @@
     <asyncapi-component
       v-if="schema"
       v-bind="{ schema, cssImportPath: '/assets/styles/asyncapi.css' }" />
+    <v-alert
+      v-bind:value="!!error"
+      type="error">
+      {{ error }}
+    </v-alert>
   </div>
 </template>
 
 <script>
   import '@asyncapi/web-component/lib/asyncapi-web-component';
 
-  import YAML from 'yaml';
   import requests from '@/helpers/requests';
   import mustache from 'mustache';
   import DocMixin from './DocMixin';
@@ -18,7 +22,8 @@
     mixins: [DocMixin],
     data() {
       return {
-        schema: ''
+        schema: '',
+        error: null
       };
     },
     methods: {
@@ -26,16 +31,21 @@
         this.getSchema();
       },
       async getSchema() {
-        requests.request(this.url, undefined, { raw: true }).then((response) => {
-          let content = response.data;
-          if (typeof content === 'object')
-            content = YAML.stringify(content);
-          if (this.isTemplate)
-            content = mustache.render(content, this.source.dataset);
-          this.schema = content;
+        const params =  {
+          raw: true
+        };
+        if (this.isTemplate) {
+          params.responseHook= (response) => {
+            response.data = mustache.render(response.data, this.source.dataset);
+            return response;
+          };
+        }
+        requests.request(this.url, undefined, params).then((response) => {
+          this.schema = response.data;
         }).catch((e) => {
+          this.error = `${e} [${this.url}`;
           // eslint-disable-next-line no-console
-          console.error(`Ошибка запроса [${this.url}]`, e);
+          console.error(this.error);
         });
         this.sourceRefresh();
       }

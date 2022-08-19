@@ -48,3 +48,18 @@ components:
                 type: string
                 format: date-time
                 description: "Момент создания"
+    openapi: # Кастомное поле, созданное для примера сборки контрактов из архитектуры через шаблоны
+             # см. https://dochub.info/docs/dochub.templates
+      paths:
+        /orders:
+          get:
+            summary: Получение списка заказов
+            responses:
+              '200':    # status code
+                content:
+                  application/json:
+                    schema:
+                      type: array
+                      items:
+                        type: string
+                        format: uid
