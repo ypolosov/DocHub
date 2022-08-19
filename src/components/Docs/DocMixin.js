@@ -28,7 +28,7 @@ export default {
 			return this.profile.template;
 		},
 		profile() {
-			return (this.manifest.docs || {})[this.document] || {};
+			return this.manifest?.docs?.[this.document] || {};
 		},
 		url() {
 			return this.profile ?

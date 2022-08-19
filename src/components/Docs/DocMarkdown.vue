@@ -112,19 +112,17 @@
         this.toc = '';
         // Получаем шаблон документа
         setTimeout(() => {
-          requests.request(this.url).then((response) => {
-            // eslint-disable-next-line no-console
-            let content = response.data.toString();
-            if (content.length === 0)
+          requests.request(this.url).then(({ data }) => {
+            if (!data)
               this.markdown = 'Здесь пусто :(';
             else if (this.isTemplate) {
-              content = mustache.render(content, this.source.dataset);
-            }
-            this.markdown = content;
+              this.markdown = mustache.render(data, this.source.dataset);
+            } else
+              this.markdown = data;
           })
             .catch((e) => {
               // eslint-disable-next-line no-console
-              console.error(e, `Ошибка запроса (1) [${this.url}]`, e);
+              console.error(e, `Ошибка запроса [${this.url}]`, e);
             });
         }, 50);
         this.sourceRefresh();
