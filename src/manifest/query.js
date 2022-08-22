@@ -1,4 +1,5 @@
 import jsonata from 'jsonata';
+import ajv from 'ajv';
 
 const SCHEMA_CONTEXT = `
 (
@@ -243,7 +244,7 @@ const SCHEMA_QUERY = `
 `;
 
 const MENU_QUERY = `
-(
+$append((
     $GET_TITLE := function($LOCATION) {(
         $STRUCT := $split($LOCATION, "/");
         $STRUCT[$count($STRUCT) - 1];
@@ -316,7 +317,14 @@ const MENU_QUERY = `
     "route": route ? '/' & route : undefined,
     "icon": icon,
     "location": "" & (location ? location : route)
-}^(location)
+}^(location), [
+    {
+        "title": 'JSONata',
+        "route": '/devtool',
+        "icon": 'chrome_reader_mode',
+        "location": "devtool"
+    }
+])
 `;
 
 const CONTEXTS_QUERY_FOR_COMPONENT = `
@@ -579,6 +587,8 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
     )]^(id)]
 )`;
 
+// Расширенные функции JSONata
+
 function wcard(id, template) {
 	if (!id || !template) return false;
 	const idStruct = id.split('.');
@@ -617,6 +627,11 @@ function mergeDeep(sources) {
 	return mergeDeep({}, sources);
 }
 
+function jsonSchema(schema) {
+	const rules = new ajv({allErrors: true});
+	return rules.compile(schema);
+}
+
 export default {
 	// Создает объект запроса JSONata
 	//  expression - JSONata выражение
@@ -645,6 +660,7 @@ export default {
 		obj.core.assign('self', self_);
 		obj.core.registerFunction('wcard', wcard);
 		obj.core.registerFunction('mergedeep', mergeDeep);
+		obj.core.registerFunction('jsonschema', jsonSchema);
 		return obj;
 	},
 	// Меню
