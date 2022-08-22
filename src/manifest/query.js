@@ -629,7 +629,12 @@ function mergeDeep(sources) {
 
 function jsonSchema(schema) {
 	const rules = new ajv({allErrors: true});
-	return rules.compile(schema);
+	const validator = rules.compile(schema);
+	return (data) => {
+		const isOk = validator(data);
+		if (isOk) return true;
+		return validator.errors;
+	};
 }
 
 export default {

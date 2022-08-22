@@ -18,12 +18,15 @@
 <script>
 
   import query from '@/manifest/query';
+  import cookie from 'vue-cookie';
+
+  const COOKIE_NAME = 'json-dev-tool-query';
 
   export default {
     name: 'JSONataDevTool',
     data() {
       return {
-        query: '"Здесь введите JSONata запрос."',
+        query: cookie.get(COOKIE_NAME) || '"Здесь введите JSONata запрос."',
         result: null,
         observer: null
       };
@@ -32,12 +35,19 @@
       query(value) {
         this.observer && clearTimeout(this.observer);
         this.observer = setTimeout(() => {
-          this.result = JSON.stringify(query.expression(value).evaluate(this.manifest), null, 4);
+          this.execute();
           this.observer = null;
         }, 500);
+        cookie.set(COOKIE_NAME, value, 365);
       }
     },
+    mounted() {
+      this.execute();
+    },
     methods: {
+      execute() {
+        this.result = JSON.stringify(query.expression(this.query).evaluate(this.manifest), null, 4);
+      },
       tabber(event) {
         if (event) {
           event.preventDefault();
