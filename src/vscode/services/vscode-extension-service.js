@@ -7,11 +7,10 @@ export class VscodeExtensionService {
 		this.client = client;
 	}
 
-	createEmptyProject() {
-		vscode.postMessage('mock');
-	}
-
-	createDefaultProject() {
-		vscode.postMessage('hello');
+	createOne(content = '') {
+		vscode.postMessage({ 
+			command: 'create',
+			content
+		});
 	}
 }

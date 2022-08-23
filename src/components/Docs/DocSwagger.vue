@@ -30,8 +30,9 @@
         setTimeout(() => this.requestData(), 50);
         const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
         return profile ?
-          docs.urlFromProfile(profile,
-                              (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
+          docs.urlFromProfile(
+            profile,
+            (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
           )
           : '';
       }

@@ -1,6 +1,6 @@
-import requests from './requests';
-import docs from './docs';
 import query from '../manifest/query';
+import docs from './docs';
+import requests from './requests';
 
 export default function() {
 	return {

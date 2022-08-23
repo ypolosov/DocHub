@@ -1,6 +1,6 @@
-import requests from '../helpers/requests';
-import gitlab from '../helpers/gitlab';
 import jsonata from 'jsonata';
+import gitlab from '../helpers/gitlab';
+import requests from '../helpers/requests';
 import property from './prototype';
 
 let touchProjects = {};
@@ -105,6 +105,7 @@ const parser = {
 				path: path || '/',
 				location
 			});
+
 			if (typeof source === 'object') {
 				for (const key in source) {
 					this.pushToMergeMap(`${path || ''}/${key}`, source[key], location);
@@ -148,6 +149,7 @@ const parser = {
 			result = JSON.parse(JSON.stringify(source));
 			this.pushToMergeMap(path, result, location);
 		}
+
 		return result;
 	},
 
@@ -236,8 +238,8 @@ const parser = {
 			// Подключаем манифест самого DocHub
 			// eslint-disable-next-line no-constant-condition
 			if (
-				(process.env.VUE_APP_DOCHUB_MODE !== 'plugin') &&
-                ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
+				(process.env.VUE_APP_DOCHUB_MODE !== 'plugin') && 
+				((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
 			) {
 				this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
 			}
@@ -248,9 +250,7 @@ const parser = {
 		requests.request(uri).then((response) => {
 			const manifest = typeof response.data === 'object' ? response.data : JSON.parse(response.data);
 			if (!manifest) return;
-
 			// Определяем режим манифеста
-			// eslint-disable-next-line no-unused-vars
 			const mode = manifest.mode || this.MODE_AS_IS;
 			this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 

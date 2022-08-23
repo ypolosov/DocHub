@@ -44,15 +44,11 @@
         return !this.docs[this.document];
       },
       docs() {
-        return (this.manifest).docs || {};
+        return this.manifest?.docs || {};
       },
       docType() {
         return ((this.docs[this.document] || {}).type || 'unknown').toLowerCase();
       }
-    },
-    mounted() {
-    },
-    methods: {
     }
   };
 </script>

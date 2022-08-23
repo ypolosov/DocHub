@@ -1,4 +1,5 @@
-import config from '../../config';
+import config from '@/../config';
+
 export default {
 	svgURL(uml) {
 		return this.compress(uml);
@@ -31,9 +32,14 @@ export default {
 		for (var i = 0; i < s.length; i++) {
 			arr.push(s.charCodeAt(i));
 		}
-		// eslint-disable-next-line no-undef
-		let compressor = new Zopfli.RawDeflate(arr);
-		let compressed = compressor.compress();
-		return `${window.location.protocol}//${config.pumlServer}` + this.encode64_(compressed);
+
+		const compressor = new Zopfli.RawDeflate(arr);
+		const compressed = compressor.compress();
+
+		return window.$IDE_PLUGIN
+			? window.$PAPI.renderPlantUML(this.uml)
+			: process.env.VUE_APP_BUILD_VSCODE_EXTENSION 
+				? `https://${config.pumlServer}` + this.encode64_(compressed)
+				: `${window.location.protocol}//${config.pumlServer}` + this.encode64_(compressed);
 	}
 };

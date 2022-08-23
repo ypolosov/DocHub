@@ -8,6 +8,10 @@ module.exports = {
 	transpileDependencies: ['vueitfy'],
 	configureWebpack: {
 		entry: path.resolve(__dirname, '../src/vscode/main.js'),
+		output: {
+			library: 'DochubRender',
+			libraryTarget: 'umd'
+		},
 		optimization: {
 			splitChunks: false 
 		},

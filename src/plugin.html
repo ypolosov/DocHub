@@ -34,7 +34,7 @@
         isDebug: false,
         middleware: function(response) {
         },
-        request : function(params) {
+        request: function(params) {
           const data = JSON.stringify(params);
           window.$PAPI.isDebug && console.info('plugin request.request', data);
           return new Promise(function(res, rej) {

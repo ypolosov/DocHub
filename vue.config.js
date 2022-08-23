@@ -46,7 +46,7 @@ if(fs.lstatSync(__dirname + '/certs').isDirectory()) {
     }
 }
 */
-if (process.env.BUILD_VSCODE_EXTENSION) {
+if (process.env.VUE_APP_BUILD_VSCODE_EXTENSION) {
 	module.exports = vscodeConfig;
 } else {
 	module.exports = config;

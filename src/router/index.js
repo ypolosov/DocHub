@@ -1,21 +1,21 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Doc from '../components/Docs/DocHubDoc';
-import Conditions from '../components/Conditions';
-import DiffViewer from '../components/DiffViewer';
-import Main from '../components/Main';
 import config from '../../config';
-import consts from '../consts';
-import Component from '../components/Architecture/Component';
 import Aspect from '../components/Architecture/Aspect';
+import Component from '../components/Architecture/Component';
 import Context from '../components/Architecture/Context';
+import Conditions from '../components/Conditions';
+import Empty from '../components/Controls/Empty';
+import DiffViewer from '../components/DiffViewer';
+import Doc from '../components/Docs/DocHubDoc';
+import Main from '../components/Main';
+import AspectsMindmap from '../components/Mindmap/AspectsMindmap';
+import ComponentsMindmap from '../components/Mindmap/ComponentsMindmap';
+import Problems from '../components/Problems/Problems';
 import Radar from '../components/Techradar/Main';
 import Technology from '../components/Techradar/Technology';
-import Problems from '../components/Problems/Problems';
-import ComponentsMindmap from '../components/Mindmap/ComponentsMindmap';
-import AspectsMindmap from '../components/Mindmap/AspectsMindmap';
+import consts from '../consts';
 import gateway from '../idea/gateway';
-import Empty from '../components/Controls/Empty';
 
 Vue.use(Router);
 

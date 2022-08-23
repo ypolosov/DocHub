@@ -192,10 +192,11 @@
       render(mode) {
         if (this.outputFormat !== 'swagger-by-swagger') {
           if (!mode || (mode.indexOf('source') >= 0)) {
-            if (this.sourceURI)
+            if (this.sourceURI) {
               this.downloadSource();
-            else
+            } else {
               this.sourceDoc = null;
+            }
           }
           if (!mode || (mode.indexOf('target') >= 0)) {
             if (this.targetURI && this.targetURI.toUpperCase() !== 'NULL')

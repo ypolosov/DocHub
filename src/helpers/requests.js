@@ -1,7 +1,7 @@
-import axios  from  'axios';
-import gitlab from './gitlab';
-import config from '../../config';
+import axios from 'axios';
 import YAML from 'yaml';
+import config from '../../config';
+import gitlab from './gitlab';
 
 
 // Add a request interceptor
@@ -42,6 +42,7 @@ if(window.$PAPI) {
 	};
 }
 
+
 export default {
 	axios,
 	isExtarnalURI(uri) {
@@ -50,10 +51,11 @@ export default {
         && uri.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
 	},
 	getSourceRoot(){
-		if(window.$IDE_PLUGIN) {
+		if (window.$IDE_PLUGIN) {
 			return 'plugin:/idea/source/';
-		} else 
+		} else {
 			return window.origin + '/';
+		}
 	},
 	getGitLabProjectID(uri) {
 		let result = undefined;
@@ -86,6 +88,7 @@ export default {
 			if (!baseURI) {
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
+			
 			if ((new URL(baseURI)).protocol === 'gitlab:') {
 				const segments = baseURI.split('@');
 				if (segments.length !== 2) {
@@ -163,8 +166,10 @@ export default {
 
 	request(uri, baseURI, axios_params) {
 		let params = Object.assign({}, axios_params);
+		
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
+		
 		if (window.$IDE_PLUGIN && uri.split(':')[0] === 'plugin') {
 			return window.$PAPI.request(params);
 		} else {

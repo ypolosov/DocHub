@@ -54,7 +54,7 @@
         });
         uml += '@endwbs\n';
         // eslint-disable-next-line no-console
-        console.info(uml);
+        // console.info(uml);
         return uml;
       }
     },

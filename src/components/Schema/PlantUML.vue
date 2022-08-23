@@ -265,9 +265,9 @@
         this.isLoading = true;
 
         this.$nextTick(() => {
-          const request= window.$IDE_PLUGIN
+          const request = window.$IDE_PLUGIN
             ? window.$PAPI.renderPlantUML(this.uml) 
-            : axios({url: plantUML.svgURL(this.uml)});
+            : axios({ url: plantUML.svgURL(this.uml) });
           request.then((response) => {
             this.svg = response.data.toString();
             this.isLoading = false;

@@ -320,6 +320,83 @@ const MENU_QUERY = `
 }^(location)
 `;
 
+const MENU_QUERY_VSCODE = `
+(
+    $GET_TITLE := function($LOCATION) {(
+        $STRUCT := $split($LOCATION, "/");
+        $STRUCT[$count($STRUCT) - 1];
+    )};
+
+    $MANIFEST := $;
+    [
+			{
+				"title": 'Архитектура',
+				"location": 'architect',
+				"route": 'architect/',
+				"expand": true,
+				"icon": 'mdi-home'
+			},
+			{
+				"title": "Контексты",
+				"location": 'architect/contexts',
+				"icon": 'mdi-crosshairs'
+			},
+			{
+				"title": "Аспекты",
+				"location": 'architect/aspects',
+				"icon": 'mdi-eye',
+				"route": 'aspects/'
+			},
+			{
+				"title": 'Документы',
+				"location": 'docs',
+				"expand": true,
+				"icon": 'mdi-file-document'
+			},
+			contexts.$spread().{
+				"title": $GET_TITLE($.*.location ? $.*.location : $keys()[0]),
+				"route": 'architect/contexts/' & $keys()[0],
+				"hiden": $.*.location ? false : true,
+				"location": 'architect/contexts/' & $.*.location,
+				"icon": $.*.icon ? $.*.icon : ''
+			},
+			aspects.$spread().{
+				"title": $GET_TITLE($.*.location),
+				"route": 'architect/aspects/' & $keys()[0],
+				"location": 'architect/aspects/' & $.*.location,
+				"icon": $.*.icon ? $.*.icon : ''
+			},
+			docs.$spread().{
+				"title": $GET_TITLE($.*.location),
+				"route": 'docs/' & $keys()[0],
+				"hiden": $.*.location ? false : true,
+				"location": 'docs/' & $.*.location,
+				"icon": $.*.icon ? $.*.icon : ''
+			},
+			{
+				"title": 'Техрадар',
+				"route": 'techradar',
+				"icon": 'mdi-radar'
+			},
+			technologies.sections.$spread().{
+				"title": $.*.title,
+				"route": 'techradar/' & $keys()[0],
+				"location": 'techradar/' & $.*.title
+			},
+			{
+				"title": 'Проблемы',
+				"route": 'problems',
+				"icon": 'report_problem'
+			}
+    ][($exists(hiden) and $not(hiden)) or $not($exists(hiden))]
+).{
+    "title": "" & title,
+    "route": route ? '/' & route : undefined,
+    "icon": icon,
+    "location": "" & (location ? location : route)
+}^(location)
+`;
+
 const CONTEXTS_QUERY_FOR_COMPONENT = `
 (
     $MANIFEST := $;
@@ -584,15 +661,15 @@ export default {
 	expression(expression) {
 		const obj = {
 			expression,
-			core : jsonata(expression),
+			core: jsonata(expression),
 			evaluate(context, def) {
 				try {
 					return Object.freeze(this.core.evaluate(context));
-				} catch(e) {
+				} catch (e) {
 					// eslint-disable-next-line no-console
 					console.error('JSONata error:');
 					// eslint-disable-next-line no-console
-					console.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red' );
+					console.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red');
 					// eslint-disable-next-line no-console
 					console.error(e);
 					return def;
@@ -616,7 +693,7 @@ export default {
 	},
 	// Меню
 	menu() {
-		return MENU_QUERY;
+		return process.env.VUE_APP_BUILD_VSCODE_EXTENSION ? MENU_QUERY_VSCODE : MENU_QUERY;
 	},
 	// Запрос по контексту
 	context(context) {

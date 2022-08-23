@@ -1,14 +1,13 @@
-import config from '../../config';
-import cookie from 'vue-cookie';
-import GitHelper from '../helpers/gitlab';
-import parser from '../manifest/manifest_parser';
-import Vue from 'vue';
-import manifest_parser from '../manifest/manifest_parser';
-import requests from '../helpers/requests';
-import gateway from '../idea/gateway';
-import consts from '../consts';
-import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
+import Vue from 'vue';
+import cookie from 'vue-cookie';
+import config from '../../config';
+import consts from '../consts';
+import GitHelper from '../helpers/gitlab';
+import requests from '../helpers/requests';
+import rules from '../helpers/rules';
+import gateway from '../idea/gateway';
+import { default as manifest_parser, default as parser } from '../manifest/manifest_parser';
 
 const axios = require('axios');
 
@@ -95,7 +94,7 @@ export default {
 
 	actions: {
 		// Action for init store
-		init(context) {
+		init(context, uri) {
 			const errors = {
 				syntax: null,
 				net: null
@@ -103,7 +102,7 @@ export default {
 			context.commit('setRenderCore', 
 				process.env.VUE_APP_DOCHUB_MODE === 'plugin' ? 'smetana' : 'graphviz'
 			);
-			context.dispatch('reloadAll');
+			context.dispatch('reloadAll', uri);
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
 			parser.onReloaded = (parser) => {
@@ -194,7 +193,7 @@ export default {
 								// eslint-disable-next-line no-console
 								console.info('>>>>>> GO RELOAD <<<<<<<<<<');
 								changes = {};
-								context.dispatch('reloadAll');
+								context.dispatch('reloadAll', uri);
 								break;
 							}
 						}
@@ -248,9 +247,9 @@ export default {
 		},
 
 		// Reload root manifest
-		reloadAll(context) {
+		reloadAll(context, uri) {
 			context.commit('clean');
-			context.dispatch('reloadRootManifest');
+			context.dispatch('reloadRootManifest', uri);
 		},
 
 		// Search and set document by URI
@@ -305,8 +304,12 @@ export default {
 		},
 
 		// Reload root manifest
-		reloadRootManifest() {
-			parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
+		reloadRootManifest(_, uri) {
+			if (uri) {
+				parser.import(requests.makeURIByBaseURI(uri));
+			} else {
+				parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
+			}
 		},
 
 		// Регистрация проблемы

@@ -12,7 +12,10 @@
       v-on:rendered="rendered">
       {{ markdown }}
     </markdown>
-    <final-markdown v-if="showDocument && outHTML" v-bind:template="outHTML" v-bind:base-u-r-i="url" />
+    <final-markdown 
+      v-if="showDocument && outHTML"
+      v-bind:template="outHTML"
+      v-bind:base-u-r-i="url" />
     <v-progress-circular
       v-else
       v-bind:size="64"
@@ -88,8 +91,9 @@
       url() {
         const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
         return profile ?
-          docs.urlFromProfile(profile,
-                              (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
+          docs.urlFromProfile(
+            profile,
+            (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
           )
           : '';
       }
@@ -97,10 +101,22 @@
     watch: {
       url() { this.refresh(); }
     },
-    mounted() {
+    async mounted() {
       this.refresh();
+      await this.getMarkdown();
     },
     methods: {
+      async getMarkdown() {
+        try {
+          const { data } = await requests.request('/documentation/docs/manual/config/config.md', requests.getSourceRoot());
+
+          // eslint-disable-next-line no-console
+          console.log(123, data);
+        } catch(e) {
+          // eslint-disable-next-line no-console
+          console.log(e);
+        }
+      },
       // eslint-disable-next-line no-unused-vars
       rendered(outHtml) {
         if (this.outHTML !== outHtml) {
@@ -125,12 +141,13 @@
         this.showDocument = false;
         this.toc = '';
         setTimeout(() => {
-          requests.request(this.url).then((response) => {
-            // eslint-disable-next-line no-console
-            this.markdown = response.data.toString();
-            if (this.markdown.length === 0)
-              this.markdown = 'Здесь пусто :(';
-          })
+          requests.request(this.url)
+            .then((response) => {
+              this.markdown = response.data.toString();
+              if (this.markdown.length === 0) {
+                this.markdown = 'Здесь пусто :(';
+              }
+            })
             .catch((e) => {
               // eslint-disable-next-line no-console
               console.error(e, `Ошибка запроса (1) [${this.url}]`, e);

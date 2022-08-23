@@ -25,7 +25,7 @@
           return false;
         } else if ((this.href || '').split(':/').length == 1) {
           event.preventDefault();
-          this.$router.push({ path: this.href});
+          this.$router.push({ path: this.href });
           return false;
         }
         return true;

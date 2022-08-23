@@ -6,7 +6,8 @@
 		"jest": true
 	},
 	"globals": {
-		"vscode": "readonly"
+		"vscode": "readonly",
+		"Zopfli": "readonly"
 	},
 	"extends": [
 		"eslint:recommended",
