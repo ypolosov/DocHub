@@ -1,11 +1,17 @@
 # syntax = docker/dockerfile:1.3
-FROM node:12-alpine AS deps
+ARG NODE_VERSION=12
+
+
+
+FROM node:${NODE_VERSION}-alpine AS deps
 WORKDIR /var/www
 COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm install
+# RUN --mount=type=cache,target=/root/.npm npm install
+RUN npm install
 
 
-FROM node:12-alpine AS builder
+
+FROM node:${NODE_VERSION}-alpine AS builder
 WORKDIR /var/www
 COPY --from=deps /var/www .
 COPY . .
@@ -16,5 +22,10 @@ CMD ["npm", "run", "serve"]
 EXPOSE 8080
 
 
+
+
+
 FROM ghcr.io/rabotaru/dochub/nginx:v0.0.3 as nginx
 COPY --chown=101 --from=builder /var/www/dist /usr/share/nginx/html
+
+
