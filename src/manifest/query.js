@@ -662,7 +662,6 @@ export default {
 					} 
 					return Object.freeze(this.core.evaluate(context));
 				} catch(e) {
-					debugger;
 					// eslint-disable-next-line no-console
 					console.error('JSONata error:');
 					// eslint-disable-next-line no-console
