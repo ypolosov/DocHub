@@ -227,12 +227,13 @@ const parser = {
 
 	// Подключение манифеста
 	import(uri, subimport) {
+		// eslint-disable-next-line no-console
+		console.info('>>>>>IMPORT ', uri, 'subimport=', subimport);
 		if (!subimport) {
-			this.manifest = { [this.MODE_AS_IS] : this.merge({}, this.makeBaseManifest(), uri)};
 			this.mergeMap = [];
+			this.manifest = { [this.MODE_AS_IS] : this.merge({}, this.makeBaseManifest(), uri)};
 			touchProjects = {};
 			this.incReqCounter();
-
 			// Подключаем манифест самого DocHub
 			// eslint-disable-next-line no-constant-condition
 			if (
