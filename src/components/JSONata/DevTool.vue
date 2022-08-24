@@ -9,7 +9,8 @@
           v-on:keydown.tab.prevent="tabber($event)" />
       </split-area>
       <split-area v-bind:size="70" class="area-space">
-        <textarea v-model="result" class="area" readonly style="background-color: #f5f5f5;" wrap="off" />
+        <pre v-if="error" class="area" v-html="errorExplain" />
+        <textarea v-else v-model="result" class="area" readonly style="background-color: #f5f5f5;" wrap="off" />
       </split-area>
     </Split>
   </v-container>
@@ -18,33 +19,57 @@
 <script>
 
   import query from '@/manifest/query';
+  import cookie from 'vue-cookie';
+
+  const COOKIE_NAME = 'json-dev-tool-query';
 
   export default {
     name: 'JSONataDevTool',
     data() {
       return {
-        query: '"Здесь введите JSONata запрос."',
+        query: cookie.get(COOKIE_NAME) || '"Здесь введите JSONata запрос."',
         result: null,
+        error: null,
         observer: null
       };
+    },
+    computed: {
+      errorExplain() {
+        if (this.error) {
+          const pos = this.error.position;
+          return `Error: ${this.error.message}\n\n${this.query.slice(0, pos)} <span style="color:red"> ${this.query.slice(pos)} </span>`;
+        }
+        return null;
+      }
     },
     watch: {
       query(value) {
         this.observer && clearTimeout(this.observer);
         this.observer = setTimeout(() => {
-          this.result = JSON.stringify(query.expression(value).evaluate(this.manifest), null, 4);
+          this.execute();
           this.observer = null;
         }, 500);
+        cookie.set(COOKIE_NAME, value, 365);
       }
     },
+    mounted() {
+      this.execute();
+    },
     methods: {
+      execute() {
+        this.error = null;
+        const jsonata = query.expression(this.query);
+        jsonata.onError = (e) => this.error = e;
+        this.result = JSON.stringify(jsonata.evaluate(this.manifest), null, 4);
+      },
       tabber(event) {
         if (event) {
-          event.preventDefault();
-          let startText = this.query.slice(0, event.target.selectionStart);
-          let endText = this.query.slice(event.target.selectionStart);
+          const originalSelectionStart = event.target.selectionStart;
+          const startText = this.query.slice(0, event.target.selectionStart);
+          const endText = this.query.slice(event.target.selectionStart);
           this.query = `${startText}\t${endText}`;
-          event.target.selectionEnd = event.target.selectionStart + 1;
+          event.target.value = this.query;
+          event.target.selectionEnd = event.target.selectionStart = originalSelectionStart + 1;
         }
       }      
     }

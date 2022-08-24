@@ -13,6 +13,7 @@
     "@asyncapi/web-component": "0.24.23",
     "@mdi/font": "5.9.55",
     "ajv": "8.11.0",
+    "ajv-i18n": "4.2.0",
     "axios": "0.21.1",
     "dateformat": "3.0.3",
     "jsonata": "1.8.6",

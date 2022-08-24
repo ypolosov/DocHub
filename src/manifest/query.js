@@ -1,5 +1,6 @@
 import jsonata from 'jsonata';
 import ajv from 'ajv';
+const ajv_localize = require('ajv-i18n/localize/ru');
 
 const SCHEMA_CONTEXT = `
 (
@@ -629,7 +630,13 @@ function mergeDeep(sources) {
 
 function jsonSchema(schema) {
 	const rules = new ajv({allErrors: true});
-	return rules.compile(schema);
+	const validator = rules.compile(schema);
+	return (data) => {
+		const isOk = validator(data);
+		if (isOk) return true;
+		ajv_localize(validator.errors);
+		return validator.errors;
+	};
 }
 
 export default {
@@ -639,12 +646,20 @@ export default {
 	expression(expression, self_) {
 		const obj = {
 			expression,
-			core : jsonata(expression),
+			core : null,
+			onError: null,  // Событие ошибки выполнения запроса
 			// Исполняет запрос
 			//  context - контекст исполнения запроса
 			//  def - если возникла ошибка, будет возращено это значение
 			evaluate(context, def) {
 				try {
+					if (!this.core) {
+						this.core = jsonata(this.expression);
+						this.core.assign('self', self_);
+						this.core.registerFunction('wcard', wcard);
+						this.core.registerFunction('mergedeep', mergeDeep);
+						this.core.registerFunction('jsonschema', jsonSchema);
+					} 
 					return Object.freeze(this.core.evaluate(context));
 				} catch(e) {
 					// eslint-disable-next-line no-console
@@ -653,14 +668,11 @@ export default {
 					console.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red' );
 					// eslint-disable-next-line no-console
 					console.error(e);
+					this.onError && this.onError(e);
 					return def;
 				}
 			}
 		};
-		obj.core.assign('self', self_);
-		obj.core.registerFunction('wcard', wcard);
-		obj.core.registerFunction('mergedeep', mergeDeep);
-		obj.core.registerFunction('jsonschema', jsonSchema);
 		return obj;
 	},
 	// Меню
