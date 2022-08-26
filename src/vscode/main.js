@@ -18,7 +18,7 @@ import GlobalMixin from '@/mixins/global';
 import { vuetify } from '@/vscode/app/plugins/vuetify';
 // import { createRouter } from '@/vscode/create-router';
 import { createProviders } from './create-providers';
-// import { createVsCodeListener } from './create-vs-code-listener';
+import { createVsCodeListener } from './create-vs-code-listener';
 import { createStore } from './store/store';
 
 import '@/assets/styles/main.css';
@@ -36,15 +36,21 @@ Vue.component('DochubTechnology', Technology);
 Vue.component('DochubRadar', Radar);
 Vue.component('DochubPlantuml', PlantUML);
 
+// import Vuex from 'vuex';
+// import gitlab from '@/helpers/gitlab';
+// const store = new Vuex.Store(gitlab);
+// window.Vuex = store;
+
 function main(uri = '') {
 	const providers = createProviders();
 	const store = createStore();
+	createVsCodeListener(store);
 	// const router = createRouter();
 	
 	Vue.mixin(GlobalMixin);
 	// store.dispatch('init');
-
 	store.dispatch('init', uri);
+	
 
 	const app = new Vue({
 		provide: {
@@ -65,4 +71,4 @@ export default {
 	main
 };
 
-main();
+// main();

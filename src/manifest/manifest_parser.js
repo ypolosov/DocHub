@@ -120,6 +120,7 @@ const parser = {
 	// path - Путь к объекту
 	merge(destination, source, location, path) {
 		let result;
+		
 		if (destination === undefined) {
 			result = JSON.parse(JSON.stringify(source));
 			this.pushToMergeMap(path, result, location);
@@ -240,6 +241,7 @@ const parser = {
 			if (
 				(process.env.VUE_APP_DOCHUB_MODE !== 'plugin') && 
 				((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
+				|| !process.env.VUE_APP_BUILD_VSCODE_EXTENSION
 			) {
 				this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
 			}
@@ -247,8 +249,10 @@ const parser = {
 
 		this.incReqCounter();
 		this.touchProjects(uri, () => false);
+
 		requests.request(uri).then((response) => {
 			const manifest = typeof response.data === 'object' ? response.data : JSON.parse(response.data);
+			
 			if (!manifest) return;
 			// Определяем режим манифеста
 			const mode = manifest.mode || this.MODE_AS_IS;

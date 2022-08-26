@@ -43,7 +43,7 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 	if (process.env.NODE_ENV !== 'production') {
 		window.$IDE_PLUGIN = true;
 		window.$PAPI = require('./src/idea/apimoc').default;
-	} else  {
+	} else {
 		config.root_manifest = consts.plugin.ROOT_MANIFEST;
 	}
 }

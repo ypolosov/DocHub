@@ -102,7 +102,7 @@ export default {
 					result = `${segments[0]}@${base.slice(0, base.length - 1).join('/')}${base.length > 1 ? '/' : ''}${uri}`;
 				}
 			} else {
-				let slices = baseURI.split('/');
+				const slices = baseURI.split('/');
 				result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri).url;
 			}
 		}
@@ -172,6 +172,8 @@ export default {
 		
 		if (window.$IDE_PLUGIN && uri.split(':')[0] === 'plugin') {
 			return window.$PAPI.request(params);
+		} else if(process.env.VUE_APP_BUILD_VSCODE_EXTENSION) {
+			return window.VS_CODE_LISTENER.request(params);
 		} else {
 			return axios(params);
 		}

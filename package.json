@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "serve-vscode": "set NODE_OPTIONS=--openssl-legacy-provider && set VUE_APP_BUILD_VSCODE_EXTENSION=true && npx vue-cli-service serve",
-    "build-vscode": "set NODE_OPTIONS=--openssl-legacy-provider && set VUE_APP_BUILD_VSCODE_EXTENSION=true && npx vue-cli-service build",
+    "build-vscode": "cross-env VUE_APP_BUILD_VSCODE_EXTENSION=true vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test": "jest --watch",
     "meta-import": "node src/tools/meta/import.js"

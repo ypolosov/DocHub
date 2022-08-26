@@ -13,7 +13,7 @@
       {{ markdown }}
     </markdown>
     <final-markdown 
-      v-if="showDocument && outHTML"
+      v-else-if="showDocument && outHTML"
       v-bind:template="outHTML"
       v-bind:base-u-r-i="url" />
     <v-progress-circular
@@ -31,7 +31,7 @@
   import docs from '@/helpers/docs';
   import requests from '@/helpers/requests';
   import markdown from 'vue-markdown';
-  import DocMarkdownObject from './DocHubObject';
+  import DocMarkdownObject from './DocHubObject.vue';
   
   export default {
     name: 'DocMarkdown',
@@ -103,22 +103,11 @@
     },
     async mounted() {
       this.refresh();
-      await this.getMarkdown();
+      // await this.getMarkdown();
     },
     methods: {
-      async getMarkdown() {
-        try {
-          const { data } = await requests.request('/documentation/docs/manual/config/config.md', requests.getSourceRoot());
-
-          // eslint-disable-next-line no-console
-          console.log(123, data);
-        } catch(e) {
-          // eslint-disable-next-line no-console
-          console.log(e);
-        }
-      },
-      // eslint-disable-next-line no-unused-vars
       rendered(outHtml) {
+        console.log('🚀 ~ file: DocMarkdown.vue ~ line 113 ~ rendered ~ outHtml', outHtml);
         if (this.outHTML !== outHtml) {
           this.outHTML = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" ');
           this.showDocument = false;
