@@ -20,9 +20,6 @@ axios.interceptors.request.use(function(params) {
 axios.interceptors.response.use(function(response) {
 	if (response.config.responseHook) 
 		response = response.config.responseHook(response);
-	if (response.config.responseType?.toLowerCase() === 'arraybuffer') {
-		debugger;
-	}
 	if (typeof response.data === 'string') {
 		if (!response.config.raw) {
 			const url = response.config.url.split('?')[0].toLowerCase();
@@ -30,9 +27,6 @@ axios.interceptors.response.use(function(response) {
 				response.data = JSON.parse(response.data);
 			else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
 				response.data = YAML.parse(response.data);
-		}
-		if (response.config.responseType?.toLowerCase() === 'arraybuffer') {
-			debugger;
 		}
 	}
 	return response;
