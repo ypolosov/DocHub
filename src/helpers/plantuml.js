@@ -36,10 +36,12 @@ export default {
 		// eslint-disable-next-line no-undef
 		let compressor = new Zopfli.RawDeflate(arr);
 		let compressed = compressor.compress();
-		let serverURL = config.pumlServer;
-		if (!requests.isURL(serverURL)) {
-			serverURL = `${window?.location?.protocol || 'https:'}//${config.pumlServer}`;
-		}
+		
+		const serverURL = 
+			!requests.isURL(config.pumlServer) 
+				? `${window?.location?.protocol || 'https:'}//${config.pumlServer}`
+				: config.pumlServer;
+
 		return serverURL + this.encode64_(compressed);
 	}
 };
