@@ -46,10 +46,12 @@ if(window.$PAPI) {
 
 export default {
 	axios,
+	isURL(url) {
+		// eslint-disable-next-line no-useless-escape
+		return url.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.?[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
+	},
 	isExtarnalURI(uri) {
-		return (uri.slice(0, window.origin.length) !== window.origin) 
-        // eslint-disable-next-line no-useless-escape
-        && uri.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
+		return (uri.slice(0, window.origin.length) !== window.origin) && this.isURL(uri);
 	},
 	getSourceRoot(){
 		if(window.$IDE_PLUGIN) {

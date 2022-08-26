@@ -1,4 +1,6 @@
 import config from '../../config';
+import requests from '../helpers/requests';
+
 export default {
 	svgURL(uml) {
 		return this.compress(uml);
@@ -34,6 +36,10 @@ export default {
 		// eslint-disable-next-line no-undef
 		let compressor = new Zopfli.RawDeflate(arr);
 		let compressed = compressor.compress();
-		return `${window.location.protocol}//${config.pumlServer}` + this.encode64_(compressed);
+		let serverURL = config.pumlServer;
+		if (!requests.isURL(serverURL)) {
+			serverURL = `${window?.location?.protocol || 'https:'}//${config.pumlServer}`;
+		}
+		return serverURL + this.encode64_(compressed);
 	}
 };
