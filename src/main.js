@@ -8,6 +8,7 @@ import Vuetify from 'vuetify';
 import Vuex from 'vuex';
 import Root from './components/Root.vue';
 import router from './router';
+import VueSplit from 'vue-split-panel';
 
 import Aspect from './components/Architecture/Aspect.vue';
 import Component from './components/Architecture/Component.vue';
@@ -32,6 +33,7 @@ window.Router = router;
 Vue.use(Vuex);
 Vue.use(Vuetify);
 Vue.use(VueCookie);
+Vue.use(VueSplit);
 
 Vue.prototype.$axios = Axios;
 Vuex.Store.prototype.$axios = Axios;
