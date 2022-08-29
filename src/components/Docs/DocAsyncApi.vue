@@ -2,7 +2,8 @@
   <div>
     <asyncapi-component
       v-if="schema"
-      v-bind="{ schema, cssImportPath: '/assets/styles/asyncapi.css' }" />
+      ref="asyncapi"
+      v-bind="{ schema }" />
   </div>
 </template>
 
@@ -12,6 +13,7 @@
   import YAML from 'yaml';
   import docs from '@/helpers/docs';
   import requests from '@/helpers/requests';
+  import { asyncApiStyles } from '@/components/Docs/styles/asyncapi';
 
   export default {
     props: {
@@ -23,6 +25,11 @@
       };
     },
     computed: {
+      cssImportPath() {
+        /* eslint-disable */
+        return '/assets/styles/asyncapi.css';
+        /* eslint-enable */
+      },
       url() {
         const profile = this.manifest.docs?.[this.document] || null;
 
@@ -36,8 +43,11 @@
       this.onComponentCreated();
     },
     methods: {
-      onComponentCreated() {
-        this.getSchema();
+      async onComponentCreated() {
+        await this.getSchema();
+        
+        const html = this.$refs.asyncapi.shadowRoot.querySelector('style');
+        html.innerHTML = asyncApiStyles;
       },
       async getSchema() {
         try {

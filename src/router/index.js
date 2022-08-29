@@ -179,7 +179,7 @@ gateway.appendListener('navigate/component', (data) => {
 });
 
 gateway.appendListener('navigate/document', (data) => {
-	router.push({ path: `/docs/${Object.keys(data)[0]}`});
+	router.push({ path: `/${Object.keys(data)[0]}`});
 });
 
 gateway.appendListener('navigate/aspect', (data) => {

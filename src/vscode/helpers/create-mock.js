@@ -1,6 +1,7 @@
+import config from '@/../config';
 import YAML from 'yaml';
 
-function normalizeResponse({ type, content }) {
+function normalizeResponse(type, content) {
 	if (type === 'yaml') {
 		return YAML.parse(content);
 	} else if (type === 'json') {
@@ -10,36 +11,41 @@ function normalizeResponse({ type, content }) {
 	return content;
 }
 
+const listeners = {};
+
+window.addEventListener('message', (event) => {
+	const { command, content, error } = event?.data;
+
+	if (command === 'response') {
+		const { stringifedUri, value, type } = content;
+
+		if (error) {
+			listeners[stringifedUri].rej(error);
+		} else {
+			listeners[stringifedUri].res({ data: normalizeResponse(type, value) });
+		}
+	}
+});
+
 export function createMock(store) {
 	return {
 		initProject(uri) {
 			store.dispatch('init', uri);
 		},
-		initRoot() {
-			// const result = Parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
-
-			// store.commit('SET_MANIFEST', Object.freeze(Parser.manifest));
-			// store.commit('SET_SOURCES', Object.freeze(Parser.mergeMap));
+		renderPlantUML: function(uml) {
+			return this.request({ source: uml });
 		},
 		request(uri) {
-			return new Promise((res, rej) => {
-				vscode.postMessage({
-					command: 'request',
-					content: JSON.stringify(uri)
-				});
+			const stringifedUri = JSON.stringify(uri);
 
-				window.addEventListener('message', (event) => {
-					const { command, content, error } = event.data;
-
-					if (command === 'response') {
-						if (error) {
-							rej(error);
-						} else {
-							res({ data: normalizeResponse(content) });
-						}
-					}
-				});
+			vscode.postMessage({
+				command: 'request',
+				content: stringifedUri
 			});
+			
+			return new Promise((res, rej) => {
+				listeners[stringifedUri] = { res, rej };
+			});	
 		}
 	};
 }

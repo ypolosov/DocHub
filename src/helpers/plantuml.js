@@ -38,8 +38,6 @@ export default {
 
 		return window.$IDE_PLUGIN
 			? window.$PAPI.renderPlantUML(this.uml)
-			: process.env.VUE_APP_BUILD_VSCODE_EXTENSION 
-				? `https://${config.pumlServer}` + this.encode64_(compressed)
-				: `${window.location.protocol}//${config.pumlServer}` + this.encode64_(compressed);
+			: `${window.location.protocol}//${config.pumlServer}` + this.encode64_(compressed);
 	}
 };

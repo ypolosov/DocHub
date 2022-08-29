@@ -1,6 +1,6 @@
-import jsonata from 'jsonata';
-import gitlab from '../helpers/gitlab';
 import requests from '../helpers/requests';
+import gitlab from '../helpers/gitlab';
+import jsonata from 'jsonata';
 import property from './prototype';
 
 let touchProjects = {};
@@ -105,7 +105,6 @@ const parser = {
 				path: path || '/',
 				location
 			});
-
 			if (typeof source === 'object') {
 				for (const key in source) {
 					this.pushToMergeMap(`${path || ''}/${key}`, source[key], location);
@@ -120,7 +119,6 @@ const parser = {
 	// path - Путь к объекту
 	merge(destination, source, location, path) {
 		let result;
-		
 		if (destination === undefined) {
 			result = JSON.parse(JSON.stringify(source));
 			this.pushToMergeMap(path, result, location);
@@ -150,7 +148,6 @@ const parser = {
 			result = JSON.parse(JSON.stringify(source));
 			this.pushToMergeMap(path, result, location);
 		}
-
 		return result;
 	},
 
@@ -231,37 +228,37 @@ const parser = {
 	// Подключение манифеста
 	import(uri, subimport) {
 		if (!subimport) {
-			this.manifest = { [this.MODE_AS_IS] : this.merge({}, this.makeBaseManifest(), uri)};
 			this.mergeMap = [];
+			this.manifest = { [this.MODE_AS_IS] : this.merge({}, this.makeBaseManifest(), uri)};
 			touchProjects = {};
 			this.incReqCounter();
-
 			// Подключаем манифест самого DocHub
 			// eslint-disable-next-line no-constant-condition
-			if (
-				(process.env.VUE_APP_DOCHUB_MODE !== 'plugin') && 
-				((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
-				|| !process.env.VUE_APP_BUILD_VSCODE_EXTENSION
-			) {
-				this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
-			}
+			// if (
+			// 	(process.env.VUE_APP_DOCHUB_MODE !== 'plugin') &&
+			// 	((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
+			// ) {
+			// 	this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
+			// }
 		}
 
 		this.incReqCounter();
 		this.touchProjects(uri, () => false);
-
 		requests.request(uri).then((response) => {
 			const manifest = typeof response.data === 'object' ? response.data : JSON.parse(response.data);
-			
 			if (!manifest) return;
+
 			// Определяем режим манифеста
+			// eslint-disable-next-line no-unused-vars
 			const mode = manifest.mode || this.MODE_AS_IS;
 			this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
 			for (const section in manifest) {
-				['forms', 'namespaces', 'aspects', 'docs', 'contexts', 'components', 'datasets'].indexOf(section) >= 0
-                && section !== 'imports'; 
-				this.parseEntity(manifest[section],`${mode}/${section}`, uri);
+				if (
+					['forms', 'namespaces', 'aspects', 'docs', 'contexts', 'components', 'datasets'].indexOf(section) >= 0
+				) {
+					this.parseEntity(manifest[section],`${mode}/${section}`, uri);
+				}
 			}
 
 			// Подключаем манифесты

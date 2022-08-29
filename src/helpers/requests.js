@@ -170,10 +170,8 @@ export default {
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
 		
-		if (window.$IDE_PLUGIN && uri.split(':')[0] === 'plugin') {
+		if (window.$IDE_PLUGIN) {
 			return window.$PAPI.request(params);
-		} else if(process.env.VUE_APP_BUILD_VSCODE_EXTENSION) {
-			return window.VS_CODE_LISTENER.request(params);
 		} else {
 			return axios(params);
 		}

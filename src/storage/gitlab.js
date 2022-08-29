@@ -1,13 +1,14 @@
-import crc16 from '@/helpers/crc16';
-import Vue from 'vue';
-import cookie from 'vue-cookie';
 import config from '../../config';
-import consts from '../consts';
+import cookie from 'vue-cookie';
 import GitHelper from '../helpers/gitlab';
+import parser from '../manifest/manifest_parser';
+import Vue from 'vue';
+import manifest_parser from '../manifest/manifest_parser';
 import requests from '../helpers/requests';
-import rules from '../helpers/rules';
 import gateway from '../idea/gateway';
-import { default as manifest_parser, default as parser } from '../manifest/manifest_parser';
+import consts from '../consts';
+import rules from '../helpers/rules';
+import crc16 from '@/helpers/crc16';
 
 const axios = require('axios');
 
@@ -131,8 +132,6 @@ export default {
 				context.commit('setIsReloading', true);
 			};
 			parser.onError = (action, data) => {
-				// eslint-disable-next-line no-debugger
-				// debugger;
 				const error = data.error || {};
 				const url = (data.error.config || {url: data.uri}).url;
 				const uid = '$' + crc16(url);
@@ -193,7 +192,7 @@ export default {
 								// eslint-disable-next-line no-console
 								console.info('>>>>>> GO RELOAD <<<<<<<<<<');
 								changes = {};
-								context.dispatch('reloadAll', uri);
+								context.dispatch('reloadAll');
 								break;
 							}
 						}
@@ -308,6 +307,7 @@ export default {
 			if (uri) {
 				parser.import(uri);
 			} else {
+				console.log(1);
 				parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
 			}
 		},

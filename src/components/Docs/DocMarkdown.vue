@@ -107,7 +107,6 @@
     },
     methods: {
       rendered(outHtml) {
-        console.log('🚀 ~ file: DocMarkdown.vue ~ line 113 ~ rendered ~ outHtml', outHtml);
         if (this.outHTML !== outHtml) {
           this.outHTML = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" ');
           this.showDocument = false;

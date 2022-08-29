@@ -25,8 +25,6 @@ import 'swagger-ui/dist/swagger-ui.css';
 import 'vuetify/dist/vuetify.min.css';
 
 import '@/assets/styles/main.css';
-import '@asyncapi/react-component/lib/styles/fiori.css';
-
 
 window.Vue = Vue;
 window.Router = router;

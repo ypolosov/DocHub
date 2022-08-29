@@ -1,6 +1,7 @@
 <template>
   <div v-bind:class="$style.logo">
-    <img src="@/assets/images/logo.svg" alt="">
+    <!-- <img src="@/assets/images/logo.svg" alt=""> -->
+    123
   </div>
 </template>
 

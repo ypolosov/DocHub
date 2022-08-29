@@ -8,9 +8,10 @@ export class VscodeExtensionService {
 	}
 
 	createOne(content = '') {
-		vscode.postMessage({ 
-			command: 'create',
-			content
-		});
+		// vscode.postMessage({ 
+		// 	command: 'create',
+		// 	content
+		// });
+		console.log(content);
 	}
 }

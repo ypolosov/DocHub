@@ -45,12 +45,10 @@ function main(uri = '') {
 	const providers = createProviders();
 	const store = createStore();
 	createVsCodeListener(store);
-	// const router = createRouter();
 	
 	Vue.mixin(GlobalMixin);
 	// store.dispatch('init');
 	store.dispatch('init', uri);
-	
 
 	const app = new Vue({
 		provide: {
@@ -67,8 +65,6 @@ function main(uri = '') {
 	app.$mount('#app');
 }
 
-export default {
-	main
-};
+export { main };
 
 // main();
