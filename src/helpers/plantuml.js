@@ -1,4 +1,5 @@
-import config from '@/../config';
+import config from '../../config';
+import requests from '../helpers/requests';
 
 export default {
 	svgURL(uml) {
@@ -32,12 +33,15 @@ export default {
 		for (var i = 0; i < s.length; i++) {
 			arr.push(s.charCodeAt(i));
 		}
+		// eslint-disable-next-line no-undef
+		let compressor = new Zopfli.RawDeflate(arr);
+		let compressed = compressor.compress();
+		
+		const serverURL = 
+			!requests.isURL(config.pumlServer) 
+				? `${window?.location?.protocol || 'https:'}//${config.pumlServer}`
+				: config.pumlServer;
 
-		const compressor = new Zopfli.RawDeflate(arr);
-		const compressed = compressor.compress();
-
-		return window.$IDE_PLUGIN
-			? window.$PAPI.renderPlantUML(this.uml)
-			: `${window.location.protocol}//${config.pumlServer}` + this.encode64_(compressed);
+		return serverURL + this.encode64_(compressed);
 	}
 };

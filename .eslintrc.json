@@ -9,6 +9,7 @@
 		"vscode": "readonly",
 		"Zopfli": "readonly"
 	},
+	"ignorePatterns": ["**/public/libs/*.js"],
 	"extends": [
 		"eslint:recommended",
 		"plugin:vue/recommended"

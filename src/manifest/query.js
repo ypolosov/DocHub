@@ -432,6 +432,16 @@ const SUMMARY_ASPECT_QUERY = `
 )
 `;
 
+const ASPECT_DEFAULT_CONTEXT = `
+(
+    $ASPECT_ID := '{%ASPECT%}';
+    $MANIFEST := $;
+    $lookup(aspects, $ASPECT_ID).(
+				$.'default-context'
+    )
+)
+`;
+
 const ASPECT_LOCATIONS_QUERY = `
 (
     $ASPECT_ID := '{%ASPECT%}';
@@ -609,7 +619,7 @@ function mergeDeep(sources) {
 		function isObject(item) {
 			return (item && typeof item === 'object' && !Array.isArray(item));
 		}
-		
+
 		if (!sources.length) return target;
 		const source = sources.shift();
 
@@ -629,7 +639,7 @@ function mergeDeep(sources) {
 }
 
 function jsonSchema(schema) {
-	const rules = new ajv({allErrors: true});
+	const rules = new ajv({ allErrors: true });
 	const validator = rules.compile(schema);
 	return (data) => {
 		const isOk = validator(data);
@@ -646,7 +656,7 @@ export default {
 	expression(expression, self_) {
 		const obj = {
 			expression,
-			core : null,
+			core: null,
 			onError: null,  // Событие ошибки выполнения запроса
 			// Исполняет запрос
 			//  context - контекст исполнения запроса
@@ -659,7 +669,7 @@ export default {
 						this.core.registerFunction('wcard', wcard);
 						this.core.registerFunction('mergedeep', mergeDeep);
 						this.core.registerFunction('jsonschema', jsonSchema);
-					} 
+					}
 					return Object.freeze(this.core.evaluate(context));
 				} catch (e) {
 					// eslint-disable-next-line no-console
@@ -708,6 +718,9 @@ export default {
 	// Сводка по аспекту
 	summaryForAspect(aspect) {
 		return SUMMARY_ASPECT_QUERY.replace(/{%ASPECT%}/g, aspect);
+	},
+	defaultContextForAspect(aspect) {
+		return ASPECT_DEFAULT_CONTEXT.replace(/{%ASPECT%}/g, aspect);
 	},
 	// Определение размещения манифестов описывающих аспект
 	locationsForAspect(aspect) {

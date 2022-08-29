@@ -227,8 +227,6 @@ const parser = {
 
 	// Подключение манифеста
 	import(uri, subimport) {
-		// eslint-disable-next-line no-console
-		console.info('>>>>>IMPORT ', uri, 'subimport=', subimport);
 		if (!subimport) {
 			this.mergeMap = [];
 			this.manifest = { [this.MODE_AS_IS] : this.merge({}, this.makeBaseManifest(), uri)};
