@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <template>
   <div
     v-if="url"
@@ -31,8 +30,10 @@
       refresh() {
         const params = this.isTemplate ? {
           responseHook: (response) => {
-            if (typeof response.data === 'string')
+            if (typeof response.data === 'string') {
               response.data = mustache.render(response.data, this.source.dataset);
+            }
+            
             return response;
           }
         } : undefined;

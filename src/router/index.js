@@ -11,7 +11,9 @@ import Aspect from '../components/Architecture/Aspect';
 import Context from '../components/Architecture/Context';
 import Radar from '../components/Techradar/Main';
 import Technology from '../components/Techradar/Technology';
-import consts from '../consts';
+import Problems from '../components/Problems/Problems';
+import ComponentsMindmap from '../components/Mindmap/ComponentsMindmap';
+import AspectsMindmap from '../components/Mindmap/AspectsMindmap';
 import gateway from '../idea/gateway';
 import Empty from '../components/Controls/Empty';
 import DevTool from '../components/JSONata/DevTool';
@@ -184,7 +186,7 @@ gateway.appendListener('navigate/component', (data) => {
 });
 
 gateway.appendListener('navigate/document', (data) => {
-	router.push({ path: `/${Object.keys(data)[0]}`});
+	router.push({ path: `/docs/${Object.keys(data)[0]}`});
 });
 
 gateway.appendListener('navigate/aspect', (data) => {

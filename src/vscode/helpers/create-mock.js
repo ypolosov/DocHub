@@ -1,11 +1,17 @@
-import config from '@/../config';
+import plantuml from '@/helpers/plantuml';
 import YAML from 'yaml';
 
 function normalizeResponse(type, content) {
 	if (type === 'yaml') {
 		return YAML.parse(content);
-	} else if (type === 'json') {
+	} 
+
+	if (type === 'json') {
 		return JSON.parse(content);
+	} 
+
+	if (type === 'plantuml') {
+		return content;
 	}
 
 	return content;
@@ -29,11 +35,26 @@ window.addEventListener('message', (event) => {
 
 export function createMock(store) {
 	return {
+		settings: {
+			render: {
+				external: false,
+				server: 'https://www.plantuml.com/plantuml/svg/'
+			}
+		},
 		initProject(uri) {
 			store.dispatch('init', uri);
 		},
-		renderPlantUML: function(uml) {
-			return this.request({ source: uml });
+		renderPlantUML: (uml) => {
+			const stringifedUri = JSON.stringify(plantuml.svgURL(uml));
+
+			vscode.postMessage({
+				command: 'plantuml',
+				content: stringifedUri
+			});
+
+			return new Promise((res, rej) => {
+				listeners[stringifedUri] = { res, rej };
+			});	
 		},
 		request(uri) {
 			const stringifedUri = JSON.stringify(uri);

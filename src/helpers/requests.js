@@ -43,7 +43,7 @@ if(window.$PAPI) {
 		case 'json': response.data = JSON.parse(response.data); break;
 		case 'jpg': 
 			type = 'jpeg'; 
-		// eslint-disable-next-line no-fallthrough
+			// eslint-disable-next-line no-fallthrough
 		case 'jpeg':
 		case 'png':
 		case 'svg':
@@ -190,7 +190,7 @@ export default {
 		
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
-		if (window.$IDE_PLUGIN && params.url.split(':')[0] === 'plugin') {
+		if (window.$IDE_PLUGIN) {
 			return window.$PAPI.request(params);
 		} else {
 			return axios(params);
