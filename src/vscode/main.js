@@ -44,9 +44,13 @@ Vue.component('DochubPlantuml', PlantUML);
 function main(uri = '') {
 	const providers = createProviders();
 	const store = createStore();
-	createVsCodeListener(store);
+
+	if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
+		createVsCodeListener(store);
+	}
 	
 	Vue.mixin(GlobalMixin);
+	// console.log(uri);
 	// store.dispatch('init');
 	store.dispatch('init', uri);
 
@@ -67,4 +71,7 @@ function main(uri = '') {
 
 export { main };
 
-// main();
+if (process.env.VUE_APP_DOCHUB_MODE !== 'plugin') {
+	main();
+}
+

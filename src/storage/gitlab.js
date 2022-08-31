@@ -96,6 +96,7 @@ export default {
 	actions: {
 		// Action for init store
 		init(context, uri) {
+			console.log('🚀 ~ file: gitlab.js ~ line 99 ~ init ~ uri', uri);
 			const errors = {
 				syntax: null,
 				net: null
@@ -307,7 +308,6 @@ export default {
 			if (uri) {
 				parser.import(uri);
 			} else {
-				console.log(1);
 				parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
 			}
 		},

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <v-btn v-if="isPlugin" icon title="Найти в коде" v-on:click="gotoCode">
-      <v-icon class="material-icons" style="display: inline">search</v-icon>
+    <!-- <v-btn v-if="isPlugin" icon title="Найти в коде" v-on:click="gotoCode">
+      <v-icon>mdi-magnify</v-icon>
     </v-btn>
     <v-btn v-if="isPlugin" icon title="Отладка" v-on:click="showDebugger">
-      <v-icon class="material-icons" style="display: inline">adb</v-icon>
-    </v-btn>
+      <v-icon>mdi-bug</v-icon>
+    </v-btn> -->
     <v-btn v-if="isPlugin" icon title="Обновить" v-on:click="reloadForce">
-      <v-icon class="material-icons" style="display: inline">mdi-reload</v-icon>
+      <v-icon>mdi-reload</v-icon>
     </v-btn>
   </div>
 </template>
@@ -16,7 +16,7 @@
   export default {
     computed: {
       isPlugin() {
-        return process.env.VUE_APP_DOCHUB_MODE === 'plugin';
+        return window.$IDE_PLUGIN;
       }
     },
     methods: {

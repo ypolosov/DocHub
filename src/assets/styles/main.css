@@ -1,4 +1,5 @@
 @import url('vuetify/v-application.css');
 @import url('vuetify/v-list-item.css');
 
+@import url('typography.css');
 @import url('base.css');

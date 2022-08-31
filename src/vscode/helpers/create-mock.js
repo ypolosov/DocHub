@@ -1,39 +1,42 @@
 import plantuml from '@/helpers/plantuml';
-import YAML from 'yaml';
+import { normalizeResponse } from './helpers';
 
-function normalizeResponse(type, content) {
-	if (type === 'yaml') {
-		return YAML.parse(content);
-	} 
-
-	if (type === 'json') {
-		return JSON.parse(content);
-	} 
-
-	if (type === 'plantuml') {
-		return content;
-	}
-
-	return content;
-}
-
-const listeners = {};
-
-window.addEventListener('message', (event) => {
-	const { command, content, error } = event?.data;
-
-	if (command === 'response') {
-		const { stringifedUri, value, type } = content;
-
-		if (error) {
-			listeners[stringifedUri].rej(error);
-		} else {
-			listeners[stringifedUri].res({ data: normalizeResponse(type, value) });
-		}
-	}
-});
+// if (process.env.VUE_APP_DOCHUB_MODE !== 'plugin') {
+// 	var vscode = {
+// 		postMessage: ({ command, content }) => {
+// 			console.log(command, content);
+// 		}
+// 	};
+// }
 
 export function createMock(store) {
+	const listeners = {};
+
+	window.addEventListener('message', (event) => {
+		const { command, content, error } = event?.data;
+
+		if (command === 'response') {
+			const { stringifedUri, value, type } = content;
+
+			if (error) {
+				listeners[stringifedUri].rej(error);
+			} else {
+				listeners[stringifedUri].res({ 
+					data: normalizeResponse(type, value),
+					headers: {
+						'content-type': type === 'jgp' ? `image/${type}` : type
+					}
+				});
+			}
+		}
+
+		if (command === 'updateFiles') {
+			const { uri } = content;
+			
+			store.dispatch('init', uri);
+		}
+	});
+
 	return {
 		settings: {
 			render: {
@@ -41,8 +44,56 @@ export function createMock(store) {
 				server: 'https://www.plantuml.com/plantuml/svg/'
 			}
 		},
-		initProject(uri) {
-			store.dispatch('init', uri);
+		goto: (source, entity, id) => {
+			const stringifedContent = JSON.stringify({
+				source,
+				entity,
+				id
+			});
+
+			vscode.postMessage({
+				command: 'goto',
+				content: stringifedContent
+			});
+		},
+		initProject: (uri) => {
+			// store.dispatch('init', uri);
+			const stringifedUri = JSON.stringify(uri);
+
+			vscode.postMessage({
+				command: 'init',
+				content: stringifedUri
+			});
+		},
+		download: (content, title, description) => {
+			const stringifedUri = JSON.stringify({
+				content, title, description
+			});
+
+			vscode.postMessage({
+				command: 'download',
+				content: stringifedUri
+			});
+		},
+		// messagePull: () => {
+		// vscode.postMessage({
+		// 	command: 'pull',
+		// 	content: ''
+		// });
+
+		// return new Promise((res) => {
+		// 	res();
+		// });
+		// vscode.postMessage({
+		// 	command: 'pull',
+		// 	content: ''
+		// });
+		// },
+		reload: () => {
+			vscode.postMessage({
+				command: 'reload-force',
+				content: ''
+			});
 		},
 		renderPlantUML: (uml) => {
 			const stringifedUri = JSON.stringify(plantuml.svgURL(uml));

@@ -1,7 +1,7 @@
 <template>
   <v-card class="card-item">
     <v-card-title>
-      <v-icon left style="color:#f00">report_problem</v-icon>
+      <v-icon left style="color:#f00">mdi-alert</v-icon>
       <span class="title">Валидаторы</span>
     </v-card-title>
     <v-card-text class="headline font-weight-bold">
@@ -117,10 +117,10 @@
             }
           
             if (item.countProblems) {
-              item.icon = 'error';
+              item.icon = 'mdi-alert-circle';
               item.iconStyle = 'color:#F00';
             } else if (item.countExceptions) {
-              item.icon = 'warning';
+              item.icon = 'mdi-alert';
               item.iconStyle = 'color:#FF6F00';
             }
           });

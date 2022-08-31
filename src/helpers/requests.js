@@ -58,7 +58,6 @@ if(window.$PAPI) {
 	};
 }
 
-
 export default {
 	axios,
 	isURL(url) {

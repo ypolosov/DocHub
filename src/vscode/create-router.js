@@ -11,22 +11,7 @@ export function createRouter() {
 		mode: 'history',
 		routes: [
 			...appRoutes
-		],
-		scrollBehavior(to, from, savedPosition) {
-			if (to.hash === '#no-scroll') {
-				return undefined;
-			}
-
-			if (to.hash) {
-				return { selector: to.hash };
-			}
-
-			if (savedPosition) {
-				return savedPosition;
-			}
-
-			return { x: 0, y: 0 };
-		}
+		]
 	};
 
 	return new VueRouter(routerOptions);

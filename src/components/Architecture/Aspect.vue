@@ -7,7 +7,7 @@
           <v-container grid-list-xl fluid>
             <v-card>
               <v-card-title>
-                <v-icon left>settings</v-icon>
+                <v-icon left>mdi-cog</v-icon>
                 <span class="title">Сводка</span>
               </v-card-title>
               <v-card-text class="headline font-weight-bold">
@@ -24,7 +24,7 @@
             <docs v-bind:subject="aspect" />
             <v-card v-if="components.length" class="card-item" xs12 md12>
               <v-card-title>
-                <v-icon left>settings</v-icon>
+                <v-icon left>mdi-cog</v-icon>
                 <span class="title">Встречается в компонентах</span>
               </v-card-title>
               <v-card-text class="headline font-weight-bold">
@@ -39,7 +39,7 @@
             </v-card>
             <v-card class="card-item" xs12 md12>
               <v-card-title>
-                <v-icon left>description</v-icon>
+                <v-icon left>mdi-file-document</v-icon>
                 <span class="title">Иерархия</span>
               </v-card-title>
               <v-card-text class="headline font-weight-bold">

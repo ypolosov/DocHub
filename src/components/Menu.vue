@@ -8,8 +8,8 @@
         v-bind:style="{'padding-left': '' + (item.level * 8) + 'px'}">
         <v-list-item-action class="menu-item-action">
           <v-icon v-if="item.isGroup" v-on:click="onClickMenuExpand(item)">
-            <template v-if="item.isExpanded">expand_more</template>
-            <template v-else>chevron_right</template>
+            <template v-if="item.isExpanded">mdi-chevron-down</template>
+            <template v-else>mdi-chevron-right</template>
           </v-icon>
         </v-list-item-action>
         <v-subheader
