@@ -16,7 +16,7 @@
                     <v-list-item-content>
                       <v-list-item-subtitle v-text="item.title" />
                       <v-list-item-title>
-                        <a v-if="isURL(item.content)">{{ item.content }}</a>
+                        <a v-if="isURL(item.content)" v-bind:href="item.content" target="_blank">{{ item.content }}</a>
                         <template v-else>{{ item.content }}</template>
                       </v-list-item-title>
                     </v-list-item-content>
