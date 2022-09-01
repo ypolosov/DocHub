@@ -185,8 +185,6 @@ export default {
 					changes = Object.assign(changes, data);
 					if (refreshTimer) clearTimeout(refreshTimer);
 					refreshTimer = setTimeout(() => {
-						// eslint-disable-next-line no-console
-						console.info('context.state.sources = ', context.state.sources, ' changes=', changes);
 						for (const source in changes) {
 							if (context.state.sources.find((item) => {
 								return item.location === source;
