@@ -7,11 +7,17 @@ export class VscodeExtensionService {
 		this.client = client;
 	}
 
+	checkIsRootManifest() {
+		vscode.postMessage({
+			command: 'check-is-root-manifest',
+			content: ''
+		});
+	}
+
 	createOne(content = '') {
-		// vscode.postMessage({ 
-		// 	command: 'create',
-		// 	content
-		// });
-		console.log(content);
+		vscode.postMessage({ 
+			command: 'create',
+			content
+		});
 	}
 }

@@ -36,12 +36,7 @@ Vue.component('DochubTechnology', Technology);
 Vue.component('DochubRadar', Radar);
 Vue.component('DochubPlantuml', PlantUML);
 
-// import Vuex from 'vuex';
-// import gitlab from '@/helpers/gitlab';
-// const store = new Vuex.Store(gitlab);
-// window.Vuex = store;
-
-function main(uri = '') {
+function main() {
 	const providers = createProviders();
 	const store = createStore();
 
@@ -50,9 +45,6 @@ function main(uri = '') {
 	}
 	
 	Vue.mixin(GlobalMixin);
-	// console.log(uri);
-	// store.dispatch('init');
-	store.dispatch('init', uri);
 
 	const app = new Vue({
 		provide: {

@@ -39,6 +39,7 @@ export default {
 		renderCore: 'graphviz',
 		// Признак инциализации проекта в плагине
 		notInited: null,
+		hasRootFileVsCode: false,
 		// Признак критической проблемы
 		criticalError: null
 	},
@@ -90,13 +91,15 @@ export default {
 		},
 		setCriticalError(state, value) {
 			state.criticalError = value;
+		},
+		setHasRootFileVsCode(state, value) {
+			state.hasRootFileVsCode = value;
 		}
 	},
 
 	actions: {
 		// Action for init store
 		init(context, uri) {
-			console.log('🚀 ~ file: gitlab.js ~ line 99 ~ init ~ uri', uri);
 			const errors = {
 				syntax: null,
 				net: null

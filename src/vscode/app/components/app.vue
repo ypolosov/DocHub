@@ -2,16 +2,30 @@
   <v-app class="d-flex">
     <app-header />
     
-    <router-view />
+    <app-create-file-page v-if="!hasRootFile" />
+
+    <v-content v-else>
+      <router-view />
+    </v-content>
   </v-app>
 </template>
 
 <script>
   import AppHeader from './app-header.vue';
+  import AppCreateFilePage from '@/vscode/app/pages/app-create-file-page.vue';
 
   export default {
     components: {
-      AppHeader
+      AppHeader,
+      AppCreateFilePage
+    },
+    computed: {
+      isPlugin() {
+        return process.env.VUE_APP_DOCHUB_MODE === 'plugin';
+      },
+      hasRootFile() {
+        return (!this.isPlugin) || this.$store.state.hasRootFileVsCode;
+      }
     }
   };
 </script>

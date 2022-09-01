@@ -44,7 +44,7 @@
 
 <script>
   import query from '@/manifest/query';
-  import { throttle } from 'lodash';
+  import { throttle } from '@/vscode/helpers/common';
 
   export default {
     props: {

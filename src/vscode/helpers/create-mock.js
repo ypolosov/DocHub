@@ -1,13 +1,5 @@
 import plantuml from '@/helpers/plantuml';
-import { normalizeResponse } from './helpers';
-
-// if (process.env.VUE_APP_DOCHUB_MODE !== 'plugin') {
-// 	var vscode = {
-// 		postMessage: ({ command, content }) => {
-// 			console.log(command, content);
-// 		}
-// 	};
-// }
+import { getContentType, normalizeResponse } from '@/vscode/helpers/common';
 
 export function createMock(store) {
 	const listeners = {};
@@ -24,16 +16,25 @@ export function createMock(store) {
 				listeners[stringifedUri].res({ 
 					data: normalizeResponse(type, value),
 					headers: {
-						'content-type': type === 'jgp' ? `image/${type}` : type
+						'content-type': getContentType(type)
 					}
 				});
 			}
 		}
 
-		if (command === 'updateFiles') {
+		if (command === 'update-files') {
 			const { uri } = content;
 			
 			store.dispatch('init', uri);
+		}
+
+		if(command === 'is-root-manifest') {
+			const { uri } = content;
+
+			if (uri) {
+				store.commit('setHasRootFileVsCode', true);
+				store.dispatch('init', uri);
+			}
 		}
 	});
 
@@ -57,7 +58,6 @@ export function createMock(store) {
 			});
 		},
 		initProject: (uri) => {
-			// store.dispatch('init', uri);
 			const stringifedUri = JSON.stringify(uri);
 
 			vscode.postMessage({
@@ -75,20 +75,6 @@ export function createMock(store) {
 				content: stringifedUri
 			});
 		},
-		// messagePull: () => {
-		// vscode.postMessage({
-		// 	command: 'pull',
-		// 	content: ''
-		// });
-
-		// return new Promise((res) => {
-		// 	res();
-		// });
-		// vscode.postMessage({
-		// 	command: 'pull',
-		// 	content: ''
-		// });
-		// },
 		reload: () => {
 			vscode.postMessage({
 				command: 'reload-force',

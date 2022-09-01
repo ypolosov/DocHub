@@ -12,6 +12,9 @@
 <script>
   export default {
     inject: ['vscodeExtensionService'],
+    created() {
+      this.vscodeExtensionService.checkIsRootManifest();
+    },
     methods: {
       createEmpty() {
         this.vscodeExtensionService.createOne();
