@@ -20,7 +20,7 @@
                       
                       <v-list-item-title>
                         <v-icon v-if="item.required && !item.content" left color="red">error</v-icon>
-                        <a v-else-if="isURL(item.content)">{{ item.content }}</a>
+                        <a v-else-if="isURL(item.content)" v-bind:href="item.content" target="_blank">{{ item.content }}</a>
                         <a v-else-if="item.onclick" v-on:click="item.onclick">{{ item.content }}</a>
                         <span v-else>{{ item.content }}</span>
                       </v-list-item-title>
