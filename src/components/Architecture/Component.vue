@@ -20,6 +20,7 @@
                       
                       <v-list-item-title>
                         <v-icon v-if="item.required && !item.content" left color="red">error</v-icon>
+                        <a v-else-if="isURL(item.content)">{{ item.content }}</a>
                         <a v-else-if="item.onclick" v-on:click="item.onclick">{{ item.content }}</a>
                         <span v-else>{{ item.content }}</span>
                       </v-list-item-title>
@@ -66,6 +67,7 @@
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
   import Docs from './tabs/Docs.vue';
+  import requests from '@/helpers/requests';
 
   export default {
     name: 'ArchComponent',
@@ -127,6 +129,9 @@
       }
     },
     methods: {
+      isURL(str) {
+        return requests.isURL(str);
+      },
       goToLink() {
 
       }
