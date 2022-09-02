@@ -186,9 +186,7 @@ export default {
 					if (refreshTimer) clearTimeout(refreshTimer);
 					refreshTimer = setTimeout(() => {
 						for (const source in changes) {
-							if (context.state.sources.find((item) => {
-								return item.location === source;
-							})) {
+							if (requests.isUsedURL(source)) {
 								// eslint-disable-next-line no-console
 								console.info('>>>>>> GO RELOAD <<<<<<<<<<');
 								changes = {};
@@ -196,7 +194,7 @@ export default {
 								break;
 							}
 						}
-					}, 100);
+					}, 350);
 				}
 			});
 		},
