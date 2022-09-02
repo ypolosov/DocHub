@@ -21,10 +21,20 @@ export default function(manifest, success, reject) {
 					items
 				});
 			}).catch((error) => {
+				debugger;
 				reject(
 					{
 						id,
-						error
+						title: validators[id].title || id,
+						error,
+						items: [
+							{
+								uid: id,
+								title: 'Критическая ошибка валидатора!',
+								correction: 'Исправьте ошибку в запросе валидатора',
+								description: error.message
+							}
+						]
 					}
 				);
 			});

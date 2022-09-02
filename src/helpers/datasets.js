@@ -20,7 +20,9 @@ export default function() {
 				} else if (typeof data === 'string') {
 					// Inline запрос JSONata
 					if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(data)) {
-						resolve(query.expression(data, subject).evaluate(context));
+						const exp = query.expression(data, subject);
+						exp.onError = reject;
+						resolve(exp.evaluate(context));
 						// Ссылка на файл с данными
 					} else if (data.slice(-5) === '.yaml' || data.slice(-5) === '.json' || (data.search(':') > 0)) {
 						requests.request(data)
@@ -33,10 +35,11 @@ export default function() {
 					} else if (data.slice(-8) === '.jsonata') {
 						const url = docs.urlFromProfile({source: data});
 						requests.request(url).then((response) => {
-							resolve(query.expression(typeof response.data === 'string' 
+							const exp = query.expression(typeof response.data === 'string' 
 								? response.data 
-								: JSON.stringify(response.data)).evaluate(context)
-							, subject);
+								: JSON.stringify(response.data));
+							exp.onError = reject;
+							resolve(exp.evaluate(context), subject);
 						}).catch((e) => reject(e));
 						// Идентификатор источника данных
 					} else {
