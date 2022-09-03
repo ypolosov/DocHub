@@ -107,6 +107,8 @@ export default {
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
 			parser.onReloaded = (parser) => {
+				// Очищяем прошлую загрузку
+				context.commit('clean');
 				// Регистрируем обнаруженные ошибки
 				errors.syntax && context.commit('appendProblems', errors.syntax);
 				errors.net && context.commit('appendProblems', errors.net);
@@ -246,7 +248,6 @@ export default {
 
 		// Reload root manifest
 		reloadAll(context) {
-			context.commit('clean');
 			context.dispatch('reloadRootManifest');
 		},
 
