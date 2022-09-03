@@ -8,6 +8,10 @@ const SOURCE_ERROR = 'error';
 
 export default {
 	methods: {
+		doRefresh() {
+			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
+			this.source.refreshTimer = setTimeout(() => this.refresh(), 100);
+		},
 		sourceRefresh() {
 			this.source.status = SOURCE_PENGING;
 			this.source.dataset = null;
@@ -27,8 +31,7 @@ export default {
 			if (data) {
 				for (const source in data) {
 					if (source === this.url.split('?')[0]) {
-						if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
-						this.source.refreshTimer = setTimeout(() => this.refresh(), 350);
+						this.doRefresh();
 					}
 				}
 			}
@@ -71,7 +74,10 @@ export default {
 		};
 	},
 	watch: {
-		url() { this.refresh(); }
+		url() { this.doRefresh(); },
+		manifest() { 
+			this.isTemplate && this.doRefresh(); 
+		}
 	},
 	created() {
 		// Следим за обновлением документа
@@ -81,6 +87,6 @@ export default {
 		gateway.removeListener('source/changed', this.onChangeSource);
 	},
 	mounted() {
-		this.refresh();
+		this.doRefresh();
 	}
 };
