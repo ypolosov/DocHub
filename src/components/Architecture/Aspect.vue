@@ -13,9 +13,12 @@
               <v-card-text class="headline font-weight-bold">
                 <v-list>
                   <v-list-item v-for="(item) in summary" v-bind:key="item.title" v-bind:link="!!item.link">
-                    <v-list-item-content v-on:click="goToLink(item.link)">
+                    <v-list-item-content>
                       <v-list-item-subtitle v-text="item.title" />
-                      <v-list-item-title v-html="item.content" />
+                      <v-list-item-title>
+                        <a v-if="isURL(item.content)" v-bind:href="item.content" target="_blank">{{ item.content }}</a>
+                        <template v-else>{{ item.content }}</template>
+                      </v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </v-list>
@@ -71,6 +74,7 @@
   import TabContexts from './tabs/TabContext.vue';
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
+  import requests from '@/helpers/requests';
 
   export default {
     name: 'Aspect',
@@ -130,6 +134,11 @@
       summary() {
         return (query.expression(query.summaryForAspect(this.aspect))
           .evaluate(this.manifest) || []);
+      }
+    },
+    methods: {
+      isURL(str) {
+        return requests.isURL(str);
       }
     }
   };
