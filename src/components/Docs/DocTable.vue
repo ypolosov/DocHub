@@ -89,7 +89,8 @@
       }
     },
     watch: {
-      document() { this.refresh(); }
+      document() { this.refresh(); },
+      manifest() { this.refresh(); }
     },
     mounted(){
       this.refresh();
