@@ -1,4 +1,4 @@
-import '@mdi/font/css/materialdesignicons.css';
+// import '@mdi/font/css/materialdesignicons.css';
 
 import Vue from 'vue';
 import App from './app/components/app.vue';
@@ -16,15 +16,13 @@ import Image from '@/components/Tools/Image.vue';
 import GlobalMixin from '@/mixins/global';
 
 import { vuetify } from '@/vscode/app/plugins/vuetify';
-// import { createRouter } from '@/vscode/create-router';
+import { createRouter } from '@/vscode/create-router';
 import { createProviders } from './create-providers';
-import { createVsCodeListener } from './create-vs-code-listener';
+import { createVsCodeListener, createVsCodeDefaultSettings } from './create-vs-code-listener';
 import { createStore } from './store/store';
 
 import '@/assets/styles/main.css';
 import 'swagger-ui/dist/swagger-ui.css';
-
-import router from '@/router';
 
 Vue.component('DochubDoc', DocHubDoc);
 Vue.component('DochubContext', Context);
@@ -36,12 +34,17 @@ Vue.component('DochubTechnology', Technology);
 Vue.component('DochubRadar', Radar);
 Vue.component('DochubPlantuml', PlantUML);
 
-function main() {
+function main(settings) {
+	createVsCodeDefaultSettings(settings);
+
 	const providers = createProviders();
+	const router = createRouter();
 	const store = createStore();
 
 	if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 		createVsCodeListener(store);
+	} else {
+		store.dispatch('init');
 	}
 	
 	Vue.mixin(GlobalMixin);

@@ -2,8 +2,8 @@
   <ul class="items">
     <li v-for="item in items" v-bind:key="item.key" v-bind:class="{'item': true, 'selected' : item.selected}">
       <v-icon v-if="item.items && item.items.length" class="expand-ico" v-on:click="onExpand(item)">
-        <template v-if="expands[item.key]">mdi-chevron-down</template>
-        <template v-else>mdi-chevron-right</template>
+        <template v-if="expands[item.key]">expand_more</template>
+        <template v-else>chevron_right</template>
       </v-icon>
       <v-icon v-if="item.icon" class="item-ico" v-bind:style="item.iconStyle">
         {{ item.icon }}

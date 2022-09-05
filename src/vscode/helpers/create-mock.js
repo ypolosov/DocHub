@@ -1,9 +1,9 @@
 import plantuml from '@/helpers/plantuml';
 import { getContentType, normalizeResponse } from '@/vscode/helpers/common';
 
-export function createMock(store) {
-	const listeners = {};
+const listeners = {};
 
+export function createMock(store) {
 	window.addEventListener('message', (event) => {
 		const { command, content, error } = event?.data;
 
@@ -11,20 +11,27 @@ export function createMock(store) {
 			const { stringifedUri, value, type } = content;
 
 			if (error) {
-				listeners[stringifedUri].rej(error);
-			} else {
+				throw error;
+			}
+
+			try {
+				const data = normalizeResponse(type, value);
+
 				listeners[stringifedUri].res({ 
-					data: normalizeResponse(type, value),
+					data,
 					headers: {
 						'content-type': getContentType(type)
 					}
 				});
+			} catch(e) {
+				listeners[stringifedUri].rej(e);
 			}
 		}
 
 		if (command === 'update-files') {
 			const { uri } = content;
 			
+			store.commit('clean');
 			store.dispatch('init', uri);
 		}
 
@@ -34,37 +41,15 @@ export function createMock(store) {
 			if (uri) {
 				store.commit('setHasRootFileVsCode', true);
 				store.dispatch('init', uri);
+			} else {
+				store.commit('setHasRootFileVsCode', false);
+				store.commit('clean');
 			}
 		}
 	});
 
 	return {
-		settings: {
-			render: {
-				external: false,
-				server: 'https://www.plantuml.com/plantuml/svg/'
-			}
-		},
-		goto: (source, entity, id) => {
-			const stringifedContent = JSON.stringify({
-				source,
-				entity,
-				id
-			});
-
-			vscode.postMessage({
-				command: 'goto',
-				content: stringifedContent
-			});
-		},
-		initProject: (uri) => {
-			const stringifedUri = JSON.stringify(uri);
-
-			vscode.postMessage({
-				command: 'init',
-				content: stringifedUri
-			});
-		},
+		...window.$PAPI,
 		download: (content, title, description) => {
 			const stringifedUri = JSON.stringify({
 				content, title, description
@@ -73,6 +58,12 @@ export function createMock(store) {
 			vscode.postMessage({
 				command: 'download',
 				content: stringifedUri
+			});
+		},
+		goto: (href) => {
+			vscode.postMessage({
+				command: 'goto',
+				content: JSON.stringify(href)
 			});
 		},
 		reload: () => {

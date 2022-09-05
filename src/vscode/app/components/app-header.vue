@@ -4,6 +4,9 @@
       clipped-left
       color="#3495db"
       dark>
+      <v-btn icon v-on:click="back">
+        <v-icon>arrow_back</v-icon>
+      </v-btn>
       <v-app-bar-nav-icon v-on:click="showMenu = !showMenu">
         <app-header-logo />
       </v-app-bar-nav-icon>
@@ -33,10 +36,18 @@
       AppHeaderLogo,
       AppHeaderSidebar
     },
+    showBack() {
+      return window.history;
+    },
     data() {
       return {
         showMenu: false
       };
+    },
+    methods: {
+      back() {
+        this.$router.back();
+      }
     }
   };
 </script>

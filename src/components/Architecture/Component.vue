@@ -8,7 +8,7 @@
           <v-container grid-list-xl fluid>
             <v-card class="card-item" xs12 md12>
               <v-card-title>
-                <v-icon left>mdi-cog</v-icon>
+                <v-icon left>settings</v-icon>
                 <span class="title">Сводка</span>
               </v-card-title>
 
@@ -33,7 +33,7 @@
 
             <v-card class="card-item" xs12 md12 style="margin-top: 12px">
               <v-card-title>
-                <v-icon left>mdi-file-document</v-icon>
+                <v-icon left>description</v-icon>
                 <span class="title">Иерархия</span>
               </v-card-title>
               <v-card-text class="headline font-weight-bold">

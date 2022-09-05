@@ -3,12 +3,13 @@ import cookie from 'vue-cookie';
 import GitHelper from '../helpers/gitlab';
 import parser from '../manifest/manifest_parser';
 import Vue from 'vue';
-import manifest_parser from '../manifest/manifest_parser';
 import requests from '../helpers/requests';
 import gateway from '../idea/gateway';
 import consts from '../consts';
 import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
+
+import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
 
 const axios = require('axios');
 
@@ -122,7 +123,7 @@ export default {
 				if (!Object.keys(context.state.manifest || {}).length) {
 					context.commit('setCriticalError', true);
 				}
-				rules(parser.manifest[manifest_parser.MODE_AS_IS],
+				rules(parser.manifest[MANIFEST_MODES.AS_IS],
 					(problems) => context.commit('appendProblems', problems),
 					(error) => {
 						// eslint-disable-next-line no-console

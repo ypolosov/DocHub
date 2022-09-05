@@ -12,8 +12,12 @@
 <script>
   export default {
     inject: ['vscodeExtensionService'],
-    created() {
+    mounted() {
       this.vscodeExtensionService.checkIsRootManifest();
+
+      if (this.$route.name !== 'home') {
+        this.$router.push({ name: 'home' });
+      }
     },
     methods: {
       createEmpty() {
@@ -21,7 +25,7 @@
         this.$router.push({ name: 'main' });
       },
       createDefault() {
-        this.vscodeExtensionService.createOne();
+        this.vscodeExtensionService.createOne('from-file');
         this.$router.push({ name: 'main' });
       }
     }

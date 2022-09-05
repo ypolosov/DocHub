@@ -20,12 +20,20 @@
       AppCreateFilePage
     },
     computed: {
+      hasRootFileVsCode() {
+        return this.$store.state.hasRootFileVsCode;
+      },
       isPlugin() {
         return process.env.VUE_APP_DOCHUB_MODE === 'plugin';
       },
       hasRootFile() {
-        return (!this.isPlugin) || this.$store.state.hasRootFileVsCode;
+        return (this.isPlugin && this.hasRootFileVsCode) ||
+          !this.isPlugin;
       }
     }
   };
 </script>
+
+<style>
+  @import '../../../assets/material_icons.css';
+</style>

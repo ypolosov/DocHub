@@ -36,7 +36,6 @@ if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
 	}
 }
 
-
 config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'documentation/root.yaml';
 
 if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
@@ -48,8 +47,7 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 	}
 }
 
-config.pumlServer = 
-	window.$PAPI?.settings?.render?.server
+config.pumlServer = window.$PAPI?.settings?.render?.server
 	|| process.env.VUE_APP_PLANTUML_SERVER 
 	|| 'www.plantuml.com/plantuml/svg/';
 

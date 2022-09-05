@@ -1,7 +1,7 @@
 <template>
   <v-card class="card-item">
     <v-card-title>
-      <v-icon left>mdi-cog</v-icon>
+      <v-icon left>settings</v-icon>
       <span class="title">Размещение</span>
     </v-card-title>
     <v-card-text class="headline font-weight-bold">

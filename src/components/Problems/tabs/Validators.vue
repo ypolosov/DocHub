@@ -117,10 +117,10 @@
             }
           
             if (item.countProblems) {
-              item.icon = 'mdi-alert-circle';
+              item.icon = 'error';
               item.iconStyle = 'color:#F00';
             } else if (item.countExceptions) {
-              item.icon = 'mdi-alert';
+              item.icon = 'warning';
               item.iconStyle = 'color:#FF6F00';
             }
           });

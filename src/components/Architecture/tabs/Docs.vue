@@ -1,7 +1,7 @@
 <template>
   <v-card v-if="items.length" class="card-item">
     <v-card-title>
-      <v-icon left>mdi-file-document</v-icon>
+      <v-icon left>description</v-icon>
       <span class="title">Документы</span>
     </v-card-title>
     <v-card-text class="headline font-weight-bold">

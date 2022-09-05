@@ -2,6 +2,7 @@ import requests from '../helpers/requests';
 import gitlab from '../helpers/gitlab';
 import jsonata from 'jsonata';
 import property from './prototype';
+import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
 
 let touchProjects = {};
 
@@ -26,10 +27,6 @@ const parser = {
 			this.onReloaded(this);
 		}
 	},
-	// Режимы манифестов
-	MODE_AS_IS : 'as-is', // Как есть
-	MODE_AS_WAS : 'as-was', // Как было
-	MODE_TO_BE : 'to-be', // Как будет
 	// Журнал объединений
 	mergeMap: [],
 	// Итоговый манифест
@@ -55,7 +52,7 @@ const parser = {
 	},
 	// Реализует наследование
 	expandPrototype() {
-		property.expandAll(this.manifest[this.manifest.mode || this.MODE_AS_IS]);
+		property.expandAll(this.manifest[this.manifest.mode || MANIFEST_MODES.AS_IS]);
 	},
 	// Преобразование относительных ссылок в прямые
 	propResolver: {
@@ -229,7 +226,7 @@ const parser = {
 	import(uri, subimport) {
 		if (!subimport) {
 			this.mergeMap = [];
-			this.manifest = { [this.MODE_AS_IS] : this.merge({}, this.makeBaseManifest(), uri)};
+			this.manifest = { [ MANIFEST_MODES.AS_IS ] : this.merge({}, this.makeBaseManifest(), uri)};
 			touchProjects = {};
 			this.incReqCounter();
 			// Подключаем манифест самого DocHub
@@ -250,7 +247,7 @@ const parser = {
 
 			// Определяем режим манифеста
 			// eslint-disable-next-line no-unused-vars
-			const mode = manifest.mode || this.MODE_AS_IS;
+			const mode = manifest.mode || MANIFEST_MODES.AS_IS;
 			this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
 			for (const section in manifest) {
