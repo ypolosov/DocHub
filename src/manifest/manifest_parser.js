@@ -231,12 +231,13 @@ const parser = {
 			this.incReqCounter();
 			// Подключаем манифест самого DocHub
 			// eslint-disable-next-line no-constant-condition
-			// if (
-			// 	(process.env.VUE_APP_DOCHUB_MODE !== 'plugin') &&
-			// 	((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
-			// ) {
-			// 	this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
-			// }
+			if (
+				(process.env.VUE_APP_DOCHUB_MODE !== 'plugin') &&
+				(process.env.VUE_APP_DOCHUB_MODE !== 'vs-plugin') &&
+				((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
+			) {
+				this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
+			}
 		}
 
 		this.incReqCounter();

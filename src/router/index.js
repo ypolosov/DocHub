@@ -4,6 +4,8 @@ import Router from 'vue-router';
 import gateway from '../idea/gateway';
 import appRoutes from './routes';
 
+import ComponentsMindmap from '../components/Mindmap/ComponentsMindmap';
+
 Vue.use(Router);
 
 const rConfig = {
