@@ -114,6 +114,8 @@ export default {
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
 			parser.onReloaded = (parser) => {
+				// Очищяем прошлую загрузку
+				context.commit('clean');
 				// Регистрируем обнаруженные ошибки
 				errors.syntax && context.commit('appendProblems', errors.syntax);
 				errors.net && context.commit('appendProblems', errors.net);
@@ -130,11 +132,14 @@ export default {
 					(error) => {
 						// eslint-disable-next-line no-console
 						console.error(error);
+						context.commit('appendProblems', error);
 						// eslint-disable-next-line no-debugger
 						debugger;
 					});
 			};
 			parser.onStartReload = () => {
+				errors.syntax = null;
+				errors.net = null;
 				context.commit('setNoInited', false);
 				context.commit('setIsReloading', true);
 			};
@@ -191,11 +196,9 @@ export default {
 				if (data) {
 					changes = Object.assign(changes, data);
 					if (refreshTimer) clearTimeout(refreshTimer);
-					refreshTimer = setInterval(() => {
+					refreshTimer = setTimeout(() => {
 						for (const source in changes) {
-							if (context.state.sources.find((item) => {
-								return item.location === source;
-							})) {
+							if (requests.isUsedURL(source)) {
 								// eslint-disable-next-line no-console
 								console.info('>>>>>> GO RELOAD <<<<<<<<<<');
 								changes = {};
@@ -203,7 +206,7 @@ export default {
 								break;
 							}
 						}
-					});
+					}, 350);
 				}
 			});
 		},
@@ -254,7 +257,6 @@ export default {
 
 		// Reload root manifest
 		reloadAll(context, uri) {
-			context.commit('clean');
 			context.dispatch('reloadRootManifest', uri);
 		},
 

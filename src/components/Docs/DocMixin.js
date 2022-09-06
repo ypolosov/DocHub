@@ -1,5 +1,6 @@
 import datasets from '../../helpers/datasets';
 import docs from '@/helpers/docs';
+import gateway from '@/idea/gateway';
 
 const SOURCE_PENGING = 'pending';
 const SOURCE_READY = 'ready';
@@ -7,6 +8,10 @@ const SOURCE_ERROR = 'error';
 
 export default {
 	methods: {
+		doRefresh() {
+			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
+			this.source.refreshTimer = setTimeout(() => this.refresh(), 100);
+		},
 		sourceRefresh() {
 			this.source.status = SOURCE_PENGING;
 			this.source.dataset = null;
@@ -21,6 +26,15 @@ export default {
 						this.source.status = SOURCE_ERROR;
 					});
 			} else this.source.dataset = {};
+		},
+		onChangeSource(data) {
+			if (data) {
+				for (const source in data) {
+					if (source === this.url.split('?')[0]) {
+						this.doRefresh();
+					}
+				}
+			}
 		}
 	},
 	computed: {
@@ -54,14 +68,25 @@ export default {
 				provider,
 				status: SOURCE_READY,
 				error: null,
-				dataset: null
+				dataset: null,
+				refreshTimer: null
 			}
 		};
 	},
 	watch: {
-		url() { this.refresh(); }
+		url() { this.doRefresh(); },
+		manifest() { 
+			this.isTemplate && this.doRefresh(); 
+		}
+	},
+	created() {
+		// Следим за обновлением документа
+		gateway.appendListener('source/changed', this.onChangeSource);
+	},
+	destroyed() {
+		gateway.removeListener('source/changed', this.onChangeSource);
 	},
 	mounted() {
-		this.refresh();
+		this.doRefresh();
 	}
 };

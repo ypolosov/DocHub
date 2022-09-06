@@ -19,5 +19,10 @@ export default {
 	appendListener(action, listener) {
 		const arr = listeners[action] = (listeners[action] || []);
 		arr.push(listener);
+	},
+	removeListener(action, listener) {
+		const arr = listeners[action] = (listeners[action] || []);
+		const index = arr.indexOf(listener);
+		if (index >=0 ) arr.splice(index, 1);
 	}
 };
