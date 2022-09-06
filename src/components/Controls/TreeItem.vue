@@ -48,7 +48,6 @@
     },
     watch: {
       state() {
-        debugger;
         this.$emit('input', this.state);
       },
       items(items) {

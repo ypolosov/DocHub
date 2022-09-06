@@ -21,7 +21,6 @@ export default function(manifest, success, reject) {
 					items
 				});
 			}).catch((error) => {
-				debugger;
 				reject(
 					{
 						id,
