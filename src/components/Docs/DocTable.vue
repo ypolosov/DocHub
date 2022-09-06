@@ -63,15 +63,7 @@
       document: { type: String, default: '' }
     },
     data() {
-      const provider = datasets();
-      provider.dsResolver = (id) => {
-        return {
-          subject: Object.assign({$id: id}, (this.manifest.datasets || {})[id]),
-          baseURI: (this.$store.state.sources.find((item) => item.path === `/datasets/${id}`) || {}).location
-        };
-      };
       return {
-        provider,
         error: null,
         dataset: null,
         search: ''
@@ -89,16 +81,25 @@
       }
     },
     watch: {
-      document() { this.refresh(); }
+      document() { this.refresh(); },
+      manifest() { this.refresh(); }
     },
-    mounted(){
+    mounted() {
       this.refresh();
     },
     methods: {
       refresh() {
-        this.provider.getData(this.manifest, this.docParams)
+        const provider = datasets();
+        provider.dsResolver = (id) => {
+          return {
+            subject: Object.assign({$id: id}, (this.manifest.datasets || {})[id]),
+            baseURI: (this.$store.state.sources.find((item) => item.path === `/datasets/${id}`) || {}).location
+          };
+        };
+        provider.getData(this.manifest, this.docParams)
           .then((dataset) => {
             this.dataset = dataset;
+            this.error = null;
           })
           .catch((e) => this.error = e);
       },
