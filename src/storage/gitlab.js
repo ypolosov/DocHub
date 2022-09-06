@@ -131,6 +131,8 @@ export default {
 					});
 			};
 			parser.onStartReload = () => {
+				errors.syntax = null;
+				errors.net = null;
 				context.commit('setNoInited', false);
 				context.commit('setIsReloading', true);
 			};
