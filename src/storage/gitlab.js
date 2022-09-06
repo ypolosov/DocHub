@@ -106,7 +106,9 @@ export default {
 				net: null
 			};
 			context.commit('setRenderCore', 
-				process.env.VUE_APP_DOCHUB_MODE === 'plugin' ? 'smetana' : 'graphviz'
+				process.env.VUE_APP_DOCHUB_MODE === 'plugin' || process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin' 
+					? 'smetana' 
+					: 'graphviz'
 			);
 			context.dispatch('reloadAll', uri);
 			let diff_format = cookie.get('diff_format');

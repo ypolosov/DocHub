@@ -1,7 +1,7 @@
 <template>
-  <a v-bind:href="href" v-bind:target="target || '_blank'" v-on:click="onClick">
+  <span v-bind:class="$style.link" v-on:click="onClick">
     <slot />
-  </a>
+  </span>
 </template>
 
 <script>
@@ -16,25 +16,26 @@
       return {};
     },
     methods: {
-      onClick(event) {
+      onClick() {
         const struct = (this.href || '').split(':/');
-        if (struct[0] === 'plugin') {
+        if (this.href.includes('https://file+.vscode-resource.vscode-cdn.net')) {
+          window.$PAPI.goto(this.href);
+        } else if (struct[0] === 'plugin') {
           const url = new URL(this.href);
           window.$PAPI.goto(`plugin:${url.pathname}`, url.searchParams.get('entity'), url.searchParams.get('id'));
-          event.preventDefault();
-          return false;
         } else if ((this.href || '').split(':/').length == 1) {
-          event.preventDefault();
           this.$router.push({ path: this.href });
-          return false;
+        } else {
+          window.open(this.href, this.target || '_blank');
         }
-        return true;
       }
     }
   };
 </script>
 
-<style scoped>
-
-
+<style module>
+  .link {
+    cursor: pointer;
+    color: #1976d2;
+  }
 </style>

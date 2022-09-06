@@ -35,13 +35,17 @@ Vue.component('DochubRadar', Radar);
 Vue.component('DochubPlantuml', PlantUML);
 
 function main(settings) {
-	createVsCodeDefaultSettings(settings);
+	Vue.config.ignoredElements = ['asyncapi-component'];
+
+	if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
+		createVsCodeDefaultSettings(settings);
+	}
 
 	const providers = createProviders();
 	const router = createRouter();
 	const store = createStore();
 
-	if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
+	if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
 		createVsCodeListener(store);
 	} else {
 		store.dispatch('init');
@@ -66,7 +70,7 @@ function main(settings) {
 
 export { main };
 
-if (process.env.VUE_APP_DOCHUB_MODE !== 'plugin') {
+if (process.env.VUE_APP_DOCHUB_MODE !== 'vs-plugin') {
 	main();
 }
 

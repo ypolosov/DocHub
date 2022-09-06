@@ -24,7 +24,7 @@
         return this.$store.state.hasRootFileVsCode;
       },
       isPlugin() {
-        return process.env.VUE_APP_DOCHUB_MODE === 'plugin';
+        return process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin';
       },
       hasRootFile() {
         return (this.isPlugin && this.hasRootFileVsCode) ||

@@ -6,7 +6,7 @@
     "serve": "cross-env vue-cli-service serve",
     "build": "vue-cli-service build",
     "serve-vscode": "cross-env VUE_APP_BUILD_VSCODE_EXTENSION=true vue-cli-service serve",
-    "build-vscode": "cross-env VUE_APP_BUILD_VSCODE_EXTENSION=true VUE_APP_DOCHUB_MODE=plugin vue-cli-service build",
+    "build-vscode": "cross-env VUE_APP_BUILD_VSCODE_EXTENSION=true VUE_APP_DOCHUB_MODE=\"vs-plugin\" vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test": "jest --watch",
     "meta-import": "node src/tools/meta/import.js"
