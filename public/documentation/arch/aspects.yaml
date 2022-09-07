@@ -4,7 +4,7 @@ aspects: # Архитектурные аспекты
     location: DocHub
   dochub.git:
     title: Git
-    location: DocHub/Git1
+    location: DocHub/Git
   dochub.git.client:
     title: Развитие репы
     location: DocHub/GitLab/Git-клиент
