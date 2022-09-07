@@ -16,41 +16,15 @@
   export default {
     computed: {
       isPlugin() {
-        return window.$IDE_PLUGIN;
+        return process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin';
       }
     },
     methods: {
       gotoCode() {
-        // const struct = window.location.hash.split('/');
-        // console.log(window.location);
-
         window.$PAPI.goto(window.location);
-        
-        // switch (struct[1]) {
-        //   case 'architect': {
-        //     switch (struct[2]) {
-        //       case 'contexts': 
-        //         window.$PAPI.goto(null, 'context', struct[3]); 
-        //         break;
-        //       case 'aspects': 
-        //         window.$PAPI.goto(null, 'aspect', struct[3]); 
-        //         break;
-        //       case 'components': 
-        //         window.$PAPI.goto(null, 'component', struct[3]); 
-        //         break;
-        //     }
-        //     break;
-        //   }
-        //   case 'docs': 
-        //     window.$PAPI.goto(null, 'document', struct[2]); break;
-        // }
       },
       reloadForce() {
         window.$PAPI.reload();
-      },
-      showDebugger() {
-        window.$PAPI.isDebug = true;
-        window.$PAPI.showDebugger();
       }
     }
   };

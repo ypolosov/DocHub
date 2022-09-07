@@ -2,7 +2,18 @@
   <v-app class="d-flex">
     <app-header />
     
-    <app-create-file-page v-if="!hasRootFile" />
+    <app-create-file-page v-if="!hasRootFile || isNotInited" />
+
+    <template v-if="isLoading && hasRootFile">
+      <div class="loading-splash" />
+      <v-progress-circular
+        class="whell"
+        v-bind:size="64"
+        v-bind:width="7"
+        v-bind:value="60"
+        color="primary"
+        indeterminate />
+    </template>
 
     <v-content v-else>
       <router-view />
@@ -23,8 +34,14 @@
       hasRootFileVsCode() {
         return this.$store.state.hasRootFileVsCode;
       },
+      isNotInited() {
+        return this.$store.state.notInited;
+      },
       isPlugin() {
         return process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin';
+      },
+      isLoading() {
+        return this.$store.state.isReloading;
       },
       hasRootFile() {
         return (this.isPlugin && this.hasRootFileVsCode) ||
@@ -36,4 +53,26 @@
 
 <style>
   @import '../../../assets/material_icons.css';
+
+  .loading-splash {
+    background: #FFF;
+    opacity: 0.7;
+    z-index: 10;  
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    bottom: 0; 
+    right: 0; 
+    filter: blur(8px);
+    -webkit-filter: blur(8px);  
+  }
+
+  .whell {
+    z-index: 100;  
+    left: 50%;
+    top: 50vh;
+    position: absolute !important;
+    margin-left: -32px;
+    margin-top: -32px;
+  }
 </style>

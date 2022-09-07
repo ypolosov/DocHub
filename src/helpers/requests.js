@@ -202,7 +202,7 @@ export default {
 		
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
-		if (window.$IDE_PLUGIN && params.url.split(':')[0] === 'plugin') {
+		if (window.$IDE_PLUGIN) {
 			this.trace(params.url);
 			return window.$PAPI.request(params);
 		} else {

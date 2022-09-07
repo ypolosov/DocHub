@@ -106,10 +106,11 @@ export default {
 				net: null
 			};
 			context.commit('setRenderCore', 
-				process.env.VUE_APP_DOCHUB_MODE === 'plugin' || process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin' 
-					? 'smetana' 
-					: 'graphviz'
+				process.env.VUE_APP_DOCHUB_RENDER_CORE 
+				|| window.$PAPI?.settings?.render?.mode 
+				|| 'graphviz'
 			);
+			
 			context.dispatch('reloadAll', uri);
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
@@ -134,7 +135,6 @@ export default {
 						console.error(error);
 						context.commit('appendProblems', error);
 						// eslint-disable-next-line no-debugger
-						debugger;
 					});
 			};
 			parser.onStartReload = () => {

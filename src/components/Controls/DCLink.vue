@@ -1,7 +1,11 @@
 <template>
-  <span v-bind:class="$style.link" v-on:click="onClick">
+  <span v-if="isVsCodeLink" v-bind:class="$style.link" v-on:click="onClickVsCodeLink">
     <slot />
   </span>
+
+  <a v-else v-bind:href="href" v-bind:target="target || '_blank'" v-on:click="onClick">
+    <slot />
+  </a>
 </template>
 
 <script>
@@ -15,19 +19,29 @@
     data() {
       return {};
     },
+    computed: {
+      isVsCodeLink() {
+        return this.href.includes('https://file+.vscode-resource.vscode-cdn.net');
+      }
+    },
     methods: {
-      onClick() {
+      onClickVsCodeLink() {
+        window.$PAPI.goto(this.href);
+      },
+      onClick(event) {
         const struct = (this.href || '').split(':/');
-        if (this.href.includes('https://file+.vscode-resource.vscode-cdn.net')) {
-          window.$PAPI.goto(this.href);
-        } else if (struct[0] === 'plugin') {
+
+        if (struct[0] === 'plugin') {
           const url = new URL(this.href);
           window.$PAPI.goto(`plugin:${url.pathname}`, url.searchParams.get('entity'), url.searchParams.get('id'));
+          event.preventDefault();
+          return false;
         } else if ((this.href || '').split(':/').length == 1) {
+          event.preventDefault();
           this.$router.push({ path: this.href });
-        } else {
-          window.open(this.href, this.target || '_blank');
+          return false;
         }
+        return true;
       }
     }
   };

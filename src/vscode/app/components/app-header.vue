@@ -12,7 +12,7 @@
       </v-app-bar-nav-icon>
 
       <v-toolbar-title>
-        <router-link v-bind:to="{ name: 'main' }" v-bind:class="$style.link">
+        <router-link v-bind:to="{ name: 'architect' }" v-bind:class="$style.link">
           DocHub
         </router-link>
       </v-toolbar-title>

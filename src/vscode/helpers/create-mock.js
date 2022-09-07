@@ -31,7 +31,6 @@ export function createMock(store) {
 		if (command === 'update-files') {
 			const { uri } = content;
 			
-			store.commit('clean');
 			store.dispatch('init', uri);
 		}
 

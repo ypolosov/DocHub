@@ -22,11 +22,11 @@
     methods: {
       createEmpty() {
         this.vscodeExtensionService.createOne();
-        this.$router.push({ name: 'main' });
+        this.$router.push({ name: 'architect' });
       },
       createDefault() {
         this.vscodeExtensionService.createOne('from-file');
-        this.$router.push({ name: 'main' });
+        this.$router.push({ name: 'architect' });
       }
     }
   };
