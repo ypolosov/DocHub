@@ -34,11 +34,11 @@ Vue.component('DochubTechnology', Technology);
 Vue.component('DochubRadar', Radar);
 Vue.component('DochubPlantuml', PlantUML);
 
-function main(settings) {
+function main(settings, uri) {
 	Vue.config.ignoredElements = ['asyncapi-component'];
 
 	if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
-		createVsCodeDefaultSettings(settings);
+		createVsCodeDefaultSettings(settings, uri);
 	}
 
 	const providers = createProviders();
@@ -47,9 +47,9 @@ function main(settings) {
 
 	if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
 		createVsCodeListener(store);
-	} else {
-		store.dispatch('init');
 	}
+	
+	store.dispatch('init');
 	
 	Vue.mixin(GlobalMixin);
 

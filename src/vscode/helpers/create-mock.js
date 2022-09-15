@@ -1,5 +1,8 @@
 import plantuml from '@/helpers/plantuml';
+import config from '../../../config';
+
 import { getContentType, normalizeResponse } from '@/vscode/helpers/common';
+import { v4 as uuidv4 } from 'uuid';
 
 const listeners = {};
 
@@ -8,41 +11,37 @@ export function createMock(store) {
 		const { command, content, error } = event?.data;
 
 		if (command === 'response') {
-			const { stringifedUri, value, type } = content;
+			const { value, type, uuid } = content;
 
 			if (error) {
-				throw error;
+				listeners[uuid].rej(error);
 			}
 
 			try {
 				const data = normalizeResponse(type, value);
 
-				listeners[stringifedUri].res({ 
+				listeners[uuid].res({ 
 					data,
 					headers: {
 						'content-type': getContentType(type)
 					}
 				});
 			} catch(e) {
-				listeners[stringifedUri].rej(e);
+				listeners[uuid].rej(e);
+			} finally {
+				delete listeners[uuid];
 			}
 		}
 
-		if (command === 'update-files') {
+		if (command === 'has-root-manifest') {
 			const { uri } = content;
 			
-			store.dispatch('init', uri);
-		}
-
-		if(command === 'is-root-manifest') {
-			const { uri } = content;
-
-			if (uri) {
-				store.commit('setHasRootFileVsCode', true);
-				store.dispatch('init', uri);
+			if (uri === null) {
+				config.root_manifest = null;
+				store.commit('setNoInited', true);
 			} else {
-				store.commit('setHasRootFileVsCode', false);
-				store.commit('clean');
+				config.root_manifest = uri;
+				store.dispatch('reloadAll');
 			}
 		}
 	});
@@ -73,26 +72,34 @@ export function createMock(store) {
 		},
 		renderPlantUML: (uml) => {
 			const stringifedUri = JSON.stringify(plantuml.svgURL(uml));
+			const uuid = uuidv4();
 
 			vscode.postMessage({
 				command: 'plantuml',
-				content: stringifedUri
+				content: {
+					stringifedUri,
+					uuid
+				}
 			});
 
 			return new Promise((res, rej) => {
-				listeners[stringifedUri] = { res, rej };
+				listeners[uuid] = { res, rej };
 			});	
 		},
 		request(uri) {
 			const stringifedUri = JSON.stringify(uri);
+			const uuid = uuidv4();
 
 			vscode.postMessage({
 				command: 'request',
-				content: stringifedUri
+				content: {
+					stringifedUri,
+					uuid
+				}
 			});
 			
 			return new Promise((res, rej) => {
-				listeners[stringifedUri] = { res, rej };
+				listeners[uuid] = { res, rej };
 			});	
 		}
 	};

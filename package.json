@@ -21,6 +21,7 @@
     "jsonata": "1.8.6",
     "mustache": "4.2.0",
     "swagger-ui": "3.24.3",
+    "uuid": "^9.0.0",
     "vue": "2.6.11",
     "vue-code-diff": "0.0.4",
     "vue-cookie": "1.1.4",

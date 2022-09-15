@@ -70,7 +70,7 @@
 
   import query from '../../manifest/query';
   import Docs from './tabs/Docs.vue';
-  import AspectsMindmap from '@/components/Mindmap/AspectsMindmap';
+  import AspectsMindmap from '@/components/Mindmap/AspectsMindmap.vue';
   import TabContexts from './tabs/TabContext.vue';
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
@@ -114,6 +114,13 @@
         if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
           result = result.map((item) => ({
             title: item.title.slice(19),
+            link: `${item.link}?entity=aspect&id=${this.aspect}`
+          }));
+        }
+
+        if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
+          result = result.map((item) => ({
+            title: item.title.replace('https://file+.vscode-resource.vscode-cdn.net', ''),
             link: `${item.link}?entity=aspect&id=${this.aspect}`
           }));
         }

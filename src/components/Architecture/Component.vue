@@ -124,7 +124,7 @@
         if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
           result = result.map((item) => ({
             title: item.title.replace('https://file+.vscode-resource.vscode-cdn.net', ''),
-            link: `${item.link}?entity=aspect&id=${this.aspect}`
+            link: `${item.link}?entity=component&id=${this.component}`
           }));
         }
 

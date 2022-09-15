@@ -100,7 +100,7 @@ export default {
 
 	actions: {
 		// Action for init store
-		init(context, uri) {
+		init(context) {
 			const errors = {
 				syntax: null,
 				net: null
@@ -111,9 +111,10 @@ export default {
 				|| 'graphviz'
 			);
 			
-			context.dispatch('reloadAll', uri);
+			context.dispatch('reloadAll');
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
+			
 			parser.onReloaded = (parser) => {
 				// Очищяем прошлую загрузку
 				context.commit('clean');
@@ -144,6 +145,7 @@ export default {
 				context.commit('setIsReloading', true);
 			};
 			parser.onError = (action, data) => {
+				console.log(148, data, config.root_manifest);
 				const error = data.error || {};
 				const url = (data.error.config || {url: data.uri}).url;
 				const uid = '$' + crc16(url);
@@ -187,12 +189,14 @@ export default {
                             + `${error.toString()}\n`,
 						location: url
 					});
+					context.commit('setIsReloading', false);
 				}
 			};
 
 			let changes = {};
 			let refreshTimer = null;
-			gateway.appendListener('source/changed', (data) => {
+
+			function reloadSourceAll(data) {
 				if (data) {
 					changes = Object.assign(changes, data);
 					if (refreshTimer) clearTimeout(refreshTimer);
@@ -208,7 +212,9 @@ export default {
 						}
 					}, 350);
 				}
-			});
+			}
+			
+			gateway.appendListener('source/changed', reloadSourceAll);
 		},
 
 		// Вызывается при необходимости получить access_token
@@ -256,8 +262,8 @@ export default {
 		},
 
 		// Reload root manifest
-		reloadAll(context, uri) {
-			context.dispatch('reloadRootManifest', uri);
+		reloadAll(context) {
+			context.dispatch('reloadRootManifest');
 		},
 
 		// Search and set document by URI
@@ -312,12 +318,8 @@ export default {
 		},
 
 		// Reload root manifest
-		reloadRootManifest(_, uri) {
-			if (uri) {
-				parser.import(uri);
-			} else {
-				parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
-			}
+		reloadRootManifest() {
+			parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
 		},
 
 		// Регистрация проблемы

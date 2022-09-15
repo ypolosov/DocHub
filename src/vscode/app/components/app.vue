@@ -2,9 +2,9 @@
   <v-app class="d-flex">
     <app-header />
     
-    <app-create-file-page v-if="!hasRootFile || isNotInited" />
+    <app-create-file-page v-if="isNotInited" />
 
-    <template v-if="isLoading && hasRootFile">
+    <template v-else-if="isLoading">
       <div class="loading-splash" />
       <v-progress-circular
         class="whell"
@@ -30,23 +30,17 @@
       AppHeader,
       AppCreateFilePage
     },
+    inject: ['vscodeExtensionService'],
     computed: {
-      hasRootFileVsCode() {
-        return this.$store.state.hasRootFileVsCode;
-      },
       isNotInited() {
         return this.$store.state.notInited;
       },
-      isPlugin() {
-        return process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin';
-      },
       isLoading() {
         return this.$store.state.isReloading;
-      },
-      hasRootFile() {
-        return (this.isPlugin && this.hasRootFileVsCode) ||
-          !this.isPlugin;
       }
+    },
+    mounted() {
+      this.vscodeExtensionService.checkIsRootManifest();
     }
   };
 </script>

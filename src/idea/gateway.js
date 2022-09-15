@@ -15,6 +15,20 @@ if ((process.env.VUE_APP_DOCHUB_MODE === 'plugin') && (process.env.NODE_ENV === 
 	}, 300);
 }
 
+if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
+	window.addEventListener('message', (event) => {
+		const { command, content } = event?.data;
+
+		if (command === 'update-source-file') {
+			for (const action in content) {
+				(listeners[action] || []).forEach((listener) => {
+					listener(content[action]);
+				});
+			}
+		}
+	});
+}
+
 export default {
 	appendListener(action, listener) {
 		const arr = listeners[action] = (listeners[action] || []);

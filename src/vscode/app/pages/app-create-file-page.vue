@@ -12,21 +12,12 @@
 <script>
   export default {
     inject: ['vscodeExtensionService'],
-    mounted() {
-      this.vscodeExtensionService.checkIsRootManifest();
-
-      if (this.$route.name !== 'home') {
-        this.$router.push({ name: 'home' });
-      }
-    },
     methods: {
       createEmpty() {
         this.vscodeExtensionService.createOne();
-        this.$router.push({ name: 'architect' });
       },
       createDefault() {
         this.vscodeExtensionService.createOne('from-file');
-        this.$router.push({ name: 'architect' });
       }
     }
   };

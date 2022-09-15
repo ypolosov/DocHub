@@ -189,11 +189,12 @@ const parser = {
 		if (typeof data === 'string') {
 			const URI = requests.makeURIByBaseURI(data, baseURI);
 			this.incReqCounter();
-			requests.request(URI).then((response) => {
-				const context = this.getManifestContext(path);
-				context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
-				this.touchProjects(URI);
-			})
+			requests.request(URI)
+				.then((response) => {
+					const context = this.getManifestContext(path);
+					context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
+					this.touchProjects(URI);
+				})
 				.catch((e) => this.registerError(e, URI))
 				.finally(() => this.decReqCounter());
 		}
@@ -287,7 +288,9 @@ const parser = {
 			}
 		})
 		// eslint-disable-next-line no-console
-			.catch((e) => this.registerError(e, uri))
+			.catch((e) => {
+				this.registerError(e, uri);
+			})
 			.finally(() => {
 				this.decReqCounter();
 			});
