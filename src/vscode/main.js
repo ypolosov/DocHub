@@ -12,6 +12,7 @@ import Radar from '@/components/Techradar/Main.vue';
 import Technology from '@/components/Techradar/Technology.vue';
 import Anchor from '@/components/Tools/Anchor.vue';
 import Image from '@/components/Tools/Image.vue';
+import VueSplit from 'vue-split-panel';
 
 import GlobalMixin from '@/mixins/global';
 
@@ -24,6 +25,7 @@ import { createStore } from './store/store';
 import '@/assets/styles/main.css';
 import 'swagger-ui/dist/swagger-ui.css';
 
+Vue.use(VueSplit);
 Vue.component('DochubDoc', DocHubDoc);
 Vue.component('DochubContext', Context);
 Vue.component('DochubComponent', Component);

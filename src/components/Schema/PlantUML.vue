@@ -330,8 +330,8 @@
 </script>
 
 <style>
-
 .plantuml-place {
+  height: 100%;
 }
 
 .plantuml-schema {

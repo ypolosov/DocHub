@@ -1,6 +1,6 @@
-import query from '../manifest/query';
-import docs from './docs';
 import requests from './requests';
+import docs from './docs';
+import query from '../manifest/query';
 
 export default function() {
 	return {
@@ -15,7 +15,7 @@ export default function() {
 		parseSource(context, data, subject) {
 			return new Promise((resolve, reject) => {
 				// Константные данные
-				if(typeof data === 'object') {
+				if (typeof data === 'object') {
 					resolve(JSON.parse(JSON.stringify(data)));
 				} else if (typeof data === 'string') {
 					// Inline запрос JSONata
@@ -29,14 +29,14 @@ export default function() {
 							.then((response) => {
 								this.parseSource(context, response.data)
 									.then((data) => resolve(data))
-									.catch((e) => reject(e));  
+									.catch((e) => reject(e));
 							}).catch((e) => reject(e));
 						// Ссылка на файл с запросом
 					} else if (data.slice(-8) === '.jsonata') {
-						const url = docs.urlFromProfile({source: data});
+						const url = docs.urlFromProfile({ source: data });
 						requests.request(url).then((response) => {
-							const exp = query.expression(typeof response.data === 'string' 
-								? response.data 
+							const exp = query.expression(typeof response.data === 'string'
+								? response.data
 								: JSON.stringify(response.data));
 							exp.onError = reject;
 							resolve(exp.evaluate(context), subject);
@@ -64,9 +64,9 @@ export default function() {
 						.then((data) => resolve(data))
 						.catch((e) => reject(e));
 				};
-				if (subject.source || (subject.data /* depricated */) ) {
+				if (subject.source || (subject.data /* depricated */)) {
 					if (subject.origin) {
-						if(typeof subject.origin === 'string') {
+						if (typeof subject.origin === 'string') {
 							this.parseSource(context, subject.origin, subject)
 								.then((data) => exec(data))
 								.catch((e) => reject(e));
@@ -77,12 +77,12 @@ export default function() {
 								++counter;
 								this.parseSource(context, subject.origin[key], subject).then((content) => {
 									data[key] = content;
-									if(!--counter) exec(data);
+									if (!--counter) exec(data);
 								}).catch((e) => reject(e));
 							}
 						} else reject(`Ошибка данных [${subject.source}]`);
 					} else exec(context);
-				} else resolve (null); // Нет данных
+				} else resolve(null); // Нет данных
 			});
 		}
 	};

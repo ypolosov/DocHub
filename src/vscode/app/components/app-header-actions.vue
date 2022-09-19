@@ -6,9 +6,9 @@
     <!-- <v-btn v-if="isPlugin" icon title="Отладка" v-on:click="showDebugger">
       <v-icon>mdi-bug</v-icon>
     </v-btn> -->
-    <v-btn v-if="isPlugin" icon title="Обновить" v-on:click="reloadForce">
+    <!-- <v-btn v-if="isPlugin" icon title="Обновить" v-on:click="reloadForce">
       <v-icon>refresh</v-icon>
-    </v-btn>
+    </v-btn> -->
   </div>
 </template>
 

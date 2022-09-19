@@ -1,14 +1,14 @@
 <template>
-  <div>
+  <div style="height: 100%;">
     <empty v-if="isEmpty" />
 
-    <div v-else>
+    <template v-else>
       <async-api-component v-if="docType === DocTypes.ASYNCAPI" v-bind:document="document" />
       <swagger v-if="docType === DocTypes.OPENAPI" v-bind:document="document" />
       <plantuml v-if="docType === DocTypes.PLANTUML" v-bind:document="document" />
       <doc-markdown v-if="docType === DocTypes.MARKDOWN" v-bind:document="document" />
       <doc-table v-if="docType === DocTypes.TABLE" v-bind:document="document" />
-    </div>
+    </template>
   </div>
 </template>
 

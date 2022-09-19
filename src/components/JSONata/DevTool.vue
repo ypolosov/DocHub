@@ -1,24 +1,23 @@
 <template>
   <v-container grid-list-xl fluid style="height:100%">
     <split v-bind:direction="'vertical'">
-      <div v-bind:class="$style.content">
-        <split-area v-bind:size="30" class="area-space">
-          <textarea 
-            v-model="query" 
-            class="area" 
-            wrap="off" 
-            v-on:keydown.tab.prevent="tabber($event)" />
-        </split-area>
-        <split-area v-bind:size="70" class="area-space">
-          <pre v-if="error" class="area" v-html="errorExplain" />
-          <textarea v-else v-model="result" class="area" readonly style="background-color: #f5f5f5;" wrap="off" />
-        </split-area>
-      </div>
+      <split-area v-bind:size="30" class="area-space">
+        <textarea 
+          v-model="query" 
+          class="area" 
+          wrap="off" 
+          v-on:keydown.tab.prevent="tabber($event)" />
+      </split-area>
+      <split-area v-bind:size="70" class="area-space">
+        <pre v-if="error" class="area" v-html="errorExplain" />
+        <textarea v-else v-model="result" class="area" readonly style="background-color: #f5f5f5;" wrap="off" />
+      </split-area>
     </split>
   </v-container>
 </template>
 
 <script>
+
   import query from '@/manifest/query';
   import cookie from 'vue-cookie';
 
@@ -78,8 +77,9 @@
 </script>
 
 <style scoped>
+
 .area-space {
-  min-height: 100%;
+  overflow: hidden;
 }
 
 .area {
@@ -89,12 +89,5 @@
   padding: 4px;
   overflow: auto;
 }
-</style>
 
-<style module>
-  .content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    height: 100%;
-  }
 </style>
