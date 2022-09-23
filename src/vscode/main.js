@@ -48,7 +48,7 @@ function main(settings, uri) {
 	const store = createStore();
 
 	if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
-		createVsCodeListener(store);
+		createVsCodeListener(store, router);
 	}
 	
 	store.dispatch('init');

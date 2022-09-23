@@ -26,6 +26,14 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
 				});
 			}
 		}
+
+		if (command === 'navigate') {
+			for (const action in content) {
+				(listeners[action] || []).forEach((listener) => {
+					listener(content[action]);
+				});
+			}
+		}
 	});
 }
 

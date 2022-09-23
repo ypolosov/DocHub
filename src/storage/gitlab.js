@@ -319,6 +319,7 @@ export default {
 
 		// Reload root manifest
 		reloadRootManifest() {
+			console.log('reload', config.root_manifest);
 			parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
 		},
 
