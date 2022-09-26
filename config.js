@@ -1,5 +1,5 @@
 const config = {};
-// import consts from './src/consts';
+import consts from './src/consts';
 
 // eslint-disable-next-line no-console
 console.info('ENVIRONMENTS:');
@@ -37,16 +37,16 @@ if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
 }
 
 
-// config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
+config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
 
-// if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
-// 	if (process.env.NODE_ENV !== 'production') {
-// 		window.$IDE_PLUGIN = true;
-// 		window.$PAPI = require('./src/idea/apimoc').default;
-// 	} else  {
-// 		config.root_manifest = consts.plugin.ROOT_MANIFEST;
-// 	}
-// }
+if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
+	if (process.env.NODE_ENV !== 'production') {
+		window.$IDE_PLUGIN = true;
+		window.$PAPI = require('./src/idea/apimoc').default;
+	} else  {
+		config.root_manifest = consts.plugin.ROOT_MANIFEST;
+	}
+}
 
 config.pumlServer = 
 	window.$PAPI?.settings?.render?.server

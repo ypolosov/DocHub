@@ -145,7 +145,6 @@ export default {
 				context.commit('setIsReloading', true);
 			};
 			parser.onError = (action, data) => {
-				console.log(148, data, config.root_manifest);
 				const error = data.error || {};
 				const url = (data.error.config || {url: data.uri}).url;
 				const uid = '$' + crc16(url);
@@ -319,7 +318,6 @@ export default {
 
 		// Reload root manifest
 		reloadRootManifest() {
-			console.log('reload', config.root_manifest);
 			parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
 		},
 
