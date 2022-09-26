@@ -46,7 +46,7 @@ if(window.$PAPI) {
 		case 'json': response.data = JSON.parse(response.data); break;
 		case 'jpg': 
 			type = 'jpeg'; 
-			// eslint-disable-next-line no-fallthrough
+		// eslint-disable-next-line no-fallthrough
 		case 'jpeg':
 		case 'png':
 		case 'svg':

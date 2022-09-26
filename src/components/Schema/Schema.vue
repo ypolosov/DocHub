@@ -103,7 +103,12 @@
           notation = this.schema.uml.$notation;
         }
 
-        switch(this.renderCore)  {
+        const renderCore = (
+          process.env.VUE_APP_DOCHUB_RENDER_CORE ||
+          window.$PAPI?.settings?.render?.mode || ''
+        ).toLowerCase();
+
+        switch(renderCore)  {
           case 'smetana': uml += '!pragma layout smetana\n'; break;
           case 'elk': uml += '!pragma layout elk\n'; break;
           case 'graphviz': uml += '!pragma layout graphviz\n'; break;
