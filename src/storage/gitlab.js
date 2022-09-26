@@ -40,7 +40,6 @@ export default {
 		renderCore: 'graphviz',
 		// Признак инциализации проекта в плагине
 		notInited: null,
-		hasRootFileVsCode: false,
 		// Признак критической проблемы
 		criticalError: null
 	},
@@ -92,9 +91,6 @@ export default {
 		},
 		setCriticalError(state, value) {
 			state.criticalError = value;
-		},
-		setHasRootFileVsCode(state, value) {
-			state.hasRootFileVsCode = value;
 		}
 	},
 
