@@ -7,6 +7,7 @@ imports:  # Подключение манифестов
   - forms.yaml
   - technologies.yaml
   - rules.yaml
+  - entity.yaml
 components:
   dochub: # Корневой компонент (домен)
     title: DocHub

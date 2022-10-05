@@ -658,6 +658,7 @@ export default {
 			expression,
 			core: null,
 			onError: null,  // Событие ошибки выполнения запроса
+			store: {},      // Хранилище вспомогательных переменных для запросов
 			// Исполняет запрос
 			//  context - контекст исполнения запроса
 			//  def - если возникла ошибка, будет возращено это значение
@@ -669,6 +670,12 @@ export default {
 						this.core.registerFunction('wcard', wcard);
 						this.core.registerFunction('mergedeep', mergeDeep);
 						this.core.registerFunction('jsonschema', jsonSchema);
+						this.core.registerFunction('set', (key, data) => {
+							return obj.store[key] = data;
+						});
+						this.core.registerFunction('get', (key) => {
+							return obj.store[key];
+						});
 					}
 					return Object.freeze(this.core.evaluate(context));
 				} catch (e) {
