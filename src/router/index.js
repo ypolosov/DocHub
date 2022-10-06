@@ -17,6 +17,7 @@ import AspectsMindmap from '../components/Mindmap/AspectsMindmap';
 import gateway from '../idea/gateway';
 import Empty from '../components/Controls/Empty';
 import DevTool from '../components/JSONata/DevTool';
+import Entity from '../components/Entities/Entity';
 
 Vue.use(Router);
 
@@ -127,6 +128,12 @@ const rConfig = {
 			name: 'devtool',
 			path: '/devtool',
 			component: DevTool,
+			props: middleware
+		},
+		{
+			name: 'entity',
+			path: '/entity/:entity/:presentation',
+			component: Entity,
 			props: middleware
 		},
 		{
