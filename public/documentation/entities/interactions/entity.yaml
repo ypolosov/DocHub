@@ -33,17 +33,7 @@ entities: # Сущности расширенной матемодели
         presentations:          # Представления объектов сущности. Обязательно.
             blank:              # Основное представление. JSONata запрос или объект. Обязательно.
                 type: plantuml  # Тип представления. По умолчанию "raw".
-                template: >     # Шаблон
-                    @startuml
-                    {{#.}}
-                    group {{code}}:{{#triggers}}{{.}}, {{/triggers}}
-                        {{#steps}}
-                        "{{from}}" --> "{{to}}": {{value}}
-                        {{/steps}}
-                        note across: {{#results}}{{.}}, {{/results}}
-                    end
-                    {{/.}}
-                    @enduml
+                template: templates/blank.puml
                 source: >       # Источник данных для рендера шаблона. $ - объект
                     (
                         $

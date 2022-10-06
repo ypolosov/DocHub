@@ -1,18 +1,38 @@
 <template>
   <div>
     <empty v-if="isEmpty" />
-
     <div v-else>
-      <async-api-component v-if="docType === DocTypes.ASYNCAPI" v-bind:document="document" />
-      <swagger v-if="docType === DocTypes.OPENAPI" v-bind:document="document" />
-      <plantuml v-if="docType === DocTypes.PLANTUML" v-bind:document="document" />
-      <doc-markdown v-if="docType === DocTypes.MARKDOWN" v-bind:document="document" />
-      <doc-table v-if="docType === DocTypes.TABLE" v-bind:document="document" />
+      <async-api-component 
+        v-if="docType === DocTypes.ASYNCAPI" 
+        v-bind:document="document" 
+        v-bind:profile-resolver="profileResolver" 
+        v-bind:url-resolver="urlResolver" />
+      <swagger 
+        v-if="docType === DocTypes.OPENAPI"
+        v-bind:document="document"
+        v-bind:profile-resolver="profileResolver" 
+        v-bind:url-resolver="urlResolver" />
+      <plantuml
+        v-if="docType === DocTypes.PLANTUML"
+        v-bind:document="document"
+        v-bind:profile-resolver="profileResolver" 
+        v-bind:url-resolver="urlResolver" />
+      <doc-markdown 
+        v-if="docType === DocTypes.MARKDOWN"
+        v-bind:document="document" 
+        v-bind:profile-resolver="profileResolver" 
+        v-bind:url-resolver="urlResolver" />
+      <doc-table
+        v-if="docType === DocTypes.TABLE"
+        v-bind:document="document" 
+        v-bind:profile-resolver="profileResolver" 
+        v-bind:url-resolver="urlResolver" />
     </div>
   </div>
 </template>
 
 <script>
+  import docs from '@/helpers/docs';
   import { DocTypes } from '@/components/Docs/enums/doc-types.enum';
   import Swagger from './DocSwagger.vue';
   import AsyncApiComponent from '@/components/Docs/DocAsyncApi.vue';
@@ -32,7 +52,25 @@
       Empty
     },
     props: {
-      document: { type: String, default: '' }
+      document: { type: String, default: '' },
+      // Формирование профиля документа
+      profileResolver: { 
+        type: Function,
+        default: function() {
+          return this.manifest?.docs?.[this.document] || {};
+        }
+      },
+      // Определение размещения объекта
+      urlResolver: { 
+        type: Function,
+        default: function() {
+          const result = this.profile ?
+            docs.urlFromProfile(this.profile,
+                                (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
+            ): '';
+          return `${result}?id=${this.document}`;
+        }
+      }
     },
     data() {
       return {
@@ -40,14 +78,14 @@
       };
     },
     computed: {
-      isEmpty() {
-        return !this.docs[this.document];
+      profile() {
+        return this.profileResolver();
       },
-      docs() {
-        return (this.manifest).docs || {};
+      isEmpty() {
+        return !this.profile;
       },
       docType() {
-        return ((this.docs[this.document] || {}).type || 'unknown').toLowerCase();
+        return (this.profile.type || 'unknown').toLowerCase();
       }
     },
     mounted() {

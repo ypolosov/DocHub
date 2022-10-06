@@ -8,8 +8,7 @@ export default function(manifest, success, reject) {
 		const provider = datasets();
 		provider.dsResolver = (id) => {
 			return {
-				subject: Object.assign({_id: id}, this.manifest.rules.validators?.[id]),
-				baseURI: (this.$store.state.sources.find((item) => item.path === `/rules/validators/${id}`) || {}).location
+				subject: Object.assign({_id: id}, (this.manifest.datasets || {})[id])
 			};
 		};
 

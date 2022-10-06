@@ -13,6 +13,7 @@ const sectionDeepLog = {
 	'docs': 2,
 	'contexts': 2,
 	'components': 2,
+	'entities': 2,
 	'rules': 3,
 	'datasets': 2,
 	'$default$': 2
