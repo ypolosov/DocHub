@@ -5,26 +5,31 @@
       <async-api-component 
         v-if="docType === DocTypes.ASYNCAPI" 
         v-bind:document="document" 
+        v-bind:params="params" 
         v-bind:profile-resolver="profileResolver" 
         v-bind:url-resolver="urlResolver" />
       <swagger 
         v-if="docType === DocTypes.OPENAPI"
         v-bind:document="document"
+        v-bind:params="params" 
         v-bind:profile-resolver="profileResolver" 
         v-bind:url-resolver="urlResolver" />
       <plantuml
         v-if="docType === DocTypes.PLANTUML"
         v-bind:document="document"
+        v-bind:params="params" 
         v-bind:profile-resolver="profileResolver" 
         v-bind:url-resolver="urlResolver" />
       <doc-markdown 
         v-if="docType === DocTypes.MARKDOWN"
         v-bind:document="document" 
+        v-bind:params="params" 
         v-bind:profile-resolver="profileResolver" 
         v-bind:url-resolver="urlResolver" />
       <doc-table
         v-if="docType === DocTypes.TABLE"
         v-bind:document="document" 
+        v-bind:params="params" 
         v-bind:profile-resolver="profileResolver" 
         v-bind:url-resolver="urlResolver" />
     </div>
@@ -69,6 +74,13 @@
                                 (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
             ): '';
           return `${result}?id=${this.document}`;
+        }
+      },
+      // Параметры передающиеся в запросы документа
+      params: { 
+        type: Object, 
+        default() {
+          return this.$router.query;
         }
       }
     },

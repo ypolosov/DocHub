@@ -15,7 +15,11 @@ export default {
 			this.source.status = SOURCE_PENGING;
 			this.source.dataset = null;
 			if (this.profile.source) {
-				this.source.provider.getData(this.manifest, Object.assign({'_id': this.document}, this.profile))
+				this.source.provider.getData(
+					this.manifest,
+					Object.assign({'_id': this.document}, this.profile),
+					this.params
+				)
 					.then((dataset) => {
 						this.source.dataset = dataset;
 						this.source.status = SOURCE_READY;
@@ -53,7 +57,14 @@ export default {
 		// Формирование профиля документа
 		profileResolver: { type: Function, require: true },
 		// Определение размещения объекта
-		urlResolver: { type: Function, require: true }
+		urlResolver: { type: Function, require: true },
+		// Параметры передающиеся в запросы документа
+		params: { 
+			type: Object, 
+			default() {
+				return {};
+			}
+		}
 	},
 	data() {
 		const provider = datasets();
@@ -74,6 +85,7 @@ export default {
 	},
 	watch: {
 		url() { this.doRefresh(); },
+		params() { this.doRefresh(); },
 		manifest() { 
 			this.isTemplate && this.doRefresh(); 
 		}

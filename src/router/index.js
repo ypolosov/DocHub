@@ -131,8 +131,8 @@ const rConfig = {
 			props: middleware
 		},
 		{
-			name: 'entity',
-			path: '/entity/:entity/:presentation',
+			name: 'entities',
+			path: '/entities/:entity/:presentation',
 			component: Entity,
 			props: middleware
 		},

@@ -1,13 +1,8 @@
 <template>
-  <div>
-    Здесь сущность живет!<br>
-    entity: {{ entity }}<br>
-    presentation: {{ presentation }}<br>
-    <doc 
-      v-bind:profile-resolver="profileResolver" 
-      v-bind:url-resolver="urlResolver" />
-    />
-  </div>
+  <doc 
+    v-bind:profile-resolver="profileResolver" 
+    v-bind:url-resolver="urlResolver"
+    v-bind:params="entityParams" />
 </template>
 
 <script>
@@ -15,7 +10,7 @@
   import doc from '../Docs/DocHubDoc.vue';
 
   export default {
-    name: 'Entity',
+    name: 'Entity',    
     components: {
       doc
     },
@@ -27,6 +22,10 @@
       presentation: {
         type: String,
         default: undefined
+      },
+      params: {
+        type: Object,
+        default: undefined
       }
     },
     data() {
@@ -36,15 +35,19 @@
     computed: {
       presProfile() {
         return this.manifest?.entities?.[this.entity]?.presentations?.[this.presentation] || {};
+      },
+      entityData() {
+        return this.manifest?.[this.entity];
+      },
+      entityParams() {
+        return this.params || (this.$route.params && this.$router.currentRoute.query);
       }
     },
     methods:{
       profileResolver() {
-        debugger;
         return this.presProfile;
       },
       urlResolver() {
-        debugger;
         const result = this.presProfile ?
           docs.urlFromProfile(this.presProfile,
                               (this.$store.state.sources.find((item) => item.path === `/entities/${this.entity}`) || {}).location

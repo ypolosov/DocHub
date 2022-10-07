@@ -8,35 +8,68 @@ entities: # Сущности расширенной матемодели
           (
             $interactions := $.interactions;
             $makeLocation := function($id) {(
-            $arrleft := function($arr ,$count) {
-                $map($arr, function($v, $i) {
-                  $i <= $count ? $v
-                })
-              };
-              $domains := $split($id, ".");
-              $join($map($domains, function($domain, $index) {(
-                $lookup($interactions, $join($arrleft($domains, $index), ".")).title
-              )}), "/");
+                $arrleft := function($arr ,$count) {
+                    $map($arr, function($v, $i) {
+                    $i <= $count ? $v
+                    })
+                };
+                $domains := $split($id, ".");
+                "Взаимодействия/" & $join($map($domains, function($domain, $index) {(
+                    $lookup($interactions, $join($arrleft($domains, $index), ".")).title
+                )}), "/");
             )};
             $append([{
-                "icon": *.icon,                                               /* Получаем иконку */
-                "link": "/entities/interactions/general",                     /* Ссылка на форму представления general (дерево взаимодействий) */
-                "location": "Взаимодействия"                                  /* Расположение в меню */
+                "icon": *.icon,                                                 /* Получаем иконку */
+                "link": "entities/interactions/tree",                           /* Ссылка на форму представления tree (дерево дерево объектов "interactions") */
+                "location": "Взаимодействия"                                    /* Расположение в меню */
             }],
                 [$.interactions.$spread().{
-                    "icon": *.icon,                                           /* Получаем иконку */
-                    "link": "/entities/interactions/blank?id=" & $keys()[0],  /* Формируем ссылку на бланк документ */
-                    "location": $makeLocation($keys()[0])                     /* Формируем расположение в меню */
+                    "icon": *.icon,                                             /* Получаем иконку */
+                    "link": "entities/interactions/blank?id=" & $keys()[0],     /* Формируем ссылку на бланк документ */
+                    "location": $makeLocation($keys()[0])                       /* Формируем расположение в меню */
                 }][location]
             );
           )
         presentations:          # Представления объектов сущности. Обязательно.
-            blank:              # Основное представление. JSONata запрос или объект. Обязательно.
-                type: plantuml  # Тип представления. По умолчанию "raw".
+            tree:               # Идентификатор представления. Дерево взаимодействий.
+                type: plantuml  # Тип представления. Обязательно.
+                template: templates/tree.puml   # Путь к шаблону. Обяхательно.
+                source: >       # Источник данных для рендера шаблона. Возвращает дерево объектов "interactions". Обязательно.
+                  (
+                      $set("rpev-id", undefined);
+                      $arrleft := function($arr ,$count) {
+                          $map($arr, function($v, $i) {
+                              $i <= $count ? $v
+                          })
+                      };
+                      $interactions := $.interactions;
+                      [$interactions.$spread().($merge([{"id" : $keys()[0]}, $.*]))^(id).(
+                          $prev_nodes := $split($get("rpev-id"), ".");
+                          $prev_level := $count($prev_nodes);
+                          $curr_nodes := $split(id, ".");
+                          $set("isdiff", false);
+                          $result := $map($curr_nodes, function($v, $i) {(
+                              $set("isdiff", $get("isdiff") or $prev_level = 0 or $prev_level <= $i or $v != $prev_nodes[$i]) ? (
+                                  $id := $join($arrleft($curr_nodes, $i), ".");
+                                  $interaction :=  $lookup($interactions, $id);
+                                  {
+                                      "id": $id,
+                                      "level": $pad("", $i + 2, "*"),
+                                      "title": $interaction ? $interaction.title : $id,
+                                      "link": "/entities/interactions/blank?id=" & $id
+                                  }
+                              );
+                          )});
+                          $set("rpev-id", id);
+                          $result 
+                      )];
+                  )  
+            blank:              # Карточка объекта
+                type: plantuml  # Тип представления
                 template: templates/blank.puml
-                source: >       # Источник данных для рендера шаблона. $ - объект
+                source: >       # Источник данных для рендера шаблона. Возвращает объект "interactions" по идентификатору переданному в параметрах.
                     (
-                        $
+                        $lookup(interactions, $params.id)
                     )
         shema:                  # JSON Schema контролирующая описание объекта сущности
             type: object
@@ -111,3 +144,23 @@ interactions:
         value: Представление
     results:
       - Информация о существующей архитектуре
+  dochub.user.test.pest:
+    title: Взаимодействия с пользователем
+    triggers:
+      - Просмотр архитектуры
+    steps:
+      - from: User
+        to: DocHub
+        value: Представление
+    results:
+      - Информация о существующей архитектуре      
+  dochub.test2:
+    title: Взаимодействия с пользователем 2
+    triggers:
+      - Просмотр архитектуры
+    steps:
+      - from: User
+        to: DocHub
+        value: Представление
+    results:
+      - Информация о существующей архитектуре            

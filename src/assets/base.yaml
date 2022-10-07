@@ -139,7 +139,7 @@ rules:
         )
 
 # Сущности матемодели DocHub (!!!! в проектировании !!!!)
-entities: 
+entities_: 
     # Аспекты
     aspects2:
         title: Аспекты
