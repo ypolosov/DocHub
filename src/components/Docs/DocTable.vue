@@ -92,8 +92,7 @@
         const provider = datasets();
         provider.dsResolver = (id) => {
           return {
-            subject: Object.assign({$id: id}, (this.manifest.datasets || {})[id]),
-            baseURI: (this.$store.state.sources.find((item) => item.path === `/datasets/${id}`) || {}).location
+            subject: Object.assign({$id: id}, (this.manifest.datasets || {})[id])
           };
         };
         provider.getData(this.manifest, this.docParams)

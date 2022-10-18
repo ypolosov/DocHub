@@ -328,6 +328,9 @@ e;e--)d[e]();if(0<nb)return 0}return Module.setStatus?(Module.setStatus("Running
         },
         download: function(content, title, description) {
           this.request({url: `plugin:/idea/gateway/download`, content, title, description});
+        },
+        applyEntitiesSchema: function(schema) {
+          this.request({url: `plugin:/idea/entities/applyschema`, schema});
         }
       };      
       "API_INJECTION"

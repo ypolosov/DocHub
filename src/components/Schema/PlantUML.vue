@@ -197,7 +197,7 @@
             window.open(ref, 'blank_');
           } else {
             const url = new URL(ref, window.location);
-            this.$router.push({ path: url.pathname});
+            this.$router.push({ path: url.pathname, query: Object.fromEntries(url.searchParams)});
           }
         } catch (e) {
           if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {

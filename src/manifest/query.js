@@ -252,67 +252,76 @@ $append((
     )};
 
     $MANIFEST := $;
-    [
-        {
-            "title": 'Архитектура',
-            "location": 'architect',
-            "route": 'architect/',
-            "expand": true,
-            "icon": 'home'
-        },
-        {
-            "title": "Контексты",
-            "location": 'architect/contexts',
-            "icon": 'location_searching'
-        },
-        {
-            "title": "Аспекты",
-            "location": 'architect/aspects',
-            "icon": 'visibility',
-            "route": 'aspects/'
-        },
-        {
-            "title": 'Документы',
-            "location": 'docs',
-            "expand": true,
-            "icon": 'description'
-        },
-        contexts.$spread().{
-            "title": $GET_TITLE($.*.location ? $.*.location : $keys()[0]),
-            "route": 'architect/contexts/' & $keys()[0],
-            "hiden": $.*.location ? false : true,
-            "location": 'architect/contexts/' & $.*.location,
-            "icon": $.*.icon ? $.*.icon : ''
-        },
-        aspects.$spread().{
-            "title": $GET_TITLE($.*.location),
-            "route": 'architect/aspects/' & $keys()[0],
-            "location": 'architect/aspects/' & $.*.location,
-            "icon": $.*.icon ? $.*.icon : ''
-        },
-        docs.$spread().{
-            "title": $GET_TITLE($.*.location),
-            "route": 'docs/' & $keys()[0],
-            "hiden": $.*.location ? false : true,
-            "location": 'docs/' & $.*.location,
-            "icon": $.*.icon ? $.*.icon : ''
-        },
-        {
-            "title": 'Техрадар',
-            "route": 'techradar',
-            "icon": 'track_changes'
-        },
-        technologies.sections.$spread().{
-            "title": $.*.title,
-            "route": 'techradar/' & $keys()[0],
-            "location": 'techradar/' & $.*.title
-        },
-        {
-            "title": 'Проблемы',
-            "route": 'problems',
-            "icon": 'report_problem'
-        }
-    ][($exists(hiden) and $not(hiden)) or $not($exists(hiden))]
+    $append([
+            {
+                "title": 'Архитектура',
+                "location": 'architect',
+                "route": 'architect/',
+                "expand": true,
+                "icon": 'home'
+            },
+            {
+                "title": "Контексты",
+                "location": 'architect/contexts',
+                "icon": 'location_searching'
+            },
+            {
+                "title": "Аспекты",
+                "location": 'architect/aspects',
+                "icon": 'visibility',
+                "route": 'aspects/'
+            },
+            {
+                "title": 'Документы',
+                "location": 'docs',
+                "expand": true,
+                "icon": 'description'
+            },
+            contexts.$spread().{
+                "title": $GET_TITLE($.*.location ? $.*.location : $keys()[0]),
+                "route": 'architect/contexts/' & $keys()[0],
+                "hiden": $.*.location ? false : true,
+                "location": 'architect/contexts/' & $.*.location,
+                "icon": $.*.icon ? $.*.icon : ''
+            },
+            aspects.$spread().{
+                "title": $GET_TITLE($.*.location),
+                "route": 'architect/aspects/' & $keys()[0],
+                "location": 'architect/aspects/' & $.*.location,
+                "icon": $.*.icon ? $.*.icon : ''
+            },
+            docs.$spread().{
+                "title": $GET_TITLE($.*.location),
+                "route": 'docs/' & $keys()[0],
+                "hiden": $.*.location ? false : true,
+                "location": 'docs/' & $.*.location,
+                "icon": $.*.icon ? $.*.icon : ''
+            },
+            {
+                "title": 'Техрадар',
+                "route": 'techradar',
+                "icon": 'track_changes'
+            },
+            technologies.sections.$spread().{
+                "title": $.*.title,
+                "route": 'techradar/' & $keys()[0],
+                "location": 'techradar/' & $.*.title
+            },
+            {
+                "title": 'Проблемы',
+                "route": 'problems',
+                "icon": 'report_problem'
+            }
+        ][($exists(hiden) and $not(hiden)) or $not($exists(hiden))],
+        entities.*.(
+            $eval(menu, $MANIFEST).{
+                "route": link,
+                "location": location,
+                "icon": icon,
+                "title": $GET_TITLE(location)
+            }
+        )
+    )
 ).{
     "title": "" & title,
     "route": route ? '/' & route : undefined,
@@ -598,6 +607,20 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
     )]^(id)]
 )`;
 
+const JSONSCEMA_ENTITIES_QUERY = `
+(
+	$manifest := $;
+	{
+		"type": "object",
+		"properties": $merge([
+			$manifest.entities.$spread().({
+				$keys()[0]: $.*.schema
+			})
+		])
+	}
+)
+`;
+
 // Расширенные функции JSONata
 
 function wcard(id, template) {
@@ -653,11 +676,13 @@ export default {
 	// Создает объект запроса JSONata
 	//  expression - JSONata выражение
 	//  self - объект, который вызывает запрос (доступен по $self в запросе)
-	expression(expression, self_) {
+	//  params - параметры передающиеся в запрос
+	expression(expression, self_, params) {
 		const obj = {
 			expression,
 			core: null,
 			onError: null,  // Событие ошибки выполнения запроса
+			store: {},      // Хранилище вспомогательных переменных для запросов
 			// Исполняет запрос
 			//  context - контекст исполнения запроса
 			//  def - если возникла ошибка, будет возращено это значение
@@ -666,9 +691,16 @@ export default {
 					if (!this.core) {
 						this.core = jsonata(this.expression);
 						this.core.assign('self', self_);
+						this.core.assign('params', params);
 						this.core.registerFunction('wcard', wcard);
 						this.core.registerFunction('mergedeep', mergeDeep);
 						this.core.registerFunction('jsonschema', jsonSchema);
+						this.core.registerFunction('set', (key, data) => {
+							return obj.store[key] = data;
+						});
+						this.core.registerFunction('get', (key) => {
+							return obj.store[key];
+						});
 					}
 					return Object.freeze(this.core.evaluate(context));
 				} catch (e) {
@@ -753,5 +785,9 @@ export default {
 	// MindMap по архитектурным аспектам
 	archMindMapAspects(root) {
 		return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
+	},
+	// Сводная JSONSchema по всем кастомным сущностям
+	entitiesJSONChema() {
+		return JSONSCEMA_ENTITIES_QUERY;
 	}
 };

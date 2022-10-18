@@ -9,6 +9,7 @@ import gateway from '../idea/gateway';
 import consts from '../consts';
 import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
+import entities from '@/helpers/entities';
 
 const axios = require('axios');
 
@@ -120,6 +121,7 @@ export default {
 				if (!Object.keys(context.state.manifest || {}).length) {
 					context.commit('setCriticalError', true);
 				}
+				entities(parser.manifest[manifest_parser.MODE_AS_IS]);
 				rules(parser.manifest[manifest_parser.MODE_AS_IS],
 					(problems) => context.commit('appendProblems', problems),
 					(error) => {
