@@ -71,7 +71,7 @@ entities: # Сущности расширенной матемодели
                     (
                         $lookup(interactions, $params.id)
                     )
-        shema:                  # JSON Schema контролирующая описание объекта сущности
+        schema:                  # JSON Schema контролирующая описание объекта сущности
             type: object
             patternProperties:
                 "[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$": # Шаблон ключа

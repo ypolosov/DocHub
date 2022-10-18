@@ -216,7 +216,7 @@ entities_:
                 (
                     $this   /* В $this объект. Вовращаем все поля документа как есть. */
                 )
-        shema:                  # JSON Schema контролирующая описание объекта сущности
+        schema:                 # JSON Schema контролирующая описание объекта сущности
             type: object
             patternProperties:
                 "[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$": # Шаблон ключа

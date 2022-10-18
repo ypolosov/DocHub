@@ -607,6 +607,20 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
     )]^(id)]
 )`;
 
+const JSONSCEMA_ENTITIES_QUERY = `
+(
+	$manifest := $;
+	{
+		"type": "object",
+		"properties": $merge([
+			$manifest.entities.$spread().({
+				$keys()[0]: $.*.schema
+			})
+		])
+	}
+)
+`;
+
 // Расширенные функции JSONata
 
 function wcard(id, template) {
@@ -771,5 +785,9 @@ export default {
 	// MindMap по архитектурным аспектам
 	archMindMapAspects(root) {
 		return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
+	},
+	// Сводная JSONSchema по всем кастомным сущностям
+	entitiesJSONChema() {
+		return JSONSCEMA_ENTITIES_QUERY;
 	}
 };
