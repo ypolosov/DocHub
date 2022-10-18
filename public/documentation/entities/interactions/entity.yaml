@@ -141,26 +141,41 @@ interactions:
     steps:
       - from: User
         to: DocHub
-        value: Представление
+        value: Вход на портал
+      - from: DocHub
+        to: User
+        value: Представление архитектурных артефактов
     results:
       - Информация о существующей архитектуре
-  dochub.user.test.pest:
-    title: Взаимодействия с пользователем
+  dochub.user.check:
+    title: Прверка отклонений выявленных валидаторами
     triggers:
       - Просмотр архитектуры
     steps:
       - from: User
         to: DocHub
-        value: Представление
+        value: Выбор раздела Проблемы
+      - from: DocHub
+        to: User
+        value: Генерация дерева со статусами
+      - from: User
+        to: DocHub
+        value: Выбор отклонения
+      - from: DocHub
+        to: User
+        value: Карточка отклонения
     results:
-      - Информация о существующей архитектуре      
-  dochub.test2:
-    title: Взаимодействия с пользователем 2
+      - Информация об отклонениях
+  dochub.user.research:
+    title: Изучение документации
     triggers:
-      - Просмотр архитектуры
+      - Просмотр документов
     steps:
       - from: User
         to: DocHub
+        value: Выбор раздела Документы
+      - from: DocHub
+        to: User
         value: Представление
     results:
-      - Информация о существующей архитектуре            
+      - Актуальная информация из документов    
