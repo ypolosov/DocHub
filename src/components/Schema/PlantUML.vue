@@ -44,7 +44,7 @@
 
   import axios from 'axios';
   import plantUML from '../../helpers/plantuml';
-  import requests from '../../helpers/requests';
+  import href from '../../helpers/href';
   import copyToClipboard from '../../helpers/clipboard';
 
   const EVENT_COPY_SOURCE_TO_CLIPBOARD = 'copysource';
@@ -188,25 +188,6 @@
         }
         event.stopPropagation();
       },
-      onClickRef(event) {
-        if (event.shiftKey) return false;
-        const ref = event.currentTarget.href.baseVal;
-        if (!ref.length) return false;
-        try {
-          if (requests.isExtarnalURI(ref)) {
-            window.open(ref, 'blank_');
-          } else {
-            const url = new URL(ref, window.location);
-            this.$router.push({ path: url.pathname, query: Object.fromEntries(url.searchParams)});
-          }
-        } catch (e) {
-          if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
-            this.$router.push({ path: ref.split('#')[1]});
-          }
-        }
-      
-        return false;
-      },
       doResize() {
         if (!this.svgEl || !this.svgEl.clientWidth || !this.svgEl.clientHeight) return;
       
@@ -229,27 +210,13 @@
         const offset = (this.viewBox.width - originWidth) / 2;
         this.viewBox.x -= offset;
       },
-      bindHREF() {
-        const refs = this.svgEl.querySelectorAll('[href]');
-        for (let i = 0; i < refs.length; i++) {
-          const ref = refs[i];
-          ref.onclick = this.onClickRef;
-        }
-      },
-      rebuildLinks() {
-        const refs = this.svgEl.querySelectorAll('[href]');
-        for (let i = 0; i < refs.length; i++) {
-          const ref = refs[i];
-          ref.onclick = this.onClickRef;
-        }
-      },
       prepareSVG() {
         this.svgEl = this.$el.querySelectorAll('svg')[0];
         this.cacheViewBox = null;
         if (this.svgEl) {
           this.svgEl.style = null;
           this.doResize();
-          this.bindHREF();
+          href.elProcessing(this.svgEl);
           if (this.postrender) this.postrender(this.svgEl);
         }
       },
