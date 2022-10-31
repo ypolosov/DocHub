@@ -255,25 +255,25 @@ $append((
     $append([
             {
                 "title": 'Архитектура',
-                "location": 'architect',
+                "location": 'Архитектура',
                 "route": 'architect/',
                 "expand": true,
                 "icon": 'home'
             },
             {
                 "title": "Контексты",
-                "location": 'architect/contexts',
+                "location": 'Архитектура/Контексты',
                 "icon": 'location_searching'
             },
             {
                 "title": "Аспекты",
-                "location": 'architect/aspects',
+                "location": 'Архитектура/Аспекты',
                 "icon": 'visibility',
                 "route": 'aspects/'
             },
             {
                 "title": 'Документы',
-                "location": 'docs',
+                "location": 'Документы',
                 "expand": true,
                 "icon": 'description'
             },
@@ -281,34 +281,36 @@ $append((
                 "title": $GET_TITLE($.*.location ? $.*.location : $keys()[0]),
                 "route": 'architect/contexts/' & $keys()[0],
                 "hiden": $.*.location ? false : true,
-                "location": 'architect/contexts/' & $.*.location,
+                "location": 'Архитектура/Контексты/' & $.*.location,
                 "icon": $.*.icon ? $.*.icon : ''
             },
             aspects.$spread().{
                 "title": $GET_TITLE($.*.location),
                 "route": 'architect/aspects/' & $keys()[0],
-                "location": 'architect/aspects/' & $.*.location,
+                "location": 'Архитектура/Аспекты/' & $.*.location,
                 "icon": $.*.icon ? $.*.icon : ''
             },
             docs.$spread().{
                 "title": $GET_TITLE($.*.location),
                 "route": 'docs/' & $keys()[0],
                 "hiden": $.*.location ? false : true,
-                "location": 'docs/' & $.*.location,
+                "location": 'Документы/' & $.*.location,
                 "icon": $.*.icon ? $.*.icon : ''
             },
             {
                 "title": 'Техрадар',
+                "location": 'Техрадар',
                 "route": 'techradar',
                 "icon": 'track_changes'
             },
             technologies.sections.$spread().{
                 "title": $.*.title,
                 "route": 'techradar/' & $keys()[0],
-                "location": 'techradar/' & $.*.title
+                "location": 'Техрадар/' & $.*.title
             },
             {
                 "title": 'Проблемы',
+                "location": 'Проблемы',
                 "route": 'problems',
                 "icon": 'report_problem'
             }
