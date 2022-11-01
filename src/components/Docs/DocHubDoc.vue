@@ -69,11 +69,13 @@
       urlResolver: { 
         type: Function,
         default: function() {
-          const result = this.profile ?
+          let result = this.profile ?
             docs.urlFromProfile(this.profile,
                                 (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
             ): '';
-          return `${result}?id=${this.document}`;
+          result += result.indexOf('?') > 0 ? '&' : '?';
+          result += `id=${this.document}`;
+          return result;
         }
       },
       // Параметры передающиеся в запросы документа
