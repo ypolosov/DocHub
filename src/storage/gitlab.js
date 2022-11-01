@@ -52,7 +52,6 @@ export default {
 			state.available_projects = {};
 			state.projects = {};
 			state.last_changes = {};
-			state.notInited = null;
 			state.criticalError = null;
 		},
 		setManifest(state, value) {
@@ -135,7 +134,7 @@ export default {
 			parser.onStartReload = () => {
 				errors.syntax = null;
 				errors.net = null;
-				context.commit('setNoInited', false);
+				context.commit('setNoInited', null);
 				context.commit('setIsReloading', true);
 			};
 			parser.onError = (action, data) => {
@@ -193,7 +192,12 @@ export default {
 					if (refreshTimer) clearTimeout(refreshTimer);
 					refreshTimer = setTimeout(() => {
 						for (const source in changes) {
-							if (requests.isUsedURL(source)) {
+							// eslint-disable-next-line no-console
+							console.info('>>>>>>>>>>>>>>>', source);
+							if (
+								(source === consts.plugin.ROOT_MANIFEST)
+								|| requests.isUsedURL(source)
+							) {
 								// eslint-disable-next-line no-console
 								console.info('>>>>>> GO RELOAD <<<<<<<<<<');
 								changes = {};

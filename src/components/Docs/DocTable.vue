@@ -72,6 +72,9 @@
       },
       perPage() {
         return this.profile['per-page'];
+      },
+      isTemplate() {
+        return true;
       }
     },
     methods: {
@@ -86,6 +89,7 @@
         return result;
       }
     }
+
   };
 </script>
 
