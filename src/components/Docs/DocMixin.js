@@ -11,6 +11,9 @@ export default {
 			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
 			this.source.refreshTimer = setTimeout(() => this.refresh(), 100);
 		},
+		refresh() {
+			this.sourceRefresh();
+		},
 		sourceRefresh() {
 			this.source.status = SOURCE_PENGING;
 			this.source.dataset = null;

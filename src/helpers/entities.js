@@ -7,7 +7,6 @@ let appliedSchemaCRC = null;
 // Регистрирует кастомные сущности
 export default function(manifest) {
 	if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
-		debugger;
 		const schema = JSON.stringify(query.expression(query.entitiesJSONChema()).evaluate(manifest || {}));
 		const crc = crc16(schema);
 		if (crc != appliedSchemaCRC) {

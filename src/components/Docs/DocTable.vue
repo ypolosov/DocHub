@@ -1,7 +1,7 @@
 <template>
   <v-card>
-    <template v-if="!error">
-      <v-card-title v-if="(dataset || []).length > 10">
+    <template v-if="!source.error">
+      <v-card-title v-if="(source.dataset || []).length > 10">
         <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
@@ -11,7 +11,7 @@
       </v-card-title>
       <v-data-table
         v-bind:headers="headers"
-        v-bind:items="dataset || []"
+        v-bind:items="source.dataset || []"
         v-bind:search="search"
         v-bind:items-per-page="15"
         v-bind:multi-sort="true"
@@ -23,18 +23,14 @@
               v-bind:key="index"
               v-bind:align="field.align">
               <template v-if="field.link">
-                <d-c-link v-bind:href="field.link">
-                  {{ field.value }}
-                </d-c-link>
+                <d-c-link v-bind:href="field.link">{{ field.value }}</d-c-link>
               </template>
-              <template v-else>
-                {{ field.value }}
-              </template>
+              <template v-else>{{ field.value }}</template>
             </td>
           </tr>  
         </template>
         <template #no-data>
-          <v-alert v-bind:value="true" color="error" icon="warning">
+          <v-alert v-bind:value="true" icon="warning">
             Данных нет :(
           </v-alert>
         </template>  
@@ -42,8 +38,10 @@
     </template>
     <template v-else>
       <v-alert v-bind:value="true" color="error" icon="warning">
-        Возникла ошибка при генерации таблицы [{{ document }}]
-        <br>[{{ error }}]
+        Возникла ошибка при генерации таблицы <br>
+        {{ profile }}
+        <br><br>
+        {{ source.error }}
       </v-alert>
     </template>
   </v-card>
@@ -51,57 +49,32 @@
 
 <script>
 
-  import datasets from '../../helpers/datasets';
   import DCLink from '../Controls/DCLink.vue';
+  import DocMixin from './DocMixin';
 
   export default {
     name: 'DocTable',
     components: { 
       DCLink 
     },
+    mixins: [DocMixin],
     props: {
       document: { type: String, default: '' }
     },
     data() {
       return {
-        error: null,
-        dataset: null,
         search: ''
       };
     },
     computed: {
-      docParams() {
-        return (this.manifest.docs || {})[this.document] || {};
-      },
       headers() {
-        return this.docParams.headers || [];
+        return this.profile.headers || [];
       },
       perPage() {
-        return this.docParams['per-page'];
+        return this.profile['per-page'];
       }
     },
-    watch: {
-      document() { this.refresh(); },
-      manifest() { this.refresh(); }
-    },
-    mounted() {
-      this.refresh();
-    },
     methods: {
-      refresh() {
-        const provider = datasets();
-        provider.dsResolver = (id) => {
-          return {
-            subject: Object.assign({$id: id}, (this.manifest.datasets || {})[id])
-          };
-        };
-        provider.getData(this.manifest, this.docParams)
-          .then((dataset) => {
-            this.dataset = dataset;
-            this.error = null;
-          })
-          .catch((e) => this.error = e);
-      },
       rowFields(row) {
         const result = this.headers.map((column) => {
           return {
@@ -116,6 +89,8 @@
   };
 </script>
 
-<style>
-
+<style scoped>
+td {
+  white-space:pre
+}
 </style>
