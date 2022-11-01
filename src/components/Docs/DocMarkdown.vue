@@ -53,6 +53,12 @@
       }
     },
     mixins: [DocMixin],
+    props: {
+      tocShow: {
+        type: Boolean,
+        default: true
+      }
+    },
     data() {
       return {
         showDocument: false,
@@ -66,7 +72,7 @@
       rendered(outHtml) {
         if (this.outHTML !== outHtml) {
           this.outHTML = outHtml
-            .replace(/<img /g, '<dochub-object :baseURI="baseURI" ')
+            .replace(/<img /g, '<dochub-object :baseURI="baseURI" :inline="true" ')
             .replace(/\{\{/g, '<span v-pre>{{</span>')
             .replace(/\}\}/g, '<span v-pre>}}</span>');
           this.showDocument = false;
@@ -78,7 +84,7 @@
         }
       },
       tocRendered(tocHTML) {
-        this.toc = tocHTML;
+        if (this.tocShow) this.toc = tocHTML;
       },
       refresh() {
         if (!this.url) {

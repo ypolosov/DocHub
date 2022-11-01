@@ -1,13 +1,13 @@
 <template>
   <div class="dochub-object" v-bind:style="{float:srcStruct.float}">
-    <dochub-doc v-if="isDocument" v-bind:document="srcStruct.subject" v-bind:alt="srcStruct.alt" />
-    <dochub-context v-else-if="isContext" v-bind:context="srcStruct.subject" v-bind:alt="srcStruct.alt" />
-    <dochub-aspect v-else-if="isAspect" v-bind:aspect="srcStruct.subject" v-bind:alt="srcStruct.alt" />
-    <dochub-component v-else-if="isComponent" v-bind:component="srcStruct.subject" v-bind:alt="srcStruct.alt" />
-    <dochub-technology v-else-if="isTechnology" v-bind:technology="srcStruct.subject" v-bind:alt="srcStruct.alt" />
-    <dochub-radar v-else-if="isRadar" v-bind:section="srcStruct.subject" v-bind:alt="srcStruct.alt" />
-    <dochub-anchor v-else-if="isAnchor" v-bind:id="srcStruct.subject" v-bind:name="srcStruct.subject" />
-    <dochub-image v-else v-bind:src="src" v-bind:alt="srcStruct.alt" v-bind:base-u-r-i="baseURI" />
+    <dochub-doc v-if="isDocument" v-bind:document="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
+    <dochub-context v-else-if="isContext" v-bind:context="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
+    <dochub-aspect v-else-if="isAspect" v-bind:aspect="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
+    <dochub-component v-else-if="isComponent" v-bind:component="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
+    <dochub-technology v-else-if="isTechnology" v-bind:technology="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
+    <dochub-radar v-else-if="isRadar" v-bind:section="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
+    <dochub-anchor v-else-if="isAnchor" v-bind:id="srcStruct.subject" v-bind:name="srcStruct.subject" v-bind:inline="inline" />
+    <dochub-image v-else v-bind:src="src" v-bind:alt="srcStruct.alt" v-bind:base-u-r-i="baseURI" v-bind:inline="inline" />
   </div>
 </template>
 
@@ -22,7 +22,9 @@
       alt: { type: String, default: '' },
       type: { type: String, default: '' },
       subject: { type: String, default: '' },
-      baseURI: { type: String, default: '' }
+      baseURI: { type: String, default: '' },
+      // Признак того, что объект встроен в другой объект
+      inline: { type: Boolean, default: false }
     },
     data() {
       return {};

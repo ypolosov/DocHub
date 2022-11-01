@@ -25,7 +25,8 @@
         v-bind:document="document" 
         v-bind:params="params" 
         v-bind:profile-resolver="profileResolver" 
-        v-bind:url-resolver="urlResolver" />
+        v-bind:url-resolver="urlResolver" 
+        v-bind:toc-show="!inline" />
       <doc-table
         v-if="docType === DocTypes.TABLE"
         v-bind:document="document" 
@@ -58,6 +59,7 @@
     },
     props: {
       document: { type: String, default: '' },
+      inline: { type: Boolean, default: false },
       // Формирование профиля документа
       profileResolver: { 
         type: Function,
