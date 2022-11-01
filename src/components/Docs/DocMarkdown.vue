@@ -123,7 +123,8 @@
 .space {
   padding: 24px;
   position: relative;
-  min-height: 100vh;
+  /* min-height: 100vh; */
+  min-height: 60px;
 }
 .toc {
   margin-bottom: 24px;
