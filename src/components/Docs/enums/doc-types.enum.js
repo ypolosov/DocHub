@@ -4,5 +4,6 @@ export const DocTypes = {
 	PLANTUML: 'plantuml',
 	MARKDOWN: 'markdown',
 	TABLE: 'table',
-	MERMAID: 'mermaid'
+	MERMAID: 'mermaid',
+	NETWORK: 'network'
 };
