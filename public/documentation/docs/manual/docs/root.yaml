@@ -37,6 +37,17 @@ docs:
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     source: plantuml.md
+  dochub.mermaid:
+    location: DocHub/Руководство/Документы/Mermaid
+    description: Mermaid
+    autor: R.Piontik
+    type: markdown
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: mermaid.md
   dochub.asyncapi:
     location: DocHub/Руководство/Документы/AsyncApi
     description: Markdown
@@ -80,6 +91,14 @@ docs:
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     source: examples/example.puml
+  dochub.example.mermaid:
+    type: Mermaid
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: examples/mermaid.mmd
   dochub.example.swgr:
     type: OpenAPI
     subjects:

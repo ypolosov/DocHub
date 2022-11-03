@@ -2,6 +2,7 @@
 
 Документ - многофункциональная сущность. Поддерживаются форматы:
 * **[PlantUML](/docs/dochub.plantuml)** - позволяет создавать диаграммы из обычного текстового языка. [Подробнее](https://plantuml.com/ru/).
+* **[Mermaid](/docs/dochub.mermaid)** - Аналогично PlantUML позволяет создавать диаграммы из текста. [Подробнее](https://mermaid-js.github.io/mermaid/#/).
 * **[Swagger (OpenAPI)](/docs/dochub.swagger)**  - язык описания интерфейсов для описания RESTful API, выраженных с помощью JSON. [Подробнее](https://swagger.io/).
 * **[AsyncApi](/docs/dochub.asyncapi)**  - язык для описания событийно-ориентированных сервисов. [Подробнее](https://www.asyncapi.com/).
 * **[Markdown](/docs/dochub.markdown)** - облегчённый язык разметки, созданный с целью обозначения форматирования в простом тексте. [Подробнее](https://ru.wikipedia.org/wiki/Markdown).

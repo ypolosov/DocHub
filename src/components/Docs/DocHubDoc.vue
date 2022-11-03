@@ -33,6 +33,12 @@
         v-bind:params="params" 
         v-bind:profile-resolver="profileResolver" 
         v-bind:url-resolver="urlResolver" />
+      <doc-mermaid
+        v-if="docType === DocTypes.MERMAID"
+        v-bind:document="document" 
+        v-bind:params="params" 
+        v-bind:profile-resolver="profileResolver" 
+        v-bind:url-resolver="urlResolver" />
     </div>
   </div>
 </template>
@@ -45,6 +51,7 @@
   import Plantuml from './DocPlantUML.vue';
   import DocMarkdown from './DocMarkdown.vue';
   import DocTable from './DocTable.vue';
+  import DocMermaid from './DocMermaid.vue';
   import Empty from '../Controls/Empty.vue';
 
   export default {
@@ -55,7 +62,8 @@
       Swagger,
       DocMarkdown,
       DocTable,
-      Empty
+      Empty,
+      DocMermaid
     },
     props: {
       document: { type: String, default: '' },

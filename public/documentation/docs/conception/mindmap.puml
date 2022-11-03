@@ -22,10 +22,13 @@
 ** Интеграция
 *** Внешние манифесты
 **** HTTP
+*** Внешние данные
+**** [[/docs/dochub.tables Источники данных]]
 ** Публикация
 *** Автоматическая генерация\nартефактов
 **** [[/docs/dochub.datasets Источники данных]]
 ***** [[/docs/dochub.tables Аналитические таблицы]]
+***** [[/docs/dochub.templates Шаблоны]]
 **** [[/docs/dochub.contexts Диаграммы контекстов]]
 ***** [[https://plantuml.com/ PlantUML]]
 **** [[/docs/dochub.aspects Диаграммы аспектов]]
@@ -46,4 +49,7 @@
 ****** [[/docs/dochub.templates#openapi Шаблоны]]
 ***** [[https://www.asyncapi.com/ AsyncAPI]]
 ****** [[/docs/dochub.templates#asyncapi Шаблоны]]
+** Расширяемая метамодель
+*** [[/docs/dochub.inheritance Наследование]]
+*** [[/docs/dochub.entities Кастомные сущности]]
 @endmindmap
