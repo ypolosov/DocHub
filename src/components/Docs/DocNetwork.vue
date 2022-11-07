@@ -12,6 +12,7 @@
     mixins: [DocMixin],
     data() {
       return {
+        height: '400px'
       };
     },
     computed: {
@@ -28,19 +29,22 @@
         this.network = new Network(this.$el, {
           nodes: new DataSet(this.netData?.nodes || []),
           edges: new DataSet(this.netData?.edges || [])
-        }, {
+        }, Object.assign({
+          autoResize: true,
+          locale: 'ru',
+          clickToUse: true,
+          layout: {
+            randomSeed: 0
+          },
           physics: {
-            // Even though it's disabled the options still apply to network.stabilize().
             enabled: true,
-            solver: 'repulsion',
-            repulsion: {
-              //              nodeDistance: 200 // Put more distance between the nodes.
-            }
-          }          
-        });
-
-        // this.network.stabilize();
+            solver: 'repulsion'
+          }
+        }, this.netData?.options || {}));
       }
+    },
+    mounted() {
+      this.height = `${this.$el.clientWidth * 0.6}px`;
     }
   };
 </script>
@@ -48,8 +52,9 @@
 <style scoped>
 
 .space {
-  height: 800px;
+  aspect-ratio : 1 / 0.6;
   width: 100%;
+  max-height: calc(100vh - 100px);
 }
 
 </style>
