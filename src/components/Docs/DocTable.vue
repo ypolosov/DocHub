@@ -98,6 +98,6 @@ table {
   max-width: 100%;
 }
 td {
-  white-space: pre
+  white-space: pre-wrap
 }
 </style>
