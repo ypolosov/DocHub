@@ -21,7 +21,7 @@ axios.interceptors.request.use(function(params) {
 });
 
 axios.interceptors.response.use(function(response) {
-	if (response.config.responseHook) 
+	if (response.config.responseHook)
 		response = response.config.responseHook(response);
 	if (typeof response.data === 'string') {
 		if (!response.config.raw) {
@@ -44,8 +44,8 @@ if(window.$PAPI) {
 		switch(type) {
 		case 'yaml': response.data = YAML.parse(response.data); break;
 		case 'json': response.data = JSON.parse(response.data); break;
-		case 'jpg': 
-			type = 'jpeg'; 
+		case 'jpg':
+			type = 'jpeg';
 		// eslint-disable-next-line no-fallthrough
 		case 'jpeg':
 		case 'png':
@@ -67,7 +67,7 @@ export default {
 		// eslint-disable-next-line no-useless-escape
 		return url && url.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.?[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
 	},
-	isExtarnalURI(uri) {
+	isExternalURI(uri) {
 		return (uri.slice(0, window.origin.length) !== window.origin) && this.isURL(uri);
 	},
 	getSourceRoot(){
@@ -108,7 +108,7 @@ export default {
 			if (!baseURI) {
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
-			
+
 			if ((new URL(baseURI)).protocol === 'gitlab:') {
 				const segments = baseURI.split('@');
 				if (segments.length !== 2) {
@@ -194,12 +194,12 @@ export default {
 		return tracers[crc16(url)];
 	},
 
-	// axios_params - параметры передавамые в axios 
+	// axios_params - параметры передавамые в axios
 	// 		responseHook - содержит функцию обработыки ответа перед работой interceptors
 	//		raw - если true возвращает ответ без обработки
 	request(uri, baseURI, axios_params) {
 		let params = Object.assign({}, axios_params);
-		
+
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
 		if (window.$IDE_PLUGIN) {

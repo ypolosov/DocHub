@@ -49,7 +49,7 @@ const parser = {
 		const type = typeof value;
 		if (type === 'string') {
 			// В значении JSONata запрос
-			if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(value)) 
+			if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(value))
 				return 'jsonata';
 			else {
 				const ext = value.split('.').pop();
@@ -60,7 +60,7 @@ const parser = {
 				// В значении ссылка на файл
 					return 'id';
 			}
-		} else 
+		} else
 			return type;
 	},
 	// Реализует наследование
@@ -70,9 +70,9 @@ const parser = {
 	// Преобразование относительных ссылок в прямые
 	propResolver: {
 		docs(item, baseURI) {
-			['source', 'origin', 'data'].forEach((field) => 
-				item[field] 
-                && (parser.fieldValueType(item[field]) === 'ref') 
+			['source', 'origin', 'data'].forEach((field) =>
+				item[field]
+                && (parser.fieldValueType(item[field]) === 'ref')
                 && (item[field] = requests.makeURIByBaseURI(item[field], baseURI))
 			);
 		},

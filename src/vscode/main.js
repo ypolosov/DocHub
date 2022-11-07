@@ -12,6 +12,7 @@ import Radar from '@/components/Techradar/Main.vue';
 import Technology from '@/components/Techradar/Technology.vue';
 import Anchor from '@/components/Tools/Anchor.vue';
 import Image from '@/components/Tools/Image.vue';
+import Entity from '@/components/Entities/Entity.vue';
 import VueSplit from 'vue-split-panel';
 
 import GlobalMixin from '@/mixins/global';
@@ -35,6 +36,7 @@ Vue.component('DochubImage', Image);
 Vue.component('DochubTechnology', Technology);
 Vue.component('DochubRadar', Radar);
 Vue.component('DochubPlantuml', PlantUML);
+Vue.component('DochubEntity', Entity);
 
 function main(settings, uri) {
 	Vue.config.ignoredElements = ['asyncapi-component'];
@@ -50,9 +52,9 @@ function main(settings, uri) {
 	if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
 		createVsCodeListener(store, router);
 	}
-	
+
 	store.dispatch('init');
-	
+
 	Vue.mixin(GlobalMixin);
 
 	const app = new Vue({
@@ -66,6 +68,9 @@ function main(settings, uri) {
 		vuetify,
 		store
 	});
+
+	window.Vue = Vue;
+	window.Router = router;
 
 	app.$mount('#app');
 }

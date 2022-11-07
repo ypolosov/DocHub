@@ -14,6 +14,7 @@ import ComponentsMindmap from '../components/Mindmap/ComponentsMindmap';
 import AspectsMindmap from '../components/Mindmap/AspectsMindmap';
 import Empty from '../components/Controls/Empty';
 import DevTool from '../components/JSONata/DevTool';
+import Entity from '../components/Entities/Entity';
 
 const middleware = (route) => {
 	if (config.oauth !== false && !window.Vuex.state.isOAuthProcess && !window.Vuex.state.access_token) {
@@ -118,6 +119,12 @@ const routes = [
 		name: 'devtool',
 		path: '/devtool',
 		component: DevTool,
+		props: middleware
+	},
+	{
+		name: 'entities',
+		path: '/entities/:entity/:presentation',
+		component: Entity,
 		props: middleware
 	},
 	{

@@ -142,15 +142,13 @@ You can serve dochub like regular static site via nginx, s3 or something else.
 Full VueJS [documentation](https://cli.vuejs.org/ru/guide/deployment.html) about deployment.
 
 
-
-
 ### Kubernetes
 
 You can use the [helm chart](https://github.com/RabotaRu/helm-charts/tree/main/charts/dochub)
 
 ## License
 
-[GNU GPL v.2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html), see [LICENSE](LICENSE)
+Apache License 2.0 Open source license.
 
 ## Articles
 

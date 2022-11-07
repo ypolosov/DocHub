@@ -11,7 +11,7 @@ Vue.use(Router);
 const rConfig = {
 	scrollBehavior() {
 		window.scrollTo(0, 0);
-	},    
+	},
 	routes: [
 		...appRoutes
 	]
@@ -26,7 +26,7 @@ if (process.env.VUE_APP_DOCHUB_MODE !== 'plugin') {
 				window.location = new URL('/main', window.origin);
 			}
 		});
-	rConfig.routes.push(        
+	rConfig.routes.push(
 		{
 			path: '/sso/gitlab/authentication',
 			redirect(route) {

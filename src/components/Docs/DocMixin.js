@@ -1,5 +1,4 @@
 import datasets from '../../helpers/datasets';
-import docs from '@/helpers/docs';
 import gateway from '@/idea/gateway';
 
 const SOURCE_PENGING = 'pending';
@@ -12,11 +11,18 @@ export default {
 			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
 			this.source.refreshTimer = setTimeout(() => this.refresh(), 100);
 		},
+		refresh() {
+			this.sourceRefresh();
+		},
 		sourceRefresh() {
 			this.source.status = SOURCE_PENGING;
 			this.source.dataset = null;
 			if (this.profile.source) {
-				this.source.provider.getData(this.manifest, Object.assign({'_id': this.document}, this.profile))
+				this.source.provider.getData(
+					this.manifest,
+					Object.assign({'_id': this.document}, this.profile),
+					this.params
+				)
 					.then((dataset) => {
 						this.source.dataset = dataset;
 						this.source.status = SOURCE_READY;
@@ -42,26 +48,33 @@ export default {
 			return this.profile.template;
 		},
 		profile() {
-			return this.manifest?.docs?.[this.document] || {};
+			return this.profileResolver();
 		},
 		url() {
-			const result = this.profile ?
-				docs.urlFromProfile(this.profile,
-					(this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
-				): '';
-			return `${result}?id=${this.document}`;
+			return this.urlResolver();
 		}
 	},
 	props: {
-		document: { type: String, default: '' }
+		// Идентификатор документа для дефолтного поведения
+		document: { type: String, default: '' },
+		// Формирование профиля документа
+		profileResolver: { type: Function, require: true },
+		// Определение размещения объекта
+		urlResolver: { type: Function, require: true },
+		// Параметры передающиеся в запросы документа
+		params: { 
+			type: Object, 
+			default() {
+				return {};
+			}
+		}
 	},
 	data() {
 		const provider = datasets();
 		provider.dsResolver = (id) => {
 			return {
-				subject: Object.assign({'_id': id}, (this.manifest.docs || {})[id]),
-				baseURI: (this.$store.state.sources.find((item) => item.path === `/docs/${id}`) || {}).location
-			};
+				subject: Object.assign({'_id': id}, (this.manifest.datasets || {})[id])
+			}; 
 		};
 		return {
 			source: {
@@ -75,6 +88,7 @@ export default {
 	},
 	watch: {
 		url() { this.doRefresh(); },
+		params() { this.doRefresh(); },
 		manifest() { 
 			this.isTemplate && this.doRefresh(); 
 		}

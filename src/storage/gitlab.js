@@ -8,8 +8,8 @@ import gateway from '../idea/gateway';
 import consts from '../consts';
 import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
-
-import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
+import entities from '@/helpers/entities';
+import {MANIFEST_MODES} from '@/manifest/enums/manifest-modes.enum';
 
 const axios = require('axios');
 
@@ -101,16 +101,16 @@ export default {
 				syntax: null,
 				net: null
 			};
-			context.commit('setRenderCore', 
-				process.env.VUE_APP_DOCHUB_RENDER_CORE 
-				|| window.$PAPI?.settings?.render?.mode 
+			context.commit('setRenderCore',
+				process.env.VUE_APP_DOCHUB_RENDER_CORE
+				|| window.$PAPI?.settings?.render?.mode
 				|| 'graphviz'
 			);
-			
+
 			context.dispatch('reloadAll');
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
-			
+
 			parser.onReloaded = (parser) => {
 				// Очищяем прошлую загрузку
 				context.commit('clean');
@@ -125,6 +125,7 @@ export default {
 				if (!Object.keys(context.state.manifest || {}).length) {
 					context.commit('setCriticalError', true);
 				}
+				entities(parser.manifest[MANIFEST_MODES.AS_IS]);
 				rules(parser.manifest[MANIFEST_MODES.AS_IS],
 					(problems) => context.commit('appendProblems', problems),
 					(error) => {
@@ -208,20 +209,20 @@ export default {
 					}, 350);
 				}
 			}
-			
+
 			gateway.appendListener('source/changed', reloadSourceAll);
 		},
 
 		// Вызывается при необходимости получить access_token
 		refreshAccessToken(context, OAuthCode) {
-			const params = OAuthCode ? {              
+			const params = OAuthCode ? {
 				grant_type: 'authorization_code',
 				code: OAuthCode
 			}: {
 				grant_type: 'refresh_token',
 				refresh_token: context.state.refresh_token
 			};
-            
+
 			if (OAuthCode) context.commit('setIsOAuthProcess', true);
 
 			const OAuthURL = (new URL('/oauth/token', config.gitlab_server)).toString();

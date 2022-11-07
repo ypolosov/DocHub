@@ -48,9 +48,9 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 	}
 }
 
-config.pumlServer = 
+config.pumlServer =
 	window.$PAPI?.settings?.render?.server
-	|| process.env.VUE_APP_PLANTUML_SERVER 
+	|| process.env.VUE_APP_PLANTUML_SERVER
 	|| 'www.plantuml.com/plantuml/svg/';
 
 export default config;
