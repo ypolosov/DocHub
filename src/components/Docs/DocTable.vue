@@ -72,6 +72,9 @@
       },
       perPage() {
         return this.profile['per-page'];
+      },
+      isTemplate() {
+        return true;
       }
     },
     methods: {
@@ -86,11 +89,15 @@
         return result;
       }
     }
+
   };
 </script>
 
 <style scoped>
+table {
+  max-width: 100%;
+}
 td {
-  white-space:pre
+  white-space: pre-wrap
 }
 </style>
