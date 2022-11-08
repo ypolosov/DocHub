@@ -13,15 +13,24 @@ module.exports = {
 			libraryTarget: 'umd'
 		},
 		optimization: {
-			splitChunks: false 
+			splitChunks: false
 		},
 		plugins: [
 			new HtmlWebpackPlugin({
-				filename: 'plugin.html', 
-				template: 'src/plugin.html', 
+				filename: 'plugin.html',
+				template: 'src/plugin.html',
 				inlineSource: '.(woff(2)?|ttf|eot|svg|js|css)$'
 			}),
 			new HtmlWebpackInlineSourcePlugin()
-		]
-	}  
+		],
+		module: {
+			rules: [
+				{
+					test: /\.mjs$/,
+					include: /node_modules/,
+					type: 'javascript/auto'
+				}
+			]
+		}
+	}
 };
