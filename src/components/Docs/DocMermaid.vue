@@ -30,22 +30,20 @@
         // Получаем шаблон документа
         setTimeout(() => {
           requests.request(this.url).then(({ data }) => {
-            if (!data)
-              this.mermaid = null;
-            else if (this.isTemplate) {
-              this.mermaid = mustache.render(data, this.source.dataset);
-            } else
-              this.mermaid = data;
+            let source = this.isTemplate 
+              ? mustache.render(data, this.source.dataset)
+              : data;
 
             const cb = (svgGraph) => {
               this.svg = svgGraph;
             };
-            mermaid.render('buffer', data, cb);
+            mermaid.render('buffer', source, cb);
           }).catch((e) => {
             // eslint-disable-next-line no-console
             console.error(e, `Ошибка запроса [${this.url}]`, e);
           });
         }, 50);
+        this.sourceRefresh();
       }
     }
   };
