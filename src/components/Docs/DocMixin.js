@@ -8,17 +8,19 @@ const SOURCE_ERROR = 'error';
 export default {
 	components: {
 		Box: {
-			template: '<div><v-alert :value="error" type="error">{{error}}</v-alert><slot v-if="!error"></slot></div>',
+			template: '<div><v-alert v-for="error in errors" type="error" style="white-space: pre-wrap;">{{error}}</v-alert><slot v-if="!errors.length"></slot></div>',
 			created: function() {
-				this.$parent.$on('error', (error) => this.error = error);
+				this.$parent.$on('appendError', (error) => this.errors.push((error?.message || error).slice(0, 1024).toString()));
+				this.$parent.$on('clearErrors', () => this.errors = []);
 			},
 			data() {
-				return {error: null};
+				return {errors: []};
 			}
 		}
 	},
 	methods: {
 		doRefresh() {
+			this.error = null;
 			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
 			this.source.refreshTimer = setTimeout(() => this.refresh(), 100);
 		},
@@ -106,7 +108,10 @@ export default {
 		error(error) {
 			// eslint-disable-next-line no-console
 			console.error(error, this.url ? `Ошибка запроса [${this.url}]` : undefined);
-			this.$emit('error', error);
+			if (error)
+				this.$emit('appendError', error);
+			else
+				this.$emit('clearErrors');
 		}
 	},
 	created() {

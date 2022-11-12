@@ -1,6 +1,6 @@
 <template>
-  <v-card>
-    <template v-if="!source.error">
+  <box>
+    <v-card>
       <v-card-title v-if="(source.dataset || []).length > 10">
         <v-text-field
           v-model="search"
@@ -35,16 +35,8 @@
           </v-alert>
         </template>  
       </v-data-table>
-    </template>
-    <template v-else>
-      <v-alert v-bind:value="true" color="error" icon="warning">
-        Возникла ошибка при генерации таблицы <br>
-        {{ profile }}
-        <br><br>
-        {{ source.error }}
-      </v-alert>
-    </template>
-  </v-card>
+    </v-card>
+  </box>
 </template>
 
 <script>
