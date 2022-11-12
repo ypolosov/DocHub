@@ -1,5 +1,7 @@
 <template>
-  <div v-html="svg" />
+  <box>
+    <div v-html="svg" />
+  </box>
 </template>
 
 <script>
@@ -31,17 +33,13 @@
         setTimeout(() => {
           requests.request(this.url).then(({ data }) => {
             let source = this.isTemplate 
-              ? mustache.render(data, this.source.dataset)
+              ? mustache.render(data, this.source.dataset) 
               : data;
-
             const cb = (svgGraph) => {
               this.svg = svgGraph;
             };
             mermaid.render('buffer', source, cb);
-          }).catch((e) => {
-            // eslint-disable-next-line no-console
-            console.error(e, `Ошибка запроса [${this.url}]`, e);
-          });
+          }).catch((e) => this.error = e);
         }, 50);
         this.sourceRefresh();
       }

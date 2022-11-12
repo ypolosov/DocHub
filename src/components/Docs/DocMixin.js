@@ -6,6 +6,17 @@ const SOURCE_READY = 'ready';
 const SOURCE_ERROR = 'error';
 
 export default {
+	components: {
+		Box: {
+			template: '<div><v-alert :value="error" type="error">{{error}}</v-alert><slot v-if="!error"></slot></div>',
+			created: function() {
+				this.$parent.$on('error', (error) => this.error = error);
+			},
+			data() {
+				return {error: null};
+			}
+		}
+	},
 	methods: {
 		doRefresh() {
 			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
@@ -28,7 +39,7 @@ export default {
 						this.source.status = SOURCE_READY;
 					})
 					.catch((e) => {
-						this.source.error = e;
+						this.error = e;
 						this.source.status = SOURCE_ERROR;
 					});
 			} else this.source.dataset = {};
@@ -77,10 +88,10 @@ export default {
 			}; 
 		};
 		return {
+			error: null,
 			source: {
 				provider,
 				status: SOURCE_READY,
-				error: null,
 				dataset: null,
 				refreshTimer: null
 			}
@@ -91,6 +102,11 @@ export default {
 		params() { this.doRefresh(); },
 		manifest() { 
 			this.isTemplate && this.doRefresh(); 
+		},
+		error(error) {
+			// eslint-disable-next-line no-console
+			console.error(error, this.url ? `Ошибка запроса [${this.url}]` : undefined);
+			this.$emit('error', error);
 		}
 	},
 	created() {
