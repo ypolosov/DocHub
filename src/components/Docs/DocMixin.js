@@ -8,9 +8,14 @@ const SOURCE_ERROR = 'error';
 export default {
 	components: {
 		Box: {
-			template: '<div><v-alert v-for="error in errors" type="error" style="white-space: pre-wrap;">{{error}}</v-alert><slot v-if="!errors.length"></slot></div>',
+			template: '<div><v-alert v-for="error in errors" v-bind:key="error.key" type="error" style="white-space: pre-wrap;">{{error.message}}</v-alert><slot v-if="!errors.length"></slot></div>',
 			created: function() {
-				this.$parent.$on('appendError', (error) => this.errors.push((error?.message || error).slice(0, 1024).toString()));
+				this.$parent.$on('appendError', (error) => this.errors.push(
+					{
+						key: Date.now(),
+						message: (error?.message || error).slice(0, 1024).toString()
+					}
+				));
 				this.$parent.$on('clearErrors', () => this.errors = []);
 			},
 			data() {

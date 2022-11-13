@@ -9,7 +9,8 @@
   import requests from '@/helpers/requests';
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
-
+  import href from '../../helpers/href';
+  
   mermaid.initialize({
     startOnLoad:true
   });  
@@ -36,7 +37,16 @@
               ? mustache.render(data, this.source.dataset) 
               : data;
             const cb = (svgGraph) => {
-              this.svg = svgGraph;
+              // Генерируем ссылки т.к. Mermaid для C4 Model отказывается это делать сам
+              // eslint-disable-next-line no-useless-escape
+              this.svg = svgGraph.replace(/\!\[([^\]]*)\]\(([^\)]*)\)/, (match, text, url)=> {
+                return `<a href="${encodeURI(url)}">${text}<a>`;
+              });
+
+              this.$nextTick(() => href.elProcessing(this.$el));
+              
+              // eslint-disable-next-line no-console
+              console.info('I did it', this.svg.length);
             };
             mermaid.render('buffer', source, cb);
           }).catch((e) => this.error = e);
