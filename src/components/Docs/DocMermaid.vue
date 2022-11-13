@@ -10,19 +10,19 @@
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
   import href from '../../helpers/href';
-  
+
+  /*
   mermaid.initialize({
     startOnLoad:true
   });  
+  */
   
   export default {
     name: 'DocMermaid',
     mixins: [DocMixin],
     data() {
       return {
-        mermaid : null,
-        svg: null,
-        id: `mermaid-${(new Date()).getMilliseconds()}`
+        svg: null
       };
     },
     mounted() {

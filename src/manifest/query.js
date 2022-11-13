@@ -618,8 +618,9 @@ const JSONSCEMA_ENTITIES_QUERY = `
 			$manifest.entities.$spread().({
 				$keys()[0]: $.*.schema
 			})
-		])
-	}
+		]),
+		"$defs": $merge([$manifest.entities.*."$defs"])
+	};
 )
 `;
 
