@@ -6,8 +6,26 @@ const SOURCE_READY = 'ready';
 const SOURCE_ERROR = 'error';
 
 export default {
+	components: {
+		Box: {
+			template: '<div><v-alert v-for="error in errors" v-bind:key="error.key" type="error" style="white-space: pre-wrap;">{{error.message}}</v-alert><slot v-if="!errors.length"></slot></div>',
+			created: function() {
+				this.$parent.$on('appendError', (error) => this.errors.push(
+					{
+						key: Date.now(),
+						message: (error?.message || error).slice(0, 1024).toString()
+					}
+				));
+				this.$parent.$on('clearErrors', () => this.errors = []);
+			},
+			data() {
+				return {errors: []};
+			}
+		}
+	},
 	methods: {
 		doRefresh() {
+			this.error = null;
 			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
 			this.source.refreshTimer = setTimeout(() => this.refresh(), 100);
 		},
@@ -28,7 +46,7 @@ export default {
 						this.source.status = SOURCE_READY;
 					})
 					.catch((e) => {
-						this.source.error = e;
+						this.error = e;
 						this.source.status = SOURCE_ERROR;
 					});
 			} else this.source.dataset = {};
@@ -77,10 +95,10 @@ export default {
 			}; 
 		};
 		return {
+			error: null,
 			source: {
 				provider,
 				status: SOURCE_READY,
-				error: null,
 				dataset: null,
 				refreshTimer: null
 			}
@@ -91,6 +109,14 @@ export default {
 		params() { this.doRefresh(); },
 		manifest() { 
 			this.isTemplate && this.doRefresh(); 
+		},
+		error(error) {
+			// eslint-disable-next-line no-console
+			console.error(error, this.url ? `Ошибка запроса [${this.url}]` : undefined);
+			if (error)
+				this.$emit('appendError', error);
+			else
+				this.$emit('clearErrors');
 		}
 	},
 	created() {
