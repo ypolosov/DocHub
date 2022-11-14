@@ -619,7 +619,7 @@ const JSONSCEMA_ENTITIES_QUERY = `
 				$keys()[0]: $.*.schema
 			})
 		]),
-		"$defs": $merge([$manifest.entities.*."$defs"])
+		"$defs": $merge([$manifest.entities.*.schema."$defs"])
 	};
 )
 `;
