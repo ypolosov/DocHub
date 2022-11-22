@@ -1,16 +1,9 @@
 <template>
-  <div>
+  <box>
     <asyncapi-component
       v-if="schema"
-      ref="asyncapi"
-      v-bind="{ schema }" />
-
-    <v-alert
-      v-bind:value="!!error"
-      type="error">
-      {{ error }}
-    </v-alert>
-  </div>
+      v-bind="{ schema, cssImportPath: '/assets/styles/asyncapi.css' }" />
+  </box>
 </template>
 
 <script>
@@ -25,8 +18,7 @@
     mixins: [DocMixin],
     data() {
       return {
-        schema: '',
-        error: null
+        schema: ''
       };
     },
     methods: {
@@ -45,16 +37,10 @@
             return response;
           };
         }
-        
-        requests.request(this.url, undefined, params)
-          .then((response) => {
-            this.schema = response.data;
-          })
-          .catch((e) => {
-            this.error = `${e} [${this.url}`;
-            // eslint-disable-next-line no-console
-            console.error(this.error);
-          })
+        requests.request(this.url, undefined, params).then((response) => {
+          this.schema = response.data;
+        })
+          .catch((e) => this.error = e)
           .finally(() => {
             if (this.$refs?.asyncapi) {
               const html = this.$refs.asyncapi.shadowRoot.querySelector('style');

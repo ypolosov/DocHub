@@ -1,5 +1,5 @@
 <template>
-  <div class="space">
+  <box class="space">
     <dochub-anchor id="" />
     <div v-if="toc" class="toc" v-html="toc" />
     <markdown
@@ -24,7 +24,7 @@
       v-bind:value="60"
       color="primary"
       indeterminate />
-  </div>
+  </box>
 </template>
 
 <script>
@@ -106,10 +106,7 @@
             } else
               this.markdown = data;
           })
-            .catch((e) => {
-              // eslint-disable-next-line no-console
-              console.error(e, `Ошибка запроса [${this.url}]`, e);
-            });
+            .catch((e) => this.error = e);
         }, 50);
         this.sourceRefresh();
       }
