@@ -46,6 +46,7 @@
   import plantUML from '../../helpers/plantuml';
   import href from '../../helpers/href';
   import copyToClipboard from '../../helpers/clipboard';
+  import env from '@/helpers/env';
 
   const EVENT_COPY_SOURCE_TO_CLIPBOARD = 'copysource';
 
@@ -273,7 +274,7 @@
       },
       // Сохранение SVG на диск
       onDownload() {
-        if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
+        if (env.isPlugin()) {
           window.$PAPI.download(
             new XMLSerializer().serializeToString(this.svgEl),
             'Сохранение диаграммы',

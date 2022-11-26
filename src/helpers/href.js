@@ -1,4 +1,5 @@
 import requests from './requests';
+import env from './env';
 
 // Работа с ссылками
 export default {
@@ -16,7 +17,7 @@ export default {
 				window.Router.push({ path: url.pathname, query: Object.fromEntries(url.searchParams)});
 			}
 		} catch (e) {
-			if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
+			if (env.isPlugin()) {
 				window.Router.push({ path: ref.split('#')[1]});
 			}
 		}

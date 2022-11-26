@@ -1,6 +1,7 @@
 import requests from '../helpers/requests';
 import gitlab from '../helpers/gitlab';
 import property from './prototype';
+import env from '../helpers/env';
 
 let touchProjects = {};
 
@@ -249,7 +250,7 @@ const parser = {
 			// Подключаем манифест самого DocHub
 			// eslint-disable-next-line no-constant-condition
 			if (
-				(process.env.VUE_APP_DOCHUB_MODE !== 'plugin') &&
+				(!env.isPlugin()) &&
                 ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
 			) {
 				this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
