@@ -18,6 +18,7 @@ import gateway from '../idea/gateway';
 import Empty from '../components/Controls/Empty';
 import DevTool from '../components/JSONata/DevTool';
 import Entity from '../components/Entities/Entity';
+import env from '@/helpers/env';
 
 Vue.use(Router);
 
@@ -144,7 +145,7 @@ const rConfig = {
 	]
 };
 
-if (process.env.VUE_APP_DOCHUB_MODE !== 'plugin') {
+if (!env.isPlugin()) {
 	rConfig.mode = 'history';
 	rConfig.routes.push(
 		{

@@ -75,6 +75,7 @@
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
   import requests from '@/helpers/requests';
+  import env from '@/helpers/env';
 
   export default {
     name: 'Aspect',
@@ -111,7 +112,7 @@
         let result = query.expression(query.locationsForAspect(this.aspect))
           .evaluate(this.$store.state.sources) || [];
 
-        if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
+        if (env.isPlugin()) {
           result = result.map((item) => ({
             title: item.title.slice(19),
             link: `${item.link}?entity=aspect&id=${this.aspect}`

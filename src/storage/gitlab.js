@@ -10,6 +10,7 @@ import consts from '../consts';
 import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
 import entities from '@/helpers/entities';
+import env from '@/helpers/env';
 
 const axios = require('axios');
 
@@ -101,7 +102,7 @@ export default {
 				net: null
 			};
 			context.commit('setRenderCore', 
-				process.env.VUE_APP_DOCHUB_MODE === 'plugin' ? 'smetana' : 'graphviz'
+				env.isPlugin() ? 'smetana' : 'graphviz'
 			);
 			context.dispatch('reloadAll');
 			let diff_format = cookie.get('diff_format');
@@ -192,8 +193,6 @@ export default {
 					if (refreshTimer) clearTimeout(refreshTimer);
 					refreshTimer = setTimeout(() => {
 						for (const source in changes) {
-							// eslint-disable-next-line no-console
-							console.info('>>>>>>>>>>>>>>>', source);
 							if (
 								(source === consts.plugin.ROOT_MANIFEST)
 								|| requests.isUsedURL(source)

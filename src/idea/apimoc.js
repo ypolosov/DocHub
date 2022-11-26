@@ -39,5 +39,9 @@ export default {
 	applyEntitiesSchema(schema) {
 		// eslint-disable-next-line no-console
 		console.info('Custom entities JSON Schema: ', JSON.parse(schema));
+	},
+	copyToClipboard: function(data) {
+		// eslint-disable-next-line no-console
+		console.info('Copy to clipboard: ', data);
 	}
 };
