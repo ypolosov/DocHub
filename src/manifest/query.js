@@ -636,8 +636,26 @@ const JSONSCEMA_ENTITIES_QUERY = `
 
 function wcard(id, template) {
 	if (!id || !template) return false;
-	const idStruct = id.split('.');
 	const tmlStruct = template.split('.');
+	let items = [];
+	for (let i = 0; i < tmlStruct.length; i++) {
+		const pice = tmlStruct[i];
+		if (pice === '**') {
+			items.push('.*$');
+			break;
+		} else if (pice === '*') {
+			items.push('[^\\.]*');
+		} else items.push(pice);
+	}
+
+	const isOk = new RegExp(`^${items.join('\\.')}$`);
+	// eslint-disable-next-line no-console
+	console.info('WCARD:', `^${items.join('\\.')}$`);
+
+	return isOk.test(id);
+
+	/*
+	const idStruct = id.split('.');
 	if (tmlStruct.length < idStruct) return false;
 	for (let i = 0; i < tmlStruct.length; i++) {
 		const pice = tmlStruct[i];
@@ -646,6 +664,7 @@ function wcard(id, template) {
 		if (pice !== idStruct[i]) return false;
 	}
 	return idStruct.length === tmlStruct.length;
+    */
 }
 
 function mergeDeep(sources) {
