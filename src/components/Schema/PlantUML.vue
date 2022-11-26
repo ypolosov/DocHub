@@ -276,12 +276,14 @@
       onDownload() {
         if (env.isPlugin()) {
           window.$PAPI.download(
-            new XMLSerializer().serializeToString(this.svgEl),
+            // new XMLSerializer().serializeToString(this.svgEl),
+            this.svg,
             'Сохранение диаграммы',
             'Выберите файл для сохранения диграммы'
           );
         } else {
-          const svgString = new XMLSerializer().serializeToString(this.svgEl);
+          // const svgString = new XMLSerializer().serializeToString(this.svgEl);
+          const svgString = this.svg;
           const svgDecoded = window.btoa(unescape(encodeURIComponent(svgString)));
           const svgUrl = `data:image/svg+xml;base64,${svgDecoded}`;
 
