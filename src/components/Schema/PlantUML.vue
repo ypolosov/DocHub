@@ -10,7 +10,7 @@
       indeterminate />
     <div
       v-else-if="render"
-      class="plantuml-schema" 
+      class="plantuml-schema"
       v-bind:style="{cursor: cursor}"
       v-on:mousedown.prevent="onMouseDown"
       v-on:mousemove.prevent="onMouseMove"
@@ -42,7 +42,6 @@
 
 <script>
 
-  import axios from 'axios';
   import plantUML from '../../helpers/plantuml';
   import href from '../../helpers/href';
   import copyToClipboard from '../../helpers/clipboard';
@@ -191,12 +190,12 @@
       },
       doResize() {
         if (!this.svgEl || !this.svgEl.clientWidth || !this.svgEl.clientHeight) return;
-      
+
         const originWidth = this.viewBox.width;
 
         if (this.$el.clientWidth > this.viewBox.width) {
           this.viewBox.width = this.$el.clientWidth;
-        } 
+        }
 
         const originalHeight = this.viewBox.height * (this.svgEl.clientWidth / this.viewBox.width);
 
@@ -234,8 +233,9 @@
 
         this.$nextTick(() => {
           const request = window.$PAPI?.settings?.render?.external === false
-            ? window.$PAPI.renderPlantUML(this.uml) 
-            : axios({ url: plantUML.svgURL(this.uml) });
+            ? window.$PAPI.renderPlantUML(this.uml)
+            : plantUML.prepareRequest(this.uml);
+
           request.then((response) => {
             this.svg = response.data.toString();
             this.isLoading = false;
@@ -305,7 +305,7 @@
 }
 
 .plantuml-schema {
-  width: 100%;  
+  width: 100%;
 }
 
 .plantuml-schema svg {

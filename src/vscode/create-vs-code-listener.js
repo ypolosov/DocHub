@@ -10,15 +10,15 @@ export function createVsCodeListener(store, router) {
 	gateway.appendListener('navigate/component', (data) => {
 		router.push({ path: `/architect/components/${Object.keys(data)[0]}`});
 	});
-	
+
 	gateway.appendListener('navigate/document', (data) => {
 		router.push({ path: `/docs/${Object.keys(data)[0]}`});
 	});
-	
+
 	gateway.appendListener('navigate/aspect', (data) => {
 		router.push({ path: `/architect/aspects/${Object.keys(data)[0]}`});
 	});
-	
+
 	gateway.appendListener('navigate/context', (data) => {
 		router.push({ path: `/architect/contexts/${Object.keys(data)[0]}`});
 	});
@@ -30,6 +30,8 @@ export function createVsCodeDefaultSettings(settings, uri) {
 
 	config.root_manifest = uri;
 	config.pumlServer = window.$PAPI?.settings?.render?.server
-	|| process.env.VUE_APP_PLANTUML_SERVER 
-	|| 'www.plantuml.com/plantuml/svg/';
+    || process.env.VUE_APP_PLANTUML_SERVER
+    || 'www.plantuml.com/plantuml/svg/';
+	config.pumlRequestType = window.$PAPI?.settings?.render?.request_type
+    || 'get';
 }
