@@ -3,6 +3,7 @@ import gitlab from './gitlab';
 import config from '../../config';
 import YAML from 'yaml';
 import crc16 from './crc16';
+import env from './env';
 
 // CRC16 URL задействованных файлов
 const tracers = {};
@@ -71,7 +72,7 @@ export default {
 		return (uri.slice(0, window.origin.length) !== window.origin) && this.isURL(uri);
 	},
 	getSourceRoot(){
-		if (window.$IDE_PLUGIN) {
+		if(env.isPlugin()) {
 			return 'plugin:/idea/source/';
 		} else {
 			return window.origin + '/';
@@ -202,7 +203,7 @@ export default {
 
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
-		if (window.$IDE_PLUGIN) {
+		if (env.isPlugin()) {
 			this.trace(params.url);
 			return window.$PAPI.request(params);
 		} else {

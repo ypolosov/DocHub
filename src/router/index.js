@@ -3,6 +3,7 @@ import Router from 'vue-router';
 
 import gateway from '../idea/gateway';
 import appRoutes from './routes';
+import env from '@/helpers/env';
 
 import ComponentsMindmap from '../components/Mindmap/ComponentsMindmap';
 
@@ -17,7 +18,7 @@ const rConfig = {
 	]
 };
 
-if (process.env.VUE_APP_DOCHUB_MODE !== 'plugin') {
+if (!env.isPlugin()) {
 	rConfig.mode = 'history';
 	rConfig.routes.push(
 		{

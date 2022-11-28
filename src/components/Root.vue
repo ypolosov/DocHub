@@ -72,6 +72,7 @@
   import MenuComponent from './Menu';
   import PluginInit from '../idea/components/Init.vue';
   import Problems from './Problems/Problems.vue';
+  import env from '@/helpers/env';
 
   const minDrawerSize = 200;
   const defaultDrawerSize = 300;
@@ -88,7 +89,7 @@
         drawer: null,
         isDrawerResize: false,
         width: defaultDrawerSize,
-        isPlugin: process.env.VUE_APP_DOCHUB_MODE === 'plugin'
+        isPlugin: env.isPlugin()
       };
     },
     computed: {

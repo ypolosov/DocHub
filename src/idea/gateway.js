@@ -1,7 +1,8 @@
 
+import env from '@/helpers/env';
 const listeners = {};
 
-if ((process.env.VUE_APP_DOCHUB_MODE === 'plugin') && (process.env.NODE_ENV === 'production')) {
+if (env.isPlugin() && (env.isProduction())) {
 	setInterval(() => {
 		window.$PAPI.messagePull().then((message) => {
 			if (message) {

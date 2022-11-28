@@ -68,6 +68,7 @@
   import SrcLocations from './tabs/SrcLocations.vue';
   import Docs from './tabs/Docs.vue';
   import requests from '@/helpers/requests';
+  import env from '@/helpers/env';
 
   export default {
     name: 'ArchComponent',
@@ -114,7 +115,7 @@
         let result = query.expression(query.locationsForComponent(this.component))
           .evaluate(this.$store.state.sources) || [];
 
-        if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
+        if (env.isPlugin()) {
           result = result.map((item) => ({
             title: item.title.slice(19),
             link: `${item.link}?entity=component&id=${this.component}`
