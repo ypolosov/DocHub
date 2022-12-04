@@ -1,4 +1,4 @@
 {{#curator}}* Куратор: ***{{curator}}*** {{/curator}}
-{{#analist}}* Аналитик: ***{{analist}}*** {{/analist}}
+{{#analyst}}* Аналитик: ***{{analyst}}*** {{/analyst}}
 {{#prodact}}* Руководитель продукта: ***{{prodact}}*** {{/prodact}}
 
