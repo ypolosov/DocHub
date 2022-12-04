@@ -393,6 +393,12 @@ const SUMMARY_COMPONENT_QUERY = `
 )
 `;
 
+const WIDGETS_COMPONENT_QUERY = `
+(
+    entities.components.widgets
+)
+`;
+
 const DOCUMENTS_FOR_ENTITY_QUERY = `
 (
     $ENTITY_ID := '{%ENTITY%}';
@@ -449,6 +455,10 @@ const SUMMARY_ASPECT_QUERY = `
         });
     )
 )
+`;
+
+const WIDGETS_ASPECT_QUERY = `
+    entities.aspects.widgets
 `;
 
 const ASPECT_DEFAULT_CONTEXT = `
@@ -767,6 +777,10 @@ export default {
 	summaryForComponent(component) {
 		return SUMMARY_COMPONENT_QUERY.replace(/{%COMPONENT%}/g, component);
 	},
+	// Виджеты компонентов
+	widgetsForComponent() {
+		return WIDGETS_COMPONENT_QUERY;
+	},
 	// Определение размещения манифестов описывающих компонент
 	locationsForComponent(component) {
 		return COMPONENT_LOCATIONS_QUERY.replace(/{%COMPONENT%}/g, component);
@@ -780,6 +794,9 @@ export default {
 	// Сводка по аспекту
 	summaryForAspect(aspect) {
 		return SUMMARY_ASPECT_QUERY.replace(/{%ASPECT%}/g, aspect);
+	},
+	widgetsForAspect() {
+		return WIDGETS_ASPECT_QUERY;
 	},
 	defaultContextForAspect(aspect) {
 		return ASPECT_DEFAULT_CONTEXT.replace(/{%ASPECT%}/g, aspect);
