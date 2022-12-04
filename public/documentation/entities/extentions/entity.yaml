@@ -1,30 +1,28 @@
 entities:
-  # Расширяем сущность "components"
   components:
-    # Инъектируем кастомный виджет
     widgets:
       # Будем показывать внешние связи на данный компонент
-      outsidelnks: # Идентификатор виджета
+      outside_links: # Идентификатор виджета
         # Название виджета
-        title: Внешние связи
+        title: Кто зависит от этого компонента
         # Расположение
         # < - слева
         # > - справа
         # = - Растянуть на 100%
-        align: "="
+        align: "<"
         # Тип документа шаблона
         type: table
         # Определяем заголовок таблицы
-        headers:                  
+        headers:
           - value: id             # Идентификатор зависимого компонента
             text: Идентификатор   # Заголовок колокнки
             sortable: true        # Производить сортировку по колонке
             align: left           # Форматирование по горизонтали
-            width: 40%            # Ширина колонки 
+            width: 40%            # Ширина колонки
             link: link
           - value: title          # Наименование зависимого компонента
-            text: Наименование    
-            sortable: true        
+            text: Наименование
+            sortable: true
             align: left           # Форматирование по горизонтали
             width: 40%
             link: link
@@ -39,7 +37,7 @@ entities:
             [$distinct(components.$spread().(
               $id := $keys()[0];
               $title := *.title;
-              $links := $distinct($.*.links[id=$params.component].direction);
+              $links := $distinct($.*.links[id=$params.component].("" & direction));
               $links.{
                 "id": $id,
                 "title": $title,
@@ -48,7 +46,7 @@ entities:
               }
             ))^(id)]
           )	
-
+          
   # Расширяем сущность "aspects"
   aspects:
     # Инъектируем собственный виджет
