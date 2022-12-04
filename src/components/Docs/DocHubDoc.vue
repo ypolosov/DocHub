@@ -2,49 +2,54 @@
   <div>
     <empty v-if="isEmpty" />
     <div v-else>
-      <async-api-component 
-        v-if="docType === DocTypes.ASYNCAPI" 
-        v-bind:document="document" 
-        v-bind:params="params" 
-        v-bind:profile-resolver="profileResolver" 
-        v-bind:url-resolver="urlResolver" />
-      <swagger 
-        v-if="docType === DocTypes.OPENAPI"
-        v-bind:document="document"
-        v-bind:params="params" 
-        v-bind:profile-resolver="profileResolver" 
-        v-bind:url-resolver="urlResolver" />
-      <plantuml
-        v-if="docType === DocTypes.PLANTUML"
-        v-bind:document="document"
-        v-bind:params="params" 
-        v-bind:profile-resolver="profileResolver" 
-        v-bind:url-resolver="urlResolver" />
-      <doc-markdown 
-        v-if="docType === DocTypes.MARKDOWN"
-        v-bind:document="document" 
-        v-bind:params="params" 
-        v-bind:profile-resolver="profileResolver" 
-        v-bind:url-resolver="urlResolver" 
-        v-bind:toc-show="!inline" />
-      <doc-table
-        v-if="docType === DocTypes.TABLE"
-        v-bind:document="document" 
-        v-bind:params="params" 
-        v-bind:profile-resolver="profileResolver" 
-        v-bind:url-resolver="urlResolver" />
-      <doc-mermaid
-        v-if="docType === DocTypes.MERMAID"
-        v-bind:document="document" 
-        v-bind:params="params" 
-        v-bind:profile-resolver="profileResolver" 
-        v-bind:url-resolver="urlResolver" />
-      <doc-network
-        v-if="docType === DocTypes.NETWORK"
-        v-bind:document="document" 
-        v-bind:params="params" 
-        v-bind:profile-resolver="profileResolver" 
-        v-bind:url-resolver="urlResolver" />
+      <template v-if="isCorrectType">
+        <async-api-component 
+          v-if="docType === DocTypes.ASYNCAPI" 
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
+          v-bind:url-resolver="urlResolver" />
+        <swagger 
+          v-if="docType === DocTypes.OPENAPI"
+          v-bind:document="document"
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
+          v-bind:url-resolver="urlResolver" />
+        <plantuml
+          v-if="docType === DocTypes.PLANTUML"
+          v-bind:document="document"
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
+          v-bind:url-resolver="urlResolver" />
+        <doc-markdown 
+          v-if="docType === DocTypes.MARKDOWN"
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
+          v-bind:url-resolver="urlResolver" 
+          v-bind:toc-show="!inline" />
+        <doc-table
+          v-if="docType === DocTypes.TABLE"
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
+          v-bind:url-resolver="urlResolver" />
+        <doc-mermaid
+          v-if="docType === DocTypes.MERMAID"
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
+          v-bind:url-resolver="urlResolver" />
+        <doc-network
+          v-if="docType === DocTypes.NETWORK"
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
+          v-bind:url-resolver="urlResolver" />
+      </template>
+      <v-alert v-else icon="warning">
+        Неизвестный тип документа [{{ docType }}]
+      </v-alert>      
     </div>
   </div>
 </template>
@@ -115,6 +120,12 @@
       },
       isEmpty() {
         return !this.profile;
+      },
+      isCorrectType() {
+        for(const key in DocTypes) {
+          if (DocTypes[key] === this.docType) return true;
+        }
+        return false;
       },
       docType() {
         return (this.profile.type || 'unknown').toLowerCase();
