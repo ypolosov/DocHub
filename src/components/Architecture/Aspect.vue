@@ -50,6 +50,17 @@
               </v-card-text>
             </v-card>
             <src-locations v-bind:locations="srcLocations" />
+
+            <widget 
+              v-for="widget in widgets.left"
+              v-bind:id="widget.id"
+              v-bind:key="widget.id"
+              class="card-item"
+              xs12
+              md12
+              v-bind:profile="widget.profile"
+              v-bind:base-u-r-i="widget.baseURI"
+              v-bind:params="widget.params" />
           </v-container>
         </v-layout>
       </v-flex>
@@ -60,8 +71,33 @@
           v-bind:default-context="defaultContext"
           v-bind:contexts="contexts"
           d-flex />  
+
+        <widget
+          v-for="widget in widgets.right"
+          v-bind:id="widget.id" 
+          v-bind:key="widget.id"
+          xs12
+          md7
+          class="card-item"
+          v-bind:profile="widget.profile"
+          v-bind:base-u-r-i="widget.baseURI"
+          v-bind:params="widget.params" />
+      </v-flex>
+      <v-flex xs12 md12 d-flex>
+        <widget
+          v-for="widget in widgets.fill"
+          v-bind:id="widget.id" 
+          v-bind:key="widget.id"
+          xs12
+          md12
+          class="card-item"
+          style="margin-top: 12px; "
+          v-bind:profile="widget.profile"
+          v-bind:base-u-r-i="widget.baseURI"
+          v-bind:params="widget.params" />
       </v-flex>
     </v-layout>
+
     <div style="display: none" v-html="focusStyle" />
   </v-container>
 </template>
@@ -76,6 +112,7 @@
   import SrcLocations from './tabs/SrcLocations.vue';
   import requests from '@/helpers/requests';
   import env from '@/helpers/env';
+  import Widget from './Widget.vue';
 
   export default {
     name: 'Aspect',
@@ -84,7 +121,8 @@
       AspectsMindmap,
       TabContexts,
       Empty,
-      SrcLocations
+      SrcLocations,
+      Widget
     },
     props: {
       aspect: { type: String, default: '' }
@@ -142,6 +180,32 @@
       summary() {
         return (query.expression(query.summaryForAspect(this.aspect))
           .evaluate(this.manifest) || []);
+      },
+      // Генерируем данные о фиджетах
+      widgets() {
+        const result = {
+          left: [],   // Виджеты с прижатием налево
+          right: [],  // Виджеты с прижатием направо
+          fill: []    // Виджеты во всю ширину
+        };
+        const widgets = (query.expression(query.widgetsForAspect()).evaluate(this.manifest) || {});
+        for (const id in widgets) {
+          const wiget = widgets[id];
+          const profile = {
+            id,
+            profile: widgets[id],
+            baseURI: (this.$store.state.sources.find((item) => item.path === `/entities/aspects/widgets/${id}`) || {}).location,
+            params: {
+              aspect: this.aspect
+            }
+          };
+          switch(wiget.align) {
+            case '<': result.left.push(profile); break;
+            case '>': result.right.push(profile); break;
+            default: result.fill.push(profile); break;
+          }
+        }
+        return result;
       }
     },
     methods: {

@@ -12,10 +12,7 @@
       v-on:rendered="rendered">
       {{ markdown }}
     </markdown>
-    <final-markdown 
-      v-else-if="showDocument && outHTML"
-      v-bind:template="outHTML"
-      v-bind:base-u-r-i="url" />
+    <final-markdown v-if="showDocument" v-bind:template="outHTML || ''" v-bind:base-u-r-i="url" />
     <v-progress-circular
       v-else
       v-bind:size="64"
@@ -34,7 +31,7 @@
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
   import href from '../../helpers/href';
-  
+
   export default {
     name: 'DocMarkdown',
     components: {
@@ -82,8 +79,8 @@
             this.showDocument = true;
             window.location.hash && setTimeout(() => window.location.href = window.location.hash, 50);
           });
-          this.markdown = null;
         }
+        this.markdown = null;
       },
       tocRendered(tocHTML) {
         if (this.tocShow) this.toc = tocHTML;
@@ -105,8 +102,8 @@
               this.markdown = mustache.render(data, this.source.dataset);
             } else
               this.markdown = data;
-          })
-            .catch((e) => this.error = e);
+            this.showDocument = true;
+          }).catch((e) => this.error = e);
         }, 50);
         this.sourceRefresh();
       }
@@ -142,7 +139,7 @@
   border-radius: 4px;
   overflow: auto;
 }
-.markdown-document code[class*="language-"], 
+.markdown-document code[class*="language-"],
 .markdown-document pre[class*="language-"] {
   color: black;
   font-weight: 300;
