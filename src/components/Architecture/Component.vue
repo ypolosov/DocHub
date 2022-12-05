@@ -18,7 +18,7 @@
                     <v-list-item v-for="(item) in summary" v-bind:key="item.title" v-bind:link="!!item.link">
                       <v-list-item-content v-on:click="goToLink(item.link)">
                         <v-list-item-subtitle v-text="item.title" />
-                      
+
                         <v-list-item-title>
                           <v-icon v-if="item.required && !item.content" left color="red">error</v-icon>
                           <a v-else-if="isURL(item.content)" v-bind:href="item.content" target="_blank">{{ item.content }}</a>
@@ -45,7 +45,7 @@
 
               <src-locations v-bind:locations="srcLocations" />
 
-              <widget 
+              <widget
                 v-for="widget in widgets.left"
                 v-bind:id="widget.id"
                 v-bind:key="widget.id"
@@ -62,7 +62,7 @@
 
         <v-flex xs12 md7 d-flex>
           <v-layout wrap>
-            <tab-contexts 
+            <tab-contexts
               v-if="contexts.length"
               style="width: 100%"
               v-bind:contexts="contexts"
@@ -71,7 +71,7 @@
 
             <widget
               v-for="widget in widgets.right"
-              v-bind:id="widget.id" 
+              v-bind:id="widget.id"
               v-bind:key="widget.id"
               xs12
               md7
@@ -86,7 +86,7 @@
       <v-layout v-if="widgets.fill.length" wrap style="height: auto">
         <widget
           v-for="widget in widgets.fill"
-          v-bind:id="widget.id" 
+          v-bind:id="widget.id"
           v-bind:key="widget.id"
           xs12
           md12
@@ -165,7 +165,7 @@
           }));
         }
 
-        if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
+        if (env.isVsPlugin()) {
           result = result.map((item) => ({
             title: item.title.replace('https://file+.vscode-resource.vscode-cdn.net', ''),
             link: `${item.link}?entity=component&id=${this.component}`

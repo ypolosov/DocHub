@@ -16,7 +16,7 @@ if (env.isPlugin() && (env.isProduction())) {
 	}, 300);
 }
 
-if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
+if (env.isVsPlugin()) {
 	window.addEventListener('message', (event) => {
 		const { command, content } = event?.data;
 

@@ -13,10 +13,12 @@
 </template>
 
 <script>
+  import env from '@/helpers/env';
+
   export default {
     computed: {
       isPlugin() {
-        return process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin';
+        return env.isVsPlugin();
       }
     },
     methods: {

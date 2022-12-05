@@ -51,7 +51,7 @@
             </v-card>
             <src-locations v-bind:locations="srcLocations" />
 
-            <widget 
+            <widget
               v-for="widget in widgets.left"
               v-bind:id="widget.id"
               v-bind:key="widget.id"
@@ -65,16 +65,16 @@
         </v-layout>
       </v-flex>
       <v-flex xs12 md7 d-flex>
-        <tab-contexts 
+        <tab-contexts
           v-if="contexts.length"
           style="width: 100%"
           v-bind:default-context="defaultContext"
           v-bind:contexts="contexts"
-          d-flex />  
+          d-flex />
 
         <widget
           v-for="widget in widgets.right"
-          v-bind:id="widget.id" 
+          v-bind:id="widget.id"
           v-bind:key="widget.id"
           xs12
           md7
@@ -86,7 +86,7 @@
       <v-flex xs12 md12 d-flex>
         <widget
           v-for="widget in widgets.fill"
-          v-bind:id="widget.id" 
+          v-bind:id="widget.id"
           v-bind:key="widget.id"
           xs12
           md12
@@ -157,7 +157,7 @@
           }));
         }
 
-        if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
+        if (env.isVsPlugin()) {
           result = result.map((item) => ({
             title: item.title.replace('https://file+.vscode-resource.vscode-cdn.net', ''),
             link: `${item.link}?entity=aspect&id=${this.aspect}`

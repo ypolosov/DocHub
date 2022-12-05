@@ -2,6 +2,7 @@
 
 import Vue from 'vue';
 import App from './app/components/app.vue';
+import env from '@/helpers/env';
 
 import Aspect from '@/components/Architecture/Aspect.vue';
 import Component from '@/components/Architecture/Component.vue';
@@ -41,7 +42,7 @@ Vue.component('DochubEntity', Entity);
 function main(settings, uri) {
 	Vue.config.ignoredElements = ['asyncapi-component'];
 
-	if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
+	if (env.isVsPlugin()) {
 		createVsCodeDefaultSettings(settings, uri);
 	}
 
@@ -49,7 +50,7 @@ function main(settings, uri) {
 	const router = createRouter();
 	const store = createStore();
 
-	if (process.env.VUE_APP_DOCHUB_MODE === 'vs-plugin') {
+	if (env.isVsPlugin()) {
 		createVsCodeListener(store, router);
 	}
 
@@ -77,7 +78,7 @@ function main(settings, uri) {
 
 export { main };
 
-if (process.env.VUE_APP_DOCHUB_MODE !== 'vs-plugin') {
+if (!env.isVsPlugin()) {
 	main();
 }
 
