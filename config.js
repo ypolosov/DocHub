@@ -53,4 +53,8 @@ config.pumlServer =
 	|| process.env.VUE_APP_PLANTUML_SERVER 
 	|| 'www.plantuml.com/plantuml/svg/';
 
+config.pumlRequestType =
+  window.$PAPI?.settings?.render?.request_type
+  || 'get';
+
 export default config;
