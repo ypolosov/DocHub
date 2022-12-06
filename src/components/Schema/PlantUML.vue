@@ -45,9 +45,8 @@
 </template>
 
 <script>
-
-  import axios from 'axios';
   import { ErrorBoundary } from '@/shared/ErrorBoundary/index';
+
   import plantUML from '../../helpers/plantuml';
   import href from '../../helpers/href';
   import copyToClipboard from '../../helpers/clipboard';
@@ -246,9 +245,10 @@
         this.isLoading = true;
 
         this.$nextTick(() => {
-          const request= window.$PAPI?.settings?.render?.external === false
+          const request = window.$PAPI?.settings?.render?.external === false
             ? window.$PAPI.renderPlantUML(this.uml)
-            : axios({url: plantUML.svgURL(this.uml)});
+            : plantUML.prepareRequest(this.uml);
+
           request.then((response) => {
             this.svg = response.data.toString();
             this.isLoading = false;
