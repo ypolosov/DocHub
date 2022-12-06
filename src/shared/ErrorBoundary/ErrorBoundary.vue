@@ -1,5 +1,5 @@
 <script>
-  import { isObjectEmpty, warn, convertVNodeArray } from '@/utils/misc';
+  import { isObjectEmpty, warn, convertVNodeArray } from '@/helpers/misc';
   import { errorMiddleware } from '@/helpers/http';
   import errConstants from '@/constants/errConstants.json';
   import DefaultFallback from './DefaultFallback.vue';

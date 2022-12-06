@@ -15,6 +15,9 @@ export function errorMiddleware(params) {
 		default:
 			error = errConstants.UNKNOWN;
 		}
+
+		// eslint-disable-next-line no-console
+		console.error(error);
 	}
 
 	return { ...params, error };
