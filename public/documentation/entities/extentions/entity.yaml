@@ -27,9 +27,12 @@ entities:
         # Контракт по параметрам представления в формате JSONSchema
         params:
           type: object
-          properies:
+          properties:
             component: 
               title: Идентификатор компонента
+              type: string
+            param1: 
+              title: Обязательный параметр 1
               type: string
           required:
             - component
@@ -83,7 +86,7 @@ entities:
       people:
         params:
           type: object
-          properies:
+          properties:
             aspect: 
               title: Идентификатор аспекта
               type: string
