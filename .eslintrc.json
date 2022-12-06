@@ -42,8 +42,8 @@
 			"error",
 			"always"
 		],
-		"no-console": "warn",
-		"no-debugger": "off",
+    "no-console": "warn",
+		"no-debugger": "warn",
 		"quotes": [
 			"error",
 			"single"

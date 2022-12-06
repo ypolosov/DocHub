@@ -1,46 +1,51 @@
 <template>
   <div class="plantuml-place">
-    <v-progress-circular
-      v-if="isLoading"
-      v-bind:size="64"
-      v-bind:width="7"
-      style="left: 50%; top: 50%; position: absolute; margin-left: -32px; margin-top: -32px;"
-      v-bind:value="60"
-      color="primary"
-      indeterminate />
-    <div
-      v-else-if="render"
-      class="plantuml-schema"
-      v-bind:style="{cursor: cursor}"
-      v-on:mousedown.prevent="onMouseDown"
-      v-on:mousemove.prevent="onMouseMove"
-      v-on:mouseup.prevent="onMouseUp"
-      v-on:mouseleave.prevent="onMouseUp"
-      v-on:wheel="proxyScrollEvent"
-      v-on:contextmenu="showMenu"
-      v-html="svg" />
-    <v-menu
-      v-model="menu.show"
-      v-bind:position-x="menu.x"
-      v-bind:position-y="menu.y"
-      absolute
-      offset-y>
-      <v-list>
-        <v-list-item
-          v-for="(item, index) in menu.items"
-          v-bind:key="index"
-          link>
-          <v-list-item-title
-            v-on:click="item.on">
-            {{ item.title }}
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+    <error-boundary
+      v-bind:params="{error}"
+      stop-propagation>
+      <v-progress-circular
+        v-if="isLoading"
+        v-bind:size="64"
+        v-bind:width="7"
+        style="left: 50%; top: 50%; position: absolute; margin-left: -32px; margin-top: -32px;"
+        v-bind:value="60"
+        color="primary"
+        indeterminate />
+      <div
+        v-else-if="render"
+        class="plantuml-schema"
+        v-bind:style="{cursor: cursor}"
+        v-on:mousedown.prevent="onMouseDown"
+        v-on:mousemove.prevent="onMouseMove"
+        v-on:mouseup.prevent="onMouseUp"
+        v-on:mouseleave.prevent="onMouseUp"
+        v-on:wheel="proxyScrollEvent"
+        v-on:contextmenu="showMenu"
+        v-html="svg" />
+      <v-menu
+        v-model="menu.show"
+        v-bind:position-x="menu.x"
+        v-bind:position-y="menu.y"
+        absolute
+        offset-y>
+        <v-list>
+          <v-list-item
+            v-for="(item, index) in menu.items"
+            v-bind:key="index"
+            link>
+            <v-list-item-title
+              v-on:click="item.on">
+              {{ item.title }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </error-boundary>
   </div>
 </template>
 
 <script>
+  import { ErrorBoundary } from '@/shared/ErrorBoundary/index';
 
   import plantUML from '../../helpers/plantuml';
   import href from '../../helpers/href';
@@ -51,6 +56,9 @@
 
   export default {
     name: 'PlantUML',
+    components: {
+      ErrorBoundary
+    },
     props: {
       uml: { type: String, default: '' },         // PlantUML диаграмма
       postrender: { type: Function, default: () => {} }, // POST обработчик
@@ -75,6 +83,7 @@
           }).call()
         },
         render: true,
+        error: null,
         rerenderTimer: null,
         svg: '',
         isLoading: true,
@@ -229,6 +238,10 @@
           return;
         }
 
+        if (this.error) {
+          this.error = null;
+        }
+
         this.isLoading = true;
 
         this.$nextTick(() => {
@@ -242,22 +255,10 @@
             this.$nextTick(() => this.prepareSVG());
           }).catch((error) => {
             if (error.response && error.response.status === 400) {
-              this.svg = error.response.data.toString();
               this.$nextTick(() => this.prepareSVG());
-            } else {
-              this.svg = `
-            <svg viewBox="0 0 400 80" xmlns="http://www.w3.org/2000/svg">
-              <style>
-                .small {font: italic 12px sans-serif;}
-                .Rrrrr {font: italic 24px serif; fill: red;}
-              </style>
-              <text x="200" y="40" text-anchor="middle" class="Rrrrr">Ошибка загрузки!</text>
-              <text x="200" y="60" text-anchor="middle" class="small">${error.response ? error.response.status : error.toString()}</text>
-            </svg>
-        `;
             }
-            // eslint-disable-next-line no-console
-            console.error(error);
+
+            this.error = error;
           }).finally(()=> {
             this.isLoading = false;
           });
