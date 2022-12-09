@@ -6,6 +6,7 @@
 
 <script>
   import mermaid from 'mermaid';
+  import mindmap from '@mermaid-js/mermaid-mindmap';
   import requests from '@/helpers/requests';
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
@@ -14,9 +15,9 @@
   /*
   mermaid.initialize({
     startOnLoad:true
-  });  
+  });
   */
-  
+
   export default {
     name: 'DocMermaid',
     mixins: [DocMixin],
@@ -26,27 +27,31 @@
       };
     },
     mounted() {
-
+      if (!window.as_mindmap) {
+        mermaid.registerExternalDiagrams([mindmap]).then(() => {
+          window.as_mindmap = true;
+        });
+      }
     },
     methods: {
       refresh() {
         // Получаем шаблон документа
         setTimeout(() => {
           requests.request(this.url).then(({ data }) => {
-            let source = this.isTemplate 
-              ? mustache.render(data, this.source.dataset) 
+            let source = this.isTemplate
+              ? mustache.render(data, this.source.dataset)
               : data;
             const cb = (svgGraph) => {
               // Генерируем ссылки т.к. Mermaid для C4 Model отказывается это делать сам
               // eslint-disable-next-line no-useless-escape
               this.svg = svgGraph.replace(/\!\[([^\]]*)\]\(([^\)]*)\)/g, (match, text, url)=> {
                 return `<a href="${encodeURI(url)}">${text}<a>`;
-              }) 
+              })
                 + `<!-- ${Date.now()} -->`; // Без соли не работает ререндеринг тех же данных
 
               this.$nextTick(() => href.elProcessing(this.$el));
             };
-            mermaid.render('buffer', source, cb);
+            mermaid.renderAsync('buffer', source, cb);
           }).catch((e) => this.error = e);
         }, 50);
         this.sourceRefresh();
