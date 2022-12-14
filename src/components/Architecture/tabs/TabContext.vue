@@ -1,5 +1,5 @@
 <template>
-  <v-card 
+  <v-card
     style="
       overflow: hidden;
       position: relative;
@@ -19,7 +19,7 @@
       cols="12"
       sm="12"
       style="margin: 0 12px 0px 12px" />
-    <v-card-text 
+    <v-card-text
       class="headline font-weight-bold"
       style="
         position: absolute;
@@ -27,6 +27,7 @@
         left: 0;
         bottom: 0;
         right: 0;
+        overflow: auto;
       ">
       <schema v-bind:schema="schema" style="min-height:100%" />
     </v-card-text>
@@ -58,7 +59,7 @@
         if (!this.context) return null;
 
         const expression = query.expression(
-          this.context.type === 'component' ? 
+          this.context.type === 'component' ?
             query.component(this.context.id) :
             query.context(this.context.id)
         );

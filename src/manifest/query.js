@@ -667,8 +667,6 @@ function wcard(id, template) {
 	}
 
 	const isOk = new RegExp(`^${items.join('\\.')}$`);
-	// eslint-disable-next-line no-console
-	console.info('WCARD:', `^${items.join('\\.')}$`);
 
 	return isOk.test(id);
 

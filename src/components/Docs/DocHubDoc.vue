@@ -2,7 +2,7 @@
   <div>
     <empty v-if="isEmpty" />
     <div v-else>
-      <template v-if="isCorrectType">
+      <template v-if="isCorrectType === 'inline'">
         <async-api-component 
           v-if="docType === DocTypes.ASYNCAPI" 
           v-bind:document="document" 
@@ -47,7 +47,8 @@
           v-bind:profile-resolver="profileResolver" 
           v-bind:url-resolver="urlResolver" />
       </template>
-      <v-alert v-else icon="warning">
+      <component v-bind:is="pluginComponent" v-if="isCorrectType === 'plugin'" />
+      <v-alert v-if="isCorrectType === false" icon="warning">
         Неизвестный тип документа [{{ docType }}]
       </v-alert>      
     </div>
@@ -65,6 +66,7 @@
   import DocMermaid from './DocMermaid.vue';
   import DocNetwork from './DocNetwork.vue';
   import Empty from '../Controls/Empty.vue';
+  import Plugins from '@/plugins/manager';
 
   export default {
     name: 'Document',
@@ -115,6 +117,9 @@
       };
     },
     computed: {
+      pluginComponent() {
+        return `plugin-doc-${this.docType}`;
+      },
       profile() {
         return this.profileResolver();
       },
@@ -122,9 +127,14 @@
         return !this.profile;
       },
       isCorrectType() {
+        // eslint-disable-next-line no-debugger
+        debugger;
         for(const key in DocTypes) {
-          if (DocTypes[key] === this.docType) return true;
+          if (DocTypes[key] === this.docType) return 'inline';
         }
+        // eslint-disable-next-line no-console
+        console.info(Plugins);
+        if (Plugins.objects.documents[this.docType]) return 'plugin';
         return false;
       },
       docType() {
