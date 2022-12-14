@@ -74,3 +74,6 @@ new Vue({
 	vuetify,
 	store
 }).$mount('#app');
+
+require('./plugins/import');
+

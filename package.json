@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "plugin": "vue-cli-service build --name plugin --target lib plugins/*/*.vue",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
@@ -16,6 +17,7 @@
     "ajv-i18n": "4.2.0",
     "axios": "0.21.1",
     "dateformat": "3.0.3",
+    "dochub-plugin-html": "file:plugins/html",
     "jsonata": "1.8.6",
     "mustache": "4.2.0",
     "swagger-ui": "3.24.3",
@@ -50,6 +52,9 @@
     "vue-monaco": "0.3.1",
     "vue-style-loader": "3.1.2",
     "vue-template-compiler": "2.6.11"
+  },
+  "plugins": {
+    "dochub-plugin-html": "html/html"
   },
   "postcss": {
     "plugins": {
