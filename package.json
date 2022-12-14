@@ -10,6 +10,7 @@
     "meta-import": "node src/tools/meta/import.js"
   },
   "dependencies": {
+    "@asyncapi/react-component": "^1.0.0-next.44",
     "@asyncapi/web-component": "0.24.23",
     "@mdi/font": "5.9.55",
     "@mermaid-js/mermaid-mindmap": "^9.2.2",
