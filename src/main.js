@@ -31,9 +31,6 @@ import '@/assets/styles/main.css';
 window.Vue = Vue;
 window.Router = router;
 
-// eslint-disable-next-line no-console
-console.info(window.$PAPI);
-
 Vue.use(Vuex);
 Vue.use(Vuetify);
 Vue.use(VueCookie);
@@ -75,5 +72,4 @@ new Vue({
 	store
 }).$mount('#app');
 
-require('./plugins/import');
 

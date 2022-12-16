@@ -11,7 +11,6 @@ let config = {
 	devServer: {
 		/*
         allowedHosts: [
-            'dochub.rabota.space',
             'localhost'
         ],
         */

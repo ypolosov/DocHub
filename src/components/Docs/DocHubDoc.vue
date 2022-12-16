@@ -66,8 +66,7 @@
   import DocMermaid from './DocMermaid.vue';
   import DocNetwork from './DocNetwork.vue';
   import Empty from '../Controls/Empty.vue';
-  import Plugins from '@/plugins/manager';
-
+  
   export default {
     name: 'Document',
     components: {
@@ -124,17 +123,16 @@
         return this.profileResolver();
       },
       isEmpty() {
-        return !this.profile;
+        return !this.profile || !this.profile.type || (this.isCorrectType === false && !this.$store.state.plugins.ready);
+      },
+      info() {
+        return this.$store.state.plugins.documents[this.docType];
       },
       isCorrectType() {
-        // eslint-disable-next-line no-debugger
-        debugger;
         for(const key in DocTypes) {
           if (DocTypes[key] === this.docType) return 'inline';
         }
-        // eslint-disable-next-line no-console
-        console.info(Plugins);
-        if (Plugins.objects.documents[this.docType]) return 'plugin';
+        if (this.$store.state.plugins.documents[this.docType]) return 'plugin';
         return false;
       },
       docType() {

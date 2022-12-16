@@ -11,10 +11,14 @@ import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
 import entities from '@/helpers/entities';
 import env from '@/helpers/env';
+import plugins from './plugins';
 
 const axios = require('axios');
 
 export default {
+	modules: {
+		plugins
+	},
 	state: {
 		// Признак загрузки данных
 		isReloading: true,
@@ -97,6 +101,7 @@ export default {
 	actions: {
 		// Action for init store
 		init(context) {
+			context.dispatch('plugins/init');
 			const errors = {
 				syntax: null,
 				net: null
