@@ -5,6 +5,9 @@
 		"node": true,
 		"jest": true
 	},
+	"globals": {
+		"DocHub": true
+	},
 	"ignorePatterns": ["**/public/libs/*.js"],
 	"extends": [
 		"eslint:recommended",

@@ -1,0 +1,13 @@
+{
+  "name": "DocHub",
+  "short_name": "DocHub",
+  "orientation": "portrait",
+  "display": "standalone",
+  "start_url": ".",
+  "description": "Actitecture as a code",
+  "background_color": "#ffffff",
+  "plugins": [
+    "/plugins/html.js",
+    "/plugins/svg.js"
+  ]
+}
