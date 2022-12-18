@@ -4,9 +4,6 @@ const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin
 const pkg = require('./package.json');
 const PluginMaker = require('./src/building/plugin-maker');
 
-
-// const fs = require('fs');
-
 const plugins = [];
 const entries = {};
 
@@ -38,15 +35,8 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 		filename: 'manifest.json'
 	};
 
-	const shared = {};
 	for (const pluginID in pkg.plugins || {}) {
 		manifest.plugins.push(`/plugins/${pluginID}.js`);
-		shared[pluginID] = {
-			packageName: 'packageName',
-			shareKey: 'shareKey',
-			shareScope: 'shareScope',
-			singleton: true
-		};
 	}
 
 	plugins.push(new WebpackPwaManifest(manifest));

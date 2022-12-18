@@ -53,8 +53,6 @@
           before = node.id;
         });
         uml += '@endwbs\n';
-        // eslint-disable-next-line no-console
-        console.info(uml);
         return uml;
       }
     },

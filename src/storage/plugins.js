@@ -1,9 +1,7 @@
 /* Модуль работы с плагинами */
-/*
 import Vue from 'vue';
 import env from '@/helpers/env';
 import requests from '@/helpers/requests';
-*/
 
 export default {
 	namespaced: true,
@@ -18,50 +16,34 @@ export default {
 		registerDocument(state, document) {
 			state.documents[document.type] = document.component;
 		}
-	}
-	/*
-	,
+	},
 	actions: {
 		// Загружаем плагины
 		init(context) {
+			// Регистрируем менеджер документов для плагинов
+			window.DocHub.documents = {
+				register(type, component) {
+					Vue.component(`plugin-doc-${type}`, component);
+					context.commit('registerDocument', { type, component });
+				}
+			};
+
 			let counter = 0;
 
-			if (!env.isProduction()) {
+			if (env.isProduction()) { // Подключаем плагины для prod
 				// Получаем данные манифеста приложения
 				requests.request('manifest.json', window.origin).then((response) => {
 					(response?.data?.plugins || []).map((url) => {
 						counter++;
 
 						const decCounter = () => !(--counter) && context.commit('setReady', true);
-						const id = url.split('/').pop().split('.').slice(0,1);
 
 						const script = document.createElement('script');
 						script.src = url;
 						script.onload = function() {
-							window[id].get('entry').then((plugin) => {
-								// eslint-disable-next-line no-console
-								console.info('YOUHOO!!!', plugin);
-								// eslint-disable-next-line no-debugger
-								debugger;
-								try {
-									const entry = plugin().default;
-									entry({
-										documents: {
-											register(type, component) {
-												Vue.component(`plugin-doc-${type}`, component);
-												context.commit('registerDocument', { type, component });
-											}
-										}
-									});
-								} catch (e) {
-								// eslint-disable-next-line no-console
-									console.error(`Ощибка инициализации плагина [${url}]`, e);
-								}
-		
-							}).catch((e) => {
-								// eslint-disable-next-line no-console
-								console.error(`Ошибка инициализации плагина [${url}]`, e);
-							}).finally(decCounter);
+							// eslint-disable-next-line no-console
+							console.info(`Плагина [${url}] успешно подключен`);
+							decCounter();
 						};
 						script.onerror = (e) => {
 							// eslint-disable-next-line no-console
@@ -77,28 +59,18 @@ export default {
 					console.error('Не удалось загрузить манифест приложения', e);
 					context.commit('setReady', true);
 				});
-			} else {
+			} else { // Подключаем плагины для dev
+				// Получаем данные о плагинах из package.json
 				const config = require('../../package.json');
 				for(const id in config.plugins || {}) {
 					counter++;
 					const module = config.plugins[id];
-					import(`../../plugins/${module}`).then((plugin) => {
-						try {
-							plugin.default({
-								documents: {
-									register(type, component) {
-										Vue.component(`plugin-doc-${type}`, component);
-										context.commit('registerDocument', { type, component });
-									}
-								}
-							});
-						} catch (e) {
+					import(`../../plugins/${module}`).then(() => {
 						// eslint-disable-next-line no-console
-							console.error(`Ощибка инициализации плагина [${module}]`, e);
-						}
+						console.info(`Плагина [${module}] успешно подключен`);
 					}).catch((e) => {
-					// eslint-disable-next-line no-console
-						console.error(`Ощибка загрузки плагина [${module}]`, e);
+						// eslint-disable-next-line no-console
+						console.error(`Ошибка загрузки плагина [${module}]`, e);
 					}).finally(() => {
 						if(!--counter) context.commit('setReady', true);
 					});
@@ -107,5 +79,4 @@ export default {
 			}
 		}
 	}
-	*/
 };

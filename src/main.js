@@ -22,10 +22,6 @@ import Image from './components/Tools/Image.vue';
 import Entity from './components/Entities/Entity.vue';
 import GlobalMixin from './mixins/global';
 import gitlab from './storage/gitlab';
-import dhhtml from 'dochub-plugin-html';
-
-// eslint-disable-next-line no-console
-console.info(dhhtml);
 
 import 'swagger-ui/dist/swagger-ui.css';
 import 'vuetify/dist/vuetify.min.css';
