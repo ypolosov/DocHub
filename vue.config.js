@@ -24,7 +24,7 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 		}
 	}));
 	plugins.push(new HtmlWebpackInlineSourcePlugin());
-} else if (process.env.NODE_ENV === 'production') {
+} else {
 	const manifest = {
 		name: 'DocHub',
 		short_name: 'DocHub',
@@ -35,9 +35,11 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 		filename: 'manifest.json'
 	};
 
+	/* Встроенные плагины не выгружаем в manifest.json
 	for (const pluginID in pkg.plugins || {}) {
 		manifest.plugins.push(`/plugins/${pluginID}.js`);
 	}
+	*/
 
 	plugins.push(new WebpackPwaManifest(manifest));
 	plugins.push(new PluginMaker());
