@@ -302,9 +302,6 @@
 
 <style>
 
-.plantuml-place {
-}
-
 .plantuml-schema {
   width: 100%;
 }
