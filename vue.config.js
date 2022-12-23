@@ -35,10 +35,26 @@ let config = {
 					test: /\.mjs$/,
 					include: /node_modules/,
 					type: 'javascript/auto'
-				}
+				},
+				{
+          test: /\.tsx?$/,
+          use: [
+            {
+              loader: 'ts-loader',
+              options: {
+                compilerOptions: {
+                  noEmit: false
+                }
+              }
+            }
+          ]
+        }
 			]
-		}		
-	}    
+		},
+    resolve: {
+			extensions: ['.ts', '.js']
+		}
+	}
 };
 
 // Подключает сертификаты, если они обнаружены

@@ -1,5 +1,5 @@
-import DefaultSchema from './default/schema.json';
-import Query from '../src/manifest/query';
+import DefaultSchema from '../default/schema.json';
+import Query from '../../src/manifest/query';
 import YAML from 'yaml';
 
 test('Forms object to schema', () => {

@@ -23,6 +23,8 @@ import Entity from './components/Entities/Entity.vue';
 import GlobalMixin from './mixins/global';
 import gitlab from './storage/gitlab';
 
+import './storage/indexedDB';
+
 import 'swagger-ui/dist/swagger-ui.css';
 import 'vuetify/dist/vuetify.min.css';
 
