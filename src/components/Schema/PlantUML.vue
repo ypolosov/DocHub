@@ -181,7 +181,7 @@
         this.viewBox.x -= resizeWidth * kX;
         this.viewBox.width += resizeWidth;
         this.viewBox.y -= resizeHeight * kY;
-        this.viewBox.height += resizeHeight;
+        this.viewBox.height += resizeHeight * 0.5;
         this.cacheViewBox = null;
       },
       proxyScrollEvent(event) {
@@ -301,9 +301,6 @@
 </script>
 
 <style>
-
-.plantuml-place {
-}
 
 .plantuml-schema {
   width: 100%;

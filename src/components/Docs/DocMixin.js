@@ -35,7 +35,7 @@ export default {
 		sourceRefresh() {
 			this.source.status = SOURCE_PENGING;
 			this.source.dataset = null;
-			if (this.profile.source) {
+			if (this.isTemplate && this.profile.source) {
 				this.source.provider.getData(
 					this.manifest,
 					Object.assign({'_id': this.document}, this.profile),

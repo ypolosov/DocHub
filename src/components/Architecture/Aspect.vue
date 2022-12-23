@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-xl fluid>
+  <v-container grid-list-xl fluid style="height:auto">
     <empty v-if="isEmpty" />
     <v-layout v-else wrap>
       <v-flex xs12 md5 d-flex>
@@ -144,6 +144,9 @@
     },
     data() {
       return {};
+    },
+    asyncComputed: {
+
     },
     computed: {
       isEmpty() {
