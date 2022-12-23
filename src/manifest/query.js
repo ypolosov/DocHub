@@ -421,8 +421,9 @@ const DOCUMENTS_FOR_ENTITY_QUERY = `
 
 const COMPONENT_LOCATIONS_QUERY = `
 (
-    $COMPONENT_ID := '{%COMPONENT%}';
-    [[$distinct($[$substring(path, 0, $length($COMPONENT_ID) + 12) = '/components/' & $COMPONENT_ID].location)]
+    $COMPONENT_ID := '/components/' & '{%COMPONENT%}';
+    $LN := $length($COMPONENT_ID);
+    [[$distinct($[$substring(path, 0, $LN) = $COMPONENT_ID].location)]
     .{
         "link": $,
         "title": $
@@ -481,8 +482,9 @@ const ASPECT_DEFAULT_CONTEXT = `
 
 const ASPECT_LOCATIONS_QUERY = `
 (
-    $ASPECT_ID := '{%ASPECT%}';
-    [[$distinct($[$substring(path, 0, $length($ASPECT_ID) + 9) = '/aspects/' & $ASPECT_ID].location)]
+    $ASPECT_ID := '/aspects/' & '{%ASPECT%}';
+    $LN := $length($ASPECT_ID);
+    [[$distinct($[$substring(path, 0, $LN) = $ASPECT_ID].location)]
     .{
         "link": $,
         "title": $
@@ -667,8 +669,6 @@ function wcard(id, template) {
 	}
 
 	const isOk = new RegExp(`^${items.join('\\.')}$`);
-	// eslint-disable-next-line no-console
-	console.info('WCARD:', `^${items.join('\\.')}$`);
 
 	return isOk.test(id);
 
