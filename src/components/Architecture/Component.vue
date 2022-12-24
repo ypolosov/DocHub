@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-xl fluid>
+  <v-container grid-list-xl fluid style="height:auto">
     <div style="display: none" v-html="focusStyle" />
     <empty v-if="isEmpty" />
     <template v-else>

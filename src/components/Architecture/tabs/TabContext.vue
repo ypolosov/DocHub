@@ -29,7 +29,7 @@
         right: 0;
         overflow: auto;
       ">
-      <schema v-bind:schema="schema" style="min-height:100%" />
+      <schema v-bind:schema="schema" style="min-height:100vh" />
     </v-card-text>
   </v-card>
 </template>

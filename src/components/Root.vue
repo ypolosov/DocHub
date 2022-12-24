@@ -6,7 +6,8 @@
       app
       clipped-left
       color="#3495db"
-      dark>
+      dark
+      style="z-index: 99">
       <v-app-bar-nav-icon v-on:click="drawer = !drawer">
         <div
           style="padding:4px; background: #fff; border-radius: 17px;">
@@ -46,7 +47,8 @@
       v-bind:width="width"
       app
       clipped
-      color="grey lighten-4">
+      color="grey lighten-4"
+      style="z-index: 999">
       <menu-component />
     </v-navigation-drawer>
     <plugin-init v-if="isNotInited" />
@@ -195,18 +197,18 @@
 .loading-splash {
   background: #FFF;
   opacity: 0.7;
-  z-index: 10;  
-  position: absolute; 
-  left: 0; 
-  top: 0; 
-  bottom: 0; 
-  right: 0; 
+  z-index: 10;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
   filter: blur(8px);
-  -webkit-filter: blur(8px);  
+  -webkit-filter: blur(8px);
 }
 
 .whell {
-  z-index: 100;  
+  z-index: 100;
   left: 50%;
   top: 50vh;
   position: absolute !important;
