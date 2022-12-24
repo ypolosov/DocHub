@@ -132,6 +132,7 @@
       }
     },
     mounted() {
+
       window.addEventListener('resize', this.reRender);
       this.reloadSVG();
       let oldClientHeight = this.$el.clientHeight;
@@ -141,6 +142,7 @@
           oldClientHeight = this.$el.clientHeight;
         }
       }).observe(this.$el);
+
     },
     beforeDestroy(){
       window.removeEventListener('resize', this.reRender);

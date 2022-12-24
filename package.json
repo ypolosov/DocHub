@@ -45,7 +45,7 @@
     "css-loader": "3.6.0",
     "eslint": "7.32.0",
     "eslint-plugin-vue": "7.20.0",
-    "html-webpack-inline-source-plugin": "0.0.10",
+    "@effortlessmotion/html-webpack-inline-source-plugin": "1.0.3",
     "html-webpack-plugin": "5.5.0",
     "jest": "28.1.3",
     "mermaid": "9.3.0",
@@ -58,8 +58,13 @@
     "webpack-pwa-manifest": "4.3.0"
   },
   "plugins": {
-    "inbuilt": ["plugins/html", "plugins/svg"],
-    "external": ["http://test"]
+    "inbuilt": [
+      "plugins/html",
+      "plugins/svg"
+    ],
+    "external": [
+      "http://test"
+    ]
   },
   "postcss": {
     "plugins": {

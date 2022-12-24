@@ -134,8 +134,6 @@
         this.currentRoute = to.fullPath;
       }
     },
-    mounted() {
-    },
     methods: {
       isMenuItemSelected(item) {
         return item.route === this.currentRoute;

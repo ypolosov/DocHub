@@ -1,6 +1,7 @@
 /* Модуль работы с плагинами */
 import Vue from 'vue';
 import requests from '@/helpers/requests';
+import env from '@/helpers/env';
 
 export default {
 	namespaced: true,
@@ -30,7 +31,8 @@ export default {
 			let counter = 0;
 
 			// Получаем данные манифеста приложения
-			requests.request('manifest.json', window.origin).then((response) => {
+			!env.isPlugin() && requests.request('manifest.json', window.location).then((response) => {
+
 				(response?.data?.plugins || []).map((url) => {
 					counter++;
 

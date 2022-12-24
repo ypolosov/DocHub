@@ -138,10 +138,6 @@
       docType() {
         return (this.profile.type || 'unknown').toLowerCase();
       }
-    },
-    mounted() {
-    },
-    methods: {
     }
   };
 </script>

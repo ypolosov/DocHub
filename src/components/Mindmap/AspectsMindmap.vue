@@ -55,10 +55,6 @@
         uml += '@endwbs\n';
         return uml;
       }
-    },
-    mounted() {
-    },
-    methods: {
     }
   };
 </script>
