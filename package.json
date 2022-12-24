@@ -58,8 +58,8 @@
     "webpack-pwa-manifest": "4.3.0"
   },
   "plugins": {
-    "html": "html/index",
-    "svg": "svg/index"
+    "inbuilt": ["plugins/html", "plugins/svg"],
+    "external": ["http://test"]
   },
   "postcss": {
     "plugins": {

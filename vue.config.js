@@ -25,28 +25,27 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 	}));
 	plugins.push(new HtmlWebpackInlineSourcePlugin());
 } else {
+	// Собираем встраевыемые плагины
+	(pkg.plugins?.inbuilt || []).map((item) => {
+		const config = require(`./${item}/package.json`);
+		entries[`plugins/${item}`] = `./${item}/${config.main || 'index.js'}`;
+	});
+
+	// Добавляем в манифест внешние плагины
 	const manifest = {
 		name: 'DocHub',
 		short_name: 'DocHub',
 		description: 'Actitecture as a code',
 		background_color: '#ffffff',
 		crossorigin: 'use-credentials',
-		plugins:[],
+		plugins: pkg.plugins?.external,
 		filename: 'manifest.json'
 	};
 
-	/* Встроенные плагины не выгружаем в manifest.json
-	for (const pluginID in pkg.plugins || {}) {
-		manifest.plugins.push(`/plugins/${pluginID}.js`);
-	}
-	*/
-
 	plugins.push(new WebpackPwaManifest(manifest));
-	plugins.push(new PluginMaker());
 
-	for (const pluginID in pkg.plugins || {}) {
-		entries[`plugins/${pluginID}`] = `./plugins/${pkg.plugins[pluginID]}.js`;
-	}
+	// Добавляем собственный плагин-мейкер
+	plugins.push(new PluginMaker());
 }
 
 // Дефолтная конфигурация dev-сервера
