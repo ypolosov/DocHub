@@ -115,7 +115,7 @@
         el.style.width = `${e.clientX}px`;
       }
 
-      drawerBorder.addEventListener(
+      drawerBorder && drawerBorder.addEventListener(
         'mousedown',
         (e) => {
           if (e.offsetX < minDrawerSize) {
@@ -138,6 +138,7 @@
         },
         false
       );
+
     },
     methods: {
       onLogoClick() {

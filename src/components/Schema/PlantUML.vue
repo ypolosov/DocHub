@@ -132,6 +132,7 @@
       }
     },
     mounted() {
+
       window.addEventListener('resize', this.reRender);
       this.reloadSVG();
       let oldClientHeight = this.$el.clientHeight;
@@ -141,6 +142,7 @@
           oldClientHeight = this.$el.clientHeight;
         }
       }).observe(this.$el);
+
     },
     beforeDestroy(){
       window.removeEventListener('resize', this.reRender);
@@ -181,7 +183,7 @@
         this.viewBox.x -= resizeWidth * kX;
         this.viewBox.width += resizeWidth;
         this.viewBox.y -= resizeHeight * kY;
-        this.viewBox.height += resizeHeight * 0.5;
+        this.viewBox.height += resizeHeight;
         this.cacheViewBox = null;
       },
       proxyScrollEvent(event) {

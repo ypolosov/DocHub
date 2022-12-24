@@ -1,0 +1,4 @@
+docs:
+  test_html:
+    location: HTML
+    type: html

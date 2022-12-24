@@ -153,8 +153,6 @@
         return result;
       }
     },
-    mounted() {
-    },
     methods: {
       onClickSection(section) {
         this.$router.push({ path: `/techradar/${section.key}` });
