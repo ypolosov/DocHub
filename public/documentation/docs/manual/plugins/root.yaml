@@ -2,3 +2,4 @@ docs:
   test_html:
     location: HTML
     type: html
+    source: examples/example.html

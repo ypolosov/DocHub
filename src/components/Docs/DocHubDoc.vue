@@ -47,7 +47,11 @@
           v-bind:profile-resolver="profileResolver" 
           v-bind:url-resolver="urlResolver" />
       </template>
-      <component v-bind:is="pluginComponent" v-if="isCorrectType === 'plugin'" />
+      <component 
+        v-bind:is="pluginComponent"
+        v-if="isCorrectType === 'plugin'"
+        v-bind:profile="profile"
+        v-bind:get-content="getContentForPlugin" />
       <v-alert v-if="isCorrectType === false" icon="warning">
         Неизвестный тип документа [{{ docType }}]
       </v-alert>      
@@ -66,6 +70,7 @@
   import DocMermaid from './DocMermaid.vue';
   import DocNetwork from './DocNetwork.vue';
   import Empty from '../Controls/Empty.vue';
+  import requests from '@/helpers/requests';
   
   export default {
     name: 'Document',
@@ -94,9 +99,7 @@
         type: Function,
         default: function() {
           let result = this.profile ?
-            docs.urlFromProfile(this.profile,
-                                (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
-            ): '';
+            docs.urlFromProfile(this.profile, this.baseURI): '';
           result += result.indexOf('?') > 0 ? '&' : '?';
           result += `id=${this.document}`;
           return result;
@@ -137,6 +140,19 @@
       },
       docType() {
         return (this.profile.type || 'unknown').toLowerCase();
+      },
+      baseURI() {
+        return (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location;
+      } 
+    },
+    methods: {
+      // Провайдер данных для плагинов
+      getContentForPlugin(url) {
+        return new Promise((success, reject) => {
+          requests.request(url, this.baseURI)
+            .then(success)
+            .catch(reject);
+        });
       }
     }
   };

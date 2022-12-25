@@ -2,6 +2,7 @@
 import Vue from 'vue';
 import requests from '@/helpers/requests';
 import env from '@/helpers/env';
+import mixin from '@/mixins/plugin';
 
 export default {
 	namespaced: true,
@@ -23,6 +24,8 @@ export default {
 			// Регистрируем менеджер документов для плагинов
 			window.DocHub.documents = {
 				register(type, component) {
+					component.mixins = component.mixins || [];
+					component.mixins.push(mixin);
 					Vue.component(`plugin-doc-${type}`, component);
 					context.commit('registerDocument', { type, component });
 				}
