@@ -22,16 +22,15 @@ import Technology from './components/Techradar/Technology.vue';
 import Anchor from './components/Tools/Anchor.vue';
 import Image from './components/Tools/Image.vue';
 import Entity from './components/Entities/Entity.vue';
+import DocHubObject from './components/Docs/DocHubObject';
 import GlobalMixin from './mixins/global';
 import gitlab from './storage/gitlab';
 
-
 import 'swagger-ui/dist/swagger-ui.css';
 import 'vuetify/dist/vuetify.min.css';
-
 import '@/assets/styles/main.css';
 
-window.DocHub = {};
+import './plugins/api';
 
 window.Vue = Vue;
 window.Router = router;
@@ -48,6 +47,7 @@ let store = new Vuex.Store(gitlab);
 window.Vuex = store;
 store.dispatch('init');
 
+Vue.component('DocHubObject', DocHubObject);
 Vue.component('DochubDoc', DocHubDoc);
 Vue.component('DochubContext', Context);
 Vue.component('DochubComponent', Component);

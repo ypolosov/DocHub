@@ -2,6 +2,7 @@
   <div>
     test2sssdsss
     <div v-html="content" />
+    <doc-hub-object src="@document/dochub.example.swgr" />
   </div>
 </template>
 
@@ -19,7 +20,7 @@
       getContent: {
         type: Function,
         required: true
-      } 
+      }
     },
     data() {
       return {
