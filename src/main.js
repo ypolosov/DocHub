@@ -1,5 +1,7 @@
 // import '../node_modules/@mdi/font/css/materialdesignicons.css'
-import '@mdi/font/css/materialdesignicons.css';
+import '../node_modules/@mdi/font/fonts/materialdesignicons-webfont.woff2';
+import '../node_modules/@mdi/font/css/materialdesignicons.min.css';
+
 // See icons https://fonts.google.com/icons?selected=Material+Icons
 import Axios from 'axios';
 import Vue from 'vue';
@@ -30,11 +32,10 @@ import 'vuetify/dist/vuetify.min.css';
 
 import '@/assets/styles/main.css';
 
+window.DocHub = {};
+
 window.Vue = Vue;
 window.Router = router;
-
-// eslint-disable-next-line no-console
-console.info(window.$PAPI);
 
 Vue.use(Vuex);
 Vue.use(Vuetify);
@@ -68,11 +69,15 @@ const vuetify = new Vuetify({
 	}
 });
 
-new Vue({
-	router,
-	render(createElement) {
-		return createElement(Root);
-	},
-	vuetify,
-	store
-}).$mount('#app');
+document.addEventListener('DOMContentLoaded', () => {
+	new Vue({
+		router,
+		render(createElement) {
+			return createElement(Root);
+		},
+		vuetify,
+		store
+	}).$mount('#app');
+});
+
+

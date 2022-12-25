@@ -5,6 +5,9 @@
 		"node": true,
 		"jest": true
 	},
+	"globals": {
+		"DocHub": true
+	},
 	"ignorePatterns": ["**/public/libs/*.js"],
   "parser": "vue-eslint-parser",
   "parserOptions": {
@@ -56,8 +59,8 @@
 			"error",
 			"always"
 		],
-		"no-console": "warn",
-		"no-debugger": "off",
+    "no-console": "warn",
+		"no-debugger": "warn",
 		"quotes": [
 			"warn",
 			"single"

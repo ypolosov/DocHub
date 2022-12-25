@@ -1,8 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Doc from '../components/Docs/DocHubDoc';
-import Conditions from '../components/Conditions';
-import DiffViewer from '../components/DiffViewer';
 import Main from '../components/Main';
 import config from '../../config';
 import consts from '../consts';
@@ -45,18 +43,6 @@ const rConfig = {
 			name: 'main',
 			path: '/main',
 			component: Main,
-			props: middleware
-		},
-		{
-			name: 'conditions',
-			path: '/diff/:source/:target',
-			component: Conditions,
-			props: middleware
-		},
-		{
-			name: 'diff',
-			path: '/diff/:source/:target/:mode',
-			component: DiffViewer,
 			props: middleware
 		},
 		{
