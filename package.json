@@ -61,9 +61,6 @@
     "inbuilt": [
       "plugins/html",
       "plugins/svg"
-    ],
-    "external": [
-      "http://test"
     ]
   },
   "postcss": {

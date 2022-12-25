@@ -2,7 +2,6 @@
 import Vue from 'vue';
 import requests from '@/helpers/requests';
 import env from '@/helpers/env';
-import mixin from '@/mixins/plugin';
 
 export default {
 	namespaced: true,
@@ -25,7 +24,6 @@ export default {
 			window.DocHub.documents = {
 				register(type, component) {
 					component.mixins = component.mixins || [];
-					component.mixins.push(mixin);
 					Vue.component(`plugin-doc-${type}`, component);
 					context.commit('registerDocument', { type, component });
 				}
@@ -34,7 +32,7 @@ export default {
 			let counter = 0;
 
 			// Получаем данные манифеста приложения
-			!env.isPlugin() && requests.request('manifest.json', window.location).then((response) => {
+			!env.isPlugin() && requests.request('manifest.json', new URL('/', window.location)).then((response) => {
 
 				(response?.data?.plugins || []).map((url) => {
 					counter++;

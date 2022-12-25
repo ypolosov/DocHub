@@ -97,9 +97,11 @@
       // Определение размещения объекта
       urlResolver: { 
         type: Function,
-        default: function() {
+        default() {
           let result = this.profile ?
-            docs.urlFromProfile(this.profile, this.baseURI): '';
+            docs.urlFromProfile(this.profile, 
+                                (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
+            ): '';
           result += result.indexOf('?') > 0 ? '&' : '?';
           result += `id=${this.document}`;
           return result;
@@ -123,7 +125,8 @@
         return `plugin-doc-${this.docType}`;
       },
       profile() {
-        return this.profileResolver();
+        const result = this.profileResolver();
+        return result;
       },
       isEmpty() {
         return !this.profile || !this.profile.type || (this.isCorrectType === false && !this.$store.state.plugins.ready);
@@ -140,16 +143,16 @@
       },
       docType() {
         return (this.profile.type || 'unknown').toLowerCase();
-      },
-      baseURI() {
-        return (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location;
-      } 
+      }
     },
     methods: {
+      baseURI() {
+        return (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location;
+      },
       // Провайдер данных для плагинов
       getContentForPlugin(url) {
         return new Promise((success, reject) => {
-          requests.request(url, this.baseURI)
+          requests.request(url, this.baseURI())
             .then(success)
             .catch(reject);
         });

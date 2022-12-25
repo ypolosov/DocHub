@@ -133,8 +133,6 @@ export default {
 						// eslint-disable-next-line no-console
 						console.error(error);
 						context.commit('appendProblems', error);
-						// eslint-disable-next-line no-debugger
-						debugger;
 					});
 			};
 			parser.onStartReload = () => {

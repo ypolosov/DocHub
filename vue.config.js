@@ -8,10 +8,12 @@ const plugins = [];
 const entries = {};
 
 // Собираем встраевыемые плагины
+//if (process.env.VUE_APP_DOCHUB_MODE === 'production') {
 (pkg.plugins?.inbuilt || []).map((item) => {
 	const config = require(`./${item}/package.json`);
 	entries[`plugins/${item}`] = `./${item}/${config.main || 'index.js'}`;
 });
+//}
 
 // Добавляем в манифест внешние плагины
 const manifest = {
@@ -65,7 +67,8 @@ let config = {
 			outputModule: true
 		},
 		optimization: {
-			splitChunks: false 
+			splitChunks: false,
+			runtimeChunk: 'single'
 		},
 		entry: {...entries},
 		plugins,

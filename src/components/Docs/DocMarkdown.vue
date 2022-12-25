@@ -81,23 +81,6 @@
           });
         }
         return '';
-
-        /*    
-        // eslint-disable-next-line no-debugger
-        debugger;
-        if (this.outHTML !== outHtml) {
-          this.outHTML = outHtml
-            .replace(/<img /g, '<dochub-object :baseURI="baseURI" :inline="true" ')
-            .replace(/\{\{/g, '<span v-pre>{{</span>')
-            .replace(/\}\}/g, '<span v-pre>}}</span>');
-          this.showDocument = false;
-          this.$nextTick(() => {
-            this.showDocument = true;
-            window.location.hash && setTimeout(() => window.location.href = window.location.hash, 50);
-          });
-        }
-        this.markdown = null;
-         */
       },
       tocRendered(tocHTML) {
         if (this.tocShow) this.toc = tocHTML;
