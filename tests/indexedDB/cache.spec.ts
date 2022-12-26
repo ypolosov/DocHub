@@ -1,10 +1,10 @@
 import {describe, expect, it} from '@jest/globals';
 
-import * as cache from 'storage/indexedDB/cache';
+import * as cache from '@/storage/indexedDB/cache';
 
 import { checkIdbIdType } from '../helpers/types';
 
-import config from 'storage/indexedDB/cache/config.json';
+import config from '@/storage/indexedDB/cache/config.json';
 import idbCacheData from '../default/idbCacheData.json';
 
 const TEST_URL = 'TEST_URL';

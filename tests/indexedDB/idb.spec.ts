@@ -1,9 +1,9 @@
 import {describe, expect, it} from '@jest/globals';
 
-import * as idb from 'storage/indexedDB/core/idb';
+import * as idb from '@/storage/indexedDB/core/idb';
 
-import { TIdbEvent } from 'storage/indexedDB/types/idb.types';
-import { dbName, version } from 'storage/indexedDB/cache/config.json';
+import { TIdbEvent } from '@/storage/indexedDB/types/idb.types';
+import { dbName, version } from '@/storage/indexedDB/cache/config.json';
 
 describe('idb', (): void => {
 	describe('openDB', (): void => {
