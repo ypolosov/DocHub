@@ -10,7 +10,7 @@ export type TIdbState = {
 export default (async(): Promise<TIdbState> => {
   if (!self.indexedDB) {
     console.warn('[indexedDB]: Браузер не поддерживает indexedDB!');
-  } else if (!env.isCached) {
+  } else if (!env.cache) {
     console.warn('[indexedDB]: Кэширование отключено.');
   } else {
     /**

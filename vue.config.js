@@ -91,11 +91,11 @@ let config = {
         }
 			]
 		},
-    resolve: {
-      extensions: ['.ts', '.js']
-    },
     output: {
       filename: '[name].js'
+    },
+    resolve: {
+      extensions: ['.ts', '.js']
     }
 	}    
 };

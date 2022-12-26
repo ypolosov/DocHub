@@ -26,7 +26,7 @@ const responseErrorInterceptor = (error) => {
 
 axios.interceptors.request.use(async(params) => {
 
-  if (env.isCached) {
+  if (env.cache) {
     await requestCacheInterceptor(params);
   }
 
@@ -52,7 +52,7 @@ axios.interceptors.response.use(async(response) => {
     }
   }
 
-  if (env.isCached) {
+  if (env.cache) {
     const reRequest = await responseCacheInterceptor(response);
 
     if (reRequest) {
