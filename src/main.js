@@ -47,7 +47,7 @@ let store = new Vuex.Store(gitlab);
 window.Vuex = store;
 store.dispatch('init');
 
-Vue.component('DocHubObject', DocHubObject);
+Vue.component('DochubObject', DocHubObject);
 Vue.component('DochubDoc', DocHubDoc);
 Vue.component('DochubContext', Context);
 Vue.component('DochubComponent', Component);

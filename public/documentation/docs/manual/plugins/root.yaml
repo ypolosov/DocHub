@@ -1,5 +1,9 @@
 docs:
-  test_html:
-    location: HTML
+  dochub.plugins.intro:
+    location: DocHub/Руководство/Плагины
+    type: markdown
+    source: introduction.md
+  dochub.plugins.example:
+    location: DocHub/Руководство/Плагины/Пример
     type: html
-    source: examples/example.html
+    source: examples/example.html    

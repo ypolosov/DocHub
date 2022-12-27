@@ -2,7 +2,7 @@
   <div>
     test2sssdsss
     <div v-html="content" />
-    <doc-hub-object src="@document/dochub.example.swgr" />
+    <dochub-object src="@document/dochub.example.swgr" />
   </div>
 </template>
 
