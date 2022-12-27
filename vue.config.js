@@ -31,8 +31,8 @@ plugins.push(new PluginMaker());
 
 if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 	plugins.push(new HtmlWebpackPlugin({
-		filename: 'plugin.html', 
-		template: 'src/plugin.html', 
+		filename: 'plugin.html',
+		template: 'src/plugin.html',
 		inlineSource: '.(woff(2)?|ttf|eot|svg|js|css)$',
 		inject: true
 		/* ,
@@ -75,13 +75,29 @@ let config = {
 					test: /\.mjs$/,
 					include: /node_modules/,
 					type: 'javascript/auto'
-				}
+				},
+				{
+          test: /\.tsx?$/,
+          use: [
+            {
+              loader: 'ts-loader',
+              options: {
+                compilerOptions: {
+                  noEmit: false
+                }
+              }
+            }
+          ]
+        }
 			]
 		},
-		output: {
-			filename: '[name].js'
-		}
-	}
+    output: {
+      filename: '[name].js'
+    },
+    resolve: {
+      extensions: ['.ts', '.js']
+    }
+	}    
 };
 
 
