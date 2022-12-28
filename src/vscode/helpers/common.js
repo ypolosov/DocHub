@@ -7,11 +7,11 @@ export function normalizeResponse(type, content) {
 
 	if (type === 'yaml') {
 		return YAML.parse(content);
-	} 
+	}
 
 	if (type === 'json') {
 		return JSON.parse(content);
-	} 
+	}
 
 	if (type === 'plantuml') {
 		return content;

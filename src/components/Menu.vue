@@ -45,7 +45,8 @@
         currentRoute: this.$router.currentRoute.fullPath,
         expands: {
           architect: true,
-          docs: true
+          docs: true,
+          menuCache: null
         }
       };
     },
@@ -88,10 +89,13 @@
           }
         };
         expand(this.treeMenu);
+        
         return result;
       },
 
       treeMenu() {
+        if (this.menuCache) return this.menuCache;
+
         const result = { items: {} };
         (query.expression(query.menu()).evaluate(this.manifest) || []).map((item) => {
           const location = item.location.split('/');
@@ -117,15 +121,18 @@
           }
         });
 
+        this.$nextTick(() => this.menuCache = result);
+
         return result;
       }
     },
     watch: {
+      manifest() {
+        this.menuCache = null;
+      },
       $route(to) {
         this.currentRoute = to.fullPath;
       }
-    },
-    mounted() {
     },
     methods: {
       isMenuItemSelected(item) {

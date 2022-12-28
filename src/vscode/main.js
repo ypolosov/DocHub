@@ -1,4 +1,6 @@
 // import '@mdi/font/css/materialdesignicons.css';
+import '../../node_modules/@mdi/font/fonts/materialdesignicons-webfont.woff2';
+import '../../node_modules/@mdi/font/css/materialdesignicons.min.css';
 
 import Vue from 'vue';
 import App from './app/components/app.vue';
@@ -18,6 +20,8 @@ import VueSplit from 'vue-split-panel';
 
 import GlobalMixin from '@/mixins/global';
 
+import '../storage/indexedDB';
+
 import { vuetify } from '@/vscode/app/plugins/vuetify';
 import { createRouter } from '@/vscode/create-router';
 import { createProviders } from './create-providers';
@@ -26,6 +30,8 @@ import { createStore } from './store/store';
 
 import '@/assets/styles/main.css';
 import 'swagger-ui/dist/swagger-ui.css';
+
+window.DocHub = {};
 
 Vue.use(VueSplit);
 Vue.component('DochubDoc', DocHubDoc);
@@ -81,4 +87,3 @@ export { main };
 if (!env.isVsPlugin()) {
 	main();
 }
-

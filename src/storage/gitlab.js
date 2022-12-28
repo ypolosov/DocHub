@@ -10,11 +10,15 @@ import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
 import entities from '@/helpers/entities';
 import env from '@/helpers/env';
-import {MANIFEST_MODES} from '@/manifest/enums/manifest-modes.enum';
+import manifest_parser from '../manifest/manifest_parser';
+import plugins from './plugins';
 
 const axios = require('axios');
 
 export default {
+	modules: {
+		plugins
+	},
 	state: {
 		// Признак загрузки данных
 		isReloading: true,
@@ -97,6 +101,7 @@ export default {
 	actions: {
 		// Action for init store
 		init(context) {
+			context.dispatch('plugins/init');
 			const errors = {
 				syntax: null,
 				net: null
@@ -123,8 +128,8 @@ export default {
 				if (!Object.keys(context.state.manifest || {}).length) {
 					context.commit('setCriticalError', true);
 				}
-				entities(parser.manifest[MANIFEST_MODES.AS_IS]);
-				rules(parser.manifest[MANIFEST_MODES.AS_IS],
+        entities(parser.manifest[manifest_parser.MODE_AS_IS]);
+        rules(parser.manifest[manifest_parser.MODE_AS_IS],
 					(problems) => context.commit('appendProblems', problems),
 					(error) => {
 						// eslint-disable-next-line no-console

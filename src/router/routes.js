@@ -1,6 +1,4 @@
 import Doc from '../components/Docs/DocHubDoc';
-import Conditions from '../components/Conditions';
-import DiffViewer from '../components/DiffViewer';
 import Main from '../components/Main';
 import config from '../../config';
 import consts from '../consts';
@@ -31,107 +29,95 @@ const middleware = (route) => {
 };
 
 const routes = [
-	{
-		name: 'main',
-		path: '/main',
-		component: Main,
-		props: middleware
-	},
-	{
-		name: 'conditions',
-		path: '/diff/:source/:target',
-		component: Conditions,
-		props: middleware
-	},
-	{
-		name: 'diff',
-		path: '/diff/:source/:target/:mode',
-		component: DiffViewer,
-		props: middleware
-	},
-	{
-		name: 'doc',
-		path: '/docs/:document',
-		component: Doc,
-		props: middleware
-	},
-	{
-		name: 'architect',
-		path: '/architect',
-		component: ComponentsMindmap,
-		props: middleware
-	},
-	{
-		name: 'aspects',
-		path: '/aspects',
-		component: AspectsMindmap,
-		props: middleware
-	},
-	{
-		name: 'contexts',
-		path: '/architect/contexts/:context',
-		component: Context,
-		props: middleware
-	},
-	{
-		name: 'component',
-		path: '/architect/components/:component',
-		component: Component,
-		props: middleware
-	},
-	{
-		name: 'aspect',
-		path: '/architect/aspects/:aspect',
-		component: Aspect,
-		props: middleware
-	},
-	{
-		name: 'radar',
-		path: '/techradar',
-		component: Radar,
-		props: middleware
-	},
-	{
-		name: 'radar-section',
-		path: '/techradar/:section',
-		component: Radar,
-		props: middleware
-	},
-	{
-		name: 'technology',
-		path: '/technology/:technology',
-		component: Technology,
-		props: middleware
-	},
-	{
-		name: 'problems',
-		path: '/problems/:subject',
-		component: Problems,
-		props: middleware
-	},
-	{
-		name: 'problems',
-		path: '/problems',
-		component: Problems,
-		props: middleware
-	},
-	{
-		name: 'devtool',
-		path: '/devtool',
-		component: DevTool,
-		props: middleware
-	},
-	{
-		name: 'entities',
-		path: '/entities/:entity/:presentation',
-		component: Entity,
-		props: middleware
-	},
-	{
-		name: 'Empty',
-		path: '*',
-		component: Empty
-	}
+  {
+    name: 'main',
+    path: '/main',
+    component: Main,
+    props: middleware
+  },
+  {
+    name: 'doc',
+    path: '/docs/:document',
+    component: Doc,
+    props: middleware
+  },
+  {
+    name: 'architect',
+    path: '/architect',
+    component: ComponentsMindmap,
+    props: middleware
+  },
+  {
+    name: 'aspects',
+    path: '/aspects',
+    component: AspectsMindmap,
+    props: middleware
+  },
+  {
+    name: 'contexts',
+    path: '/architect/contexts/:context',
+    component: Context,
+    props: middleware
+  },
+  {
+    name: 'component',
+    path: '/architect/components/:component',
+    component: Component,
+    props: middleware
+  },
+  {
+    name: 'aspect',
+    path: '/architect/aspects/:aspect',
+    component: Aspect,
+    props: middleware
+  },
+  {
+    name: 'radar',
+    path: '/techradar',
+    component: Radar,
+    props: middleware
+  },
+  {
+    name: 'radar-section',
+    path: '/techradar/:section',
+    component: Radar,
+    props: middleware
+  },
+  {
+    name: 'technology',
+    path: '/technology/:technology',
+    component: Technology,
+    props: middleware
+  },
+  {
+    name: 'problems',
+    path: '/problems/:subject',
+    component: Problems,
+    props: middleware
+  },
+  {
+    name: 'problems',
+    path: '/problems',
+    component: Problems,
+    props: middleware
+  },
+  {
+    name: 'devtool',
+    path: '/devtool',
+    component: DevTool,
+    props: middleware
+  },
+  {
+    name: 'entities',
+    path: '/entities/:entity/:presentation',
+    component: Entity,
+    props: middleware
+  },
+  {
+    name: 'Empty',
+    path: '*',
+    component: Empty
+  }
 ];
 
 export default routes;

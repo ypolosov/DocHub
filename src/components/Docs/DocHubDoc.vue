@@ -1,55 +1,56 @@
 <template>
-  <div style="height: 100%;">
+  <div>
     <empty v-if="isEmpty" />
     <div v-else>
-      <template v-if="isCorrectType">
-        <async-api-component
-          v-if="docType === DocTypes.ASYNCAPI"
-          v-bind:document="document"
-          v-bind:params="params"
-          v-bind:profile-resolver="profileResolver"
+      <template v-if="isCorrectType === 'inline'">
+        <async-api-component 
+          v-if="docType === DocTypes.ASYNCAPI" 
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
           v-bind:url-resolver="urlResolver" />
-        <swagger
+        <swagger 
           v-if="docType === DocTypes.OPENAPI"
           v-bind:document="document"
-          v-bind:params="params"
-          v-bind:profile-resolver="profileResolver"
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
           v-bind:url-resolver="urlResolver" />
         <plantuml
           v-if="docType === DocTypes.PLANTUML"
           v-bind:document="document"
-          v-bind:params="params"
-          v-bind:profile-resolver="profileResolver"
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
           v-bind:url-resolver="urlResolver" />
-        <doc-markdown
+        <doc-markdown 
           v-if="docType === DocTypes.MARKDOWN"
-          v-bind:document="document"
-          v-bind:params="params"
-          v-bind:profile-resolver="profileResolver"
-          v-bind:url-resolver="urlResolver"
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
+          v-bind:url-resolver="urlResolver" 
           v-bind:toc-show="!inline" />
         <doc-table
           v-if="docType === DocTypes.TABLE"
-          v-bind:document="document"
-          v-bind:params="params"
-          v-bind:profile-resolver="profileResolver"
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
           v-bind:url-resolver="urlResolver" />
         <doc-mermaid
           v-if="docType === DocTypes.MERMAID"
-          v-bind:document="document"
-          v-bind:params="params"
-          v-bind:profile-resolver="profileResolver"
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
           v-bind:url-resolver="urlResolver" />
         <doc-network
           v-if="docType === DocTypes.NETWORK"
-          v-bind:document="document"
-          v-bind:params="params"
-          v-bind:profile-resolver="profileResolver"
+          v-bind:document="document" 
+          v-bind:params="params" 
+          v-bind:profile-resolver="profileResolver" 
           v-bind:url-resolver="urlResolver" />
       </template>
-      <v-alert v-else icon="warning">
+      <component v-bind:is="pluginComponent" v-if="isCorrectType === 'plugin'" />
+      <v-alert v-if="isCorrectType === false" icon="warning">
         Неизвестный тип документа [{{ docType }}]
-      </v-alert>
+      </v-alert>      
     </div>
   </div>
 </template>
@@ -65,7 +66,7 @@
   import DocMermaid from './DocMermaid.vue';
   import DocNetwork from './DocNetwork.vue';
   import Empty from '../Controls/Empty.vue';
-
+  
   export default {
     name: 'Document',
     components: {
@@ -82,14 +83,14 @@
       document: { type: String, default: '' },
       inline: { type: Boolean, default: false },
       // Формирование профиля документа
-      profileResolver: {
+      profileResolver: { 
         type: Function,
         default: function() {
           return this.manifest?.docs?.[this.document] || {};
         }
       },
       // Определение размещения объекта
-      urlResolver: {
+      urlResolver: { 
         type: Function,
         default: function() {
           let result = this.profile ?
@@ -102,8 +103,8 @@
         }
       },
       // Параметры передающиеся в запросы документа
-      params: {
-        type: Object,
+      params: { 
+        type: Object, 
         default() {
           return this.$router.query;
         }
@@ -115,20 +116,24 @@
       };
     },
     computed: {
+      pluginComponent() {
+        return `plugin-doc-${this.docType}`;
+      },
       profile() {
         return this.profileResolver();
       },
       isEmpty() {
-        return !this.profile;
+        return !this.profile || !this.profile.type || (this.isCorrectType === false && !this.$store.state.plugins.ready);
+      },
+      info() {
+        return this.$store.state.plugins.documents[this.docType];
       },
       isCorrectType() {
         for(const key in DocTypes) {
-          if (DocTypes[key] === this.docType) return true;
+          if (DocTypes[key] === this.docType) return 'inline';
         }
+        if (this.$store.state.plugins.documents[this.docType]) return 'plugin';
         return false;
-      },
-      docs() {
-        return this.manifest?.docs || {};
       },
       docType() {
         return (this.profile.type || 'unknown').toLowerCase();

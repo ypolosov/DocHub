@@ -1,5 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+const HtmlWebpackInlineSourcePlugin = require('@effortlessmotion/html-webpack-inline-source-plugin');
 const path = require('path');
 
 module.exports = {
@@ -29,8 +29,24 @@ module.exports = {
 					test: /\.mjs$/,
 					include: /node_modules/,
 					type: 'javascript/auto'
-				}
-			]
-		}
+				},
+        {
+          test: /\.tsx?$/,
+          use: [
+            {
+              loader: 'ts-loader',
+              options: {
+                compilerOptions: {
+                  noEmit: false
+                }
+              }
+            }
+          ]
+        }
+      ]
+		},
+    resolve: {
+      extensions: ['.ts', '.js']
+    }
 	}
 };
