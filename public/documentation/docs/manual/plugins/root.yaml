@@ -3,6 +3,10 @@ docs:
     location: DocHub/Руководство/Плагины
     type: markdown
     source: introduction.md
+  dochub.plugins.interface:
+    location: DocHub/Руководство/Плагины/Интерфейсы ядра
+    type: markdown
+    source: interface.md
   dochub.plugins.example:
     location: DocHub/Руководство/Плагины/Пример
     type: html

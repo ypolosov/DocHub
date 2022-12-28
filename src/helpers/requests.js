@@ -4,40 +4,64 @@ import config from '../../config';
 import YAML from 'yaml';
 import crc16 from './crc16';
 import env from './env';
+import { responseCacheInterceptor, requestCacheInterceptor } from './cache';
 
 // CRC16 URL задействованных файлов
 const tracers = {};
 
 // Add a request interceptor
 
-axios.interceptors.request.use(function(params) {
-	if (config.gitlab_server && ((new URL(params.url)).host === (new URL(config.gitlab_server)).host)) {
-		if (!params.headers) params.headers = {};
-		// eslint-disable-next-line no-undef
-		params.headers['Authorization'] = `Bearer ${config.porsonalToken || Vuex.state.access_token}`;
-	}
-	return params;
-}, function(error) {
-	return Promise.reject(error);
-});
+const responseErrorInterceptor = (error) => {
+  if (error.response.status === 304) {
+    if (error.config.lastCachedResult) {
+      return {
+        ...error.response,
+        data: error.config.lastCachedResult.data
+      };
+    }
+  }
 
-axios.interceptors.response.use(function(response) {
-	if (response.config.responseHook) 
-		response = response.config.responseHook(response);
-	if (typeof response.data === 'string') {
-		if (!response.config.raw) {
-			const url = response.config.url.split('?')[0].toLowerCase();
-			if ((url.indexOf('.json/raw') >= 0) || (url.slice(-5) === '.json'))
-				response.data = JSON.parse(response.data);
-			else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
-				response.data = YAML.parse(response.data);
-		}
-	}
-	return response;
-}, function(error) {
-	// Do something with request error
-	return Promise.reject(error);
-});
+  return Promise.reject(error);
+};
+
+axios.interceptors.request.use(async(params) => {
+
+  if (env.cache) {
+    await requestCacheInterceptor(params);
+  }
+
+  if (config.gitlab_server && ((new URL(params.url)).host === (new URL(config.gitlab_server)).host)) {
+    if (!params.headers) params.headers = {};
+    // eslint-disable-next-line no-undef
+    params.headers['Authorization'] = `Bearer ${config.porsonalToken || Vuex.state.access_token}`;
+  }
+
+  return params;
+}, (error) =>  Promise.reject(error));
+
+axios.interceptors.response.use(async(response) => {
+  if (response.config.responseHook)
+    response.config.responseHook(response);
+  if (typeof response.data === 'string') {
+    if (!response.config.raw) {
+      const url = response.config.url.split('?')[0].toLowerCase();
+      if ((url.indexOf('.json/raw') >= 0) || (url.slice(-5) === '.json'))
+        response.data = JSON.parse(response.data);
+      else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
+        response.data = YAML.parse(response.data);
+    }
+  }
+
+  if (env.cache) {
+    const reRequest = await responseCacheInterceptor(response);
+
+    if (reRequest) {
+      return axios(reRequest);
+    }
+  }
+
+  return response;
+}, responseErrorInterceptor);
 
 if(window.$PAPI) {
 	window.$PAPI.middleware = function(response) {

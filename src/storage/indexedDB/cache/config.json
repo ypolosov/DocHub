@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "dbName": "DocHub",
+  "storeName": "cache",
+  "keyOptions": {
+    "keyPath": "id",
+    "autoIncrement": true
+  },
+  "indexes": [
+    {
+      "name": "idIndex",
+      "keyPath": "id",
+      "options": {
+        "unique": false,
+        "multiEntry": false
+      }
+    },
+    {
+      "name": "eTagIndex",
+      "keyPath": "eTag",
+      "options": {
+        "unique": false,
+        "multiEntry": false
+      }
+    }
+  ]
+}
