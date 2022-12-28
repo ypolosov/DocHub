@@ -69,8 +69,8 @@ if(window.$PAPI) {
 		switch(type) {
 		case 'yaml': response.data = YAML.parse(response.data); break;
 		case 'json': response.data = JSON.parse(response.data); break;
-		case 'jpg': 
-			type = 'jpeg'; 
+		case 'jpg':
+			type = 'jpeg';
 		// eslint-disable-next-line no-fallthrough
 		case 'jpeg':
 		case 'png':
@@ -92,14 +92,15 @@ export default {
 		// eslint-disable-next-line no-useless-escape
 		return url && url.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.?[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
 	},
-	isExtarnalURI(uri) {
+	isExternalURI(uri) {
 		return (uri.slice(0, window.origin.length) !== window.origin) && this.isURL(uri);
 	},
 	getSourceRoot(){
 		if(env.isPlugin()) {
 			return 'plugin:/idea/source/';
-		} else 
+		} else {
 			return window.origin + '/';
+		}
 	},
 	getGitLabProjectID(uri) {
 		let result = undefined;
@@ -132,6 +133,7 @@ export default {
 			if (!baseURI) {
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
+
 			if ((new URL(baseURI)).protocol === 'gitlab:') {
 				const segments = baseURI.split('@');
 				if (segments.length !== 2) {
@@ -145,7 +147,7 @@ export default {
 					result = `${segments[0]}@${base.slice(0, base.length - 1).join('/')}${base.length > 1 ? '/' : ''}${uri}`;
 				}
 			} else {
-				let slices = baseURI.split('/');
+				const slices = baseURI.split('/');
 				result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri).url;
 			}
 		}
@@ -217,14 +219,15 @@ export default {
 		return tracers[crc16(url)];
 	},
 
-	// axios_params - параметры передавамые в axios 
+	// axios_params - параметры передавамые в axios
 	// 		responseHook - содержит функцию обработыки ответа перед работой interceptors
 	//		raw - если true возвращает ответ без обработки
 	request(uri, baseURI, axios_params) {
 		let params = Object.assign({}, axios_params);
+
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
-		if (env.isPlugin() && params.url.split(':')[0] === 'plugin') {
+		if (env.isPlugin() && params.url.split(':')[0] === 'plugin' || env.isVsPlugin()) {
 			this.trace(params.url);
 			return window.$PAPI.request(params);
 		} else {

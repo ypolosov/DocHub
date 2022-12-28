@@ -31,7 +31,7 @@
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
   import href from '../../helpers/href';
-  
+
   export default {
     name: 'DocMarkdown',
     components: {
@@ -136,7 +136,7 @@
   border-radius: 4px;
   overflow: auto;
 }
-.markdown-document code[class*="language-"], 
+.markdown-document code[class*="language-"],
 .markdown-document pre[class*="language-"] {
   color: black;
   font-weight: 300;

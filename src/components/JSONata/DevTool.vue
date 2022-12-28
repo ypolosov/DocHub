@@ -12,7 +12,7 @@
         <pre v-if="error" class="area" v-html="errorExplain" />
         <textarea v-else v-model="result" class="area" readonly style="background-color: #f5f5f5;" wrap="off" />
       </split-area>
-    </Split>
+    </split>
   </v-container>
 </template>
 

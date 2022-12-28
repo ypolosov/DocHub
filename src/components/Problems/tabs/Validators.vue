@@ -1,7 +1,7 @@
 <template>
   <v-card class="card-item">
     <v-card-title>
-      <v-icon left style="color:#f00">report_problem</v-icon>
+      <v-icon left style="color:#f00">mdi-alert</v-icon>
       <span class="title">Валидаторы</span>
     </v-card-title>
     <v-card-text class="headline font-weight-bold">

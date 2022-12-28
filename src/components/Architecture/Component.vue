@@ -18,7 +18,7 @@
                     <v-list-item v-for="(item) in summary" v-bind:key="item.title" v-bind:link="!!item.link">
                       <v-list-item-content v-on:click="goToLink(item.link)">
                         <v-list-item-subtitle v-text="item.title" />
-                      
+
                         <v-list-item-title>
                           <v-icon v-if="item.required && !item.content" left color="red">error</v-icon>
                           <a v-else-if="isURL(item.content)" v-bind:href="item.content" target="_blank">{{ item.content }}</a>
@@ -45,17 +45,17 @@
 
               <src-locations v-bind:locations="srcLocations" />
 
-              <v-card 
+              <v-card
                 v-for="widget in widgets.left"
                 v-bind:key="widget.id"
                 class="card-item"
-                xs12 
+                xs12
                 md12>
                 <v-card-title>
                   <v-icon left>description</v-icon>
                   <span class="title">{{ widget.title }}</span>
                 </v-card-title>
-                <entity 
+                <entity
                   entity="components"
                   v-bind:presentation="widget.presentation"
                   v-bind:params="widget.params" />
@@ -66,24 +66,24 @@
 
         <v-flex xs12 md7 d-flex>
           <v-layout wrap>
-            <tab-contexts 
+            <tab-contexts
               v-if="contexts.length"
               style="width: 100%"
               v-bind:contexts="contexts"
               v-bind:manifest="manifest"
               d-flex />
 
-            <v-card 
+            <v-card
               v-for="widget in widgets.right"
               v-bind:key="widget.id"
-              class="card-item" 
-              xs12 
+              class="card-item"
+              xs12
               md7>
               <v-card-title>
                 <v-icon left>description</v-icon>
                 <span class="title">{{ widget.title }}</span>
               </v-card-title>
-              <entity 
+              <entity
                 entity="components"
                 v-bind:presentation="widget.presentation"
                 v-bind:params="widget.params" />
@@ -92,17 +92,17 @@
         </v-flex>
       </v-layout>
       <v-layout v-if="widgets.fill.length" wrap style="height: auto">
-        <v-card 
+        <v-card
           v-for="widget in widgets.fill"
           v-bind:key="widget.id"
-          class="card-item" 
-          xs12 
+          class="card-item"
+          xs12
           md12>
           <v-card-title>
             <v-icon left>description</v-icon>
             <span class="title">{{ widget.title }}</span>
           </v-card-title>
-          <entity 
+          <entity
             entity="components"
             v-bind:presentation="widget.presentation"
             v-bind:params="widget.params" />
@@ -173,6 +173,13 @@
         if (env.isPlugin()) {
           result = result.map((item) => ({
             title: item.title.slice(19),
+            link: `${item.link}?entity=component&id=${this.component}`
+          }));
+        }
+
+        if (env.isVsPlugin()) {
+          result = result.map((item) => ({
+            title: item.title.replace('https://file+.vscode-resource.vscode-cdn.net', ''),
             link: `${item.link}?entity=component&id=${this.component}`
           }));
         }

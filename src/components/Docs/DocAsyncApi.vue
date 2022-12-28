@@ -11,6 +11,7 @@
   import requests from '@/helpers/requests';
   import mustache from 'mustache';
   import DocMixin from './DocMixin';
+  import { asyncApiStyles } from '@/components/Docs/styles/asyncapi';
 
   export default {
     mixins: [DocMixin],
@@ -34,7 +35,13 @@
 
         requests.request(this.url, undefined, params)
           .then(this.renderRefSection)
-          .catch((e) => this.error = e);
+          .catch((e) => this.error = e)
+          .finally(() => {
+            if (this.$refs?.asyncapi) {
+              const html = this.$refs.asyncapi.shadowRoot.querySelector('style');
+              html.innerHTML = asyncApiStyles;
+            }
+          });
 
         this.sourceRefresh();
       }

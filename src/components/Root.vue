@@ -147,18 +147,26 @@
       },
       gotoCode() {
         // eslint-disable-next-line no-console
-        console.info('For GOTO ', window.location.hash);
+        // console.info('For GOTO ', window.location.hash);
         const struct = window.location.hash.split('/');
         switch (struct[1]) {
           case 'architect': {
             switch (struct[2]) {
-              case 'contexts': window.$PAPI.goto(null, 'context', struct[3]); break;
-              case 'aspects': window.$PAPI.goto(null, 'aspect', struct[3]); break;
-              case 'components': window.$PAPI.goto(null, 'component', struct[3]); break;
+              case 'contexts': 
+                window.$PAPI.goto(null, 'context', struct[3]); 
+                break;
+              case 'aspects': 
+                window.$PAPI.goto(null, 'aspect', struct[3]); 
+                break;
+              case 'components': 
+                window.$PAPI.goto(null, 'component', struct[3]); 
+                break;
             }
             break;
           }
-          case 'docs': window.$PAPI.goto(null, 'document', struct[2]); break;
+          case 'docs': 
+            window.$PAPI.goto(null, 'document', struct[2]); 
+            break;
         }
       }
     }

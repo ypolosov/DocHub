@@ -16,6 +16,28 @@ if (env.isPlugin() && (env.isProduction())) {
 	}, 300);
 }
 
+if (env.isVsPlugin()) {
+	window.addEventListener('message', (event) => {
+		const { command, content } = event?.data;
+
+		if (command === 'update-source-file') {
+			for (const action in content) {
+				(listeners[action] || []).forEach((listener) => {
+					listener(content[action]);
+				});
+			}
+		}
+
+		if (command === 'navigate') {
+			for (const action in content) {
+				(listeners[action] || []).forEach((listener) => {
+					listener(content[action]);
+				});
+			}
+		}
+	});
+}
+
 export default {
 	appendListener(action, listener) {
 		const arr = listeners[action] = (listeners[action] || []);
