@@ -10,7 +10,7 @@ export default {
 		const ref = event.currentTarget.href.baseVal || event.currentTarget.href;
 		if (!ref.length) return false;
 		try {
-			if (requests.isExtarnalURI(ref)) {
+			if (requests.isExternalURI(ref)) {
 				window.open(ref, 'blank_');
 			} else {
 				const url = new URL(ref, window.location);
@@ -21,7 +21,7 @@ export default {
 				window.Router.push({ path: ref.split('#')[1]});
 			}
 		}
-      
+
 		return false;
 	},
 

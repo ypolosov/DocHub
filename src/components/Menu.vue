@@ -56,10 +56,10 @@
       problemsCount() {
         let result = 0;
         this.problems.map((validator) => {
-          (validator.items || []).map((problem) => 
+          (validator.items || []).map((problem) =>
             !((this.manifest.rules || {}).exceptions || {})[problem.uid] && result ++
           );
-        }); 
+        });
         return result;
       },
       problems() {
@@ -144,7 +144,7 @@
 
       onClickMenuItem(item) {
         if (item.route)
-          if (requests.isExtarnalURI(item.route)) {
+          if (requests.isExternalURI(item.route)) {
             window.open(item.route, '_blank');
           } else {
             this.$router.push({ path: item.route });

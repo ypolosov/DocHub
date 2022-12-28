@@ -5,8 +5,10 @@
   "scripts": {
     "lib": "vue-cli-service build --name test --target lib",
     "plugin": "export VUE_APP_DOCHUB_MODE=plugin && vue-cli-service build",
-    "serve": "vue-cli-service serve",
+    "serve": "cross-env vue-cli-service serve",
     "build": "vue-cli-service build",
+    "serve-vscode": "cross-env VUE_APP_BUILD_VSCODE_EXTENSION=true vue-cli-service serve",
+    "build-vscode": "cross-env VUE_APP_BUILD_VSCODE_EXTENSION=true VUE_APP_DOCHUB_MODE=\"vs-plugin\" vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test": "jest --watch",
     "meta-import": "node src/tools/meta/import.js"
@@ -18,12 +20,13 @@
     "@mermaid-js/mermaid-mindmap": "9.3.0",
     "ajv": "8.11.0",
     "ajv-i18n": "4.2.0",
-    "axios": "^0.21.4",
+    "axios": "0.21.4",
     "core-js": "3.26.1",
     "dateformat": "3.0.3",
     "jsonata": "1.8.6",
     "mustache": "4.2.0",
     "swagger-ui": "3.52.5",
+    "uuid": "8.3.2",
     "vis-network": "9.1.2",
     "vue": "2.7.14",
     "vue-cookie": "1.1.4",
@@ -63,7 +66,9 @@
     "vue-monaco": "0.3.2",
     "vue-style-loader": "3.1.2",
     "vue-template-compiler": "2.7.14",
-    "webpack-pwa-manifest": "4.3.0"
+    "webpack-pwa-manifest": "4.3.0",
+    "generator-code": "1.7.1",
+    "yo": "4.3.0"
   },
   "plugins": {
     "inbuilt": [

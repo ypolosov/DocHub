@@ -2,6 +2,7 @@ import requests from '../helpers/requests';
 import gitlab from '../helpers/gitlab';
 import property from './prototype';
 import env from '../helpers/env';
+import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
 
 let touchProjects = {};
 
@@ -41,10 +42,6 @@ const parser = {
 			this.onReloaded(this);
 		}
 	},
-	// Режимы манифестов
-	MODE_AS_IS : 'as-is', // Как есть
-	MODE_AS_WAS : 'as-was', // Как было
-	MODE_TO_BE : 'to-be', // Как будет
 	// Журнал объединений
 	mergeMap: [],
 	// Итоговый манифест
@@ -54,7 +51,7 @@ const parser = {
 		const type = typeof value;
 		if (type === 'string') {
 			// В значении JSONata запрос
-			if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(value)) 
+			if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(value))
 				return 'jsonata';
 			else {
 				const ext = value.split('.').pop();
@@ -65,19 +62,19 @@ const parser = {
 				// В значении ссылка на файл
 					return 'id';
 			}
-		} else 
+		} else
 			return type;
 	},
 	// Реализует наследование
 	expandPrototype() {
-		property.expandAll(this.manifest[this.manifest.mode || this.MODE_AS_IS]);
+		property.expandAll(this.manifest[this.manifest.mode || MANIFEST_MODES.AS_IS]);
 	},
 	// Преобразование относительных ссылок в прямые
 	propResolver: {
 		docs(item, baseURI) {
-			['source', 'origin', 'data'].forEach((field) => 
-				item[field] 
-                && (parser.fieldValueType(item[field]) === 'ref') 
+			['source', 'origin', 'data'].forEach((field) =>
+				item[field]
+                && (parser.fieldValueType(item[field]) === 'ref')
                 && (item[field] = requests.makeURIByBaseURI(item[field], baseURI))
 			);
 		},
@@ -140,7 +137,7 @@ const parser = {
 			this.pushToMergeMap(path, result, location);
 		} else if (Array.isArray(source)) {
 			if (Array.isArray(destination)) {
-				result = JSON.parse(JSON.stringify(destination)).concat(JSON.parse(JSON.stringify(source)));
+				result = [...new Set(JSON.parse(JSON.stringify(destination)).concat(JSON.parse(JSON.stringify(source))))];
 			} else {
 				result = JSON.parse(JSON.stringify(source));
 			}
@@ -194,11 +191,12 @@ const parser = {
 		if (typeof data === 'string') {
 			const URI = requests.makeURIByBaseURI(data, baseURI);
 			this.incReqCounter();
-			requests.request(URI).then((response) => {
-				const context = this.getManifestContext(path);
-				context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
-				this.touchProjects(URI);
-			})
+			requests.request(URI)
+				.then((response) => {
+					const context = this.getManifestContext(path);
+					context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
+					this.touchProjects(URI);
+				})
 				.catch((e) => this.registerError(e, URI))
 				.finally(() => this.decReqCounter());
 		}
@@ -245,14 +243,15 @@ const parser = {
 	import(uri, subimport) {
 		if (!subimport) {
 			this.mergeMap = [];
-			this.manifest = { [this.MODE_AS_IS] : this.merge({}, this.makeBaseManifest(), uri)};
+			this.manifest = { [ MANIFEST_MODES.AS_IS ] : this.merge({}, this.makeBaseManifest(), uri)};
 			touchProjects = {};
 			this.incReqCounter();
 			// Подключаем манифест самого DocHub
 			// eslint-disable-next-line no-constant-condition
 			if (
 				(!env.isPlugin()) &&
-                ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
+				(!env.isVsPlugin()) &&
+				((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
 			) {
 				this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
 			}
@@ -266,7 +265,7 @@ const parser = {
 
 			// Определяем режим манифеста
 			// eslint-disable-next-line no-unused-vars
-			const mode = manifest.mode || this.MODE_AS_IS;
+			const mode = manifest.mode || MANIFEST_MODES.AS_IS;
 			this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
 			for (const section in manifest) {
@@ -291,7 +290,9 @@ const parser = {
 			}
 		})
 		// eslint-disable-next-line no-console
-			.catch((e) => this.registerError(e, uri))
+			.catch((e) => {
+				this.registerError(e, uri);
+			})
 			.finally(() => {
 				this.decReqCounter();
 			});

@@ -121,7 +121,7 @@
       }
     },
     methods: {
-      isExternalURI: (uri) => requests.isExtarnalURI(uri)
+      isExternalURI: (uri) => requests.isExternalURI(uri)
     }
   };
 </script>

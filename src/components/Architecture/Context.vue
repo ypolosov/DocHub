@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="height: 100%;">
     <empty v-if="isEmpty" />
     <template v-else-if="error">
       <v-alert v-bind:value="true" color="error" icon="warning">

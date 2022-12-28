@@ -48,9 +48,9 @@ if (env.isPlugin()) {
 	}
 }
 
-config.pumlServer = 
+config.pumlServer =
 	window.$PAPI?.settings?.render?.server
-	|| process.env.VUE_APP_PLANTUML_SERVER 
+	|| process.env.VUE_APP_PLANTUML_SERVER
 	|| 'www.plantuml.com/plantuml/svg/';
 
 config.pumlRequestType =

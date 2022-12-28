@@ -7,7 +7,6 @@
 </template>
 
 <script>
-
   import PlantUML from './PlantUML';
   import PlantUMLDSL from '!!raw-loader!../../assets/plantuml_dsl.txt';
   import C4ModelDSL from '!!raw-loader!../../assets/c4model_dsl.txt';
@@ -105,7 +104,8 @@
         }
 
         const renderCore = (
-          process.env.VUE_APP_DOCHUB_RENDER_CORE || window.$PAPI?.settings?.render?.mode || ''
+          process.env.VUE_APP_DOCHUB_RENDER_CORE ||
+          window.$PAPI?.settings?.render?.mode || ''
         ).toLowerCase();
 
         switch(renderCore)  {
@@ -234,8 +234,8 @@
                 namespace = namespace.namespaces[link.namespaces[i].id];
               }
               return namespace.components[link.id] && !namespace.components[link.id].extra;
-            })()) uml += 
-              link.link_title 
+            })()) uml +=
+              link.link_title
                 ? `${linkId}: [[http://#${encodeURI(linkId)} ${link.link_title || '⠀'}]]\n`
                 : `${linkId}: ⠀\n`;
           }
@@ -357,7 +357,7 @@
             const contactID = link.contract.id;
             linkTitle.style.cursor = 'pointer';
             linkTitle.addEventListener('click', () => {
-              if (requests.isExtarnalURI(contactID))
+              if (requests.isExternalURI(contactID))
                 window.open(contactID, '_blank');
               else
                 this.$router.push({ path: `/docs/${contactID}`});
@@ -382,7 +382,7 @@
           linkTitle.setAttribute('title', '');
           if (link.contract) {
             const contactID = link.contract.id;
-            const url = requests.isExtarnalURI(contactID) ? contactID : `/docs/${contactID}`;
+            const url = requests.isExternalURI(contactID) ? contactID : `/docs/${contactID}`;
             linkTitle.setAttribute('xlink:title', url);
             linkTitle.setAttribute('href', url);
           } else if (linkTitle) {

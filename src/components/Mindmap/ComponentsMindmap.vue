@@ -3,7 +3,6 @@
 </template>
 
 <script>
-
   import PlantUML from '../Schema/PlantUML';
   import query from '../../manifest/query';
   import jsonata from 'jsonata';
