@@ -72,8 +72,7 @@
   },
   "plugins": {
     "inbuilt": [
-      "plugins/html",
-      "plugins/svg"
+      "plugins/html"
     ]
   },
   "postcss": {
