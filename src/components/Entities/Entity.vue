@@ -80,8 +80,9 @@
       },
       urlResolver() {
         const result = this.presProfile ?
-          docs.urlFromProfile(this.presProfile,
-                              (this.$store.state.sources.find((item) => item.path === `/entities/${this.entity}`) || {}).location
+          docs.urlFromProfile(
+            this.presProfile,
+            this.$store.state.sources[`/entities/${this.entity}`][0]
           ): '';
         return `${result}?id=${this.entity}`;
       }

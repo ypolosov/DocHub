@@ -60,7 +60,7 @@
         return Object.assign({'source': '($)'}, (this.manifest.contexts || {})[this.context] || {}) ;
       },
       basePath() {
-        return (this.$store.state.sources.find((item) => item.path === `/contexts/${this.context}`) || {}).location;
+        return this.$store.state.sources[`/contexts/${this.context}`][0];
       },
       schema() {
         this.$nextTick(this.reloadCustomUML);
@@ -85,7 +85,7 @@
     methods : {
       reloadCustomUML() {
         if (!this.isCustomUML) return;
-        const basePath = (this.$store.state.sources.find((item) => item.path === `/contexts/${this.context}`) || {}).location;
+        const basePath = this.$store.state.sources[`/contexts/${this.context}`][0];
         requests.request(this.schema.uml, basePath)
           .then((response) => {
             this.customUML = response.data;

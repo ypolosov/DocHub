@@ -10,8 +10,8 @@ import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
 import entities from '@/helpers/entities';
 import env from '@/helpers/env';
-import manifest_parser from '../manifest/manifest_parser';
 import plugins from './plugins';
+import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
 
 const axios = require('axios');
 
@@ -121,15 +121,18 @@ export default {
 				errors.syntax && context.commit('appendProblems', errors.syntax);
 				errors.net && context.commit('appendProblems', errors.net);
 
+				const manifest = Object.freeze(parser.manifest);
 				// Обновляем манифест и фризим объекты
-				context.commit('setManifest', Object.freeze(parser.manifest));
+				context.commit('setManifest', manifest);
 				context.commit('setSources', Object.freeze(parser.mergeMap));
 				context.commit('setIsReloading', false);
 				if (!Object.keys(context.state.manifest || {}).length) {
 					context.commit('setCriticalError', true);
 				}
-        entities(parser.manifest[manifest_parser.MODE_AS_IS]);
-        rules(parser.manifest[manifest_parser.MODE_AS_IS],
+
+				const asis = manifest[MANIFEST_MODES.AS_IS];
+				entities(asis);
+				rules(asis,
 					(problems) => context.commit('appendProblems', problems),
 					(error) => {
 						// eslint-disable-next-line no-console

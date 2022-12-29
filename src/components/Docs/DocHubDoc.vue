@@ -99,9 +99,8 @@
         type: Function,
         default() {
           let result = this.profile ?
-            docs.urlFromProfile(this.profile, 
-                                (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
-            ): '';
+            docs.urlFromProfile(this.profile, this.$store.state.sources[`/docs/${this.document}`][0])
+            : '';
           result += result.indexOf('?') > 0 ? '&' : '?';
           result += `id=${this.document}`;
           return result;
@@ -147,7 +146,7 @@
     },
     methods: {
       baseURI() {
-        return (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location;
+        return this.$store.state.sources[`/docs/${this.document}`][0];
       },
       // Провайдер данных для плагинов
       getContentForPlugin(url) {
