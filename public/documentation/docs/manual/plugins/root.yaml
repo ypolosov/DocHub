@@ -10,4 +10,7 @@ docs:
   dochub.plugins.example:
     location: DocHub/Руководство/Плагины/Пример
     type: html
-    source: examples/example.html    
+    headers:
+      head1:
+        type: test
+    source: examples/example.html

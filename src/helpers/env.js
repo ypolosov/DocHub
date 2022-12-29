@@ -8,7 +8,9 @@ export default {
 	isProduction() {
 		return process.env.NODE_ENV === 'production';
 	},
-
+  isTraceJSONata() {
+    return (process.env.VUE_APP_DOCHUB_JSONATA_ANALYZER || 'N').toUpperCase() === 'Y';
+  },
   get cache() {
     const currentMethod = (process.env.VUE_APP_DOCHUB_CACHE || 'NONE').toUpperCase();
 
