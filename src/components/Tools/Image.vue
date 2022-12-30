@@ -23,6 +23,8 @@
     },
     methods: {
       reloadImage() {
+        console.info(this.src, this.baseURI);
+        debugger;
         requests.request(this.src, this.baseURI, {responseType: 'arraybuffer'})
           .then((response) => {
             this.data = URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type']}));
