@@ -102,10 +102,12 @@ export default {
 		// Action for init store
 		init(context) {
 			context.dispatch('plugins/init');
+
 			const errors = {
 				syntax: null,
 				net: null
 			};
+
 			context.commit('setRenderCore',
 				env.isPlugin() ? 'smetana' : 'graphviz'
 			);
