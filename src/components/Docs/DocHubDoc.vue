@@ -1,42 +1,15 @@
 <template>
   <div>
-    <template v-if="isCorrectType === 'inline'">
-      <async-api-component 
-        v-if="docType === DocTypes.ASYNCAPI" 
-        v-bind:params="params" 
-        v-bind:path="currentPath" />
-      <swagger 
-        v-if="docType === DocTypes.OPENAPI"
-        v-bind:params="params" 
-        v-bind:path="currentPath" />
-      <plantuml
-        v-if="docType === DocTypes.PLANTUML"
-        v-bind:params="params" 
-        v-bind:path="currentPath" />
-      <doc-markdown 
-        v-if="docType === DocTypes.MARKDOWN"
-        v-bind:params="params" 
-        v-bind:path="currentPath" />
-      <doc-table
-        v-if="docType === DocTypes.TABLE"
-        v-bind:params="params" 
-        v-bind:path="currentPath" />
-      <doc-mermaid
-        v-if="docType === DocTypes.MERMAID"
-        v-bind:params="params" 
-        v-bind:path="currentPath" />
-      <doc-network
-        v-if="docType === DocTypes.NETWORK"
-        v-bind:params="params" 
-        v-bind:path="currentPath" />
-    </template>
     <component 
-      v-bind:is="pluginComponent"
-      v-if="isCorrectType === 'plugin'"
+      v-bind:is="is"
+      v-if="is"
+      v-bind:inline="inline"
+      v-bind:params="params"
       v-bind:profile="profile"
       v-bind:path="currentPath"
-      v-bind:get-content="getContentForPlugin" />
-    <v-alert v-if="isCorrectType === false" icon="warning">
+      v-bind:get-content="getContentForPlugin"
+      v-bind:pull-data="pullData" />
+    <v-alert v-else icon="warning">
       Неизвестный тип документа [{{ docType }}]
     </v-alert>      
   </div>
@@ -53,6 +26,19 @@
   import DocNetwork from './DocNetwork.vue';
   import Empty from '../Controls/Empty.vue';
   import requests from '@/helpers/requests';
+  import query from '@/manifest/query';
+
+  // Встроенные типы документов
+  const inbuiltTypes = {
+    [DocTypes.ASYNCAPI]: 'async-api-component',
+    [DocTypes.OPENAPI]: 'swagger',
+    [DocTypes.PLANTUML]: 'plantuml',
+    [DocTypes.MARKDOWN]: 'doc-markdown',
+    [DocTypes.TABLE]: 'doc-table',
+    [DocTypes.MERMAID]: 'doc-mermaid',
+    [DocTypes.NETWORK]: 'doc-network'
+  };
+
   
   export default {
     name: 'Document',
@@ -87,15 +73,10 @@
       };
     },
     computed: {
-      pluginComponent() {
-        return `plugin-doc-${this.docType}`;
-      },
-      isCorrectType() {
-        for(const key in DocTypes) {
-          if (DocTypes[key] === this.docType) return 'inline';
-        }
-        if (this.$store.state.plugins.documents[this.docType]) return 'plugin';
-        return false;
+      is() {
+        return inbuiltTypes[this.docType] 
+          || (this.$store.state.plugins.documents[this.docType] && `plugin-doc-${this.docType}`)
+          || null;
       },
       profile() {
         const nodes = this.currentPath.split('/');
@@ -120,6 +101,7 @@
         return this.path === '$URL$' ? this.$router.history.current.fullPath : this.path;
       },
       // Провайдер контента файлов для плагинов
+      //  url - прямой или относительный URL к файлу
       getContentForPlugin(url) {
         return new Promise((success, reject) => {
           const baseURI = this.$store.state.sources[this.currentPath][0];
@@ -127,7 +109,25 @@
             .then(success)
             .catch(reject);
         });
+      },
+      // API к озеру данных архитектуры
+      //  expression - JSONata запрос
+      //  self - значение переменной $self в запросе
+      //  params - значение переменной $params в запросе
+      //  context - контекст запроса (по умолчанию равен manifest)
+      pullData(expression, self_, params, context) {
+        return new Promise((success, reject) => {
+          try {
+            const request = query.expression(expression, self_, params);
+            success(request.evaluate(context || this.manifest));
+          } catch(e) {
+            // eslint-disable-next-line no-console
+            console.error(`Ошибка в запросе плагина ${this.docType}`, e);
+            reject(e);
+          }
+        });
       }
+
     }
   };
 </script>
