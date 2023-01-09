@@ -766,7 +766,7 @@ export default {
                             console.info('Result:', result);
                         }
                         return result;
-                    } else Object.freeze(this.core.evaluate(context));
+                    } else return Object.freeze(this.core.evaluate(context));
 
 				} catch (e) {
 					// eslint-disable-next-line no-console
