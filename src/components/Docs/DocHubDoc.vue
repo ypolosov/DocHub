@@ -26,7 +26,8 @@
   import DocNetwork from './DocNetwork.vue';
   import Empty from '../Controls/Empty.vue';
   import requests from '@/helpers/requests';
-  import query from '@/manifest/query';
+  // import query from '@/manifest/query';
+  import datasets from '@/helpers/datasets';
 
   // Встроенные типы документов
   const inbuiltTypes = {
@@ -67,9 +68,14 @@
       }
     },
     data() {
+      const dataProvider = datasets();
+      dataProvider.dsResolver = (id) => ({
+        subject: Object.assign({'_id': id}, (this.manifest.datasets || {})[id])
+      });
       return {
         DocTypes,
-        currentPath : this.resolvePath()
+        currentPath : this.resolvePath(),
+        dataProvider
       };
     },
     computed: {
@@ -111,11 +117,19 @@
         });
       },
       // API к озеру данных архитектуры
-      //  expression - JSONata запрос
+      //  expression - JSONata запрос или идентификатор ресурса
       //  self - значение переменной $self в запросе
       //  params - значение переменной $params в запросе
       //  context - контекст запроса (по умолчанию равен manifest)
       pullData(expression, self_, params, context) {
+        const dataProvider = datasets();
+        dataProvider.dsResolver = (id) => ({
+          subject: Object.assign({'_id': id}, (this.manifest.datasets || {})[id])
+        });
+
+        const subject = Object.assign(JSON.parse(JSON.stringify(self_ || this.profile || {})), expression ? { source : expression } : {});
+        return dataProvider.getData(context || this.manifest, subject, params || this.params);
+        /*
         return new Promise((success, reject) => {
           try {
             const request = query.expression(expression, self_, params);
@@ -126,6 +140,7 @@
             reject(e);
           }
         });
+        */
       }
 
     }
