@@ -16,7 +16,7 @@
         <td>{{ params }}</td>
       </tr>
     </table>
-    <h2>Пример результата звпроса к данным архитектуры</h2>
+    <h2>Пример результата запроса к данным архитектуры из плагина</h2>
     В кодовой базе:
     <table>
       <tr>
@@ -30,6 +30,18 @@
       <tr>
         <td>Контекстов:</td>
         <td>{{ dataFromLake.contexts }}шт</td>
+      </tr>
+    </table>
+    <h2>Пример получения данных из DataSet в плагине</h2>
+    Обнаружены компоненты уровня L1 по C4 Model:
+    <table>
+      <tr>
+        <th style="width:20%">ID</th>
+        <th style="width:40%">Наименование</th>
+      </tr>
+      <tr v-for="component in componentsL1" v-bind:key="component.id">
+        <td><a v-bind:href="component.link">{{ component.id }}</a></td>
+        <td><a v-bind:href="component.link">{{ component.location }}</a></td>
       </tr>
     </table>
     <h2>Результат рендеринга файла с HTML кодом:</h2>
@@ -73,7 +85,9 @@
         // Здесь будет храниться контент из полученного HTML файла 
         content: '',
         // Здесь будет храниться результат запроса к данным архитектуры
-        dataFromLake: {}
+        dataFromLake: {},
+        // Здесь будет храниться результат выполнения запроса к DataSet
+        componentsL1: []
       };
     },
 
@@ -107,12 +121,17 @@
 
         // Выполняем запрос к данным архитектуры
         this.pullData(`
-          {
+          ({
             "docs": $count(docs.*),
             "components": $count(components.*),
             "contexts": $count(contexts.*)
-          }
+          })
         `).then((result) => this.dataFromLake = result);
+
+        // Выполняем запрос к DataSet
+        this.pullData('dochub.components.l1')
+          .then((result) => this.componentsL1 = result);
+
       }
     }
   };

@@ -20,7 +20,7 @@ export default function() {
 					resolve(JSON.parse(JSON.stringify(data)));
 				} else if (typeof data === 'string') {
 					// Inline запрос JSONata
-					if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(data)) {
+					if (/^(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(data)) {
 						const exp = query.expression(data, subject, params);
 						exp.onError = reject;
 						resolve(exp.evaluate(context));
@@ -51,7 +51,7 @@ export default function() {
 								.catch((e) => reject(e));
 						} else reject(`Не найден источник данных [${data}]`);
 					}
-				} else reject(`Ошибка истоника данных [${data}]`);
+				} else reject(`Ошибка источника данных [${data}]`);
 			});
 		},
 
