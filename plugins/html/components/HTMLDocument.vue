@@ -46,6 +46,11 @@
     </table>
     <h2>Результат рендеринга файла с HTML кодом:</h2>
     <div class="html-example" v-html="content" />
+    <div v-masonry="containerId" transition-duration="0.3s" item-selector=".item">
+      <div v-for="(item, index) in blocks" v-bind:key="index" v-masonry-tile class="item">
+        <!-- block item markup -->
+      </div>
+    </div>
   </div>
 </template>
 
