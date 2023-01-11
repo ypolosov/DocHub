@@ -129,7 +129,7 @@
         `).then((result) => this.dataFromLake = result);
 
         // Выполняем запрос к DataSet
-        this.pullData('dochub.components.l1')
+        this.pullData('dochub.plugins.example')
           .then((result) => this.componentsL1 = result);
 
       }

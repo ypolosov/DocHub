@@ -17,6 +17,7 @@
       },
       params: {
         type: Object,
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         default: () => {}
       },
       stopPropagation: {

@@ -61,6 +61,7 @@
     },
     props: {
       uml: { type: String, default: '' },         // PlantUML диаграмма
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       postrender: { type: Function, default: () => {} }, // POST обработчик
       sourceAvailable: { type: Boolean, default: false }
     },
