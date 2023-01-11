@@ -11,7 +11,7 @@
       v-bind:pull-data="pullData" />
     <v-alert v-else icon="warning">
       Неизвестный тип документа [{{ docType }}]
-    </v-alert>      
+    </v-alert>     
   </div>
 </template>
 
@@ -68,14 +68,10 @@
       }
     },
     data() {
-      const dataProvider = datasets();
-      dataProvider.dsResolver = (id) => ({
-        subject: Object.assign({'_id': id}, (this.manifest.datasets || {})[id])
-      });
       return {
         DocTypes,
         currentPath : this.resolvePath(),
-        dataProvider
+        dataProvider: datasets()
       };
     },
     computed: {
@@ -94,6 +90,9 @@
       },
       docType() {
         return (this.profile?.type || 'unknown').toLowerCase();
+      },
+      baseURI() {
+        return this.$store.state.sources[this.currentPath][0];
       }
     },
     watch: {
@@ -110,8 +109,7 @@
       //  url - прямой или относительный URL к файлу
       getContentForPlugin(url) {
         return new Promise((success, reject) => {
-          const baseURI = this.$store.state.sources[this.currentPath][0];
-          requests.request(url, baseURI)
+          requests.request(url, this.baseURI)
             .then(success)
             .catch(reject);
         });
@@ -122,13 +120,8 @@
       //  params - значение переменной $params в запросе
       //  context - контекст запроса (по умолчанию равен manifest)
       pullData(expression, self_, params, context) {
-        const dataProvider = datasets();
-        dataProvider.dsResolver = (id) => ({
-          subject: Object.assign({'_id': id}, (this.manifest.datasets || {})[id])
-        });
-
         const subject = Object.assign(JSON.parse(JSON.stringify(self_ || this.profile || {})), expression ? { source : expression } : {});
-        return dataProvider.getData(context || this.manifest, subject, params || this.params);
+        return datasets().getData(context || this.manifest, subject, params || this.params, this.baseURI);
         /*
         return new Promise((success, reject) => {
           try {
