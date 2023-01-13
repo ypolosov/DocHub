@@ -1,4 +1,3 @@
-const config = {};
 import consts from './src/consts';
 import env from './src/helpers/env';
 
@@ -9,6 +8,8 @@ for(const key in process.env) {
 	// eslint-disable-next-line no-console
 	console.info(`  ${key}=`, JSON.stringify(process.env[key]));
 }
+
+const config: any = {};
 
 if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
 	// eslint-disable-next-line no-console
