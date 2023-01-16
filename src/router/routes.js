@@ -114,6 +114,11 @@ const routes = [
     props: middleware
   },
   {
+    name: 'home',
+    path: '/',
+    redirect: { name: 'architect' }
+  },
+  {
     name: 'Empty',
     path: '*',
     component: Empty

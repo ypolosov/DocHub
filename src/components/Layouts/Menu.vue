@@ -35,7 +35,7 @@
 <script>
 
   import requests from '@/helpers/requests';
-  import query from '../manifest/query';
+  import query from '@/manifest/query';
 
   export default {
     name: 'Menu',
@@ -147,7 +147,7 @@
           if (requests.isExternalURI(item.route)) {
             window.open(item.route, '_blank');
           } else {
-            this.$router.push({ path: item.route });
+            this.$router.push({ path: item.route }).catch(()=> null);
           }
         else
           this.onClickMenuExpand(item);
