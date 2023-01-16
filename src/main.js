@@ -8,6 +8,7 @@ import Vue from 'vue';
 import VueCookie from 'vue-cookie';
 import Vuetify from 'vuetify';
 import Vuex from 'vuex';
+import VsCode from './vscode';
 import Root from './components/Root.vue';
 import router from './router';
 import VueSplit from 'vue-split-panel';
@@ -45,8 +46,18 @@ Vue.use(VueSplit);
 Vue.prototype.$axios = Axios;
 Vuex.Store.prototype.$axios = Axios;
 
+if (window.DochubVsCodeExt) {
+  VsCode.pipe();
+}
+
 let store = new Vuex.Store(gitlab);
+
+if (window.DochubVsCodeExt) {
+  VsCode.listener(store);
+}
+
 window.Vuex = store;
+
 store.dispatch('init');
 
 Vue.component('DochubObject', DocHubObject);
