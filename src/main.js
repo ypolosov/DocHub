@@ -32,7 +32,6 @@ import './storage/indexedDB';
 import 'swagger-ui/dist/swagger-ui.css';
 import 'vuetify/dist/vuetify.min.css';
 import '@/assets/styles/main.css';
-
 import './plugins/api';
 
 window.Vue = Vue;

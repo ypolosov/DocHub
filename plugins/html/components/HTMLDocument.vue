@@ -4,15 +4,15 @@
     <h2>Параметры передаваемые в плагин:</h2>
     <table>
       <tr>
-        <td class="label">Путь к объекту в данных:</td>
+        <td class="label">Путь к объекту документа (this.path):</td>
         <td>{{ path }}</td>
       </tr>
       <tr>
-        <td>Профиль документа:</td>
+        <td>Профиль документа (this.profile):</td>
         <td>{{ profile }}</td>
       </tr>
       <tr>
-        <td>Переданные параметры:</td>
+        <td>Переданные параметры (this.params):</td>
         <td>{{ params }}</td>
       </tr>
     </table>

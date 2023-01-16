@@ -122,18 +122,6 @@
       pullData(expression, self_, params, context) {
         const subject = Object.assign(JSON.parse(JSON.stringify(self_ || this.profile || {})), expression ? { source : expression } : {});
         return datasets().getData(context || this.manifest, subject, params || this.params, this.baseURI);
-        /*
-        return new Promise((success, reject) => {
-          try {
-            const request = query.expression(expression, self_, params);
-            success(request.evaluate(context || this.manifest));
-          } catch(e) {
-            // eslint-disable-next-line no-console
-            console.error(`Ошибка в запросе плагина ${this.docType}`, e);
-            reject(e);
-          }
-        });
-        */
       }
 
     }
