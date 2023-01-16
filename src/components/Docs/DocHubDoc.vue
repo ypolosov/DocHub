@@ -11,7 +11,7 @@
       v-bind:pull-data="pullData" />
     <v-alert v-else icon="warning">
       Неизвестный тип документа [{{ docType }}]
-    </v-alert>      
+    </v-alert>     
   </div>
 </template>
 
@@ -26,7 +26,8 @@
   import DocNetwork from './DocNetwork.vue';
   import Empty from '../Controls/Empty.vue';
   import requests from '@/helpers/requests';
-  import query from '@/manifest/query';
+  // import query from '@/manifest/query';
+  import datasets from '@/helpers/datasets';
 
   // Встроенные типы документов
   const inbuiltTypes = {
@@ -69,7 +70,8 @@
     data() {
       return {
         DocTypes,
-        currentPath : this.resolvePath()
+        currentPath : this.resolvePath(),
+        dataProvider: datasets()
       };
     },
     computed: {
@@ -88,6 +90,9 @@
       },
       docType() {
         return (this.profile?.type || 'unknown').toLowerCase();
+      },
+      baseURI() {
+        return this.$store.state.sources[this.currentPath][0];
       }
     },
     watch: {
@@ -104,18 +109,20 @@
       //  url - прямой или относительный URL к файлу
       getContentForPlugin(url) {
         return new Promise((success, reject) => {
-          const baseURI = this.$store.state.sources[this.currentPath][0];
-          requests.request(url, baseURI)
+          requests.request(url, this.baseURI)
             .then(success)
             .catch(reject);
         });
       },
       // API к озеру данных архитектуры
-      //  expression - JSONata запрос
+      //  expression - JSONata запрос или идентификатор ресурса
       //  self - значение переменной $self в запросе
       //  params - значение переменной $params в запросе
       //  context - контекст запроса (по умолчанию равен manifest)
       pullData(expression, self_, params, context) {
+        const subject = Object.assign(JSON.parse(JSON.stringify(self_ || this.profile || {})), expression ? { source : expression } : {});
+        return datasets().getData(context || this.manifest, subject, params || this.params, this.baseURI);
+        /*
         return new Promise((success, reject) => {
           try {
             const request = query.expression(expression, self_, params);
@@ -126,6 +133,7 @@
             reject(e);
           }
         });
+        */
       }
 
     }

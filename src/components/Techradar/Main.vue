@@ -52,10 +52,7 @@
         });
         return result;
       }
-    },
-    mounted() {
-    },
-    methods: {}
+    }
   };
 </script>
 

@@ -1,3 +1,8 @@
+# Источник - https://gitlab.smoletgroup.ru/branch/blob/root.yaml
+datasets:
+  dochub.plugins.example:
+    origin: dochub.components
+    source: examples/test.jsonata
 docs:
   dochub.plugins.intro:
     location: DocHub/Руководство/Плагины
