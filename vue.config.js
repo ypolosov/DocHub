@@ -7,7 +7,7 @@ const PluginMaker = require('./src/building/plugin-maker');
 const plugins = [];
 const entries = {};
 
-// Собираем встраевыемые плагины
+// Собираем встраиваемые плагины
 //if (process.env.VUE_APP_DOCHUB_MODE === 'production') {
 (pkg.plugins?.inbuilt || []).map((item) => {
 	const config = require(`./${item}/package.json`);
@@ -19,7 +19,7 @@ const entries = {};
 const manifest = {
 	name: 'DocHub',
 	short_name: 'DocHub',
-	description: 'Actitecture as a code',
+	description: 'Architecture as a code',
 	background_color: '#ffffff',
 	crossorigin: 'use-credentials',
 	plugins: pkg.plugins?.external,
