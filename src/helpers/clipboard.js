@@ -32,11 +32,15 @@ export default function(text)  {
 			fallbackCopyTextToClipboard(text);
 			return;
 		}
-		navigator.clipboard.writeText(text).then(function() {
-		}, function(err) {
-			// eslint-disable-next-line no-console        
-			console.error('Async: Could not copy text: ', err);
-		});
+		navigator.clipboard.writeText(text).then(
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
+			function() {
+			},
+			function(err) {
+				// eslint-disable-next-line no-console        
+				console.error('Async: Could not copy text: ', err);
+			}
+		);
 	}
 }
 

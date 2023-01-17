@@ -49,10 +49,7 @@
         return (jsonata(query.summaryForTechnology(this.technology))
           .evaluate(this.manifest) || []);
       }
-    },
-    mounted() {
-    },
-    methods: {}
+    }
   };
 </script>
 

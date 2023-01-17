@@ -1,5 +1,5 @@
 <template>
-  <box v-bind:id="id" />
+  <box v-bind:id="dom_id" />
 </template>
 
 <script>
@@ -13,7 +13,7 @@
     mixins: [DocMixin],
     data() {
       return {
-        id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`,
+        dom_id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`,
         data: null
       };
     },
@@ -39,7 +39,7 @@
       swaggerRender() {
         if (this.url) {
           SwaggerUI({
-            dom_id: `#${this.id}`,
+            dom_id: `#${this.dom_id}`,
             spec: this.data,
             deepLinking: true,
             presets: [

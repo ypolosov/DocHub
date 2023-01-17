@@ -214,6 +214,7 @@
       isURL(str) {
         return requests.isURL(str);
       },
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       goToLink() {
 
       }

@@ -43,7 +43,7 @@ const parser = {
 		}
 	},
 	// Журнал объединений
-	mergeMap: [],
+	mergeMap: {},
 	// Итоговый манифест
 	manifest: null,
 	// Возвращает тип значения
@@ -110,6 +110,17 @@ const parser = {
 		const structPath = (path || '').split('/');
 		if (structPath.length - 1 > sectionDeepLog[structPath[1] || '$default$']) return;
 		const storePath = path || '/';
+
+		!this.mergeMap[storePath] && (this.mergeMap[storePath] = []);
+
+		!this.mergeMap[storePath][location] && (this.mergeMap[storePath].push(location));
+
+		if (typeof source === 'object') {
+			for (const key in source) {
+				this.pushToMergeMap(`${path || ''}/${key}`, source[key], location);
+			}
+		}
+		/*
 		const found = this.mergeMap.find((element) => {
 			return ((element.path === storePath) && (element.location === location));
 		});
@@ -124,6 +135,7 @@ const parser = {
 				}
 			}
 		}
+		*/
 	},
 	// Склеивание манифестов
 	// destination - Объект с которым происходит объединение. Низкий приоритете.
@@ -133,17 +145,17 @@ const parser = {
 	merge(destination, source, location, path) {
 		let result;
 		if (destination === undefined) {
-			result = JSON.parse(JSON.stringify(source));
+			result = source;
 			this.pushToMergeMap(path, result, location);
 		} else if (Array.isArray(source)) {
 			if (Array.isArray(destination)) {
-				result = [...new Set(JSON.parse(JSON.stringify(destination)).concat(JSON.parse(JSON.stringify(source))))];
+				result = [...new Set(destination.concat(source))];
 			} else {
-				result = JSON.parse(JSON.stringify(source));
+				result = source;
 			}
 			this.pushToMergeMap(path, result, location);
 		} else if (typeof source === 'object') {
-			result = JSON.parse(JSON.stringify(destination));
+			result = destination;
 			typeof result !== 'object' && (result = {});
 			const pathStruct = path ? path.split('/') : [];
 			const entity = pathStruct.pop();
@@ -152,13 +164,13 @@ const parser = {
 				if (result[id]) {
 					result[id] = this.merge(result[id], source[id], location, `${path || ''}/${id}`);
 				} else {
-					result[id] = JSON.parse(JSON.stringify(source[id]));
+					result[id] = source[id];
 					this.pushToMergeMap(keyPath, result[id], location);
 				}
 				pathStruct.length == 1 && this.propResolver[entity] && this.propResolver[entity](result[id], location);
 			}
 		} else {
-			result = JSON.parse(JSON.stringify(source));
+			result = source;
 			this.pushToMergeMap(path, result, location);
 		}
 		return result;
@@ -242,7 +254,7 @@ const parser = {
 	// Подключение манифеста
 	import(uri, subimport) {
 		if (!subimport) {
-			this.mergeMap = [];
+			this.mergeMap = {};
 			this.manifest = { [ MANIFEST_MODES.AS_IS ] : this.merge({}, this.makeBaseManifest(), uri)};
 			touchProjects = {};
 			this.incReqCounter();
