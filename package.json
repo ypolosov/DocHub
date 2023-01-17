@@ -69,11 +69,7 @@
   },
   "plugins": {
     "inbuilt": [
-      "plugins/html",
-      "plugins/svg"
-    ],
-    "external": [
-      "http://test"
+      "plugins/html"
     ]
   },
   "postcss": {

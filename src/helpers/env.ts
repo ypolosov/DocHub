@@ -10,7 +10,9 @@ export default {
 	isProduction(): boolean {
 		return process.env.NODE_ENV === 'production';
 	},
-
+  isTraceJSONata(): boolean {
+    return (process.env.VUE_APP_DOCHUB_JSONATA_ANALYZER || 'N').toUpperCase() === 'Y';
+  },
   get cache(): TCacheMethods | null {
     const currentMethod = (process.env.VUE_APP_DOCHUB_CACHE || 'NONE').toUpperCase();
 

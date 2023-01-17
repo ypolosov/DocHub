@@ -31,6 +31,8 @@
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
   import href from '../../helpers/href';
+  import './libs/prism';
+  import './styles/prism.css';
 
   export default {
     name: 'DocMarkdown',
@@ -80,24 +82,14 @@
             window.location.hash && setTimeout(() => window.location.href = window.location.hash, 50);
           });
         }
+        // eslint-disable-next-line no-undef
+        Prism.highlightAll();
         return '';
-
-        /*    
-        // eslint-disable-next-line no-debugger
-        debugger;
-        if (this.outHTML !== outHtml) {
-          this.outHTML = outHtml
-            .replace(/<img /g, '<dochub-object :baseURI="baseURI" :inline="true" ')
-            .replace(/\{\{/g, '<span v-pre>{{</span>')
-            .replace(/\}\}/g, '<span v-pre>}}</span>');
-          this.showDocument = false;
-          this.$nextTick(() => {
-            this.showDocument = true;
-            window.location.hash && setTimeout(() => window.location.href = window.location.hash, 50);
-          });
-        }
-        this.markdown = null;
-         */
+      },
+      mounted() {
+        let recaptchaScript = document.createElement('script');
+        recaptchaScript.setAttribute('src', '/libs/prism.js');
+        document.head.appendChild(recaptchaScript);
       },
       tocRendered(tocHTML) {
         if (this.tocShow) this.toc = tocHTML;
@@ -139,6 +131,12 @@
 .toc {
   margin-bottom: 24px;
 }
+
+.markdown-document {
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+
 .markdown-document pre {
   display: block;
   padding: 9.5px;
@@ -203,22 +201,47 @@
 .markdown-document table.table thead th {
   padding: 6px;
 }
-.markdown-document h1,
-.markdown-document h2,
+.markdown-document h1 {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  clear:both;
+}
+
+.markdown-document h2 {
+  margin-top: 56px;
+  font-size: 1.25rem;
+  clear:both;
+}
+
 .markdown-document h3,
 .markdown-document h4,
 .markdown-document h5 {
-  margin-top: 36px;
+  margin-top: 32px;
   margin-bottom: 18px;
+  font-size: 1.125rem;
   clear:both;
 }
-.markdown-document h1:first-child {
-  margin-top: 12px;
-}
+
 .markdown-document ul,
 .markdown-document ol
 {
   margin-bottom: 18px;
+}
+
+.markdown-document code[class*="language-"]{
+  margin: 16px 13px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.markdown-document code[class*="language-"] .token{
+  background: none;
+}
+
+.markdown-document pre[class*="language-"]{
+  border-radius: 4px;
+  border: none;
+  background-color: #eee;
 }
 
 </style>

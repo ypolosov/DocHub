@@ -23,6 +23,7 @@ export default {
 			// Регистрируем менеджер документов для плагинов
 			window.DocHub.documents = {
 				register(type, component) {
+					component.mixins = component.mixins || [];
 					Vue.component(`plugin-doc-${type}`, component);
 					context.commit('registerDocument', { type, component });
 				}
@@ -31,8 +32,7 @@ export default {
 			let counter = 0;
 
 			// Получаем данные манифеста приложения
-			!env.isPlugin() && !env.isVsPlugin() && requests.request('manifest.json', window.location).then((response) => {
-
+			!env.isPlugin() && !env.isVsPlugin() && requests.request('manifest.json', new URL('/', window.location)).then((response) => {
 				(response?.data?.plugins || []).map((url) => {
 					counter++;
 

@@ -196,15 +196,15 @@ export default {
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
 			result = this.makeURL(baseURI);
-			let slices = result.url.toString().split('/');
 			if (result.type === 'gitlab') {
+				let slices = result.url.toString().split('/');
 				const subSlices = slices[slices.length - 2].split('%2F');
 				subSlices[subSlices.length - 1] = uri.replace(/\//g, '%2F');
 				slices[slices.length - 2] = subSlices.join('%2F');
+				result.url = new URL(slices.join('/'));
 			} else {
-				slices[slices.length - 1] = uri;
+				result.url = new URL(uri, result.url);
 			}
-			result.url = new URL(slices.join('/'));
 		}
 		return result;
 	},

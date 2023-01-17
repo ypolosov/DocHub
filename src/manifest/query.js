@@ -1,5 +1,6 @@
 import jsonata from 'jsonata';
 import ajv from 'ajv';
+import env from '@/helpers/env';
 const ajv_localize = require('ajv-i18n/localize/ru');
 
 const SCHEMA_CONTEXT = `
@@ -421,10 +422,7 @@ const DOCUMENTS_FOR_ENTITY_QUERY = `
 
 const COMPONENT_LOCATIONS_QUERY = `
 (
-    $COMPONENT_ID := '/components/' & '{%COMPONENT%}';
-    $LN := $length($COMPONENT_ID);
-    [[$distinct($[$substring(path, 0, $LN) = $COMPONENT_ID].location)]
-    .{
+    [$lookup($, '/components/' & '{%COMPONENT%}').{
         "link": $,
         "title": $
     }]
@@ -482,10 +480,7 @@ const ASPECT_DEFAULT_CONTEXT = `
 
 const ASPECT_LOCATIONS_QUERY = `
 (
-    $ASPECT_ID := '/aspects/' & '{%ASPECT%}';
-    $LN := $length($ASPECT_ID);
-    [[$distinct($[$substring(path, 0, $LN) = $ASPECT_ID].location)]
-    .{
+    [$lookup($, '/aspects/' & '{%ASPECT%}').{
         "link": $,
         "title": $
     }]
@@ -498,8 +493,7 @@ const CONTEXTS_QUERY_FOR_ASPECT = `
     [$distinct(
     components.$spread().(
         $COMPONENT_ID := $keys()[0];
-        $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
-        $COMPONENT['{%ASPECT%}' in aspects] ? 
+        *.['{%ASPECT%}' in aspects] ? 
         (
             [$MANIFEST.contexts.$spread().(
                 $CONTEXT_ID := $keys()[0];
@@ -725,7 +719,9 @@ export default {
 	//  expression - JSONata выражение
 	//  self - объект, который вызывает запрос (доступен по $self в запросе)
 	//  params - параметры передающиеся в запрос
-	expression(expression, self_, params) {
+    //  isTrace - признак необходимости проанализировать выполнение запроса.
+    //          Если true, то в объекте запроса, после его выполнения, появится поле "trace"
+	expression(expression, self_, params, isTrace) {
 		const obj = {
 			expression,
 			core: null,
@@ -733,7 +729,7 @@ export default {
 			store: {},      // Хранилище вспомогательных переменных для запросов
 			// Исполняет запрос
 			//  context - контекст исполнения запроса
-			//  def - если возникла ошибка, будет возращено это значение
+			//  def - если возникла ошибка, будет возращено это дефолтное значение
 			evaluate(context, def) {
 				try {
 					if (!this.core) {
@@ -750,7 +746,28 @@ export default {
 							return obj.store[key];
 						});
 					}
-					return Object.freeze(this.core.evaluate(context));
+
+                    if (isTrace || env.isTraceJSONata()) {
+                        obj.trace = {
+                            start: (new Date()).getTime(),
+                            end: null
+                        };
+                        const result = Object.freeze(this.core.evaluate(context));
+                        obj.trace.end = (new Date()).getTime();
+                        obj.trace.exposition = this.trace.end - this.trace.start;
+                        if (env.isTraceJSONata()) {
+                            // eslint-disable-next-line no-console
+                            console.info('JSONata tracer expression:');
+                            // eslint-disable-next-line no-console
+                            console.info('Statistics:', obj.trace);
+                            // eslint-disable-next-line no-console
+                            console.info('Query:', obj.expression);
+                            // eslint-disable-next-line no-console
+                            console.info('Result:', result);
+                        }
+                        return result;
+                    } else return Object.freeze(this.core.evaluate(context));
+
 				} catch (e) {
 					// eslint-disable-next-line no-console
 					console.error('JSONata error:');

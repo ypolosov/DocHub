@@ -1,6 +1,6 @@
 <template>
   <div class="dochub-object" v-bind:style="{float:srcStruct.float}">
-    <dochub-doc v-if="isDocument" v-bind:document="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
+    <dochub-doc v-if="isDocument" v-bind:path="documentPath" v-bind:document="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
     <dochub-context v-else-if="isContext" v-bind:context="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
     <dochub-aspect v-else-if="isAspect" v-bind:aspect="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
     <dochub-component v-else-if="isComponent" v-bind:component="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
@@ -62,6 +62,10 @@
       },
       isEntity() {
         return this.srcStruct.type.toLowerCase() === 'entity';
+      },
+      documentPath() {
+        const path = this.src.split('?')[0].replaceAll('@document/', '');
+        return `/docs/${path}`;
       },
       // Параметры отображения встраиваемого объекта
       srcStruct() {

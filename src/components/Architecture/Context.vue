@@ -37,15 +37,8 @@
       context: { type: String, default: '' }
     },
     data() {
-      const provider = datasets();
-      provider.dsResolver = (id) => {
-        return {
-          subject: (this.manifest.datasets || {})[id]
-        };
-      };
-
       return {
-        provider,
+        provider: datasets(),
         error: null,
         dataset: null,
         refresher: null,
@@ -59,8 +52,8 @@
       contextParams() {
         return Object.assign({'source': '($)'}, (this.manifest.contexts || {})[this.context] || {}) ;
       },
-      basePath() {
-        return (this.$store.state.sources.find((item) => item.path === `/contexts/${this.context}`) || {}).location;
+      baseURI() {
+        return this.$store.state.sources[`/contexts/${this.context}`][0];
       },
       schema() {
         this.$nextTick(this.reloadCustomUML);
@@ -85,8 +78,7 @@
     methods : {
       reloadCustomUML() {
         if (!this.isCustomUML) return;
-        const basePath = (this.$store.state.sources.find((item) => item.path === `/contexts/${this.context}`) || {}).location;
-        requests.request(this.schema.uml, basePath)
+        requests.request(this.schema.uml, this.baseURI)
           .then((response) => {
             this.customUML = response.data;
           }).catch((err) => {
