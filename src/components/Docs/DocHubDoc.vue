@@ -95,7 +95,7 @@
           let result = this.profile ?
             docs.urlFromProfile(this.profile,
                                 (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
-            ): '';
+            ).toString(): '';
           result += result.indexOf('?') > 0 ? '&' : '?';
           result += `id=${this.document}`;
           return result;
