@@ -42,7 +42,7 @@
     data() {
       return {
         // Открытые пункты меню
-        currentRoute: this.$router.currentRoute.fullPath,
+        currentRoute: this.$router.currentRoute.path,
         expands: {
           architect: true,
           docs: true,
@@ -131,7 +131,7 @@
         this.menuCache = null;
       },
       $route(to) {
-        this.currentRoute = to.fullPath;
+        this.currentRoute = to.path;
       }
     },
     methods: {

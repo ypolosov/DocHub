@@ -229,8 +229,10 @@
 }
 
 .markdown-document code[class*="language-"]{
+  font-family: Menlo,Monaco,Consolas,Courier New,Courier,monospace;
+  line-height: 22.4px;
   margin: 16px 13px;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 8px;
 }
 
@@ -242,6 +244,10 @@
   border-radius: 4px;
   border: none;
   background-color: #eee;
+}
+
+.markdown-document pre[class*="language-mustache"] .token.variable{
+  color: #cd880c;
 }
 
 </style>
