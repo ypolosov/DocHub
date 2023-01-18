@@ -3,7 +3,7 @@ import gitlab from './gitlab';
 import config from '../../config';
 import YAML from 'yaml';
 import crc16 from './crc16';
-import env from './env';
+import env, {Plugins} from './env';
 import { responseCacheInterceptor, requestCacheInterceptor } from './cache';
 
 // CRC16 URL задействованных файлов
@@ -96,7 +96,7 @@ export default {
 		return (uri.slice(0, window.origin.length) !== window.origin) && this.isURL(uri);
 	},
 	getSourceRoot(){
-		if(env.isPlugin()) {
+		if(env.isPlugin(Plugins.idea)) {
 			return 'plugin:/idea/source/';
 		} else {
 			return window.origin + '/';
@@ -227,7 +227,10 @@ export default {
 
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
-		if (env.isPlugin() && params.url.split(':')[0] === 'plugin' || env.isVsPlugin()) {
+		if (
+      env.isPlugin(Plugins.idea) && params.url.split(':')[0] === 'plugin' ||
+      env.isPlugin(Plugins.vscode)
+    ) {
 			this.trace(params.url);
 			return window.$PAPI.request(params);
 		} else {

@@ -8,7 +8,7 @@
       color="#3495db"
       dark
       style="z-index: 99">
-      <v-btn icon v-on:click="back">
+      <v-btn v-if="isPlugin" icon v-on:click="back">
         <v-icon>arrow_back</v-icon>
       </v-btn>
       <v-app-bar-nav-icon v-on:click="drawer = !drawer">
@@ -77,7 +77,7 @@
         drawer: null,
         isDrawerResize: false,
         width: defaultDrawerSize,
-        isPlugin: env.isPlugin() || env.isVsPlugin()
+        isPlugin: env.isPlugin()
       };
     },
     computed: {
@@ -130,7 +130,7 @@
         this.$router.back();
       },
       onLogoClick() {
-        if (this.isPlugin === 'false') {
+        if (this.isPlugin) {
           window.open('https://dochub.info', '_blank');
         } else {
           this.$router.push({name: 'main'}).catch(() => null);
