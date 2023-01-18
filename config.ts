@@ -1,5 +1,6 @@
 import consts from './src/consts';
 import env from './src/helpers/env';
+import {Plugins} from '@/helpers/env';
 
 // eslint-disable-next-line no-console
 console.info('ENVIRONMENTS:');
@@ -41,8 +42,8 @@ if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
 
 config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
 
-if (env.isPlugin()) {
-	if (process.env.NODE_ENV !== 'production') {
+if (env.isPlugin(Plugins.idea)) {
+	if (!env.isProduction()) {
 		window.$PAPI = require('./src/idea/apimoc').default;
 	} else  {
 		config.root_manifest = consts.plugin.ROOT_MANIFEST;
