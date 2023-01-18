@@ -3,16 +3,16 @@
     <dochub-anchor id="" />
     <div v-if="toc" class="toc" v-html="toc" />
     <markdown
-      v-if="markdown"
+      v-if="(markdown !== null)"
       class="pa-3"
       toc
       v-bind:breaks="false"
       v-bind:html="false"
-      v-on:toc-rendered="tocRendered"
-      v-on:rendered="rendered">
+      v-bind:postrender="rendered"
+      v-on:toc-rendered="tocRendered">
       {{ markdown }}
     </markdown>
-    <final-markdown v-if="showDocument" v-bind:template="outHTML || ''" v-bind:base-u-r-i="url" />
+    <final-markdown v-if="showDocument" v-bind:template="outHTML" v-bind:base-u-r-i="url" />
     <v-progress-circular
       v-else
       v-bind:size="64"
@@ -31,7 +31,9 @@
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
   import href from '../../helpers/href';
-  
+  import './libs/prism';
+  import './styles/prism.css';
+
   export default {
     name: 'DocMarkdown',
     components: {
@@ -63,35 +65,39 @@
       return {
         showDocument: false,
         toc: '',
-        markdown: '',
-        outHTML: ''
+        markdown: null,
+        outHTML: null
       };
     },
     methods: {
-      // eslint-disable-next-line no-unused-vars
       rendered(outHtml) {
-        if (this.outHTML !== outHtml) {
-          this.outHTML = outHtml
-            .replace(/<img /g, '<dochub-object :baseURI="baseURI" :inline="true" ')
-            .replace(/\{\{/g, '<span v-pre>{{</span>')
-            .replace(/\}\}/g, '<span v-pre>}}</span>');
+        const result = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" :inline="true" ')
+          .replace(/\{\{/g, '<span v-pre>{{</span>')
+          .replace(/\}\}/g, '<span v-pre>}}</span>');
+        if (this.outHTML != result) {
           this.showDocument = false;
+          this.outHTML = result;
           this.$nextTick(() => {
             this.showDocument = true;
             window.location.hash && setTimeout(() => window.location.href = window.location.hash, 50);
           });
         }
-        this.markdown = null;
+        // eslint-disable-next-line no-undef
+        Prism.highlightAll();
+        return '';
+      },
+      mounted() {
+        let recaptchaScript = document.createElement('script');
+        recaptchaScript.setAttribute('src', '/libs/prism.js');
+        document.head.appendChild(recaptchaScript);
       },
       tocRendered(tocHTML) {
         if (this.tocShow) this.toc = tocHTML;
       },
       refresh() {
-        if (!this.url) {
-          this.markdown = '';
-          return;
-        }
-        this.outHTML = '';
+        this.markdown = null;
+        if (!this.url) return;
+        this.outHTML = null;
         this.showDocument = false;
         this.toc = '';
         // Получаем шаблон документа
@@ -103,7 +109,6 @@
               this.markdown = mustache.render(data, this.source.dataset);
             } else
               this.markdown = data;
-            this.showDocument = true;
           }).catch((e) => this.error = e);
         }, 50);
         this.sourceRefresh();
@@ -126,6 +131,12 @@
 .toc {
   margin-bottom: 24px;
 }
+
+.markdown-document {
+    font-size: 1rem;
+    line-height: 1.5rem;
+}
+
 .markdown-document pre {
   display: block;
   padding: 9.5px;
@@ -140,7 +151,7 @@
   border-radius: 4px;
   overflow: auto;
 }
-.markdown-document code[class*="language-"], 
+.markdown-document code[class*="language-"],
 .markdown-document pre[class*="language-"] {
   color: black;
   font-weight: 300;
@@ -190,21 +201,47 @@
 .markdown-document table.table thead th {
   padding: 6px;
 }
-.markdown-document h1,
-.markdown-document h2,
+.markdown-document h1 {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  clear:both;
+}
+
+.markdown-document h2 {
+  margin-top: 56px;
+  font-size: 1.25rem;
+  clear:both;
+}
+
 .markdown-document h3,
 .markdown-document h4,
 .markdown-document h5 {
-  margin-top: 36px;
+  margin-top: 32px;
   margin-bottom: 18px;
+  font-size: 1.125rem;
   clear:both;
 }
-.markdown-document h1:first-child {
-  margin-top: 12px;
-}
+
 .markdown-document ul,
 .markdown-document ol
 {
   margin-bottom: 18px;
 }
+
+.markdown-document code[class*="language-"]{
+  margin: 16px 13px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.markdown-document code[class*="language-"] .token{
+  background: none;
+}
+
+.markdown-document pre[class*="language-"]{
+  border-radius: 4px;
+  border: none;
+  background-color: #eee;
+}
+
 </style>

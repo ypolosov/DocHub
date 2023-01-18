@@ -1,11 +1,14 @@
 // import '../node_modules/@mdi/font/css/materialdesignicons.css'
-import '@mdi/font/css/materialdesignicons.css';
+import '../node_modules/@mdi/font/fonts/materialdesignicons-webfont.woff2';
+import '../node_modules/@mdi/font/css/materialdesignicons.min.css';
+
 // See icons https://fonts.google.com/icons?selected=Material+Icons
 import Axios from 'axios';
 import Vue from 'vue';
 import VueCookie from 'vue-cookie';
 import Vuetify from 'vuetify';
 import Vuex from 'vuex';
+import VsCode from './vscode';
 import Root from './components/Root.vue';
 import router from './router';
 import VueSplit from 'vue-split-panel';
@@ -20,19 +23,19 @@ import Technology from './components/Techradar/Technology.vue';
 import Anchor from './components/Tools/Anchor.vue';
 import Image from './components/Tools/Image.vue';
 import Entity from './components/Entities/Entity.vue';
+import DocHubObject from './components/Docs/DocHubObject';
 import GlobalMixin from './mixins/global';
 import gitlab from './storage/gitlab';
 
+import './storage/indexedDB';
+
 import 'swagger-ui/dist/swagger-ui.css';
 import 'vuetify/dist/vuetify.min.css';
-
 import '@/assets/styles/main.css';
+import './plugins/api';
 
 window.Vue = Vue;
 window.Router = router;
-
-// eslint-disable-next-line no-console
-console.info(window.$PAPI);
 
 Vue.use(Vuex);
 Vue.use(Vuetify);
@@ -42,10 +45,21 @@ Vue.use(VueSplit);
 Vue.prototype.$axios = Axios;
 Vuex.Store.prototype.$axios = Axios;
 
+if (window.DochubVsCodeExt) {
+  VsCode.pipe();
+}
+
 let store = new Vuex.Store(gitlab);
+
+if (window.DochubVsCodeExt) {
+  VsCode.listener(store);
+}
+
 window.Vuex = store;
+
 store.dispatch('init');
 
+Vue.component('DochubObject', DocHubObject);
 Vue.component('DochubDoc', DocHubDoc);
 Vue.component('DochubContext', Context);
 Vue.component('DochubComponent', Component);
@@ -66,11 +80,13 @@ const vuetify = new Vuetify({
 	}
 });
 
-new Vue({
-	router,
-	render(createElement) {
-		return createElement(Root);
-	},
-	vuetify,
-	store
-}).$mount('#app');
+document.addEventListener('DOMContentLoaded', () => {
+	new Vue({
+		router,
+		render(createElement) {
+			return createElement(Root);
+		},
+		vuetify,
+		store
+	}).$mount('#app');
+});

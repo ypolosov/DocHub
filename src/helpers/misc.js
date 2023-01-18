@@ -1,6 +1,7 @@
 const isObjectEmpty = obj => Object.entries(obj).length === 0 && obj.constructor === Object;
 
 const warn = msg => {
+	// eslint-disable-next-line no-console
 	console.warn(msg);
 	return null;
 };

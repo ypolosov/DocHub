@@ -5,14 +5,7 @@ export default function(manifest, success, reject) {
 	const validators = (manifest['rules'] || {})['validators'] || {};
 
 	for (const id in validators) {
-		const provider = datasets();
-		provider.dsResolver = (id) => {
-			return {
-				subject: Object.assign({_id: id}, (this.manifest.datasets || {})[id])
-			};
-		};
-
-		provider.getData(manifest, Object.assign({_id: id}, validators[id]))
+		datasets().getData(manifest, Object.assign({_id: id}, validators[id]))
 			.then((items) => {
 				success({
 					id,

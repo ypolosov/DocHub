@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-xl fluid>
+  <v-container grid-list-xl fluid style="height:auto">
     <empty v-if="isEmpty" />
     <v-layout v-else wrap>
       <v-flex xs12 md5 d-flex>
@@ -51,17 +51,17 @@
             </v-card>
             <src-locations v-bind:locations="srcLocations" />
 
-            <v-card 
+            <v-card
               v-for="widget in widgets.left"
               v-bind:key="widget.id"
-              class="card-item" 
-              xs12 
+              class="card-item"
+              xs12
               md12>
               <v-card-title>
                 <v-icon left>description</v-icon>
                 <span class="title">{{ widget.title }}</span>
               </v-card-title>
-              <entity 
+              <entity
                 entity="aspects"
                 v-bind:presentation="widget.presentation"
                 v-bind:params="widget.params" />
@@ -70,24 +70,24 @@
         </v-layout>
       </v-flex>
       <v-flex xs12 md7 d-flex>
-        <tab-contexts 
+        <tab-contexts
           v-if="contexts.length"
           style="width: 100%"
           v-bind:default-context="defaultContext"
           v-bind:contexts="contexts"
-          d-flex />  
+          d-flex />
 
-        <v-card 
+        <v-card
           v-for="widget in widgets.right"
           v-bind:key="widget.id"
-          class="card-item" 
-          xs12 
+          class="card-item"
+          xs12
           md7>
           <v-card-title>
             <v-icon left>description</v-icon>
             <span class="title">{{ widget.title }}</span>
           </v-card-title>
-          <entity 
+          <entity
             entity="aspects"
             v-bind:presentation="widget.presentation"
             v-bind:params="widget.params" />
@@ -95,17 +95,17 @@
       </v-flex>
 
       <v-flex xs12 md12 d-flex>
-        <v-card 
+        <v-card
           v-for="widget in widgets.fill"
           v-bind:key="widget.id"
-          class="card-item" 
-          xs12 
+          class="card-item"
+          xs12
           md12>
           <v-card-title>
             <v-icon left>description</v-icon>
             <span class="title">{{ widget.title }}</span>
           </v-card-title>
-          <entity 
+          <entity
             entity="aspects"
             v-bind:presentation="widget.presentation"
             v-bind:params="widget.params" />
@@ -121,12 +121,12 @@
 
   import query from '../../manifest/query';
   import Docs from './tabs/Docs.vue';
-  import AspectsMindmap from '@/components/Mindmap/AspectsMindmap';
+  import AspectsMindmap from '@/components/Mindmap/AspectsMindmap.vue';
   import TabContexts from './tabs/TabContext.vue';
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
   import requests from '@/helpers/requests';
-  import env from '@/helpers/env';
+  import html from '@/helpers/html';
   import Entity from '@/components/Entities/Entity.vue';
 
   export default {
@@ -145,6 +145,9 @@
     data() {
       return {};
     },
+    asyncComputed: {
+
+    },
     computed: {
       isEmpty() {
         return !((this.manifest || {}).aspects || {})[this.aspect];
@@ -162,17 +165,12 @@
       `;
       },
       srcLocations() {
-        let result = query.expression(query.locationsForAspect(this.aspect))
-          .evaluate(this.$store.state.sources) || [];
-
-        if (env.isPlugin()) {
-          result = result.map((item) => ({
-            title: item.title.slice(19),
-            link: `${item.link}?entity=aspect&id=${this.aspect}`
-          }));
-        }
-
-        return result;
+        return html.collectLocationElement({
+          expression: query.locationsForAspect(this.aspect),
+          context: this.$store.state.sources,
+          id: this.aspect,
+          entity: 'aspect'
+        });
       },
       components() {
         return query.expression(query.componentsForAspects(this.aspect)).evaluate(this.manifest) || [];

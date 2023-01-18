@@ -2,6 +2,7 @@ import requests from '../helpers/requests';
 import gitlab from '../helpers/gitlab';
 import property from './prototype';
 import env from '../helpers/env';
+import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
 
 let touchProjects = {};
 
@@ -41,12 +42,8 @@ const parser = {
 			this.onReloaded(this);
 		}
 	},
-	// Режимы манифестов
-	MODE_AS_IS : 'as-is', // Как есть
-	MODE_AS_WAS : 'as-was', // Как было
-	MODE_TO_BE : 'to-be', // Как будет
 	// Журнал объединений
-	mergeMap: [],
+	mergeMap: {},
 	// Итоговый манифест
 	manifest: null,
 	// Возвращает тип значения
@@ -54,7 +51,7 @@ const parser = {
 		const type = typeof value;
 		if (type === 'string') {
 			// В значении JSONata запрос
-			if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(value)) 
+			if (/(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(value))
 				return 'jsonata';
 			else {
 				const ext = value.split('.').pop();
@@ -65,19 +62,19 @@ const parser = {
 				// В значении ссылка на файл
 					return 'id';
 			}
-		} else 
+		} else
 			return type;
 	},
 	// Реализует наследование
 	expandPrototype() {
-		property.expandAll(this.manifest[this.manifest.mode || this.MODE_AS_IS]);
+		property.expandAll(this.manifest[this.manifest.mode || MANIFEST_MODES.AS_IS]);
 	},
 	// Преобразование относительных ссылок в прямые
 	propResolver: {
 		docs(item, baseURI) {
-			['source', 'origin', 'data'].forEach((field) => 
-				item[field] 
-                && (parser.fieldValueType(item[field]) === 'ref') 
+			['source', 'origin', 'data'].forEach((field) =>
+				item[field]
+                && (parser.fieldValueType(item[field]) === 'ref')
                 && (item[field] = requests.makeURIByBaseURI(item[field], baseURI))
 			);
 		},
@@ -113,6 +110,17 @@ const parser = {
 		const structPath = (path || '').split('/');
 		if (structPath.length - 1 > sectionDeepLog[structPath[1] || '$default$']) return;
 		const storePath = path || '/';
+
+		!this.mergeMap[storePath] && (this.mergeMap[storePath] = []);
+
+		!this.mergeMap[storePath][location] && (this.mergeMap[storePath].push(location));
+
+		if (typeof source === 'object') {
+			for (const key in source) {
+				this.pushToMergeMap(`${path || ''}/${key}`, source[key], location);
+			}
+		}
+		/*
 		const found = this.mergeMap.find((element) => {
 			return ((element.path === storePath) && (element.location === location));
 		});
@@ -127,6 +135,7 @@ const parser = {
 				}
 			}
 		}
+		*/
 	},
 	// Склеивание манифестов
 	// destination - Объект с которым происходит объединение. Низкий приоритете.
@@ -136,17 +145,17 @@ const parser = {
 	merge(destination, source, location, path) {
 		let result;
 		if (destination === undefined) {
-			result = JSON.parse(JSON.stringify(source));
+			result = source;
 			this.pushToMergeMap(path, result, location);
 		} else if (Array.isArray(source)) {
 			if (Array.isArray(destination)) {
-				result = JSON.parse(JSON.stringify(destination)).concat(JSON.parse(JSON.stringify(source)));
+				result = [...new Set(destination.concat(source))];
 			} else {
-				result = JSON.parse(JSON.stringify(source));
+				result = source;
 			}
 			this.pushToMergeMap(path, result, location);
 		} else if (typeof source === 'object') {
-			result = JSON.parse(JSON.stringify(destination));
+			result = destination;
 			typeof result !== 'object' && (result = {});
 			const pathStruct = path ? path.split('/') : [];
 			const entity = pathStruct.pop();
@@ -155,13 +164,13 @@ const parser = {
 				if (result[id]) {
 					result[id] = this.merge(result[id], source[id], location, `${path || ''}/${id}`);
 				} else {
-					result[id] = JSON.parse(JSON.stringify(source[id]));
+					result[id] = source[id];
 					this.pushToMergeMap(keyPath, result[id], location);
 				}
 				pathStruct.length == 1 && this.propResolver[entity] && this.propResolver[entity](result[id], location);
 			}
 		} else {
-			result = JSON.parse(JSON.stringify(source));
+			result = source;
 			this.pushToMergeMap(path, result, location);
 		}
 		return result;
@@ -194,11 +203,12 @@ const parser = {
 		if (typeof data === 'string') {
 			const URI = requests.makeURIByBaseURI(data, baseURI);
 			this.incReqCounter();
-			requests.request(URI).then((response) => {
-				const context = this.getManifestContext(path);
-				context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
-				this.touchProjects(URI);
-			})
+			requests.request(URI)
+				.then((response) => {
+					const context = this.getManifestContext(path);
+					context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
+					this.touchProjects(URI);
+				})
 				.catch((e) => this.registerError(e, URI))
 				.finally(() => this.decReqCounter());
 		}
@@ -244,15 +254,15 @@ const parser = {
 	// Подключение манифеста
 	import(uri, subimport) {
 		if (!subimport) {
-			this.mergeMap = [];
-			this.manifest = { [this.MODE_AS_IS] : this.merge({}, this.makeBaseManifest(), uri)};
+			this.mergeMap = {};
+			this.manifest = { [ MANIFEST_MODES.AS_IS ] : this.merge({}, this.makeBaseManifest(), uri)};
 			touchProjects = {};
 			this.incReqCounter();
 			// Подключаем манифест самого DocHub
 			// eslint-disable-next-line no-constant-condition
 			if (
 				(!env.isPlugin()) &&
-                ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
+				((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
 			) {
 				this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
 			}
@@ -266,7 +276,7 @@ const parser = {
 
 			// Определяем режим манифеста
 			// eslint-disable-next-line no-unused-vars
-			const mode = manifest.mode || this.MODE_AS_IS;
+			const mode = manifest.mode || MANIFEST_MODES.AS_IS;
 			this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
 			for (const section in manifest) {
@@ -291,7 +301,9 @@ const parser = {
 			}
 		})
 		// eslint-disable-next-line no-console
-			.catch((e) => this.registerError(e, uri))
+			.catch((e) => {
+				this.registerError(e, uri);
+			})
 			.finally(() => {
 				this.decReqCounter();
 			});

@@ -1,42 +1,48 @@
 <template>
   <box>
-    <asyncapi-component
-      v-if="schema"
-      v-bind="{ schema, cssImportPath: '/assets/styles/asyncapi.css' }" />
+    <section ref="asyncApi" />
   </box>
 </template>
 
 <script>
-  import '@asyncapi/web-component/lib/asyncapi-web-component';
+  import '@/assets/styles/asyncapi.min.css';
+  import AsyncApiStandalone from '@asyncapi/react-component/browser/standalone';
 
   import requests from '@/helpers/requests';
   import mustache from 'mustache';
   import DocMixin from './DocMixin';
+  import { asyncApiStyles } from '@/components/Docs/styles/asyncapi';
 
   export default {
     mixins: [DocMixin],
-    data() {
-      return {
-        schema: ''
-      };
-    },
     methods: {
+      renderRefSection(res) {
+        AsyncApiStandalone.render({
+          schema: res.data
+        }, this.$refs.asyncApi);
+      },
       refresh() {
         this.getSchema();
       },
-      async getSchema() {
-        const params =  {
-          raw: true
-        };
-        if (this.isTemplate) {
-          params.responseHook= (response) => {
-            response.data = mustache.render(response.data, this.source.dataset);
-            return response;
-          };
-        }
-        requests.request(this.url, undefined, params).then((response) => {
-          this.schema = response.data;
-        }).catch((e) => this.error = e);
+      getSchema() {
+        const params = this.isTemplate ? {
+          responseHook: (response) =>
+            typeof response.data === 'string' ? {
+              ...response,
+              data: mustache.render(response.data, this.source.dataset)
+            } : response
+        } : undefined;
+
+        requests.request(this.url, undefined, params)
+          .then(this.renderRefSection)
+          .catch((e) => this.error = e)
+          .finally(() => {
+            if (this.$refs?.asyncapi) {
+              const html = this.$refs.asyncapi.shadowRoot.querySelector('style');
+              html.innerHTML = asyncApiStyles;
+            }
+          });
+
         this.sourceRefresh();
       }
     }

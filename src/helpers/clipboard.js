@@ -1,4 +1,4 @@
-import env from './env';
+import env, {Plugins} from './env';
 
 
 function fallbackCopyTextToClipboard(text) {
@@ -25,18 +25,22 @@ function fallbackCopyTextToClipboard(text) {
 }
 
 export default function(text)  {
-	if (env.isPlugin()) {
+	if (env.isPlugin(Plugins.idea)) {
 		window.$PAPI.copyToClipboard(text);
 	} else {
 		if (!navigator.clipboard) {
 			fallbackCopyTextToClipboard(text);
 			return;
 		}
-		navigator.clipboard.writeText(text).then(function() {
-		}, function(err) {
-			// eslint-disable-next-line no-console        
-			console.error('Async: Could not copy text: ', err);
-		});
+		navigator.clipboard.writeText(text).then(
+			// eslint-disable-next-line @typescript-eslint/no-empty-function
+			function() {
+			},
+			function(err) {
+				// eslint-disable-next-line no-console        
+				console.error('Async: Could not copy text: ', err);
+			}
+		);
 	}
 }
 

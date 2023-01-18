@@ -1,5 +1,6 @@
 import datasets from '../../helpers/datasets';
 import gateway from '@/idea/gateway';
+import docs from '@/helpers/docs';
 
 const SOURCE_PENGING = 'pending';
 const SOURCE_READY = 'ready';
@@ -35,10 +36,10 @@ export default {
 		sourceRefresh() {
 			this.source.status = SOURCE_PENGING;
 			this.source.dataset = null;
-			if (this.profile.source) {
+			if (this.isTemplate && this.profile.source) {
 				this.source.provider.getData(
 					this.manifest,
-					Object.assign({'_id': this.document}, this.profile),
+					Object.assign({'_id': this.id}, this.profile),
 					this.params
 				)
 					.then((dataset) => {
@@ -62,29 +63,38 @@ export default {
 		}
 	},
 	computed: {
+		id() {
+			return this.path.split('/').pop();
+		},
 		isTemplate() {
 			return this.profile.template;
 		},
 		profile() {
-			return this.profileResolver();
+			const nodes = this.path.split('/');
+			let head = this.manifest;
+			for (let i = 1; head && i < nodes.length; i++) {
+				head = head[nodes[i]];
+			}
+			return head;
 		},
 		url() {
-			return this.urlResolver();
+			const baseURI = this.$store.state.sources[this.path][0];
+			let result = this.profile ? docs.urlFromProfile(this.profile, baseURI) : '';
+			result += result.indexOf('?') > 0 ? '&' : '?';
+			result += `id=${this.id}&path=${encodeURI(this.path)}`;
+			return result;
 		}
 	},
 	props: {
-		// Идентификатор документа для дефолтного поведения
-		document: { type: String, default: '' },
-		// Формирование профиля документа
-		profileResolver: { type: Function, require: true },
-		// Определение размещения объекта
-		urlResolver: { type: Function, require: true },
+		// Путь к данным профиля документа
+		path: {
+			type: String,
+			required: true
+		},
 		// Параметры передающиеся в запросы документа
 		params: { 
-			type: Object, 
-			default() {
-				return {};
-			}
+			type: Object,
+			required: true
 		}
 	},
 	data() {

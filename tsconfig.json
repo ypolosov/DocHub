@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noImplicitAny": false,
+    "module": "esnext",
+    "target": "es2020",
+    "moduleResolution": "node",
+    "lib": [
+      "es5",
+      "es6",
+      "es2017",
+      "dom",
+      "dom.iterable",
+      "es2015",
+      "esnext",
+      "scripthost"
+    ],
+    "types": ["jest", "vuetify", "node"],
+    "allowJs": true,
+    "declaration": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noImplicitThis": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "sourceMap": true,
+    "importHelpers": true,
+    "jsx": "preserve"
+  },
+  "include": ["src", "config.d.ts"],
+  "exclude": ["node_modules"]
+}

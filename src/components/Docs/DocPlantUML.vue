@@ -5,8 +5,7 @@
 </template>
 
 <script>
-
-  import Plantuml from '../Schema/PlantUML';
+  import Plantuml from '../Schema/PlantUML.vue';
   import requests from '../../helpers/requests';
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
