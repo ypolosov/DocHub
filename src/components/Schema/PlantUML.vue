@@ -50,7 +50,7 @@
   import plantUML from '../../helpers/plantuml';
   import href from '../../helpers/href';
   import copyToClipboard from '../../helpers/clipboard';
-  import env from '@/helpers/env';
+  import env, {Plugins} from '@/helpers/env';
 
   const EVENT_COPY_SOURCE_TO_CLIPBOARD = 'copysource';
 
@@ -278,7 +278,7 @@
       },
       // Сохранение SVG на диск
       onDownload() {
-        if (env.isPlugin()) {
+        if (env.isPlugin(Plugins.idea)) {
           window.$PAPI.download(
             // new XMLSerializer().serializeToString(this.svgEl),
             this.svg,

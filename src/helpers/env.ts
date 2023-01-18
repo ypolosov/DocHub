@@ -1,11 +1,26 @@
 export type TCacheMethods = 'GET' | 'HEAD';
 
+export enum Plugins {
+  idea = 'idea',
+  vscode = 'vscode'
+}
+
 export default {
-	isPlugin(): boolean {
-		return process.env.VUE_APP_DOCHUB_MODE === 'plugin';
-	},
-	isVsPlugin(): boolean {
-    return !!window.DochubVsCodeExt;
+  isPlugin(plugin?: Plugins): boolean {
+    const isIdea = process.env.VUE_APP_DOCHUB_MODE === 'plugin';
+    const isVsCode = !!window.DochubVsCodeExt;
+
+    switch(plugin) {
+      case Plugins.idea: {
+        return isIdea;
+      }
+      case Plugins.vscode: {
+        return isVsCode;
+      }
+      default: {
+        return isIdea || isVsCode;
+      }
+    }
   },
 	isProduction(): boolean {
 		return process.env.NODE_ENV === 'production';

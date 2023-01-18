@@ -93,7 +93,10 @@
         document.head.appendChild(recaptchaScript);
       },
       tocRendered(tocHTML) {
-        if (this.tocShow) this.toc = tocHTML;
+        // Не выводим оглавление, если в нем всего три раздела или меньше
+        // eslint-disable-next-line no-useless-escape
+        if (this.tocShow && ((tocHTML.match(/\<li\>.*\<\/li\>/g) || []).length > 3)) 
+          this.toc = tocHTML;
       },
       refresh() {
         this.markdown = null;
@@ -204,12 +207,14 @@
 }
 .markdown-document h1 {
   font-size: 1.5rem;
+  margin-bottom: 18px;
   margin-bottom: 24px;
   clear:both;
 }
 
 .markdown-document h2 {
   margin-top: 56px;
+  margin-bottom: 18px;
   font-size: 1.25rem;
   clear:both;
 }

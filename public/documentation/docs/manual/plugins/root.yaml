@@ -19,6 +19,4 @@ docs:
       head1:
         type: test
     source: examples/example.html
-  dochub.plugins.testmap:
-    location: DocHub/Руководство/Плагины/Пример 2
-    type: testmap
+    
