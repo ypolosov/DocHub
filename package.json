@@ -69,7 +69,8 @@
   },
   "plugins": {
     "inbuilt": [
-      "plugins/html"
+      "plugins/html",
+      "plugins/samolet"
     ]
   },
   "postcss": {

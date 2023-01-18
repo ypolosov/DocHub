@@ -31,8 +31,9 @@
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
   import href from '../../helpers/href';
-  import './libs/prism';
   import './styles/prism.css';
+
+  import ('./libs/prism');
 
   export default {
     name: 'DocMarkdown',
