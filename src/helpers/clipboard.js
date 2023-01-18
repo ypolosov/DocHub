@@ -1,4 +1,4 @@
-import env from './env';
+import env, {Plugins} from './env';
 
 
 function fallbackCopyTextToClipboard(text) {
@@ -25,7 +25,7 @@ function fallbackCopyTextToClipboard(text) {
 }
 
 export default function(text)  {
-	if (env.isPlugin('idea')) {
+	if (env.isPlugin(Plugins.idea)) {
 		window.$PAPI.copyToClipboard(text);
 	} else {
 		if (!navigator.clipboard) {

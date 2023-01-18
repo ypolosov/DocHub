@@ -1,7 +1,7 @@
-import env from '@/helpers/env';
+import env, {Plugins} from '@/helpers/env';
 const listeners = {};
 
-if (env.isPlugin('idea') && env.isProduction()) {
+if (env.isPlugin(Plugins.idea) && env.isProduction()) {
   setInterval(() => {
     window.$PAPI.messagePull().then((message) => {
       if (message) {
@@ -15,7 +15,7 @@ if (env.isPlugin('idea') && env.isProduction()) {
   }, 300);
 }
 
-if (env.isPlugin('vscode')) {
+if (env.isPlugin(Plugins.vscode)) {
   window.addEventListener('message', (event) => {
     const { command, content } = event?.data;
 

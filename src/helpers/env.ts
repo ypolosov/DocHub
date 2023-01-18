@@ -5,10 +5,8 @@ export enum Plugins {
   vscode = 'vscode'
 }
 
-type TPlugins = keyof typeof Plugins;
-
 export default {
-  isPlugin(plugin?: TPlugins): boolean {
+  isPlugin(plugin?: Plugins): boolean {
     const isIdea = process.env.VUE_APP_DOCHUB_MODE === 'plugin';
     const isVsCode = !!window.DochubVsCodeExt;
 

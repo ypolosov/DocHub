@@ -1,13 +1,13 @@
 // Обрабатывает кастомные сущности
 import query from '@/manifest/query';
 import crc16 from '@/helpers/crc16';
-import env from '@/helpers/env';
+import env, {Plugins} from '@/helpers/env';
 
 let appliedSchemaCRC = null;
 
 // Регистрирует кастомные сущности
 export default function(manifest) {
-	if (env.isPlugin('idea')) {
+	if (env.isPlugin(Plugins.idea)) {
 		const schema = JSON.stringify(query.expression(query.entitiesJSONChema()).evaluate(manifest || {}));
 		const crc = crc16(schema);
 		if (crc != appliedSchemaCRC) {

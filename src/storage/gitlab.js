@@ -9,7 +9,7 @@ import consts from '../consts';
 import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
 import entities from '@/helpers/entities';
-import env from '@/helpers/env';
+import env, {Plugins} from '@/helpers/env';
 import plugins from './plugins';
 import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
 
@@ -109,7 +109,7 @@ export default {
 			};
 
 			context.commit('setRenderCore',
-				env.isPlugin('idea') ? 'smetana' : 'graphviz'
+				env.isPlugin(Plugins.idea) ? 'smetana' : 'graphviz'
 			);
 
 			context.dispatch('reloadAll');
