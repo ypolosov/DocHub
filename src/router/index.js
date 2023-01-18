@@ -18,7 +18,7 @@ const rConfig = {
 	]
 };
 
-if (!env.isPlugin()) {
+if (!env.isPlugin('idea')) {
 	rConfig.mode = 'history';
 	rConfig.routes.push(
 		{

@@ -17,7 +17,7 @@ export default {
 				window.Router.push({ path: url.pathname, query: Object.fromEntries(url.searchParams)});
 			}
 		} catch (e) {
-			if (env.isPlugin()) {
+			if (env.isPlugin('idea')) {
 				window.Router.push({ path: ref.split('#')[1]});
 			}
 		}

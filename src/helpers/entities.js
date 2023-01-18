@@ -7,7 +7,7 @@ let appliedSchemaCRC = null;
 
 // Регистрирует кастомные сущности
 export default function(manifest) {
-	if (env.isPlugin()) {
+	if (env.isPlugin('idea')) {
 		const schema = JSON.stringify(query.expression(query.entitiesJSONChema()).evaluate(manifest || {}));
 		const crc = crc16(schema);
 		if (crc != appliedSchemaCRC) {

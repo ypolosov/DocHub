@@ -126,7 +126,7 @@
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
   import requests from '@/helpers/requests';
-  import env from '@/helpers/env';
+  import html from '@/helpers/html';
   import Entity from '@/components/Entities/Entity.vue';
 
   export default {
@@ -165,24 +165,12 @@
       `;
       },
       srcLocations() {
-        let result = query.expression(query.locationsForAspect(this.aspect))
-          .evaluate(this.$store.state.sources) || [];
-
-        if (env.isPlugin()) {
-          result = result.map((item) => ({
-            title: item.title.slice(19),
-            link: `${item.link}?entity=aspect&id=${this.aspect}`
-          }));
-        }
-
-        if (env.isVsPlugin()) {
-          result = result.map((item) => ({
-            title: item.title.replace('https://file+.vscode-resource.vscode-cdn.net', ''),
-            link: `${item.link}?entity=aspect&id=${this.aspect}`
-          }));
-        }
-
-        return result;
+        return html.collectLocationElement({
+          expression: query.locationsForAspect(this.aspect),
+          context: this.$store.state.sources,
+          id: this.aspect,
+          entity: 'aspect'
+        });
       },
       components() {
         return query.expression(query.componentsForAspects(this.aspect)).evaluate(this.manifest) || [];

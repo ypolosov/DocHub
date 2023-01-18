@@ -116,7 +116,7 @@ const routes = [
   {
     name: 'home',
     path: '/',
-    redirect: { name: 'architect' }
+    redirect: { name: 'main' }
   },
   {
     name: 'Empty',

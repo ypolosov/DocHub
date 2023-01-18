@@ -121,8 +121,8 @@
   import SrcLocations from './tabs/SrcLocations.vue';
   import Docs from './tabs/Docs.vue';
   import requests from '@/helpers/requests';
-  import env from '@/helpers/env';
   import entity from '@/components/Entities/Entity.vue';
+  import html from '@/helpers/html';
 
   export default {
     name: 'ArchComponent',
@@ -167,24 +167,12 @@
           .evaluate(this.manifest) || []);
       },
       srcLocations() {
-        let result = query.expression(query.locationsForComponent(this.component))
-          .evaluate(this.$store.state.sources) || [];
-
-        if (env.isPlugin()) {
-          result = result.map((item) => ({
-            title: item.title.slice(19),
-            link: `${item.link}?entity=component&id=${this.component}`
-          }));
-        }
-
-        if (env.isVsPlugin()) {
-          result = result.map((item) => ({
-            title: item.title.replace('https://file+.vscode-resource.vscode-cdn.net', ''),
-            link: `${item.link}?entity=component&id=${this.component}`
-          }));
-        }
-
-        return result;
+        return html.collectLocationElement({
+          expression: query.locationsForComponent(this.component),
+          context: this.$store.state.sources,
+          id: this.component,
+          entity: 'component'
+        });
       },
       summary() {
         return (query.expression(query.summaryForComponent(this.component))

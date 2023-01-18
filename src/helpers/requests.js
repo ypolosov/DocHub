@@ -96,7 +96,7 @@ export default {
 		return (uri.slice(0, window.origin.length) !== window.origin) && this.isURL(uri);
 	},
 	getSourceRoot(){
-		if(env.isPlugin()) {
+		if(env.isPlugin('idea')) {
 			return 'plugin:/idea/source/';
 		} else {
 			return window.origin + '/';
@@ -227,7 +227,10 @@ export default {
 
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
-		if (env.isPlugin() && params.url.split(':')[0] === 'plugin' || env.isVsPlugin()) {
+		if (
+      env.isPlugin('idea') && params.url.split(':')[0] === 'plugin' ||
+      env.isPlugin('vscode')
+    ) {
 			this.trace(params.url);
 			return window.$PAPI.request(params);
 		} else {

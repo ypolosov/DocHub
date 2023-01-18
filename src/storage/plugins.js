@@ -32,7 +32,7 @@ export default {
 			let counter = 0;
 
 			// Получаем данные манифеста приложения
-			!env.isPlugin() && !env.isVsPlugin() && requests.request('manifest.json', new URL('/', window.location)).then((response) => {
+			!env.isPlugin() && requests.request('manifest.json', new URL('/', window.location)).then((response) => {
 				(response?.data?.plugins || []).map((url) => {
 					counter++;
 

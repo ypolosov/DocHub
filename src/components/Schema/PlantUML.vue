@@ -278,7 +278,7 @@
       },
       // Сохранение SVG на диск
       onDownload() {
-        if (env.isPlugin()) {
+        if (env.isPlugin('idea')) {
           window.$PAPI.download(
             // new XMLSerializer().serializeToString(this.svgEl),
             this.svg,

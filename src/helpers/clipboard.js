@@ -25,7 +25,7 @@ function fallbackCopyTextToClipboard(text) {
 }
 
 export default function(text)  {
-	if (env.isPlugin()) {
+	if (env.isPlugin('idea')) {
 		window.$PAPI.copyToClipboard(text);
 	} else {
 		if (!navigator.clipboard) {

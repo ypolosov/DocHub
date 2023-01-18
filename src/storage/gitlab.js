@@ -109,7 +109,7 @@ export default {
 			};
 
 			context.commit('setRenderCore',
-				env.isPlugin() ? 'smetana' : 'graphviz'
+				env.isPlugin('idea') ? 'smetana' : 'graphviz'
 			);
 
 			context.dispatch('reloadAll');
