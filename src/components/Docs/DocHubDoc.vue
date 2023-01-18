@@ -1,17 +1,19 @@
 <template>
   <div>
-    <component 
-      v-bind:is="is"
-      v-if="is"
-      v-bind:inline="inline"
-      v-bind:params="params"
-      v-bind:profile="profile"
-      v-bind:path="currentPath"
-      v-bind:get-content="getContentForPlugin"
-      v-bind:pull-data="pullData" />
-    <v-alert v-else icon="warning">
-      Неизвестный тип документа [{{ docType }}]
-    </v-alert>     
+    <template v-if="!isReloading">
+      <component 
+        v-bind:is="is"
+        v-if="is"
+        v-bind:inline="inline"
+        v-bind:params="currentParams"
+        v-bind:profile="profile"
+        v-bind:path="currentPath"
+        v-bind:get-content="getContentForPlugin"
+        v-bind:pull-data="pullData" />
+      <v-alert v-else icon="warning">
+        Неизвестный тип документа [{{ docType }}]
+      </v-alert>
+    </template>
   </div>
 </template>
 
@@ -60,17 +62,17 @@
       },
       inline: { type: Boolean, default: false },
       // Параметры передающиеся в запросы документа
+      // Если undefined - берутся из URL
       params: { 
-        type: Object, 
-        default() {
-          return this.$router.query || {};
-        }
+        type: Object,
+        default: undefined
       }
     },
     data() {
       return {
         DocTypes,
         currentPath : this.resolvePath(),
+        currentParams: this.resolveParams(),
         dataProvider: datasets()
       };
     },
@@ -93,17 +95,24 @@
       },
       baseURI() {
         return this.$store.state.sources[this.currentPath][0];
+      },
+      isReloading() {
+        return this.$store.state.isReloading;
       }
     },
     watch: {
       '$route'(){
         this.currentPath = this.resolvePath();
+        this.currentParams = this.resolveParams();
       }
     },
     methods: {
+      resolveParams() {
+        return this.params || this.$router.currentRoute.query || {};
+      },  
       // Определяем текущий путь к профилю документа
       resolvePath() {
-        return this.path === '$URL$' ? this.$router.history.current.fullPath : this.path;
+        return this.path === '$URL$' ? this.$router.history.current.path : this.path;
       },
       // Провайдер контента файлов для плагинов
       //  url - прямой или относительный URL к файлу
@@ -122,18 +131,6 @@
       pullData(expression, self_, params, context) {
         const subject = Object.assign(JSON.parse(JSON.stringify(self_ || this.profile || {})), expression ? { source : expression } : {});
         return datasets().getData(context || this.manifest, subject, params || this.params, this.baseURI);
-        /*
-        return new Promise((success, reject) => {
-          try {
-            const request = query.expression(expression, self_, params);
-            success(request.evaluate(context || this.manifest));
-          } catch(e) {
-            // eslint-disable-next-line no-console
-            console.error(`Ошибка в запросе плагина ${this.docType}`, e);
-            reject(e);
-          }
-        });
-        */
       }
 
     }

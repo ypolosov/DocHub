@@ -31,14 +31,6 @@ export default function() {
 						exp.onError = reject;
 						resolve(exp.evaluate(context));
 						// Ссылка на файл с данными
-					} else if (data.slice(-5) === '.yaml' || data.slice(-5) === '.json' || (data.search(':') > 0)) {
-						requests.request(data, baseURI)
-							.then((response) => {
-								this.parseSource(context, response.data)
-									.then((data) => resolve(data))
-									.catch((e) => reject(e));  
-							}).catch((e) => reject(e));
-						// Ссылка на файл с запросом
 					} else if (data.slice(-8) === '.jsonata') {
 						requests.request(data, baseURI).then((response) => {
 							const exp = query.expression(typeof response.data === 'string' 
@@ -48,6 +40,14 @@ export default function() {
 							resolve(exp.evaluate(context), subject);
 						}).catch((e) => reject(e));
 						// Идентификатор источника данных
+					} else if (data.slice(-5) === '.yaml' || data.slice(-5) === '.json' || (data.search(':') > 0)) {
+						requests.request(data, baseURI)
+							.then((response) => {
+								this.parseSource(context, response.data)
+									.then((data) => resolve(data))
+									.catch((e) => reject(e));  
+							}).catch((e) => reject(e));
+						// Ссылка на файл с запросом
 					} else {
 						const dataSet = this.dsResolver(data);
 						if (dataSet.subject) {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <dochub-doc v-bind:document="document" />
+    <dochub-doc v-bind:path="path" />
   </div>
 </template>
 
@@ -12,8 +12,8 @@
       return {};
     },
     computed: {
-      document() {
-        return process.env.VUE_APP_DOCHUB_ROOT_DOCUMENT || 'dochub.welcome';
+      path() {
+        return '/docs/' + (process.env.VUE_APP_DOCHUB_ROOT_DOCUMENT || 'dochub.welcome');
       }
     }
   };

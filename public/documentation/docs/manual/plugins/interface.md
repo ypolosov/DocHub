@@ -23,7 +23,7 @@ DocHub.documents.register('html', doc);
 
 ## 2. Параметры компонентов documents
 
-### profile 
+### profile: Object
 
 В параметре передается объект, содержащий данные участка архитектурного кода, конфигурирующего представление 
 документа. Например, код:
@@ -60,7 +60,51 @@ props: {
 }
 ```
 
-### getContent(URL: String)
+### params: Object
+
+Содержит параметры переданные в документ.
+
+Пример встраивания документа в [markdown](/docs/dochub.markdown):
+
+```Markdown
+![Пример документа плагина](@document/dochub.plugins.example?param1=foo1&param2=foo2)
+```
+
+В этом случае свойство будет содержать структуру:
+```json
+{
+    "param1": "foo1",
+    "param2": "foo2"
+}
+```
+
+Параметры также могут быть переданы в ссылке, например:
+
+[/docs/dochub.plugins.example?param1=foo1&param2=foo2](/docs/dochub.plugins.example?param1=foo1&param2=foo2)
+
+Свойство params будет иметь значение идентичное первому случаю. 
+
+### path: String
+
+Содержит путь к объекту документа. 
+
+Код:
+
+```yaml
+docs:
+    ...
+    dochub.plugins.example:
+        location: DocHub/Руководство/Плагины/Пример
+        type: html
+        headers:
+        head1:
+            type: test
+        source: examples/example.html
+    ...
+```
+Вызовет компонент плагина с параметром path содержащим строку "/docs/dochub.plugins.example".
+
+### getContent: function(URL: String)
 
 В архитектурной кодовой базе указываются относительные пути к файлам.
 Для успешного получения контента этих файлов необходимо использовать функцию getContent передающуюся 
@@ -101,7 +145,7 @@ methods: {
 }
 ```
 
-### pullData(expression: String, self: Object, params: Object, context: Any)
+### pullData: function(expression: String, self: Object, params: Object, context: Any)
 
 Функция позволяет выполнить запрос к архитектуре для получения необходимых данных.
 Все параметры являются опциональными. При их отсутствии используются дефолтные 
@@ -150,7 +194,6 @@ methods: {
     }
     ...
 }
-
 ```
 
 В примере функция выполнит запрос содержащийся в поле this.profile.source к данным архитектуры,
@@ -176,7 +219,6 @@ methods: {
     }
     ...
 }
-
 ```
 
 В данном случае функция выполнит JSONata запрос, который вернет количество описанных компонентов.

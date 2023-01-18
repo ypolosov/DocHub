@@ -26,8 +26,6 @@ const manifest = {
 	filename: 'manifest.json'
 };
 
-const vscodeConfig = require('./configs/vscode.config.js');
-
 plugins.push(new WebpackPwaManifest(manifest));
 
 // Добавляем собственный плагин-мейкер
@@ -118,8 +116,4 @@ if(fs.lstatSync(__dirname + '/certs').isDirectory()) {
     }
 }
 */
-if (process.env.VUE_APP_BUILD_VSCODE_EXTENSION) {
-	module.exports = vscodeConfig;
-} else {
-	module.exports = config;
-}
+module.exports = config;

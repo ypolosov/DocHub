@@ -35,14 +35,14 @@
 <script>
 
   import requests from '@/helpers/requests';
-  import query from '../manifest/query';
+  import query from '@/manifest/query';
 
   export default {
     name: 'Menu',
     data() {
       return {
         // Открытые пункты меню
-        currentRoute: this.$router.currentRoute.fullPath,
+        currentRoute: this.$router.currentRoute.path,
         expands: {
           architect: true,
           docs: true,
@@ -131,7 +131,7 @@
         this.menuCache = null;
       },
       $route(to) {
-        this.currentRoute = to.fullPath;
+        this.currentRoute = to.path;
       }
     },
     methods: {
@@ -147,7 +147,7 @@
           if (requests.isExternalURI(item.route)) {
             window.open(item.route, '_blank');
           } else {
-            this.$router.push({ path: item.route });
+            this.$router.push({ path: item.route }).catch(()=> null);
           }
         else
           this.onClickMenuExpand(item);
