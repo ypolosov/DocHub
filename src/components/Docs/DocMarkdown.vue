@@ -33,7 +33,7 @@
   import href from '../../helpers/href';
   import './styles/prism.css';
 
-  import ('./libs/prism');
+  import './libs/prism';
 
   export default {
     name: 'DocMarkdown',
@@ -86,11 +86,6 @@
         // eslint-disable-next-line no-undef
         Prism.highlightAll();
         return '';
-      },
-      mounted() {
-        let recaptchaScript = document.createElement('script');
-        recaptchaScript.setAttribute('src', '/libs/prism.js');
-        document.head.appendChild(recaptchaScript);
       },
       tocRendered(tocHTML) {
         // Не выводим оглавление, если в нем всего три раздела или меньше

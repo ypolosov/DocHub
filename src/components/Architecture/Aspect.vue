@@ -197,6 +197,7 @@
         const widgets = (query.expression(query.widgetsForAspect()).evaluate(this.manifest) || {});
         for (const id in widgets) {
           let wiget = widgets[id];
+          wiget.id = `${wiget.id}-${this.aspect}`;
           wiget.params = Object.assign(wiget.params || {}, {aspect: this.aspect});
           switch(wiget.align) {
             case '<': result.left.push(wiget); break;

@@ -74,24 +74,34 @@ let config = {
 		plugins,
 		module: {
 			rules: [
+				/*
+				{
+					test: /\/libs\/.*\.js$/,
+					use: {
+                        options: {
+                            compact: false
+                        }
+                    }					
+				},
+				*/
 				{
 					test: /\.mjs$/,
 					include: /node_modules/,
 					type: 'javascript/auto'
 				},
 				{
-          test: /\.tsx?$/,
-          use: [
-            {
-              loader: 'ts-loader',
-              options: {
-                compilerOptions: {
-                  noEmit: false
-                }
-              }
-            }
-          ]
-        }
+					test: /\.tsx?$/,
+					use: [
+							{
+								loader: 'ts-loader',
+									options: {
+										compilerOptions: {
+										noEmit: false
+										}
+									}
+							}
+						]
+				}
 			]
 		},
     output: {
