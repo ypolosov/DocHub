@@ -79,11 +79,14 @@
         return this.presProfile;
       },
       urlResolver() {
-        const result = this.presProfile ?
+        let result = this.presProfile ?
           docs.urlFromProfile(this.presProfile,
                               (this.$store.state.sources.find((item) => item.path === `/entities/${this.entity}`) || {}).location
-          ): '';
-        return `${result}?id=${this.entity}`;
+          ).toString(): '';
+
+        result += result.indexOf('?') > 0 ? '&' : '?';
+        result += `id=${this.entity}`;
+        return result;
       }
     }
   };

@@ -69,6 +69,7 @@ export default {
 			return this.profileResolver();
 		},
 		url() {
+			debugger;
 			return this.urlResolver();
 		}
 	},
