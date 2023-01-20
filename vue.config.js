@@ -1,7 +1,7 @@
 const WebpackPwaManifest = require('webpack-pwa-manifest');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('@effortlessmotion/html-webpack-inline-source-plugin');
-const pkg = require('./package.json');
+const pluginsConf = require('./plugins.json');
 const PluginMaker = require('./src/building/plugin-maker');
 
 const plugins = [];
@@ -9,7 +9,7 @@ const entries = {};
 
 // Собираем встраиваемые плагины
 //if (process.env.VUE_APP_DOCHUB_MODE === 'production') {
-(pkg.plugins?.inbuilt || []).map((item) => {
+(pluginsConf?.inbuilt || []).map((item) => {
 	const config = require(`./${item}/package.json`);
 	entries[`plugins/${item}`] = `./${item}/${config.main || 'index.js'}`;
 });
@@ -22,7 +22,7 @@ const manifest = {
 	description: 'Architecture as a code',
 	background_color: '#ffffff',
 	crossorigin: 'use-credentials',
-	plugins: pkg.plugins?.external,
+	plugins: pluginsConf?.external,
 	filename: 'manifest.json'
 };
 
@@ -112,7 +112,6 @@ let config = {
     }
 	}
 };
-
 
 // Подключает сертификаты, если они обнаружены
 /*

@@ -67,11 +67,6 @@
     "generator-code": "1.7.1",
     "yo": "4.3.0"
   },
-  "plugins": {
-    "inbuilt": [
-      "plugins/html"
-    ]
-  },
   "postcss": {
     "plugins": {
       "autoprefixer": {}
