@@ -188,6 +188,7 @@
         const widgets = (query.expression(query.widgetsForComponent()).evaluate(this.manifest) || {});
         for (const id in widgets) {
           let wiget = widgets[id];
+          wiget.id = `${this.component}-${wiget.id}`;
           wiget.params = Object.assign(wiget.params || {}, {component: this.component});
           switch(wiget.align) {
             case '<': result.left.push(wiget); break;

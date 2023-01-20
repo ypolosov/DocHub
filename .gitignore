@@ -6,6 +6,8 @@ node_modules
 /gitlab
 /plugins
 
+./plugins.json
+
 /public/workspace/*
 
 # local env files
