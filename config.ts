@@ -5,9 +5,11 @@ import {Plugins} from '@/helpers/env';
 // eslint-disable-next-line no-console
 console.info('ENVIRONMENTS:');
 
+const hiddenEnvs = ['VUE_APP_DOCHUB_CLIENT_SECRET'];
+
 for(const key in process.env) {
 	// eslint-disable-next-line no-console
-	console.info(`  ${key}=`, JSON.stringify(process.env[key]));
+	console.info(`  ${key}=`, hiddenEnvs.indexOf(key) < 0 ? JSON.stringify(process.env[key]) : '**HIDDEN**');
 }
 
 const config: any = {};

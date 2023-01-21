@@ -79,7 +79,7 @@ export default {
 		},
 		url() {
 			const baseURI = this.$store.state.sources[this.path][0];
-			let result = this.profile ? docs.urlFromProfile(this.profile, baseURI) : '';
+			let result = this.profile ? docs.urlFromProfile(this.profile, baseURI).toString() : '';
 			result += result.indexOf('?') > 0 ? '&' : '?';
 			result += `id=${this.id}&path=${encodeURI(this.path)}`;
 			return result;

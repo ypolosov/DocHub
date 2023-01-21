@@ -8,7 +8,7 @@
       color="#3495db"
       dark
       style="z-index: 99">
-      <v-btn v-if="isPlugin" icon v-on:click="back">
+      <v-btn v-if="isBackShow" icon v-on:click="back">
         <v-icon>arrow_back</v-icon>
       </v-btn>
       <v-app-bar-nav-icon v-on:click="drawer = !drawer">
@@ -16,7 +16,7 @@
       </v-app-bar-nav-icon>
       <v-toolbar-title style="cursor: pointer" v-on:click="onLogoClick">DocHub</v-toolbar-title>
       <v-spacer />
-      <v-btn v-if="isPlugin" icon title="Найти в коде" v-on:click="gotoCode">
+      <v-btn v-if="isSearchInCode" icon title="Найти в коде" v-on:click="gotoCode">
         <v-icon class="material-icons" style="display: inline">search</v-icon>
       </v-btn>
       <!--
@@ -59,7 +59,7 @@
   import HeaderLogo from './Layouts/HeaderLogo';
   import PluginInit from '../idea/components/Init.vue';
   import Problems from './Problems/Problems.vue';
-  import env from '@/helpers/env';
+  import env, {Plugins} from '@/helpers/env';
 
   const minDrawerSize = 200;
   const defaultDrawerSize = 300;
@@ -77,7 +77,9 @@
         drawer: null,
         isDrawerResize: false,
         width: defaultDrawerSize,
-        isPlugin: env.isPlugin()
+        isPlugin: env.isPlugin(),
+        isSearchInCode: env.isPlugin(Plugins.idea),
+        isBackShow: env.isPlugin(Plugins.vscode)
       };
     },
     computed: {
@@ -165,7 +167,6 @@
 </script>
 
 <style>
-@import '../assets/material_icons.css';
 @import '~vuetify/dist/vuetify.min.css';
 @import '~swagger-ui/dist/swagger-ui.css';
 

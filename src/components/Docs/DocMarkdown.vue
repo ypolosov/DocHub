@@ -31,8 +31,9 @@
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
   import href from '../../helpers/href';
-  import './libs/prism';
   import './styles/prism.css';
+
+  import './libs/prism';
 
   export default {
     name: 'DocMarkdown',
@@ -86,13 +87,11 @@
         Prism.highlightAll();
         return '';
       },
-      mounted() {
-        let recaptchaScript = document.createElement('script');
-        recaptchaScript.setAttribute('src', '/libs/prism.js');
-        document.head.appendChild(recaptchaScript);
-      },
       tocRendered(tocHTML) {
-        if (this.tocShow) this.toc = tocHTML;
+        // Не выводим оглавление, если в нем всего три раздела или меньше
+        // eslint-disable-next-line no-useless-escape
+        if (this.tocShow && ((tocHTML.match(/\<li\>.*\<\/li\>/g) || []).length > 3)) 
+          this.toc = tocHTML;
       },
       refresh() {
         this.markdown = null;
@@ -203,12 +202,14 @@
 }
 .markdown-document h1 {
   font-size: 1.5rem;
+  margin-bottom: 18px;
   margin-bottom: 24px;
   clear:both;
 }
 
 .markdown-document h2 {
   margin-top: 56px;
+  margin-bottom: 18px;
   font-size: 1.25rem;
   clear:both;
 }
@@ -229,8 +230,10 @@
 }
 
 .markdown-document code[class*="language-"]{
+  font-family: Menlo,Monaco,Consolas,Courier New,Courier,monospace;
+  line-height: 22.4px;
   margin: 16px 13px;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 8px;
 }
 
@@ -242,6 +245,10 @@
   border-radius: 4px;
   border: none;
   background-color: #eee;
+}
+
+.markdown-document pre[class*="language-mustache"] .token.variable{
+  color: #cd880c;
 }
 
 </style>

@@ -46,6 +46,8 @@
     </table>
     <h2>Результат рендеринга файла с HTML кодом:</h2>
     <div class="html-example" v-html="content" />
+    <h2>Встроенный документ DocHub</h2>
+    <dochub-object src="@document/dochub.example.swgr" />
   </div>
 </template>
 
