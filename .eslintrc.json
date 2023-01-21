@@ -5,16 +5,29 @@
 		"node": true,
 		"jest": true
 	},
-	"ignorePatterns": ["**/public/libs/*.js"],
-	"extends": [
-		"eslint:recommended",
-		"plugin:vue/recommended"
-	],
-	"parserOptions": {
-		"parser": "@babel/eslint-parser",
-		"ecmaVersion": 10,
-		"sourceType": "module"
+	"globals": {
+    "DocHub": true,
+		"vscode": "readonly",
+		"Zopfli": "readonly"
 	},
+	"ignorePatterns": ["**/public/libs/*.js", "**/libs/*.js"],
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "parser": "@typescript-eslint/parser",
+    "ecmaVersion": 10,
+    "sourceType": "module",
+    "extraFileExtensions": [".vue"],
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:vue/recommended",
+    "plugin:vue/base",
+    "plugin:vue/essential",
+    "eslint:recommended"
+  ],
 	"overrides": [
 		{
 			"files": [
@@ -27,13 +40,20 @@
 		}
 	],
 	"plugins": [
-		"vue"
+    "@typescript-eslint",
+    "vue"
 	],
 	"rules": {
-		"indent": [
-			"error",
-			"tab"
-		],
+    "@typescript-eslint/no-unused-vars": [
+      2,
+      {
+        "args": "none"
+      }
+    ],
+    "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-empty-function": "warn",
+    "@typescript-eslint/no-explicit-any": 0,
 		"comma-dangle": [
 			"error",
 			"never"
@@ -45,7 +65,7 @@
     "no-console": "warn",
 		"no-debugger": "warn",
 		"quotes": [
-			"error",
+			"warn",
 			"single"
 		],
 		"quote-props": "off",

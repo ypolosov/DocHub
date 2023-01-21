@@ -1,5 +1,5 @@
 <template>
-  <box v-bind:id="id" />
+  <box v-bind:id="dom_id" />
 </template>
 
 <script>
@@ -13,7 +13,7 @@
     mixins: [DocMixin],
     data() {
       return {
-        id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`,
+        dom_id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`,
         data: null
       };
     },
@@ -21,8 +21,10 @@
       refresh() {
         const params = this.isTemplate ? {
           responseHook: (response) => {
-            if (typeof response.data === 'string')
+            if (typeof response.data === 'string') {
               response.data = mustache.render(response.data, this.source.dataset);
+            }
+
             return response;
           }
         } : undefined;
@@ -31,58 +33,21 @@
             this.data = response.data;
             this.swaggerRender();
           }).catch((e) => this.error = e);
-        this.sourceRefresh();  
+        this.sourceRefresh();
       },
 
       swaggerRender() {
         if (this.url) {
           SwaggerUI({
-            dom_id: `#${this.id}`,
+            dom_id: `#${this.dom_id}`,
             spec: this.data,
-            deepLinking: true
+            deepLinking: true,
+            presets: [
+              SwaggerUI.presets.apis
+            ]
           });
         }
       }
     }
   };
 </script>
-
-<style>
-
-.swagger-ui .info {
-  display: none;
-}
-
-.swagger-ui .info {
-  border-radius: 3px;
-}
-
-.swagger-ui .info .title {
-  margin-left: 24px;
-  margin-top: 24px;
-  display: block;
-  font-size: 24px !important;
-  color: #fff;
-}
-
-.swagger-ui .info .url {
-  margin-left: 24px;
-  margin-top: 8px;
-  display: block;
-  font-size: 16px !important;
-  color: #fff;
-}
-
-.swagger-ui .scheme-container {
-  margin: 0;
-  padding: 0 0 0 30px;
-  background: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
-
-.swagger-ui .info .main {
-  background: #3495db;
-}
-</style>

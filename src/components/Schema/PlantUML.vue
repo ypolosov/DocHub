@@ -50,7 +50,7 @@
   import plantUML from '../../helpers/plantuml';
   import href from '../../helpers/href';
   import copyToClipboard from '../../helpers/clipboard';
-  import env from '@/helpers/env';
+  import env, {Plugins} from '@/helpers/env';
 
   const EVENT_COPY_SOURCE_TO_CLIPBOARD = 'copysource';
 
@@ -61,6 +61,7 @@
     },
     props: {
       uml: { type: String, default: '' },         // PlantUML диаграмма
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       postrender: { type: Function, default: () => {} }, // POST обработчик
       sourceAvailable: { type: Boolean, default: false }
     },
@@ -132,6 +133,7 @@
       }
     },
     mounted() {
+
       window.addEventListener('resize', this.reRender);
       this.reloadSVG();
       let oldClientHeight = this.$el.clientHeight;
@@ -141,6 +143,7 @@
           oldClientHeight = this.$el.clientHeight;
         }
       }).observe(this.$el);
+
     },
     beforeDestroy(){
       window.removeEventListener('resize', this.reRender);
@@ -275,7 +278,7 @@
       },
       // Сохранение SVG на диск
       onDownload() {
-        if (env.isPlugin()) {
+        if (env.isPlugin(Plugins.idea)) {
           window.$PAPI.download(
             // new XMLSerializer().serializeToString(this.svgEl),
             this.svg,
@@ -301,9 +304,6 @@
 </script>
 
 <style>
-
-.plantuml-place {
-}
 
 .plantuml-schema {
   width: 100%;

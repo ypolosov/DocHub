@@ -1,61 +1,23 @@
 <template>
   <div>
-    <empty v-if="isEmpty" />
-    <div v-else>
-      <template v-if="isCorrectType">
-        <async-api-component 
-          v-if="docType === DocTypes.ASYNCAPI" 
-          v-bind:document="document" 
-          v-bind:params="params" 
-          v-bind:profile-resolver="profileResolver" 
-          v-bind:url-resolver="urlResolver" />
-        <swagger 
-          v-if="docType === DocTypes.OPENAPI"
-          v-bind:document="document"
-          v-bind:params="params" 
-          v-bind:profile-resolver="profileResolver" 
-          v-bind:url-resolver="urlResolver" />
-        <plantuml
-          v-if="docType === DocTypes.PLANTUML"
-          v-bind:document="document"
-          v-bind:params="params" 
-          v-bind:profile-resolver="profileResolver" 
-          v-bind:url-resolver="urlResolver" />
-        <doc-markdown 
-          v-if="docType === DocTypes.MARKDOWN"
-          v-bind:document="document" 
-          v-bind:params="params" 
-          v-bind:profile-resolver="profileResolver" 
-          v-bind:url-resolver="urlResolver" 
-          v-bind:toc-show="!inline" />
-        <doc-table
-          v-if="docType === DocTypes.TABLE"
-          v-bind:document="document" 
-          v-bind:params="params" 
-          v-bind:profile-resolver="profileResolver" 
-          v-bind:url-resolver="urlResolver" />
-        <doc-mermaid
-          v-if="docType === DocTypes.MERMAID"
-          v-bind:document="document" 
-          v-bind:params="params" 
-          v-bind:profile-resolver="profileResolver" 
-          v-bind:url-resolver="urlResolver" />
-        <doc-network
-          v-if="docType === DocTypes.NETWORK"
-          v-bind:document="document" 
-          v-bind:params="params" 
-          v-bind:profile-resolver="profileResolver" 
-          v-bind:url-resolver="urlResolver" />
-      </template>
+    <template v-if="!isReloading">
+      <component 
+        v-bind:is="is"
+        v-if="is"
+        v-bind:inline="inline"
+        v-bind:params="currentParams"
+        v-bind:profile="profile"
+        v-bind:path="currentPath"
+        v-bind:get-content="getContentForPlugin"
+        v-bind:pull-data="pullData" />
       <v-alert v-else icon="warning">
         Неизвестный тип документа [{{ docType }}]
-      </v-alert>      
-    </div>
+      </v-alert>
+    </template>
   </div>
 </template>
 
 <script>
-  import docs from '@/helpers/docs';
   import { DocTypes } from '@/components/Docs/enums/doc-types.enum';
   import Swagger from './DocSwagger.vue';
   import AsyncApiComponent from '@/components/Docs/DocAsyncApi.vue';
@@ -65,7 +27,22 @@
   import DocMermaid from './DocMermaid.vue';
   import DocNetwork from './DocNetwork.vue';
   import Empty from '../Controls/Empty.vue';
+  import requests from '@/helpers/requests';
+  // import query from '@/manifest/query';
+  import datasets from '@/helpers/datasets';
 
+  // Встроенные типы документов
+  const inbuiltTypes = {
+    [DocTypes.ASYNCAPI]: 'async-api-component',
+    [DocTypes.OPENAPI]: 'swagger',
+    [DocTypes.PLANTUML]: 'plantuml',
+    [DocTypes.MARKDOWN]: 'doc-markdown',
+    [DocTypes.TABLE]: 'doc-table',
+    [DocTypes.MERMAID]: 'doc-mermaid',
+    [DocTypes.NETWORK]: 'doc-network'
+  };
+
+  
   export default {
     name: 'Document',
     components: {
@@ -79,61 +56,83 @@
       DocNetwork
     },
     props: {
-      document: { type: String, default: '' },
+      path: {
+        type: String,
+        default: '$URL$'
+      },
       inline: { type: Boolean, default: false },
-      // Формирование профиля документа
-      profileResolver: { 
-        type: Function,
-        default: function() {
-          return this.manifest?.docs?.[this.document] || {};
-        }
-      },
-      // Определение размещения объекта
-      urlResolver: { 
-        type: Function,
-        default: function() {
-          let result = this.profile ?
-            docs.urlFromProfile(this.profile,
-                                (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
-            ).toString(): '';
-          result += result.indexOf('?') > 0 ? '&' : '?';
-          result += `id=${this.document}`;
-          return result;
-        }
-      },
       // Параметры передающиеся в запросы документа
+      // Если undefined - берутся из URL
       params: { 
-        type: Object, 
-        default() {
-          return this.$router.query;
-        }
+        type: Object,
+        default: undefined
       }
     },
     data() {
       return {
-        DocTypes
+        DocTypes,
+        currentPath : this.resolvePath(),
+        currentParams: this.resolveParams(),
+        dataProvider: datasets()
       };
     },
     computed: {
+      is() {
+        return inbuiltTypes[this.docType] 
+          || (this.$store.state.plugins.documents[this.docType] && `plugin-doc-${this.docType}`)
+          || null;
+      },
       profile() {
-        return this.profileResolver();
-      },
-      isEmpty() {
-        return !this.profile;
-      },
-      isCorrectType() {
-        for(const key in DocTypes) {
-          if (DocTypes[key] === this.docType) return true;
+        const nodes = this.currentPath.split('/');
+        let result = this.manifest;
+        for (let i = 1; result && i < nodes.length; i++) {
+          result = result[nodes[i]];
         }
-        return false;
+        return result;
       },
       docType() {
-        return (this.profile.type || 'unknown').toLowerCase();
+        return (this.profile?.type || 'unknown').toLowerCase();
+      },
+      baseURI() {
+        return this.$store.state.sources[this.currentPath][0];
+      },
+      isReloading() {
+        return this.$store.state.isReloading;
       }
     },
-    mounted() {
+    watch: {
+      '$route'(){
+        this.currentPath = this.resolvePath();
+        this.currentParams = this.resolveParams();
+      }
     },
     methods: {
+      resolveParams() {
+        return this.params || this.$router.currentRoute.query || {};
+      },  
+      // Определяем текущий путь к профилю документа
+      resolvePath() {
+        return this.path === '$URL$' ? this.$router.history.current.path : this.path;
+      },
+      // Провайдер контента файлов для плагинов
+      //  url - прямой или относительный URL к файлу
+      getContentForPlugin(url) {
+        return new Promise((success, reject) => {
+          requests.request(url, this.baseURI)
+            .then(success)
+            .catch(reject);
+        });
+      },
+      // API к озеру данных архитектуры
+      //  expression - JSONata запрос или идентификатор ресурса
+      //  self - значение переменной $self в запросе
+      //  params - значение переменной $params в запросе
+      //  context - контекст запроса (по умолчанию равен manifest)
+      pullData(expression, self_, params, context) {
+        const subject = Object.assign(JSON.parse(JSON.stringify(self_ || this.profile || {})), expression ? { source : expression } : {});
+        return datasets().getData(context || this.manifest, subject, params || this.params, this.baseURI);
+      }
+
     }
   };
 </script>

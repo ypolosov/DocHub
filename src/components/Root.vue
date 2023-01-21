@@ -6,32 +6,17 @@
       app
       clipped-left
       color="#3495db"
-      dark>
+      dark
+      style="z-index: 99">
+      <v-btn v-if="isBackShow" icon v-on:click="back">
+        <v-icon>arrow_back</v-icon>
+      </v-btn>
       <v-app-bar-nav-icon v-on:click="drawer = !drawer">
-        <div
-          style="padding:4px; background: #fff; border-radius: 17px;">
-          <svg
-            width="24px"
-            height="24px"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            style="background: #fff; border-radius: 3px;">
-            <path
-              d="M14.5264 23.5895C19.2934 23.5895 23.1579 19.725 23.1579 14.9579C23.1579 10.1908 19.2934 6.32629 14.5264 6.32629C9.75927 6.32629 5.89478 10.1908 5.89478 14.9579C5.89478 19.725 9.75927 23.5895 14.5264 23.5895Z"
-              fill="#3495DB" />
-            <path
-              opacity="0.9"
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M9.05263 18.1053C14.0523 18.1053 18.1053 14.0523 18.1053 9.05263C18.1053 4.053 14.0523 0 9.05263 0C4.053 0 0 4.053 0 9.05263C0 14.0523 4.053 18.1053 9.05263 18.1053ZM9.05263 15.7035C12.7259 15.7035 15.7035 12.7259 15.7035 9.05263C15.7035 5.37945 12.7259 2.40172 9.05263 2.40172C5.37945 2.40172 2.40172 5.37945 2.40172 9.05263C2.40172 12.7259 5.37945 15.7035 9.05263 15.7035Z"
-              fill="#081935" />
-          </svg>
-        </div>
+        <header-logo />
       </v-app-bar-nav-icon>
       <v-toolbar-title style="cursor: pointer" v-on:click="onLogoClick">DocHub</v-toolbar-title>
       <v-spacer />
-      <v-btn v-if="isPlugin" icon title="Найти в коде" v-on:click="gotoCode">
+      <v-btn v-if="isSearchInCode" icon title="Найти в коде" v-on:click="gotoCode">
         <v-icon class="material-icons" style="display: inline">search</v-icon>
       </v-btn>
       <!--
@@ -46,7 +31,8 @@
       v-bind:width="width"
       app
       clipped
-      color="grey lighten-4">
+      color="grey lighten-4"
+      style="z-index: 999">
       <menu-component />
     </v-navigation-drawer>
     <plugin-init v-if="isNotInited" />
@@ -69,10 +55,11 @@
 
 <script>
 
-  import MenuComponent from './Menu';
+  import MenuComponent from './Layouts/Menu';
+  import HeaderLogo from './Layouts/HeaderLogo';
   import PluginInit from '../idea/components/Init.vue';
   import Problems from './Problems/Problems.vue';
-  import env from '@/helpers/env';
+  import env, {Plugins} from '@/helpers/env';
 
   const minDrawerSize = 200;
   const defaultDrawerSize = 300;
@@ -80,6 +67,7 @@
   export default {
     name: 'Root',
     components: {
+      HeaderLogo,
       MenuComponent,
       PluginInit,
       Problems
@@ -89,7 +77,9 @@
         drawer: null,
         isDrawerResize: false,
         width: defaultDrawerSize,
-        isPlugin: env.isPlugin()
+        isPlugin: env.isPlugin(),
+        isSearchInCode: env.isPlugin(Plugins.idea),
+        isBackShow: env.isPlugin(Plugins.vscode)
       };
     },
     computed: {
@@ -113,7 +103,7 @@
         el.style.width = `${e.clientX}px`;
       }
 
-      drawerBorder.addEventListener(
+      drawerBorder && drawerBorder.addEventListener(
         'mousedown',
         (e) => {
           if (e.offsetX < minDrawerSize) {
@@ -138,24 +128,38 @@
       );
     },
     methods: {
+      back() {
+        this.$router.back();
+      },
       onLogoClick() {
-        if (this.isPlugin) window.open('https://dochub.info', '_blank');
-        else this.$router.push({name: 'main'});
+        if (this.isPlugin) {
+          window.open('https://dochub.info', '_blank');
+        } else {
+          this.$router.push({name: 'main'}).catch(() => null);
+        }
       },
       gotoCode() {
         // eslint-disable-next-line no-console
-        console.info('For GOTO ', window.location.hash);
+        // console.info('For GOTO ', window.location.hash);
         const struct = window.location.hash.split('/');
         switch (struct[1]) {
           case 'architect': {
             switch (struct[2]) {
-              case 'contexts': window.$PAPI.goto(null, 'context', struct[3]); break;
-              case 'aspects': window.$PAPI.goto(null, 'aspect', struct[3]); break;
-              case 'components': window.$PAPI.goto(null, 'component', struct[3]); break;
+              case 'contexts': 
+                window.$PAPI.goto(null, 'context', struct[3]); 
+                break;
+              case 'aspects': 
+                window.$PAPI.goto(null, 'aspect', struct[3]); 
+                break;
+              case 'components': 
+                window.$PAPI.goto(null, 'component', struct[3]); 
+                break;
             }
             break;
           }
-          case 'docs': window.$PAPI.goto(null, 'document', struct[2]); break;
+          case 'docs': 
+            window.$PAPI.goto(null, 'document', struct[2]); 
+            break;
         }
       }
     }
@@ -163,7 +167,6 @@
 </script>
 
 <style>
-@import '../assets/material_icons.css';
 @import '~vuetify/dist/vuetify.min.css';
 @import '~swagger-ui/dist/swagger-ui.css';
 
@@ -195,18 +198,18 @@
 .loading-splash {
   background: #FFF;
   opacity: 0.7;
-  z-index: 10;  
-  position: absolute; 
-  left: 0; 
-  top: 0; 
-  bottom: 0; 
-  right: 0; 
+  z-index: 10;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
   filter: blur(8px);
-  -webkit-filter: blur(8px);  
+  -webkit-filter: blur(8px);
 }
 
 .whell {
-  z-index: 100;  
+  z-index: 100;
   left: 50%;
   top: 50vh;
   position: absolute !important;

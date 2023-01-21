@@ -1,21 +1,19 @@
 <template>
   <div>
     <doc
-      v-if="!isParmasInvalid" 
-      v-bind:profile-resolver="profileResolver" 
-      v-bind:url-resolver="urlResolver"
+      v-if="!isParamsInvalid" 
+      v-bind:path="presentationPath"
       v-bind:params="entityParams" />
     <v-alert v-else type="error" v-bind:value="true" style="white-space: pre-wrap;">
       Сущность: {{ entity }}<br>
       Представление: {{ presentation }}<br>
-      {{ isParmasInvalid.name }}:<br>
-      {{ isParmasInvalid.error }}
+      {{ isParamsInvalid.name }}:<br>
+      {{ isParamsInvalid.error }}
     </v-alert>      
   </div>
 </template>
 
 <script>
-  import docs from '@/helpers/docs';
   import doc from '../Docs/DocHubDoc.vue';
   import ajv from 'ajv';
   const ajv_localize = require('ajv-i18n/localize/ru');
@@ -45,7 +43,7 @@
     },
     computed: {
       // Валидируем входящие параметры, если контракт на параметры определен
-      isParmasInvalid() {
+      isParamsInvalid() {
         const schema = this.presProfile.params;
         if (schema) {
           try {
@@ -72,21 +70,9 @@
       // Формируем параметры для документа
       entityParams() {
         return this.params || (this.$route.params && this.$router.currentRoute.query);
-      }
-    },
-    methods:{
-      profileResolver() {
-        return this.presProfile;
       },
-      urlResolver() {
-        let result = this.presProfile ?
-          docs.urlFromProfile(this.presProfile,
-                              (this.$store.state.sources.find((item) => item.path === `/entities/${this.entity}`) || {}).location
-          ).toString(): '';
-
-        result += result.indexOf('?') > 0 ? '&' : '?';
-        result += `id=${this.entity}`;
-        return result;
+      presentationPath() {
+        return `/entities/${this.entity}/presentations/${this.presentation}`;
       }
     }
   };

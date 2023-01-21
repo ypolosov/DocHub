@@ -3,41 +3,65 @@ import gitlab from './gitlab';
 import config from '../../config';
 import YAML from 'yaml';
 import crc16 from './crc16';
-import env from './env';
+import env, {Plugins} from './env';
+import { responseCacheInterceptor, requestCacheInterceptor } from './cache';
 
 // CRC16 URL задействованных файлов
 const tracers = {};
 
 // Add a request interceptor
 
-axios.interceptors.request.use(function(params) {
-	if (config.gitlab_server && ((new URL(params.url)).host === (new URL(config.gitlab_server)).host)) {
-		if (!params.headers) params.headers = {};
-		// eslint-disable-next-line no-undef
-		params.headers['Authorization'] = `Bearer ${config.porsonalToken || Vuex.state.access_token}`;
-	}
-	return params;
-}, function(error) {
-	return Promise.reject(error);
-});
+const responseErrorInterceptor = (error) => {
+  if (error.response.status === 304) {
+    if (error.config.lastCachedResult) {
+      return {
+        ...error.response,
+        data: error.config.lastCachedResult.data
+      };
+    }
+  }
 
-axios.interceptors.response.use(function(response) {
-	if (response.config.responseHook) 
-		response = response.config.responseHook(response);
-	if (typeof response.data === 'string') {
-		if (!response.config.raw) {
-			const url = response.config.url.split('?')[0].toLowerCase();
-			if ((url.indexOf('.json/raw') >= 0) || (url.slice(-5) === '.json'))
-				response.data = JSON.parse(response.data);
-			else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
-				response.data = YAML.parse(response.data);
-		}
-	}
-	return response;
-}, function(error) {
-	// Do something with request error
-	return Promise.reject(error);
-});
+  return Promise.reject(error);
+};
+
+axios.interceptors.request.use(async(params) => {
+
+  if (env.cache) {
+    await requestCacheInterceptor(params);
+  }
+
+  if (config.gitlab_server && ((new URL(params.url)).host === (new URL(config.gitlab_server)).host)) {
+    if (!params.headers) params.headers = {};
+    // eslint-disable-next-line no-undef
+    params.headers['Authorization'] = `Bearer ${config.porsonalToken || Vuex.state.access_token}`;
+  }
+
+  return params;
+}, (error) =>  Promise.reject(error));
+
+axios.interceptors.response.use(async(response) => {
+  if (response.config.responseHook)
+    response.config.responseHook(response);
+  if (typeof response.data === 'string') {
+    if (!response.config.raw) {
+      const url = response.config.url.split('?')[0].toLowerCase();
+      if ((url.indexOf('.json/raw') >= 0) || (url.slice(-5) === '.json'))
+        response.data = JSON.parse(response.data);
+      else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
+        response.data = YAML.parse(response.data);
+    }
+  }
+
+  if (env.cache) {
+    const reRequest = await responseCacheInterceptor(response);
+
+    if (reRequest) {
+      return axios(reRequest);
+    }
+  }
+
+  return response;
+}, responseErrorInterceptor);
 
 if(window.$PAPI) {
 	window.$PAPI.middleware = function(response) {
@@ -45,8 +69,8 @@ if(window.$PAPI) {
 		switch(type) {
 		case 'yaml': response.data = YAML.parse(response.data); break;
 		case 'json': response.data = JSON.parse(response.data); break;
-		case 'jpg': 
-			type = 'jpeg'; 
+		case 'jpg':
+			type = 'jpeg';
 		// eslint-disable-next-line no-fallthrough
 		case 'jpeg':
 		case 'png':
@@ -68,14 +92,15 @@ export default {
 		// eslint-disable-next-line no-useless-escape
 		return url && url.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.?[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
 	},
-	isExtarnalURI(uri) {
+	isExternalURI(uri) {
 		return (uri.slice(0, window.origin.length) !== window.origin) && this.isURL(uri);
 	},
 	getSourceRoot(){
-		if(env.isPlugin()) {
+		if(env.isPlugin(Plugins.idea)) {
 			return 'plugin:/idea/source/';
-		} else 
+		} else {
 			return window.origin + '/';
+		}
 	},
 	getGitLabProjectID(uri) {
 		let result = undefined;
@@ -108,6 +133,7 @@ export default {
 			if (!baseURI) {
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
+
 			if ((new URL(baseURI)).protocol === 'gitlab:') {
 				const segments = baseURI.split('@');
 				if (segments.length !== 2) {
@@ -121,7 +147,7 @@ export default {
 					result = `${segments[0]}@${base.slice(0, base.length - 1).join('/')}${base.length > 1 ? '/' : ''}${uri}`;
 				}
 			} else {
-				let slices = baseURI.split('/');
+				const slices = baseURI.split('/');
 				result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri).url;
 			}
 		}
@@ -170,15 +196,15 @@ export default {
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
 			result = this.makeURL(baseURI);
-			let slices = result.url.toString().split('/');
 			if (result.type === 'gitlab') {
+				let slices = result.url.toString().split('/');
 				const subSlices = slices[slices.length - 2].split('%2F');
 				subSlices[subSlices.length - 1] = uri.replace(/\//g, '%2F');
 				slices[slices.length - 2] = subSlices.join('%2F');
+				result.url = new URL(slices.join('/'));
 			} else {
-				slices[slices.length - 1] = uri;
+				result.url = new URL(uri, result.url);
 			}
-			result.url = new URL(slices.join('/'));
 		}
 		return result;
 	},
@@ -193,14 +219,18 @@ export default {
 		return tracers[crc16(url)];
 	},
 
-	// axios_params - параметры передавамые в axios 
+	// axios_params - параметры передавамые в axios
 	// 		responseHook - содержит функцию обработыки ответа перед работой interceptors
 	//		raw - если true возвращает ответ без обработки
 	request(uri, baseURI, axios_params) {
 		let params = Object.assign({}, axios_params);
+
 		params.source = this.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
-		if (env.isPlugin() && params.url.split(':')[0] === 'plugin') {
+		if (
+      env.isPlugin(Plugins.idea) && params.url.split(':')[0] === 'plugin' ||
+      env.isPlugin(Plugins.vscode)
+    ) {
 			this.trace(params.url);
 			return window.$PAPI.request(params);
 		} else {

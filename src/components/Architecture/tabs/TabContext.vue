@@ -6,7 +6,7 @@
       min-height: 600px;
     ">
     <v-card-title>
-      <v-icon left>link</v-icon>
+      <v-icon left>mdi-link</v-icon>
       <span class="title">Контексты</span>
     </v-card-title>
     <v-select
@@ -29,7 +29,7 @@
         right: 0;
         overflow: auto;
       ">
-      <schema v-bind:schema="schema" style="min-height:100%" />
+      <schema v-bind:schema="schema" style="min-height:calc(100% - 24px)" />
     </v-card-text>
   </v-card>
 </template>

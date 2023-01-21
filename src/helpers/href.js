@@ -1,5 +1,5 @@
 import requests from './requests';
-import env from './env';
+import env, {Plugins} from './env';
 
 // Работа с ссылками
 export default {
@@ -10,18 +10,18 @@ export default {
 		const ref = event.currentTarget.href.baseVal || event.currentTarget.href;
 		if (!ref.length) return false;
 		try {
-			if (requests.isExtarnalURI(ref)) {
+			if (requests.isExternalURI(ref)) {
 				window.open(ref, 'blank_');
 			} else {
 				const url = new URL(ref, window.location);
 				window.Router.push({ path: url.pathname, query: Object.fromEntries(url.searchParams)});
 			}
 		} catch (e) {
-			if (env.isPlugin()) {
+			if (env.isPlugin(Plugins.idea)) {
 				window.Router.push({ path: ref.split('#')[1]});
 			}
 		}
-      
+
 		return false;
 	},
 

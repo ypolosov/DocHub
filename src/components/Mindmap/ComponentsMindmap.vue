@@ -3,7 +3,6 @@
 </template>
 
 <script>
-
   import PlantUML from '../Schema/PlantUML';
   import query from '../../manifest/query';
   import jsonata from 'jsonata';
@@ -65,14 +64,8 @@
           prevStruct = struct;
         });
         uml += '@endwbs\n';
-        // eslint-disable-next-line no-console
-        console.info(uml);
         return uml;
       }
-    },
-    mounted() {
-    },
-    methods: {
     }
   };
 </script>

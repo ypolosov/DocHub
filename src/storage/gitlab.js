@@ -3,18 +3,22 @@ import cookie from 'vue-cookie';
 import GitHelper from '../helpers/gitlab';
 import parser from '../manifest/manifest_parser';
 import Vue from 'vue';
-import manifest_parser from '../manifest/manifest_parser';
 import requests from '../helpers/requests';
 import gateway from '../idea/gateway';
 import consts from '../consts';
 import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
 import entities from '@/helpers/entities';
-import env from '@/helpers/env';
+import env, {Plugins} from '@/helpers/env';
+import plugins from './plugins';
+import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
 
 const axios = require('axios');
 
 export default {
+	modules: {
+		plugins
+	},
 	state: {
 		// Признак загрузки данных
 		isReloading: true,
@@ -97,16 +101,21 @@ export default {
 	actions: {
 		// Action for init store
 		init(context) {
+			context.dispatch('plugins/init');
+
 			const errors = {
 				syntax: null,
 				net: null
 			};
-			context.commit('setRenderCore', 
-				env.isPlugin() ? 'smetana' : 'graphviz'
+
+			context.commit('setRenderCore',
+				env.isPlugin(Plugins.idea) ? 'smetana' : 'graphviz'
 			);
+
 			context.dispatch('reloadAll');
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
+
 			parser.onReloaded = (parser) => {
 				// Очищяем прошлую загрузку
 				context.commit('clean');
@@ -114,22 +123,23 @@ export default {
 				errors.syntax && context.commit('appendProblems', errors.syntax);
 				errors.net && context.commit('appendProblems', errors.net);
 
+				const manifest = Object.freeze(parser.manifest);
 				// Обновляем манифест и фризим объекты
-				context.commit('setManifest', Object.freeze(parser.manifest));
+				context.commit('setManifest', manifest);
 				context.commit('setSources', Object.freeze(parser.mergeMap));
 				context.commit('setIsReloading', false);
 				if (!Object.keys(context.state.manifest || {}).length) {
 					context.commit('setCriticalError', true);
 				}
-				entities(parser.manifest[manifest_parser.MODE_AS_IS]);
-				rules(parser.manifest[manifest_parser.MODE_AS_IS],
+
+				const asis = manifest[MANIFEST_MODES.AS_IS];
+				entities(asis);
+				rules(asis,
 					(problems) => context.commit('appendProblems', problems),
 					(error) => {
 						// eslint-disable-next-line no-console
 						console.error(error);
 						context.commit('appendProblems', error);
-						// eslint-disable-next-line no-debugger
-						debugger;
 					});
 			};
 			parser.onStartReload = () => {
@@ -182,12 +192,14 @@ export default {
                             + `${error.toString()}\n`,
 						location: url
 					});
+					context.commit('setIsReloading', false);
 				}
 			};
 
 			let changes = {};
 			let refreshTimer = null;
-			gateway.appendListener('source/changed', (data) => {
+
+			function reloadSourceAll(data) {
 				if (data) {
 					changes = Object.assign(changes, data);
 					if (refreshTimer) clearTimeout(refreshTimer);
@@ -206,19 +218,21 @@ export default {
 						}
 					}, 350);
 				}
-			});
+			}
+
+			gateway.appendListener('source/changed', reloadSourceAll);
 		},
 
 		// Вызывается при необходимости получить access_token
 		refreshAccessToken(context, OAuthCode) {
-			const params = OAuthCode ? {              
+			const params = OAuthCode ? {
 				grant_type: 'authorization_code',
 				code: OAuthCode
 			}: {
 				grant_type: 'refresh_token',
 				refresh_token: context.state.refresh_token
 			};
-            
+
 			if (OAuthCode) context.commit('setIsOAuthProcess', true);
 
 			const OAuthURL = (new URL('/oauth/token', config.gitlab_server)).toString();
