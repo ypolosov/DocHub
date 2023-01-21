@@ -1,5 +1,4 @@
-// import '../node_modules/@mdi/font/css/materialdesignicons.css'
-import '../node_modules/@mdi/font/fonts/materialdesignicons-webfont.woff2';
+import './assets/styles/material_icons.css';
 import '../node_modules/@mdi/font/css/materialdesignicons.min.css';
 
 // See icons https://fonts.google.com/icons?selected=Material+Icons
