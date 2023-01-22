@@ -227,6 +227,7 @@
         this.cacheViewBox = null;
         if (this.svgEl) {
           this.svgEl.style = null;
+          this.svgEl.setAttribute('encoding', 'UTF-8');
           this.doResize();
           href.elProcessing(this.svgEl);
           if (this.postrender) this.postrender(this.svgEl);
