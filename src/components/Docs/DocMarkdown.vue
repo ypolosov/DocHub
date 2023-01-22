@@ -117,6 +117,11 @@
 </script>
 
 <style>
+
+.theme--light.v-application code {
+  background: none !important;
+}
+
 .dochub-object {
   margin-top: 24px;
   margin-bottom: 24px;
@@ -150,8 +155,14 @@
   border-radius: 4px;
   overflow: auto;
 }
+
+.markdown-document code[class*="language-"]:first-child {
+  margin-left: -12px;
+}
+
 .markdown-document code[class*="language-"],
 .markdown-document pre[class*="language-"] {
+  padding: 16px 13px;
   color: black;
   font-weight: 300;
   background: none;
@@ -170,7 +181,6 @@
   -moz-hyphens: none;
   -ms-hyphens: none;
   hyphens: none;
-  padding: 0;
   font-size: 13px;
   border-radius: 0;
 }
@@ -232,7 +242,7 @@
 .markdown-document code[class*="language-"]{
   font-family: Menlo,Monaco,Consolas,Courier New,Courier,monospace;
   line-height: 22.4px;
-  margin: 16px 13px;
+  /* margin: 16px 13px; */
   font-size: 14px;
   border-radius: 8px;
 }
