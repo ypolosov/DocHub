@@ -8,7 +8,7 @@
               <v-icon>mdi-arrow-right-drop-circle</v-icon>
             </v-btn>
             <v-toolbar-title>
-              Используйте $log(value: Any, [tag: string]) для трассировки запросов.
+              Используйте $log(value[, tag]) для трассировки запросов.
             </v-toolbar-title>
             <v-spacer />
             <v-menu offset-y>
