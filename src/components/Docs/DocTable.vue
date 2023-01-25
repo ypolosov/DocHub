@@ -1,7 +1,7 @@
 <template>
   <box>
     <v-card>
-      <v-card-title v-if="(source.dataset || []).length > 10">
+      <v-card-title v-if="(source.dataset || []).length > 10 && !isPrintVersion">
         <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
@@ -15,6 +15,8 @@
         v-bind:search="search"
         v-bind:items-per-page="15"
         v-bind:multi-sort="true"
+        v-bind:hide-default-footer="isPrintVersion"
+        v-bind:disable-pagination="isPrintVersion"
         class="elevation-1">
         <!-- eslint-disable vue/valid-v-slot -->
         <template #footer.prepend>
