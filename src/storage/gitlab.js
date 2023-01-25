@@ -22,6 +22,8 @@ export default {
 	state: {
 		// Признак загрузки данных
 		isReloading: true,
+		// Признак рендеринга в версии для печати
+		isPrintVersion: false,
 		// Идет процесс авторизации в gitlab
 		isOAuthProcess: null,
 		// Токен досутпа в GitLab
@@ -95,6 +97,9 @@ export default {
 		},
 		setCriticalError(state, value) {
 			state.criticalError = value;
+		},
+		setPrintVersion(state, value) {
+			state.isPrintVersion = value;
 		}
 	},
 

@@ -15,6 +15,10 @@
         <td>Переданные параметры (this.params):</td>
         <td>{{ params }}</td>
       </tr>
+      <tr>
+        <td>Версия для печати (this.toPrint):</td>
+        <td>{{ toPrint }}</td>
+      </tr>
     </table>
     <h2>Пример результата запроса к данным архитектуры из плагина</h2>
     В кодовой базе:
@@ -80,6 +84,11 @@
       params: {
         type: Object,
         default: null
+      },
+      // Признак рендеринга для печати
+      toPrint: {
+        type: Boolean,
+        default: false
       }
     },
     data() {

@@ -9,6 +9,7 @@
         v-bind:profile="profile"
         v-bind:path="currentPath"
         v-bind:get-content="getContentForPlugin"
+        v-bind:to-print="isPrintVersion"
         v-bind:pull-data="pullData" />
       <v-alert v-else icon="warning">
         Неизвестный тип документа [{{ docType }}]
@@ -98,6 +99,9 @@
       },
       isReloading() {
         return this.$store.state.isReloading;
+      },
+      isPrintVersion() {
+        return this.$store.state.isPrintVersion;
       }
     },
     watch: {

@@ -24,11 +24,26 @@
           <v-icon>mdi-call-split</v-icon>
         </v-btn>
       -->
+      <v-menu offset-y>
+        <template #activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item>
+            <v-checkbox
+              v-model="isPrintVersion" />
+            <v-list-item-title>Версия для печати</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
     <v-navigation-drawer
       ref="drawer"
       v-model="drawer"
       v-bind:width="width"
+      v-bind:temporary="isPrintVersion"
       app
       clipped
       color="grey lighten-4"
@@ -91,6 +106,15 @@
       },
       isCriticalError() {
         return this.isPlugin && this.$store.state.criticalError;
+      },
+      isPrintVersion: {
+        set(value) {
+          this.drawer = !value;
+          this.$store.commit('setPrintVersion', value);
+        },
+        get() {
+          return this.$store.state.isPrintVersion;
+        }
       }
     },
     mounted() {
