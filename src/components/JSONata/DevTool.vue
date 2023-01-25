@@ -4,14 +4,27 @@
       <split-area v-bind:size="40" class="area-space">
         <div class="console">
           <v-toolbar dense flat>
-            <v-btn icon title="Выполнить" v-on:click="execute">
+            <v-btn v-show="!autoExec" icon title="Выполнить" v-on:click="execute">
               <v-icon>mdi-arrow-right-drop-circle</v-icon>
             </v-btn>
-            <v-toolbar-title />
+            <v-toolbar-title>
+              Используйте $log(value[, tag]) для трассировки запросов.
+            </v-toolbar-title>
             <v-spacer />
-            <v-btn icon>
-              <v-icon>mdi-dots-vertical</v-icon>
-            </v-btn>
+            <v-menu offset-y>
+              <template #activator="{ on, attrs }">
+                <v-btn icon v-bind="attrs" v-on="on">
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item>
+                  <v-checkbox
+                    v-model="autoExec" />
+                  <v-list-item-title>Автовыполнение</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>            
           </v-toolbar>          
           <editor
             v-model="query"
@@ -54,7 +67,8 @@
   import editor from './JSONataEditor.vue';
   import result from './JSONResult.vue';
 
-  const COOKIE_NAME = 'json-dev-tool-query';
+  const COOKIE_NAME_QUERY = 'json-dev-tool-query';
+  const COOKIE_NAME_AUTOEXEC = 'json-dev-tool-autoexec';
 
   export default {
     name: 'JSONataDevTool',
@@ -64,12 +78,13 @@
     },
     data() {
       return {
-        query: cookie.get(COOKIE_NAME) || '"Здесь введите JSONata запрос."',
+        query: cookie.get(COOKIE_NAME_QUERY) || '"Здесь введите JSONata запрос."',
         error: null,
         observer: null,
         search: '',
         jsonata: null,
         selectedLog: 0,
+        autoExec: cookie.get(COOKIE_NAME_AUTOEXEC) === 'false' ? false : true,
         logHeaders: [
           {
             text: 'Таймлайн',
@@ -95,22 +110,36 @@
       },
       result() {
         return this.logItems[this.selectedLog]?.value || '';
+      },
+      isLoading() {
+        return this.$store.state.isReloading;
       }
     },
     watch: {
+      isLoading() {
+        this.doAutoExecute();
+      },
+      autoExec(value) {
+        value && this.execute();
+        cookie.set(COOKIE_NAME_AUTOEXEC, value, 365);
+      },
       query(value) {
         this.observer && clearTimeout(this.observer);
-        this.observer = setTimeout(() => {
-          this.execute();
-          this.observer = null;
-        }, 500);
-        cookie.set(COOKIE_NAME, value, 365);
+        if (this.autoExec)
+          this.observer = setTimeout(() => {
+            this.execute();
+            this.observer = null;
+          }, 500);
+        cookie.set(COOKIE_NAME_QUERY, value, 365);
       }
     },
     mounted() {
-      this.execute();
+      this.doAutoExecute();
     },
     methods: {
+      doAutoExecute() {
+        if (!this.isLoading && this.autoExec) this.execute();
+      },
       logOnClick(item) {
         this.selectedLog = item.id;
       },
@@ -202,6 +231,45 @@
   max-height: 100%;
   overflow: auto;
 }
+
+@media (max-width: 800px) {
+  .log {
+    float: none;
+    width: 100%;
+    height: 8em;
+    overflow: auto;
+  }
+
+  .result {
+    float: none;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+  }
+
+  .log .table>tr>td {
+    height: 1em;
+  }
+}
+
+@media (min-width: 800px) {
+  .log {
+    float: left;
+    width: 30%;
+    height: 100%;
+    max-height: 100%;
+    overflow: auto;
+  }
+
+  .result {
+    float: right;
+    width: 70%;
+    height: 100%;
+    padding: 4px;
+    overflow: auto;
+  }
+}
+
 
 .log .table {
   width: 100%;

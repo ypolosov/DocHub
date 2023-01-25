@@ -27,7 +27,7 @@
         }],
         [/@?\$[a-zA-Z][\w$]*/, 'variable'],
         [/".*?"/, 'string'],
-        [/\/*.*?\*\//, 'comment']
+        [/\/\*(.|\W)*?\*\//, 'comment']
       ]
     }
   });
@@ -38,8 +38,9 @@
       { token : 'comment', foreground: '#008000' },
       { token: 'keyword', foreground: '#000000', fontStyle: 'bold' },
       { token: 'special', foreground: '#ff0000', fontStyle: 'bold' },
-      { token: 'variable', foreground: '#990055' },
-      { token: 'function', foreground: '#990055', fontStyle: 'bold'}
+      { token: 'variable', foreground: '#2233ee' },
+      { token: 'function', foreground: '#2233ee', fontStyle: 'bold'},
+      { token : 'string', foreground: '#990055' }
     ],
     colors: {
       'editor.foreground': '#000000'

@@ -1,8 +1,6 @@
 <template>
   <pre class="language-json" tabindex="0">
-    <code v-if="!isReload" class="language-json">
-      {{ jsoncode }}
-    </code>
+    <code v-if="!isReload" class="language-json">{{ jsoncode }}</code>
   </pre>
 </template>
 
