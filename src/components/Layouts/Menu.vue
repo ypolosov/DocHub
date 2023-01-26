@@ -1,5 +1,16 @@
 <template>
   <v-list dense class="grey lighten-4">
+    <v-list-item>
+      <v-text-field
+        v-model="filter"
+        dense
+        clearable>
+        <v-icon
+          slot="append">
+          mdi-magnify
+        </v-icon>
+      </v-text-field>      
+    </v-list-item>
     <template v-for="(item, i) in menu">
       <v-list-item
         v-if="(item.route !== '/problems') || (problems.length)"
@@ -43,10 +54,11 @@
       return {
         // Открытые пункты меню
         currentRoute: this.$router.currentRoute.path,
+        filter: '',
+        menuCache: null,
         expands: {
           architect: true,
-          docs: true,
-          menuCache: null
+          docs: true
         }
       };
     },
@@ -78,11 +90,12 @@
               level: itemLocation.length - 1,
               location: itemLocation.join('/')
             };
+
             result.push(menuItem);
+
             if (Object.keys(item.items).length) {
               menuItem.isGroup = true;
               if (this.expands[menuItem.location]) {
-                menuItem.isExpanded = true;
                 expand(item, itemLocation);
               }
             }
@@ -94,10 +107,13 @@
       },
 
       treeMenu() {
-        if (this.menuCache) return this.menuCache;
-
         const result = { items: {} };
-        (query.expression(query.menu()).evaluate(this.manifest) || []).map((item) => {
+
+        const dataset = this.menuCache ? this.menuCache : query.expression(query.menu()).evaluate(this.manifest) || [];
+        !this.menuCache && this.$nextTick(() => this.menuCache = dataset);
+
+        dataset.map((item) => {
+          if (!this.isInFilter(item.location)) return;
           const location = item.location.split('/');
           let node = result;
           let key = null;
@@ -121,8 +137,6 @@
           }
         });
 
-        this.$nextTick(() => this.menuCache = result);
-
         return result;
       }
     },
@@ -135,13 +149,21 @@
       }
     },
     methods: {
+      isInFilter(text) {
+        if (!this.filter) return true;
+        const struct = this.filter.toLocaleLowerCase().split(' ');
+        const request = text.toLocaleLowerCase();
+        for (let i = 0; i < struct.length; i++) {
+          if (request.indexOf(struct[0]) < 0) return false;
+        }
+        return true;
+      },      
       isMenuItemSelected(item) {
         return item.route === this.currentRoute;
       },
       onClickMenuExpand(item) {
         this.$set(this.expands, item.location, !this.expands[item.location]);
       },
-
       onClickMenuItem(item) {
         if (item.route)
           if (requests.isExternalURI(item.route)) {
@@ -152,7 +174,6 @@
         else
           this.onClickMenuExpand(item);
       },
-
       getLevel(item) {
         return item.route.split('/').length;
       }
