@@ -2,11 +2,12 @@
   <v-list dense class="grey lighten-4">
     <v-list-item>
       <v-text-field
-        v-model="filter"
         dense
-        clearable>
+        clearable
+        v-on:input="inputFilter">
         <v-icon
-          slot="append">
+          slot="append"
+          v-on:click="inputFilter('')">
           mdi-magnify
         </v-icon>
       </v-text-field>      
@@ -54,7 +55,11 @@
       return {
         // Открытые пункты меню
         currentRoute: this.$router.currentRoute.path,
-        filter: '',
+        filter: {
+          text: '',
+          query: '',
+          timer: null
+        },
         menuCache: null,
         expands: {
           architect: true,
@@ -95,7 +100,7 @@
 
             if (Object.keys(item.items).length) {
               menuItem.isGroup = true;
-              if (this.expands[menuItem.location]) {
+              if (this.expands[menuItem.location] || this.filter.query) {
                 expand(item, itemLocation);
               }
             }
@@ -146,15 +151,29 @@
       },
       $route(to) {
         this.currentRoute = to.path;
+      },
+      'filter.text'(value) {
+        if (this.filter.timer) clearTimeout(this.filter.timer);
+        const len = (this.menuCache || []).length;
+        let sens = 50;
+        if (len > 1000) sens = 500;
+        else if (len > 500) sens = 300;
+        this.filter.timer = setTimeout(() => {
+          this.filter.query = value && value.length > 1 ? value.toLocaleLowerCase() : '';
+        }, sens);
       }
     },
     methods: {
+      // Прокладка сделана т.к. инпут с v-model тупит при большом меню
+      inputFilter(text) {
+        this.filter.text = text;
+      },
       isInFilter(text) {
-        if (!this.filter) return true;
-        const struct = this.filter.toLocaleLowerCase().split(' ');
+        if (!this.filter.query) return true;
+        const struct = this.filter.query.split(' ');
         const request = text.toLocaleLowerCase();
         for (let i = 0; i < struct.length; i++) {
-          if (request.indexOf(struct[0]) < 0) return false;
+          if (struct[i] && (request.indexOf(struct[i]) < 0)) return false;
         }
         return true;
       },      
