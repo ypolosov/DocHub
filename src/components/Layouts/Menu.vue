@@ -6,8 +6,7 @@
         clearable
         v-on:input="inputFilter">
         <v-icon
-          slot="append"
-          v-on:click="inputFilter('')">
+          slot="append">
           mdi-magnify
         </v-icon>
       </v-text-field>      
