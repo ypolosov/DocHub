@@ -52,6 +52,7 @@
 
   import DCLink from '../Controls/DCLink.vue';
   import DocMixin from './DocMixin';
+  import env, {Plugins} from '@/helpers/env';
 
   export default {
     name: 'DocTable',
@@ -106,11 +107,20 @@
                       + '</tr>';
                   }).join('')
               };
-        debugger;      
-        const link = document.createElement('a');
-        link.download = `${this.document}.xls`;
-        link.href = 'data:application/vnd.ms-excel;base64,' + base64(format(template, ctx));
-        link.click();
+
+        if (env.isPlugin(Plugins.idea)) {
+          window.$PAPI.download(
+            format(template, ctx),
+            'Экспорт в Excel',
+            'Выберите файл для сохранения выгрузки',
+            'xls'
+          );
+        } else {
+          const link = document.createElement('a');
+          link.download = `${this.document}.xls`;
+          link.href = 'data:application/vnd.ms-excel;base64,' + base64(format(template, ctx));
+          link.click();
+        }
       },
       rowFields(row) {
         const result = this.headers.map((column) => {

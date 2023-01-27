@@ -9,7 +9,7 @@
     name: 'JSONResult',
     props: {
       jsoncode: {
-        type: [String, Object, Array, Number],
+        type: [String],
         default: ''
       } 
     },
@@ -31,10 +31,12 @@
         this.isReload = true;
         this.$nextTick(() => {
           this.isReload = false;
-          // eslint-disable-next-line no-undef
-          this.$nextTick(() => Prism.highlightAll());
+          if (this.jsoncode.length < 5000) {
+            // eslint-disable-next-line no-undef
+            this.$nextTick(() => Prism.highlightAll());
+          }
         });
-      }
+      } 
     }
   };
 </script>
