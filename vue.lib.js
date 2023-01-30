@@ -59,7 +59,7 @@ const config = defineConfig({
      encoding: 'utf8'
    });
    execSync('chmod -R 777 ./dist');
-   execSync('mv ./dist/dochub.umd.min.js ./dist/dochub.js');
+   execSync('mv ./dist/dochubcore.umd.min.js ./dist/dochub.js');
    execSync('rm -rf ./dist/*umd* ./dist/*common* ./dist/*html*');
  }
 })();

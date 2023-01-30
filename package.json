@@ -1,11 +1,18 @@
 {
-  "name": "dochub",
-  "version": "2.6.2",
-  "private": true,
-  "main": "./dist/dochub.js",
+  "name": "dochubcore",
+  "version": "1.0.2",
+  "main": "/dist/dochub.js",
   "files": [
-    "./dist"
+    "/dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RabotaRu/DocHub.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RabotaRu/DocHub/issues"
+  },
+  "homepage": "https://github.com/RabotaRu/DocHub#readme",
   "scripts": {
     "lib": "vue-cli-service build --name test --target lib",
     "plugin": "export VUE_APP_DOCHUB_MODE=plugin && vue-cli-service build",
