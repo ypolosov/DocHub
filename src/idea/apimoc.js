@@ -30,9 +30,9 @@ export default {
 		// eslint-disable-next-line no-console
 		console.info(`Call goto ${source}#${entity}\\${id}`);
 	},
-	download(content, title, description) {
+	download(content, title, description, extension) {
 		// eslint-disable-next-line no-console
-		console.info(`${title}:${description}`);
+		console.info(`${title}:${description}:${extension}`);
 		// eslint-disable-next-line no-console
 		console.info('Content', content);
 	},

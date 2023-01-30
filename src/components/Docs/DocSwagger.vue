@@ -17,6 +17,13 @@
         data: null
       };
     },
+    watch: {
+      isPrintVersion() {
+        const el = document.getElementById(this.dom_id);
+        el.innerHTML = '';
+        this.$nextTick(this.swaggerRender);
+      }
+    },
     methods: {
       refresh() {
         const params = this.isTemplate ? {
@@ -42,6 +49,7 @@
             dom_id: `#${this.dom_id}`,
             spec: this.data,
             deepLinking: true,
+            docExpansion: this.isPrintVersion ? 'full' : 'list',
             presets: [
               SwaggerUI.presets.apis
             ]

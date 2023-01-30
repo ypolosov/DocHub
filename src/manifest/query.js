@@ -717,11 +717,12 @@ function jsonSchema(schema) {
 export default {
 	// Создает объект запроса JSONata
 	//  expression - JSONata выражение
-	//  self - объект, который вызывает запрос (доступен по $self в запросе)
-	//  params - параметры передающиеся в запрос
+	//  self    - объект, который вызывает запрос (доступен по $self в запросе)
+	//  params  - параметры передающиеся в запрос
     //  isTrace - признак необходимости проанализировать выполнение запроса.
     //          Если true, то в объекте запроса, после его выполнения, появится поле "trace"
-	expression(expression, self_, params, isTrace) {
+    //  funcs - кастомные функции, регистрируемые в JSONata 
+	expression(expression, self_, params, isTrace, funcs) {
 		const obj = {
 			expression,
 			core: null,
@@ -745,6 +746,9 @@ export default {
 						this.core.registerFunction('get', (key) => {
 							return obj.store[key];
 						});
+                        for(const name in funcs || {}) {
+                            this.core.registerFunction(name, funcs[name]);
+                        }
 					}
 
                     if (isTrace || env.isTraceJSONata()) {

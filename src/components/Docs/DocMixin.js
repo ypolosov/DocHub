@@ -83,6 +83,9 @@ export default {
 			result += result.indexOf('?') > 0 ? '&' : '?';
 			result += `id=${this.id}&path=${encodeURI(this.path)}`;
 			return result;
+		},
+		isPrintVersion() {
+			return this.toPrint || this.$store.state.isPrintVersion; 
 		}
 	},
 	props: {
@@ -95,6 +98,12 @@ export default {
 		params: { 
 			type: Object,
 			required: true
+		},
+		// Признак рендеринга документа для печати
+		toPrint: {
+			type: Boolean,
+			required: false,
+			default: undefined
 		}
 	},
 	data() {

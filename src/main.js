@@ -1,7 +1,12 @@
+// See icons https://fonts.google.com/icons?selected=Material+Icons
 import './assets/styles/material_icons.css';
 import '../node_modules/@mdi/font/css/materialdesignicons.min.css';
 
-// See icons https://fonts.google.com/icons?selected=Material+Icons
+// Подсветка синтаксиса
+import '@/assets/styles/prism.css';
+import '@/assets/libs/prism';
+
+
 import Axios from 'axios';
 import Vue from 'vue';
 import VueCookie from 'vue-cookie';

@@ -1,7 +1,7 @@
 <template>
   <box>
     <v-card>
-      <v-card-title v-if="(source.dataset || []).length > 10">
+      <v-card-title v-if="(source.dataset || []).length > 10 && !isPrintVersion">
         <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
@@ -15,7 +15,16 @@
         v-bind:search="search"
         v-bind:items-per-page="15"
         v-bind:multi-sort="true"
+        v-bind:hide-default-footer="isPrintVersion"
+        v-bind:disable-pagination="isPrintVersion"
         class="elevation-1">
+        <!-- eslint-disable vue/valid-v-slot -->
+        <template #footer.prepend>
+          <v-btn icon colo1r="primary" v-on:click="exportToExcel">
+            <v-icon title="Экспорт в Excel">mdi-export</v-icon>
+          </v-btn>
+          Экспорт в Excel
+        </template>        
         <template #item="{ item }">
           <tr>
             <td 
@@ -43,6 +52,7 @@
 
   import DCLink from '../Controls/DCLink.vue';
   import DocMixin from './DocMixin';
+  import env, {Plugins} from '@/helpers/env';
 
   export default {
     name: 'DocTable',
@@ -70,6 +80,48 @@
       }
     },
     methods: {
+      exportToExcel() {
+        const template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><meta http-equiv="content-type" content="text/plain; charset=UTF-8"/></head><body><table>{table}</table></body></html>'
+              , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))); }
+              , format = function(s, c) { 	    	 
+                return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }); 
+              },
+              htmlEscape = function(str) {
+                return String(str)
+                  .replace(/&/g, '&amp;')
+                  .replace(/"/g, '&quot;')
+                  .replace(/'/g, '&#39;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/\n/g, '<br>');
+              },
+              ctx = {
+                worksheet: this.document || 'Worksheet', 
+                table: 
+                  '<tr>' + this.headers.map((header) => `<td>${header.text}</td>`).join('') + '</tr>' 
+                  + (this.source.dataset || []).map((row) => {
+                    return '<tr>' + 
+                      this.rowFields(row).map((cell) => {
+                        return `<td>${htmlEscape(cell.value)}</td>`;
+                      }).join('')
+                      + '</tr>';
+                  }).join('')
+              };
+
+        if (env.isPlugin(Plugins.idea)) {
+          window.$PAPI.download(
+            format(template, ctx),
+            'Экспорт в Excel',
+            'Выберите файл для сохранения выгрузки',
+            'xls'
+          );
+        } else {
+          const link = document.createElement('a');
+          link.download = `${this.document}.xls`;
+          link.href = 'data:application/vnd.ms-excel;base64,' + base64(format(template, ctx));
+          link.click();
+        }
+      },
       rowFields(row) {
         const result = this.headers.map((column) => {
           return {

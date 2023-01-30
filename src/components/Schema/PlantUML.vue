@@ -76,7 +76,8 @@
           y : 0,  // Позиция y
           items: (() => {
             const result = [
-              { title: 'Сохранить на диск', on: this.onDownload },
+              { title: 'Сохранить на диск SVG', on: () => this.onDownload('svg') },
+              { title: 'Сохранить на диск PNG', on: () => this.onDownload('png') },
               { title: 'Копировать PlantUML', on: () => copyToClipboard(this.uml) }
             ];
             this.sourceAvailable && result.push({ title: 'Копировать JSON', on: () => this.$emit(EVENT_COPY_SOURCE_TO_CLIPBOARD) });
@@ -227,6 +228,7 @@
         this.cacheViewBox = null;
         if (this.svgEl) {
           this.svgEl.style = null;
+          this.svgEl.setAttribute('encoding', 'UTF-8');
           this.doResize();
           href.elProcessing(this.svgEl);
           if (this.postrender) this.postrender(this.svgEl);
@@ -276,28 +278,72 @@
           this.menu.show = true;
         });
       },
-      // Сохранение SVG на диск
-      onDownload() {
-        if (env.isPlugin(Plugins.idea)) {
-          window.$PAPI.download(
-            // new XMLSerializer().serializeToString(this.svgEl),
-            this.svg,
-            'Сохранение диаграммы',
-            'Выберите файл для сохранения диграммы'
-          );
-        } else {
-          // const svgString = new XMLSerializer().serializeToString(this.svgEl);
+
+      // Генерирует изображение в формате SVG
+      getContentAsSVG() {
+        return new Promise((success) => {
           const svgString = this.svg;
           const svgDecoded = window.btoa(unescape(encodeURIComponent(svgString)));
-          const svgUrl = `data:image/svg+xml;base64,${svgDecoded}`;
+          success(`data:image/svg+xml;base64,${svgDecoded}`);
+        });
+      },
 
-          const link = document.createElement('a');
-          link.href = svgUrl;
-          link.download = 'download.svg';
-          document.body.appendChild(link);
-          link.click();
-          this.$nextTick(() => document.body.removeChild(link));
+      // Генерирует изображение в формате PNG
+      getContentAsPNG() {
+        return new Promise((success) => {
+          this.getContentAsSVG().then((content) => {
+            const svgImage = document.createElement('img');
+            svgImage.style.position = 'fixed';
+            svgImage.style.left = 0;
+            svgImage.style.top = 0;
+            svgImage.style.zIndex = '-999';
+            svgImage.onload = function() {
+              const canvas = document.createElement('canvas');
+              canvas.width = svgImage.clientWidth;
+              canvas.height = svgImage.clientHeight;
+              const canvasCtx = canvas.getContext('2d');
+              canvasCtx.drawImage(svgImage, 0, 0);
+              const imgData = canvas.toDataURL('image/png');
+              document.body.removeChild(svgImage);
+              success(imgData);
+            };
+            document.body.appendChild(svgImage);
+            svgImage.src = content;
+          });
+        });
+      },
+
+      // Сохранение SVG на диск
+      onDownload(mode) {
+        let promise = null;
+        let extension = null;
+        switch(mode) {
+          case 'png': 
+            promise = this.getContentAsPNG();
+            extension = 'png';
+            break;
+          default: 
+            promise = this.getContentAsSVG();
+            extension = 'svg';
         }
+
+        promise.then((content) => {
+          if (env.isPlugin(Plugins.idea)) {
+            window.$PAPI.download(
+              content,
+              'Сохранение диаграммы',
+              'Выберите файл для сохранения диаграммы',
+              extension
+            );
+          } else {
+            const link = document.createElement('a');
+            document.body.appendChild(link);
+            link.href = content;
+            link.download = `download.${extension}`;
+            link.click();
+            this.$nextTick(() => document.body.removeChild(link));
+          }
+        });
       }
     }
   };
