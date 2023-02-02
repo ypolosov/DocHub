@@ -1,5 +1,6 @@
 <template>
   <box class="space">
+    <context-menu v-model="menu.show" v-bind:x="menu.x" v-bind:y="menu.y" v-bind:items="contextMenu" />
     <dochub-anchor id="" />
     <div v-if="toc" class="toc" v-html="toc" />
     <markdown
@@ -12,7 +13,10 @@
       v-on:toc-rendered="tocRendered">
       {{ markdown }}
     </markdown>
-    <final-markdown v-if="showDocument" v-bind:template="outHTML" v-bind:base-u-r-i="url" />
+    <final-markdown 
+      v-if="showDocument"
+      v-bind:template="outHTML"
+      v-bind:base-u-r-i="url" />
     <v-progress-circular
       v-else
       v-bind:size="64"
@@ -31,11 +35,13 @@
   import DocMixin from './DocMixin';
   import mustache from 'mustache';
   import href from '../../helpers/href';
+  import ContextMenu from './DocContextMenu.vue';
 
   export default {
     name: 'DocMarkdown',
     components: {
       markdown,
+      ContextMenu,
       finalMarkdown: {
         components: {
           'dochub-object': DocMarkdownObject
