@@ -16,11 +16,6 @@
     <v-btn v-if="isSearchInCode" icon title="Найти в коде" v-on:click="gotoCode">
       <v-icon class="material-icons" style="display: inline">search</v-icon>
     </v-btn>
-    <!--
-      <v-btn icon title="Стравнить">
-        <v-icon>mdi-call-split</v-icon>
-      </v-btn>
-    -->
     <v-menu offset-y>
       <template #activator="{ on, attrs }">
         <v-btn icon v-bind="attrs" v-on="on">
@@ -29,8 +24,7 @@
       </template>
       <v-list>
         <v-list-item>
-          <v-checkbox
-            v-model="isPrintVersion" />
+          <v-checkbox v-model="isPrintVersion" />
           <v-list-item-title>Версия для печати</v-list-item-title>
         </v-list-item>
       </v-list>

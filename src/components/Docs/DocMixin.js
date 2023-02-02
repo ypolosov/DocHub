@@ -9,7 +9,14 @@ const SOURCE_ERROR = 'error';
 export default {
 	components: {
 		Box: {
-			template: '<div><v-alert v-for="error in errors" v-bind:key="error.key" type="error" style="white-space: pre-wrap;">{{error.message}}</v-alert><slot v-if="!errors.length"></slot></div>',
+			template: `
+			<div v-on:contextmenu="onContextMenu">
+				<v-alert v-for="error in errors" v-bind:key="error.key" type="error" style="white-space: pre-wrap;">
+					{{error.message}}
+				</v-alert>
+				<slot v-if="!errors.length"></slot>
+			</div>`,
+
 			created: function() {
 				this.$parent.$on('appendError', (error) => this.errors.push(
 					{
@@ -18,6 +25,11 @@ export default {
 					}
 				));
 				this.$parent.$on('clearErrors', () => this.errors = []);
+			},
+			methods: {
+				onContextMenu(event) {
+					this.$parent.$emit('showContextMenu', event);
+				}
 			},
 			data() {
 				return {errors: []};
@@ -60,6 +72,15 @@ export default {
 					}
 				}
 			}
+		},
+		showContextMenu(event) {
+			event.preventDefault();
+			this.menu.show = false;
+			this.menu.x = event.clientX;
+			this.menu.y = event.clientY;
+			this.$nextTick(() => {
+				this.menu.show = true;
+			});
 		}
 	},
 	computed: {
@@ -104,6 +125,13 @@ export default {
 			type: Boolean,
 			required: false,
 			default: undefined
+		},
+		// Контекстное меню
+		contextMenu: {
+			type: Array,
+			default() {
+				return [];
+			}
 		}
 	},
 	data() {
@@ -115,6 +143,11 @@ export default {
 		};
 		return {
 			error: null,
+			menu: {
+				show: false,
+				x: 0,
+				y: 0
+			},
 			source: {
 				provider,
 				status: SOURCE_READY,
@@ -146,6 +179,7 @@ export default {
 		gateway.removeListener('source/changed', this.onChangeSource);
 	},
 	mounted() {
+		this.$on('showContextMenu', this.showContextMenu);
 		this.doRefresh();
 	}
 };

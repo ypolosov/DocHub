@@ -10,7 +10,8 @@
         v-bind:path="currentPath"
         v-bind:get-content="getContentForPlugin"
         v-bind:to-print="isPrintVersion"
-        v-bind:pull-data="pullData" />
+        v-bind:pull-data="pullData"
+        v-bind:context-menu="contextMenu" />
       <v-alert v-else icon="warning">
         Неизвестный тип документа [{{ docType }}]
       </v-alert>
@@ -67,6 +68,12 @@
       params: { 
         type: Object,
         default: undefined
+      },
+      contextMenu: {
+        type: Array,
+        default() {
+          return [];
+        }
       }
     },
     data() {

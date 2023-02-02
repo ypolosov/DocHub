@@ -29,15 +29,19 @@
         absolute
         offset-y>
         <v-list>
-          <v-list-item
-            v-for="(item, index) in menu.items"
-            v-bind:key="index"
-            link>
-            <v-list-item-title
-              v-on:click="item.on">
-              {{ item.title }}
-            </v-list-item-title>
-          </v-list-item>
+          <template
+            v-for="(item, index) in menuItems">
+            <v-list-item
+              v-if="item"
+              v-bind:key="item.id"
+              link>
+              <v-list-item-title
+                v-on:click="item.on(item)">
+                {{ item.title }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-divider v-else v-bind:key="index" />
+          </template>
         </v-list>
       </v-menu>
     </error-boundary>
@@ -63,7 +67,8 @@
       uml: { type: String, default: '' },         // PlantUML диаграмма
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       postrender: { type: Function, default: () => {} }, // POST обработчик
-      sourceAvailable: { type: Boolean, default: false }
+      sourceAvailable: { type: Boolean, default: false },
+      contextMenu: { type: Array, default() {return []; } }
     },
     emits: [
       EVENT_COPY_SOURCE_TO_CLIPBOARD // Копирование источника данных
@@ -76,9 +81,9 @@
           y : 0,  // Позиция y
           items: (() => {
             const result = [
-              { title: 'Сохранить на диск SVG', on: () => this.onDownload('svg') },
-              { title: 'Сохранить на диск PNG', on: () => this.onDownload('png') },
-              { title: 'Копировать PlantUML', on: () => copyToClipboard(this.uml) }
+              { id:'save-svg', title: 'Сохранить на диск SVG', on: () => this.onDownload('svg') },
+              { id: 'save-png', title: 'Сохранить на диск PNG', on: () => this.onDownload('png') },
+              { id: 'copy-puml', title: 'Копировать PlantUML', on: () => copyToClipboard(this.uml) }
             ];
             this.sourceAvailable && result.push({ title: 'Копировать JSON', on: () => this.$emit(EVENT_COPY_SOURCE_TO_CLIPBOARD) });
             return result;
@@ -102,6 +107,11 @@
       };
     },
     computed: {
+      menuItems() {
+        const result = [].concat(this.contextMenu);
+        result.length && result.push(null);
+        return result.concat(this.menu.items);
+      },
       viewBox() {
         if (!this.svgEl) {
           return {
@@ -270,13 +280,14 @@
         });
       },
       showMenu(event) {
-        event.preventDefault();
         this.menu.show = false;
         this.menu.x = event.clientX;
         this.menu.y = event.clientY;
         this.$nextTick(() => {
           this.menu.show = true;
         });
+        event.preventDefault();
+        event.stopPropagation();
       },
 
       // Генерирует изображение в формате SVG

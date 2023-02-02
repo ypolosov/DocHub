@@ -1,6 +1,6 @@
 <template>
   <box>
-    <plantuml v-if="uml" v-bind:uml="uml" />
+    <plantuml v-if="uml" v-bind:uml="uml" v-bind:context-menu="contextMenu" />
   </box>
 </template>
 
