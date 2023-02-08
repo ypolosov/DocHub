@@ -13,7 +13,9 @@
   import SberDSL from '!!raw-loader!../../assets/sber_dsl.txt';
   import requests from '@/helpers/requests';
   import copyToClipboard from '../../helpers/clipboard';
-
+  import AsyncComputed from 'vue-async-computed';
+  import Vue from 'vue';
+  Vue.use(AsyncComputed);
   export default {
     name: 'Schema',
     components: {
@@ -44,54 +46,8 @@
         rawUML: null
       };
     },
-    computed: {
-      extraLinks() {
-        return !('extra' in this.schema) || (this.schema.extra !== false);
-      },
-
-      renderCore() {
-        return this.$store.state.renderCore;
-      },
-
-      structure() {
-        // Структура схемы
-        const structure = {
-          namespaces: {},
-          links: {}
-        };
-
-        // Размещает компонент в структуре схемы
-        const expandComponent = (component, extra) => {
-          let namespaces = structure.namespaces;
-          component.namespaces && component.namespaces.map((namespace) => {
-            !namespaces.namespaces && (namespaces.namespaces = {});
-            !namespaces.namespaces[namespace.id] && (namespaces.namespaces[namespace.id] = Object.assign({}, namespace));
-            namespaces = namespaces.namespaces[namespace.id];
-          });
-          !namespaces.components && (namespaces.components = {});
-          if (!extra || !namespaces.components[component.id]) {
-            namespaces.components[component.id] = Object.assign({extra}, component);
-          }
-        };
-
-        (this.schema.components || []).map((component) => {
-          // Разбираем компонент
-          expandComponent(component, false);
-          // Разбираем зависимости компонента
-          (component.links || []).map((link) => {
-            expandComponent(link, true);
-            structure.links[`${component.id} ${link.direction} ${link.id}`] =
-              Object.assign(link, { linkFrom: component.id, linkTo: link.id});
-          /*
-          structure.links[`[${component.id}] ${link.direction} [${link.id}]`] =
-              Object.assign(link, { linkFrom: component.id, linkTo: link.id});
-          */
-          });
-        });
-
-        return structure;
-      },
-      uml() {
+    asyncComputed: {
+      async uml() {
 
         if (!this.schema.components) return '';
 
@@ -113,19 +69,22 @@
           case 'elk': uml += '!pragma layout elk\n'; break;
           case 'graphviz': uml += '!pragma layout graphviz\n'; break;
         }
-
-        switch (notation.toLowerCase()) {
-          case 'sber':
-            uml += `${SberDSL}\n`;
-            break;
-          case 'c4model':
-            uml += `${C4ModelDSL}\n`;
-            break;
-          case 'plantuml':
-          default:
-            uml += `${PlantUMLDSL}\n`;
+        if (this.schema.uml && this.schema.uml.$dsl) {
+          const dsl = await requests.request( this.schema.uml.$dsl, this.$parent.baseURI);
+          uml += dsl.data;
+        }else{
+          switch (notation.toLowerCase()) {
+            case 'sber':
+              uml += `${SberDSL}\n`;
+              break;
+            case 'c4model':
+              uml += `${C4ModelDSL}\n`;
+              break;
+            case 'plantuml':
+            default:
+              uml += `${PlantUMLDSL}\n`;
+          }
         }
-
         this.orientation === 'horizontal' && (uml += 'left to right direction\n');
         if(this.schema) {
           if (this.schema.uml) {
@@ -180,16 +139,6 @@
               const title = this.makeRef('component', component.id, component.title);
               // Если компонент является системой, описываем его через DSL
               let entity = (component.entity || 'component').toString();
-              // todo Костыль для совместимости. Нужно будет удалить, когда все перейдут на новый синтаксис
-              switch (entity) {
-                case 'system':
-                  entity = '$System';
-                  break;
-                case 'person':
-                  entity = '$Person';
-                  break;
-              }
-              if (entity === 'system') entity = '$System';
               // Формируем список аспектов
               const aspectList = [];
               (component.aspects || []).map((aspect) => {
@@ -197,24 +146,13 @@
                 aspectList.push(aspectTitle);
               });
 
-              // Если сущность описана с "$", предполагается, что это DSL шаблон
-              if (entity.slice(0,1) === '$') {
-                result += `${entity}(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n`;
-                aspectList.map((prop) => {
-                  result += `${entity}Aspect("${prop}")\n`;
-                });
-                if (component.is_context)
-                  result += `${entity}Expand(${component.id})\n`;
-                result += `\n${entity}End()\n`;
-              } else {
-                if (aspectList.length || component.is_context) {
-                  result += `${entity} ${component.id}`;
-                  result += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n`;
-                  result += component.is_context ? `---\n[[/architect/contexts/${component.id} ≫≫]]\n]`: ']';
-                } else {
-                  result += `${entity} "<b>${title}</b>" as ${component.id}`;
-                }
-              }
+              result += `$Entity("${entity}", "${title}", ${component.id} , ${component.type ? '"' + component.type + '"' : ''})\n`;
+              aspectList.map((prop) => {
+                result += `$EntityAspect("${entity}","${prop}")\n`;
+              });
+              if (component.is_context)
+                result += `$EntityExpand("${entity}", ${component.id})\n`;
+              result += `\n$EntityEnd("${entity}")\n`;
               result += '\n';
             }
             if (namespace.id && notEmpty) {
@@ -244,6 +182,54 @@
         uml += '@enduml';
 
         return uml;
+      }
+    },
+    computed: {
+      extraLinks() {
+        return !('extra' in this.schema) || (this.schema.extra !== false);
+      },
+
+      renderCore() {
+        return this.$store.state.renderCore;
+      },
+
+      structure() {
+        // Структура схемы
+        const structure = {
+          namespaces: {},
+          links: {}
+        };
+
+        // Размещает компонент в структуре схемы
+        const expandComponent = (component, extra) => {
+          let namespaces = structure.namespaces;
+          component.namespaces && component.namespaces.map((namespace) => {
+            !namespaces.namespaces && (namespaces.namespaces = {});
+            !namespaces.namespaces[namespace.id] && (namespaces.namespaces[namespace.id] = Object.assign({}, namespace));
+            namespaces = namespaces.namespaces[namespace.id];
+          });
+          !namespaces.components && (namespaces.components = {});
+          if (!extra || !namespaces.components[component.id]) {
+            namespaces.components[component.id] = Object.assign({extra}, component);
+          }
+        };
+
+        (this.schema.components || []).map((component) => {
+          // Разбираем компонент
+          expandComponent(component, false);
+          // Разбираем зависимости компонента
+          (component.links || []).map((link) => {
+            expandComponent(link, true);
+            structure.links[`${component.id} ${link.direction} ${link.id}`] =
+              Object.assign(link, {linkFrom: component.id, linkTo: link.id});
+            /*
+          structure.links[`[${component.id}] ${link.direction} [${link.id}]`] =
+              Object.assign(link, { linkFrom: component.id, linkTo: link.id});
+          */
+          });
+        });
+
+        return structure;
       }
     },
     methods: {
