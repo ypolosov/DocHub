@@ -105,44 +105,6 @@ bordercolor #4e4948
 backgroundcolor pink
 }
 
-'АС
-'#################################################################
-!unquoted procedure $System($ID, $ACName, $ACType="")
-    !if ($ACType)
-        class "$ACName" as $ID <<$ACType>>
-    !else
-        class "$ACName" as $ID
-    !endif
-    {
-!endprocedure
-
-!unquoted procedure $SystemEnd()
-    }
-!endprocedure
-
-!unquoted procedure $SystemExpand($ID)
-    [[/architect/contexts/$ID ≫≫]]
-!endprocedure
-
-'Свойства для АС
-'#################################################################
-!unquoted procedure $SystemAspect($func="", $type="")
-/'!if ($func!= "")
-	!if (%strpos($type, "+") == 0)
-<size:13><&plus,color=red></size> $func
-	!else
-		!if (%strpos($type, "-") == 0)
-<size:13><&x,color=red></size> $func
-		!else
-			!if (%strpos($type, "*") == 0)
-<size:13><&media-record,color=red></size> $func
-			!else
-<size:13><&media-record,color=black></size> $func
-			!endif
-		!endif
-	!endif
-!endif'/
-!endprocedure
 
 'Стек для АС
 '#################################################################
@@ -196,32 +158,8 @@ backgroundcolor pink
     title $Title
 !endprocedure
 
-'Person
-'#################################################################
-!unquoted procedure $Person($PersonID, $PersonName, $Type)
-component $PersonID <<Person>> [
-..<size:88><&person,color=white></size>..
-..===$PersonName..
-]
-!endprocedure
 
-!unquoted procedure $PersonEnd()
-!endprocedure
 
-!unquoted procedure $PersonAspect($title, $id)
-!endprocedure
-
-!unquoted procedure $PersonExpand($id)
-!endprocedure
-
-'Device
-'#################################################################
-!unquoted procedure $Device($DeviceID, $DeviceName)
-component $DeviceID <<Device>> [
-..<size:88><&monitor,color=Blue></size>..
-..===$DeviceName..
-]
-!endprocedure
 
 'Region
 '##################################
@@ -249,4 +187,73 @@ $from -[hidden]left- $to
 
 !unquoted procedure $LayoutRight($from, $to)
 $from -[hidden]right- $to
+!endprocedure
+
+
+!unquoted procedure $Entity($entity, $ACName, $id, $ACType)
+    !if ($entity == component)
+        component "$ACName" as $id
+    !elseif ($entity == device)
+        !unquoted procedure $Device($DeviceID, $DeviceName)
+        component $DeviceID <<Device>> [
+        ..<size:88><&monitor,color=Blue></size>..
+        ..===$DeviceName..
+        ]
+    !elseif ($entity == system)
+        !if ($ACType)
+            class "$ACName" as $ID <<$ACType>>
+        !else
+            class "$ACName" as $ID
+        !endif
+        {
+    !elseif ($entity == actor || $entity == person)
+        component $PersonID <<Person>> [
+        ..<size:88><&person,color=white></size>..
+        ..===$PersonName..
+        ]
+    !else
+        $entity $id [
+            <b>$ACName</b>
+            ====
+    !endif
+!endprocedure
+
+!unquoted procedure $EntityEnd($entity)
+    !if ($entity == component)
+'nothing
+    !elseif ($entity == device)
+'nothing
+    !elseif ($entity == system)
+        }
+    !elseif ($entity == actor || $entity == person)
+'nothing
+    !else
+        ]
+    !endif
+!endprocedure
+
+!unquoted procedure $EntityAspect($entity, $prop)
+    !if ($entity == component)
+        * $prop
+    !elseif ($entity == device)
+'nothing
+    !elseif ($entity == system)
+        * $func
+    !elseif ($entity == actor || $entity == person)
+'nothing
+    !else
+        * $prop
+    !endif
+!endprocedure
+
+!unquoted procedure $EntityExpand($entity, $ID)
+    !if ($entity == component)
+'nothing
+    !elseif ($entity == system)
+        [[/architect/contexts/$ID ≫≫]]
+    !elseif ($entity == actor || $entity == person)
+'nothing
+    !else
+'nothing
+    !endif
 !endprocedure

@@ -139,16 +139,6 @@
               const title = this.makeRef('component', component.id, component.title);
               // Если компонент является системой, описываем его через DSL
               let entity = (component.entity || 'component').toString();
-              // todo Костыль для совместимости. Нужно будет удалить, когда все перейдут на новый синтаксис
-              switch (entity) {
-                case 'system':
-                  entity = '$System';
-                  break;
-                case 'person':
-                  entity = '$Person';
-                  break;
-              }
-              if (entity === 'system') entity = '$System';
               // Формируем список аспектов
               const aspectList = [];
               (component.aspects || []).map((aspect) => {
@@ -156,24 +146,13 @@
                 aspectList.push(aspectTitle);
               });
 
-              // Если сущность описана с "$", предполагается, что это DSL шаблон
-              if (entity.slice(0,1) === '$') {
-                result += `${entity}(${component.id}, "${title}", ${component.type ? '"' + component.type + '"' : ''})\n`;
-                aspectList.map((prop) => {
-                  result += `${entity}Aspect("${prop}")\n`;
-                });
-                if (component.is_context)
-                  result += `${entity}Expand(${component.id})\n`;
-                result += `\n${entity}End()\n`;
-              } else {
-                if (aspectList.length || component.is_context) {
-                  result += `${entity} ${component.id}`;
-                  result += `[\n<b>${title}</b>\n====\n* ${aspectList.join('\n----\n* ')}\n`;
-                  result += component.is_context ? `---\n[[/architect/contexts/${component.id} ≫≫]]\n]`: ']';
-                } else {
-                  result += `${entity} "<b>${title}</b>" as ${component.id}`;
-                }
-              }
+              result += `$Entity("${entity}", "${title}", ${component.id} , ${component.type ? '"' + component.type + '"' : ''})\n`;
+              aspectList.map((prop) => {
+                result += `$EntityAspect("${entity}","${prop}")\n`;
+              });
+              if (component.is_context)
+                result += `$EntityExpand("${entity}", ${component.id})\n`;
+              result += `\n$EntityEnd("${entity}")\n`;
               result += '\n';
             }
             if (namespace.id && notEmpty) {
