@@ -6,7 +6,6 @@ import '../node_modules/@mdi/font/css/materialdesignicons.min.css';
 import '@/assets/styles/prism.css';
 import '@/assets/libs/prism';
 
-
 import Axios from 'axios';
 import Vue from 'vue';
 import VueCookie from 'vue-cookie';
@@ -15,7 +14,7 @@ import Vuex from 'vuex';
 import VsCode from './vscode';
 import Root from './components/Root.vue';
 import router from './router';
-import VueSplit from 'vue-split-panel';
+import VueSplit from './assets/libs/vue-split-panel.min';
 
 import Aspect from './components/Architecture/Aspect.vue';
 import Component from './components/Architecture/Component.vue';
