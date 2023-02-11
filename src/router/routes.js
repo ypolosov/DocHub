@@ -13,10 +13,17 @@ import AspectsMindmap from '../components/Mindmap/AspectsMindmap';
 import Empty from '../components/Controls/Empty';
 import DevTool from '../components/JSONata/DevTool';
 import Entity from '../components/Entities/Entity';
+import SSOError from '../components/sso/SSOError';
+import cookie from 'vue-cookie';
 
 const middleware = (route) => {
 	if (config.oauth !== false && !window.Vuex.state.isOAuthProcess && !window.Vuex.state.access_token) {
-		window.location = new URL(
+      cookie.set('return-route', JSON.stringify({
+        path: route.path,
+        query: route.query,
+        hash: route.hash
+      }), 1);
+      window.location = new URL(
 			`/oauth/authorize?client_id=${config.oauth.APP_ID}`
             + '&redirect_uri=' + new URL(consts.pages.OAUTH_CALLBACK_PAGE, window.location)
             + `&response_type=code&state=none&scope=${config.oauth.REQUESTED_SCOPES}`
@@ -117,6 +124,11 @@ const routes = [
     name: 'home',
     path: '/',
     redirect: { name: 'main' }
+  },
+  {
+    name: 'ssoerror',
+    path: '/sso/error',
+    component: SSOError
   },
   {
     name: 'Empty',
