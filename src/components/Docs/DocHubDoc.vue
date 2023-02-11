@@ -28,9 +28,9 @@
   import DocTable from './DocTable.vue';
   import DocMermaid from './DocMermaid.vue';
   import DocNetwork from './DocNetwork.vue';
+  import DocSmartants from './DocSmartAnts.vue';
   import Empty from '../Controls/Empty.vue';
   import requests from '@/helpers/requests';
-  // import query from '@/manifest/query';
   import datasets from '@/helpers/datasets';
 
   // Встроенные типы документов
@@ -41,7 +41,8 @@
     [DocTypes.MARKDOWN]: 'doc-markdown',
     [DocTypes.TABLE]: 'doc-table',
     [DocTypes.MERMAID]: 'doc-mermaid',
-    [DocTypes.NETWORK]: 'doc-network'
+    [DocTypes.NETWORK]: 'doc-network',
+    [DocTypes.SMARTANTS]: 'doc-smartants'
   };
 
   
@@ -55,7 +56,8 @@
       DocTable,
       Empty,
       DocMermaid,
-      DocNetwork
+      DocNetwork,
+      DocSmartants
     },
     props: {
       path: {
