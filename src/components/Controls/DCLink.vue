@@ -30,7 +30,6 @@
       },
       onClick(event) {
         const struct = (this.href || '').split(':/');
-
         if (struct[0] === 'plugin') {
           const url = new URL(this.href);
           window.$PAPI.goto(`plugin:${url.pathname}`, url.searchParams.get('entity'), url.searchParams.get('id'));

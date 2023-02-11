@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import cookie from 'vue-cookie';
 
 import gateway from '../idea/gateway';
 import appRoutes from './routes';
@@ -36,7 +37,8 @@ if (!env.isPlugin(Plugins.idea)) {
 					: new URLSearchParams(route.hash.substr(1)).get('code');
 				if (OAuthCode) {
 					window.Vuex.dispatch('onReceivedOAuthCode', OAuthCode);
-					return {
+					const rRoute = cookie.get('return-route');
+					return rRoute ? JSON.parse(rRoute) : {
 						path: '/main',
 						query: {},
 						hash: ''

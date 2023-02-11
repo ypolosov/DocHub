@@ -2,48 +2,12 @@
   <v-app
     id="keep"
     v-bind:class="{'no-select-text': isDrawerResize}">
-    <v-app-bar
-      app
-      clipped-left
-      color="#3495db"
-      dark
-      style="z-index: 99">
-      <v-btn v-if="isBackShow" icon v-on:click="back">
-        <v-icon>arrow_back</v-icon>
-      </v-btn>
-      <v-app-bar-nav-icon v-on:click="drawer = !drawer">
-        <header-logo />
-      </v-app-bar-nav-icon>
-      <v-toolbar-title style="cursor: pointer" v-on:click="onLogoClick">DocHub</v-toolbar-title>
-      <v-spacer />
-      <v-btn v-if="isSearchInCode" icon title="Найти в коде" v-on:click="gotoCode">
-        <v-icon class="material-icons" style="display: inline">search</v-icon>
-      </v-btn>
-      <!--
-        <v-btn icon title="Стравнить">
-          <v-icon>mdi-call-split</v-icon>
-        </v-btn>
-      -->
-      <v-menu offset-y>
-        <template #activator="{ on, attrs }">
-          <v-btn icon v-bind="attrs" v-on="on">
-            <v-icon>mdi-dots-vertical</v-icon>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item>
-            <v-checkbox
-              v-model="isPrintVersion" />
-            <v-list-item-title>Версия для печати</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-app-bar>
+    <header-component v-on:handleDrawer="handleDrawer" />
     <v-navigation-drawer
       ref="drawer"
       v-model="drawer"
       v-bind:width="width"
-      v-bind:temporary="isPrintVersion"
+      v-bind:temporary="navIsTemporary"
       app
       clipped
       color="grey lighten-4"
@@ -51,10 +15,10 @@
       <menu-component />
     </v-navigation-drawer>
     <plugin-init v-if="isNotInited" />
-    <v-content v-else style="min-height:100%" class="router-view">
+    <v-main v-else style="min-height:100%" class="router-view">
       <problems v-if="isCriticalError" />
       <router-view v-else />
-    </v-content>
+    </v-main>
     <template v-if="isLoading">
       <div class="loading-splash" />
       <v-progress-circular
@@ -71,10 +35,10 @@
 <script>
 
   import MenuComponent from './Layouts/Menu';
-  import HeaderLogo from './Layouts/HeaderLogo';
+  import HeaderComponent from './Layouts/Header';
   import PluginInit from '../idea/components/Init.vue';
   import Problems from './Problems/Problems.vue';
-  import env, {Plugins} from '@/helpers/env';
+  import env from '@/helpers/env';
 
   const minDrawerSize = 200;
   const defaultDrawerSize = 300;
@@ -82,8 +46,8 @@
   export default {
     name: 'Root',
     components: {
-      HeaderLogo,
       MenuComponent,
+      HeaderComponent,
       PluginInit,
       Problems
     },
@@ -92,9 +56,7 @@
         drawer: null,
         isDrawerResize: false,
         width: defaultDrawerSize,
-        isPlugin: env.isPlugin(),
-        isSearchInCode: env.isPlugin(Plugins.idea),
-        isBackShow: env.isPlugin(Plugins.vscode)
+        isPlugin: env.isPlugin()
       };
     },
     computed: {
@@ -107,14 +69,8 @@
       isCriticalError() {
         return this.isPlugin && this.$store.state.criticalError;
       },
-      isPrintVersion: {
-        set(value) {
-          this.drawer = !value;
-          this.$store.commit('setPrintVersion', value);
-        },
-        get() {
-          return this.$store.state.isPrintVersion;
-        }
+      navIsTemporary() {
+        return this.$store.state.isPrintVersion;
       }
     },
     mounted() {
@@ -152,39 +108,8 @@
       );
     },
     methods: {
-      back() {
-        this.$router.back();
-      },
-      onLogoClick() {
-        if (this.isPlugin) {
-          window.open('https://dochub.info', '_blank');
-        } else {
-          this.$router.push({name: 'main'}).catch(() => null);
-        }
-      },
-      gotoCode() {
-        // eslint-disable-next-line no-console
-        // console.info('For GOTO ', window.location.hash);
-        const struct = window.location.hash.split('/');
-        switch (struct[1]) {
-          case 'architect': {
-            switch (struct[2]) {
-              case 'contexts': 
-                window.$PAPI.goto(null, 'context', struct[3]); 
-                break;
-              case 'aspects': 
-                window.$PAPI.goto(null, 'aspect', struct[3]); 
-                break;
-              case 'components': 
-                window.$PAPI.goto(null, 'component', struct[3]); 
-                break;
-            }
-            break;
-          }
-          case 'docs': 
-            window.$PAPI.goto(null, 'document', struct[2]); 
-            break;
-        }
+      handleDrawer(value) {
+        this.drawer = value ?? !this.drawer;
       }
     }
   };

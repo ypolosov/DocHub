@@ -10,7 +10,8 @@ module.exports = {
     'src'
   ],
   moduleNameMapper: {
-    '^@/storage/(.*)': '<rootDir>/src/storage/$1'
+    '^@/storage/(.*)': '<rootDir>/src/storage/$1',
+    '^@/helpers/(.*)': '<rootDir>/src/helpers/$1'
   },
   moduleFileExtensions: [
     'js',

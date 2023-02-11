@@ -5,5 +5,6 @@ export const DocTypes = {
 	MARKDOWN: 'markdown',
 	TABLE: 'table',
 	MERMAID: 'mermaid',
-	NETWORK: 'network'
+	NETWORK: 'network',
+	SMARTANTS: 'smartants'
 };
