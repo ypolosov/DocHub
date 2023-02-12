@@ -5,6 +5,7 @@ node_modules
 /certs
 /gitlab
 /plugins
+/src/hidden
 
 ./plugins.json
 

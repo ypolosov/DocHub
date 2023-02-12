@@ -57,7 +57,7 @@ rules:
             $COMPONENT_ID := $keys()[0];
             *.aspects.
               {                   
-                "componentID": COMPONENT_ID,
+                "componentID": $COMPONENT_ID,
                 "aspectID": $
               };
           )[$ and $not($exists($lookup($MANIFEST.aspects, aspectID)))]
