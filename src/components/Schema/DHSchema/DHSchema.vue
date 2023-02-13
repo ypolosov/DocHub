@@ -33,6 +33,13 @@
       v-bind:width="landscape.viewBox.width - 24" 
       v-bind:text="animation.information" />
 
+    <schema-debug-node 
+      v-if="debug"
+      v-bind:offset-x="0"
+      v-bind:offset-y="0"
+      v-bind:layer="presentation.layers" 
+      v-on:node-click="onNodeClick" />
+
     Тут должны была быть схема, но что-то пошло не так...
   </svg>
 </template>
@@ -40,6 +47,7 @@
 <script>
   import SchemaNode from './DHSchemaNode.vue';
   import SchemaTrack from './DHSchemaTrack.vue';
+  import SchemaDebugNode from './DHSchemaDebugNode.vue';
   import env from '@/helpers/env';
 
   if (!env.isProduction() && (process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE || 'n').toLocaleLowerCase() === 'y' ) {
@@ -62,13 +70,15 @@
 
   const testMode = 'fixed'; //fixed
   const OPACITY = 0.3;
+  const IS_DEBUG = true;
 
   export default {
     name: 'DHSchema',
     components: {
       SchemaNode,
       SchemaTrack,
-      SchemaInfo
+      SchemaInfo,
+      SchemaDebugNode
     },
     mixins: [ DHSchemaAnimationMixin ],
     props: {
@@ -108,15 +118,9 @@
       }},
     data() {
       return {
-        test: {
-          start: {},
-          end: {},
-          wave: {},
-          path: [],
-          isError: false,
-          lastData: null,
-          showWave: false
-        },
+        debug: IS_DEBUG ? {
+          
+        } : null,
         selected: {
           links: {},
           nodes: {}
@@ -262,14 +266,7 @@
           ++i;
         }
 
-        this.test.lastData = {
-          symbols: this.data.symbols,
-          nodes: selectedNodes,
-          links: randomLinks
-        };
-
         this.rebuildPresentation(selectedNodes, randomLinks);
-
       },
       // Отчистка
       clear() {
@@ -402,7 +399,8 @@
           trackWidth,
           distance,
           this.landscape.symbols,
-          availableWidth
+          availableWidth,
+          this.debug
         )
           .then((presentation) => {
             this.presentation = presentation;
@@ -438,6 +436,7 @@
 .dochub-schema {
   /* border: solid 2px #ff0000; */
   /* max-height: calc(100vh - 64px); */
+  aspect-ratio: unset;
 }
 
 .wave-cell {

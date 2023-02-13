@@ -154,10 +154,21 @@
       line() {
         const track = this.track.path;
         if (track.length < 2) return '';
+
         let result = `M${track[0].x} ${track[0].y}`;
-        for (let i = 1; i < track.length; i++) {
-          result += ` L ${track[i].x} ${track[i].y}`;
+
+        const len = this.track.path.length;
+        let oldX = track[0].x;
+        let oldY = track[0].y;
+        for (let i = 1; i < len; i++) {
+          if ((oldX !== track[i].x) && (oldY !== track[i].y)) {
+            result += ` L ${track[i-1].x} ${track[i-1].y}`;
+            result += ` L ${track[i].x} ${track[i].y}`;
+            oldX = track[i].x;
+            oldY = track[i].y;
+          }
         }
+        result += ` L ${track[len - 1].x} ${track[len - 1].y}}`;
 
         result = rounding(result, TRACK_SMOOTHING); // Сглаживаем
 
@@ -229,6 +240,7 @@
 }
 
 .track {
+  cursor: crosshair;
   stroke: rgb(52, 149, 219);
   stroke-width: 2;
   stroke-linejoin: round;
@@ -284,16 +296,13 @@
 }
 
 
-
 /* Стили треков */
 .track-highlight {
   stroke: #ff0000;
-  cursor: crosshair;
   z-index: 10000;
 }
 
 .title-highlight {
-  cursor: crosshair;
   z-index: 10000;
 }
 

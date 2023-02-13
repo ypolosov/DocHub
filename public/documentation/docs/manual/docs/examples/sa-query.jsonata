@@ -63,7 +63,7 @@
     ));
     {
         "config": {
-            "distance": 130,
+            "distance": 300,
             "trackWidth": 24
         },
         "symbols": $symbols,
