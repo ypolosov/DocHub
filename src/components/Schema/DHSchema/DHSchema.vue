@@ -48,13 +48,8 @@
   import SchemaNode from './DHSchemaNode.vue';
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
-  import env from '@/helpers/env';
 
-  if (!env.isProduction() && (process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE || 'n').toLocaleLowerCase() === 'y' ) {
-    require('../../../hidden/smartants');
-  } else {
-    require('../../../assets/libs/smartants');
-  }
+  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE || '../../../assets/libs/smartants');
 
   const  Graph = window.$SmartAnts;
 
