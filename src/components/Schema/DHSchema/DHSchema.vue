@@ -70,7 +70,6 @@
   import SVGSymbolDatabase from '!!raw-loader!./symbols/database.xml';  
   import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';  
 
-  const testMode = 'fixed'; //fixed
   const OPACITY = 0.3;
   const IS_DEBUG = true;
 
@@ -214,66 +213,15 @@
       this.$on('prev', () => {
         this.animationPrev();
       });
-      if (testMode === 'random') {
-        this.makeRandom();
-        setInterval(() => {
-          this.makeRandom();
-        }, 5000);
-      } else {
-        this.$nextTick(() => {
-          this.rebuildPresentation();
-        });
-      }
+
+      this.$nextTick(() => {
+        this.rebuildPresentation();
+      });
     },
     beforeDestroy(){
       window.removeEventListener('resize', this.rebuildViewBox);
     },
     methods: {
-      // Генерация рандомных данных
-      makeRandom() {
-        const symbols = Object.keys(this.data.symbols);
-
-        // this.clear();
-        const selectedNodes = {};
-        const randomLinks = [];
-        const generateNodes = () => {
-          for(const node in this.data.nodes) {
-            if (Math.random() * 100 > 50) 
-              selectedNodes[node] = Object.assign(this.data.nodes[node],{
-                symbol: symbols[Math.round(Math.random() * (symbols.length - 1))]
-              });
-          }
-        };
-
-        let ids = Object.keys(selectedNodes);
-        while (ids.length < 3) {
-          generateNodes();
-          ids = Object.keys(selectedNodes);
-        }
-
-        const max = ids.length - 1;
-        const linkCount = Math.round(Math.random() * 20 + 5);
-        for(let i = 0; i < linkCount; ) {
-          const from = Math.round(Math.random() * max);
-          const to = Math.round(Math.random() * max);
-          const fromID = ids[from];
-          const toID = ids[to];
-          if (
-            (from === to) 
-            || (fromID.substring(0, toID.length) === toID)
-            || (toID.substring(0, fromID.length) === fromID)
-          ) continue;
-          randomLinks.push({
-            from: fromID,
-            to: toID,
-            style: ['<->', '<-', '->'][Math.round(Math.random() * 2)],
-            title: ['Title 1', 'Title 2', 'Title 3', 'Title 4'][Math.round(Math.random() * 3)]
-          });
-          ++i;
-        }
-
-        this.rebuildPresentation(selectedNodes, randomLinks);
-      },
       // Отчистка
       clear() {
         this.presentation = {
@@ -415,8 +363,8 @@
             this.cleanSelectedNodes();
           })
           .catch((e) => {
+            // eslint-disable-next-line no-console
             console.error(e);
-            if (testMode === 'random') this.makeRandom();
           });
       },
       // Рассчитывает размерность примитивов (символов)

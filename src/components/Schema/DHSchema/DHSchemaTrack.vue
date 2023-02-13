@@ -106,15 +106,6 @@
         }
 
         return result;
-        /* 
-
-        const isRotate = segments[maxSegment.index].isRotate;
-        return {
-          text: isRotate ? this.track.link.title.split('').reverse().join('') : this.track.link.title,
-          rotate: isRotate ? 180 : 0,
-          offset: Math.round(maxSegment.size * 0.5 + segments[maxSegment.index].offset)
-        };
-        */
       },
       id() {
         return this.track.id;
