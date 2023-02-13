@@ -11,9 +11,16 @@
     encoding="UTF-8"
     v-bind:style="style"
     v-on:mousedown="onClickSpace">
-    <defs>
-      <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
-    </defs>
+    <template v-if="isFirefox">
+      <g class="symbols">
+        <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
+      </g>
+    </template>
+    <template v-else>
+      <defs>
+        <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
+      </defs>
+    </template>
     <schema-node 
       v-bind:offset-x="0"
       v-bind:offset-y="0"
@@ -137,6 +144,10 @@
       };
     },
     computed: {
+      // Проверяем что в Firefox
+      isFirefox() {
+        return navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+      },
       // Возвращает определения (defs) примитивов диаграммы
       symbols() {
         const result = [
@@ -209,9 +220,14 @@
           this.makeRandom();
         }, 5000);
       } else {
+        setInterval(() => {
+          this.rebuildPresentation();
+        }, 100);
+        /*
         this.$nextTick(() => {
           this.rebuildPresentation();
         });
+        */
       }
     },
     beforeDestroy(){
@@ -374,11 +390,11 @@
           const delta = (clientWidth - width) * 0.5;
           this.landscape.viewBox.left = - delta;
           this.landscape.viewBox.width = width + delta * 2;
-          this.style.height = `${height}`;
+          this.style.height = `${height}px`;
         } else {
           this.landscape.viewBox.left = 0;
           this.landscape.viewBox.width = width;
-          this.style.height = `${height * (clientWidth / width)}`;
+          this.style.height = `${height * (clientWidth / width)}px`;
         }
       },
       // Перестроение презентации
@@ -410,6 +426,7 @@
       },
       // Рассчитывает размерность примитивов (символов)
       recalcSymbols() {
+        debugger;
         this.landscape.symbols = {};
         this.symbols.map((item) => {
           const symbol = this.$el.getElementById(item.id);
@@ -451,6 +468,10 @@
 .error-cell {
   fill: #f00;
   stroke: #fff;
+}
+
+.symbols * {
+  opacity: 0;
 }
 
 </style>
