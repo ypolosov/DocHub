@@ -17,19 +17,16 @@
       v-on:mousedown.stop.prevent="onTrackClick" />
     <text
       v-if="title"
-      dy="-6px"
-      v-bind:rotate="title.rotate"
+      v-bind:x="title.point.x"
+      v-bind:y="title.point.y"
       v-bind:style="{ opacity: track.opacity }"
+      v-bind:transform="`rotate(${title.rotate}, ${title.point.x}, ${title.point.y})`"
+      text-anchor="middle"
       v-bind:class="classesTitle"
       v-on:mouseover="onTrackOver"
       v-on:mouseleave="onTrackLeave"
       v-on:mousedown.stop.prevent="onTrackClick">
-      <textPath 
-        v-bind:href="`#${id}`"
-        text-anchor="middle"
-        v-bind:startOffset="title.offset">
-        {{ title.text }}
-      </textPath>
+      {{ title.text }}
     </text>
   </g>
 </template>
@@ -61,13 +58,13 @@
         const segments = [];
         let oldX = this.track.path[0].x;
         let oldY = this.track.path[0].y;
-        let offset = 0;
         let segment = 0;
         let maxSegment = {
           size: 0,
           index: 0,
           point: this.track.path[0]
         };
+        segments.push(maxSegment.point);
         const len = this.track.path.length;
         for (let i = 1; i < len; i++) {
           const point = this.track.path[i];
@@ -80,23 +77,44 @@
               maxSegment.size = segment;
               maxSegment.index = segments.length;
             }
-            segments.push({
-              point,
-              offset,
-              isRotate : point.x < oldX || point.y < oldY
-            });
-            offset += segment;
+            segments.push(point);
             segment = 0;
             oldX = point.x;
             oldY = point.y;
           }
         }
+
+        const start = segments[maxSegment.index - 1];
+        const end = segments[maxSegment.index] || {x: oldX, y: oldY};
+
+        const result = {
+          text: this.track.link.title,
+          point : {
+            x: 0,
+            y: 0
+          },
+          rotate: 0
+        };
+
+        if (start.x !== end.x) {
+          result.point.x = start.x - (start.x - end.x) * 0.5;
+          result.point.y = start.y - 4;
+        } else  {
+          result.point.y = start.y - (start.y - end.y) * 0.5;
+          result.point.x = start.x + 4;
+          result.rotate = 90;
+        }
+
+        return result;
+        /* 
+
         const isRotate = segments[maxSegment.index].isRotate;
         return {
           text: isRotate ? this.track.link.title.split('').reverse().join('') : this.track.link.title,
           rotate: isRotate ? 180 : 0,
           offset: Math.round(maxSegment.size * 0.5 + segments[maxSegment.index].offset)
         };
+        */
       },
       id() {
         return this.track.id;

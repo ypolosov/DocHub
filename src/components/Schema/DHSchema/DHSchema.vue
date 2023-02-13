@@ -220,14 +220,9 @@
           this.makeRandom();
         }, 5000);
       } else {
-        setInterval(() => {
-          this.rebuildPresentation();
-        }, 100);
-        /*
         this.$nextTick(() => {
           this.rebuildPresentation();
         });
-        */
       }
     },
     beforeDestroy(){
@@ -426,7 +421,6 @@
       },
       // Рассчитывает размерность примитивов (символов)
       recalcSymbols() {
-        debugger;
         this.landscape.symbols = {};
         this.symbols.map((item) => {
           const symbol = this.$el.getElementById(item.id);
