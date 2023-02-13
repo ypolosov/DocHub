@@ -41,7 +41,7 @@
   import SchemaNode from './DHSchemaNode.vue';
   import SchemaTrack from './DHSchemaTrack.vue';
 
-  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE || '/libs/smartants.js');
+  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
 
   const  Graph = window.$SmartAnts;
 
