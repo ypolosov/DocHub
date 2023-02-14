@@ -1,23 +1,67 @@
 import config from '../../config';
-import requests from '../helpers/requests';
+import requests from '@/helpers/requests';
 import axios from 'axios';
+import {plantUmlCache} from '@/helpers/cache';
+import env from '@/helpers/env';
 
 export default {
-	prepareRequest(uml) {
+  prepareRequest(uml) {
 		switch(config.pumlRequestType) {
-		case 'post':
-			return axios.post(this.svgBaseURL(), uml, {
-				headers: {
-					'Content-Type': 'text/plain; charset=UTF-8'
-				}
-			});
-		case 'post_compressed':
-			return axios.post(this.svgBaseURL() + 'compressed', this.compress(uml));
-		default:
-			return axios.get(this.svgURL(uml));
-		}
-
+      case 'post':
+        return this.post(this.svgBaseURL(), uml, {
+          headers: {
+            'Content-Type': 'text/plain; charset=UTF-8'
+          }
+        });
+      case 'post_compressed':
+        return this.post(this.svgBaseURL() + 'compressed', this.compress(uml));
+      default:
+        return this.get(this.svgURL(uml));
+    }
 	},
+  async get(umlUrl) {
+    try {
+      let data = await this.getCachedData(umlUrl);
+
+      if (!data) {
+        data = await axios.get(umlUrl);
+        this.setCachedData(umlUrl, data);
+      }
+
+      return data;
+    } catch (e) {
+      return e;
+    }
+  },
+  async post(umlUrl, uml, config) {
+    try {
+      const cachedUrl = `${umlUrl}:${JSON.stringify(uml)}`;
+      let data = await this.getCachedData(cachedUrl);
+
+      if (!data) {
+        data = await axios.post(umlUrl, uml, config);
+        this.setCachedData(cachedUrl, data);
+      }
+
+      return data;
+    } catch (e) {
+      return e;
+    }
+  },
+  async getCachedData(umlUrl) {
+    if (env.cache) {
+      const cachedData = await plantUmlCache.get(umlUrl);
+
+      if (cachedData) {
+        return cachedData;
+      }
+    }
+  },
+  setCachedData(umlUrl, data) {
+    if (env.cache) {
+      plantUmlCache.set(umlUrl, data);
+    }
+  },
 	svgURL(uml) {
 		return this.svgBaseURL() + this.compress(uml);
 	},
