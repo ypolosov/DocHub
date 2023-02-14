@@ -177,7 +177,7 @@
             oldY = track[i].y;
           }
         }
-        result += ` L ${track[len - 1].x} ${track[len - 1].y}}`;
+        result += ` L ${track[len - 1].x} ${track[len - 1].y}`;
 
         result = rounding(result, TRACK_SMOOTHING); // Сглаживаем
 
