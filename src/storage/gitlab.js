@@ -117,7 +117,6 @@ export default {
 				env.isPlugin(Plugins.idea) ? 'smetana' : 'graphviz'
 			);
 
-			context.dispatch('reloadAll');
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
 
@@ -201,6 +200,8 @@ export default {
 				}
 			};
 
+      context.dispatch('reloadAll');
+
 			let changes = {};
 			let refreshTimer = null;
 
@@ -217,7 +218,7 @@ export default {
 								// eslint-disable-next-line no-console
 								console.info('>>>>>> GO RELOAD <<<<<<<<<<');
 								changes = {};
-								context.dispatch('reloadAll');
+								context.dispatch('reloadAll', Object.keys(data));
 								break;
 							}
 						}
@@ -273,8 +274,8 @@ export default {
 		},
 
 		// Reload root manifest
-		reloadAll(context) {
-			context.dispatch('reloadRootManifest');
+		reloadAll(context, payload) {
+			context.dispatch('reloadRootManifest', payload);
 		},
 
 		// Search and set document by URI
@@ -329,9 +330,24 @@ export default {
 		},
 
 		// Reload root manifest
-		reloadRootManifest() {
-			parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
-		},
+		async reloadRootManifest(_context, payload) {
+      await parser.startLoad();
+
+      if (payload) {
+        await (
+          async function parserImport(next = 0) {
+            if (payload?.length > next) {
+              await parser.import(payload[next], payload[next] !== config.root_manifest);
+              await parserImport(next + 1);
+            }
+          }
+        )();
+      } else {
+        await parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
+      }
+
+      parser.stopLoad();
+    },
 
 		// Регистрация проблемы
 		registerProblem(context, problem) {

@@ -3,6 +3,7 @@ import gitlab from '../helpers/gitlab';
 import property from './prototype';
 import env from '../helpers/env';
 import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
+import {manifestCache} from '@/helpers/cache';
 
 let touchProjects = {};
 
@@ -28,19 +29,30 @@ const parser = {
 	onStartReload: null,
 	// События по ошибкам (ошибки запросов)
 	onError: null,
-	// Счетчик запросов
-	reqCounter : 0,
-	incReqCounter() {
-		this.reqCounter++;
-		if (this.onStartReload && (this.reqCounter === 1))
-			this.onStartReload(this);
-	},
-	decReqCounter() {
-		this.reqCounter--;
-		if(this.reqCounter === 0 && this.onReloaded) {
-			this.expandPrototype();
-			this.onReloaded(this);
-		}
+  cacheIsLoaded: false,
+	async startLoad() {
+    this.onStartReload(this);
+
+    if (this.isCaching()) {
+      const cachedManifest = await manifestCache.get();
+
+      if (cachedManifest) {
+        this.manifest = cachedManifest.original;
+        this.mergeMap = cachedManifest.merged;
+        this.cacheIsLoaded = true;
+      }
+    }
+  },
+	stopLoad() {
+    this.expandPrototype();
+    this.onReloaded(this);
+
+    if(this.isCaching()) {
+      manifestCache.set({
+        original: this.manifest,
+        merged: this.mergeMap
+      });
+    }
 	},
 	// Журнал объединений
 	mergeMap: {},
@@ -197,47 +209,56 @@ const parser = {
 	// Если свойство содержит ссылку, загружает объект
 	// data - Значение свойства
 	// path - пусть к свойству от корня манифеста
-	expandProperty(data, path, baseURI) {
+	async expandProperty(data, path, baseURI) {
 		// const data = this.getManifestContext(path).data;
 		// Если значение является ссылкой, загружает объект по ссылке
 		if (typeof data === 'string') {
 			const URI = requests.makeURIByBaseURI(data, baseURI);
-			this.incReqCounter();
-			requests.request(URI)
-				.then((response) => {
-					const context = this.getManifestContext(path);
-					context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
-					this.touchProjects(URI);
-				})
-				.catch((e) => this.registerError(e, URI))
-				.finally(() => this.decReqCounter());
+
+      try {
+        const response = await requests.request(URI);
+
+        if (!this.isCaching(response)) {
+          const context = this.getManifestContext(path);
+          context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
+        }
+
+        await this.touchProjects(URI);
+      } catch (e) {
+        this.registerError(e, URI);
+      }
 		}
 	},
 	// Разбираем сущности
 	// path - путь к перечислению сущностей (ключ -> объект)
-	parseEntity(context, path, baseURI) {
+	async parseEntity(context, path, baseURI) {
 		for (const key in context) {
-			this.expandProperty(context[key], `${path}/${encodeURIComponent(key)}`, baseURI);
+			await this.expandProperty(context[key], `${path}/${encodeURIComponent(key)}`, baseURI);
 		}
 	},
 
 	// Детектит обращение к проектам
-	touchProjects(location, callback) {
+	async touchProjects(location, callback) {
 		const projectID = requests.getGitLabProjectID(location);
 		let URI;
 		if (projectID && !touchProjects[projectID]) {
 			touchProjects[projectID] = {};
 			URI = gitlab.projectLanguagesURI(projectID);
-			this.incReqCounter();
-			requests.request(URI).then((response) => {
-				callback('project/languages', {
-					projectID: projectID,
-					content: typeof response.data === 'string' ? JSON.parse(response.data) : response.data
-				});
-			})
-			// eslint-disable-next-line no-console
-				.catch((e) => this.registerError(e, URI))
-				.finally(() => this.decReqCounter());
+
+      try {
+        const response = await requests.request(URI);
+
+        if (!this.isCaching(response)) {
+          callback('project/languages', {
+            projectID: projectID,
+            content: typeof response.data === 'string'
+              ? JSON.parse(response.data)
+              : response.data
+          });
+        }
+      } catch (e) {
+        this.registerError(e, URI);
+      }
 		}
 	},
 
@@ -252,64 +273,74 @@ const parser = {
 	},
 
 	// Подключение манифеста
-	import(uri, subimport) {
+	async import(uri, subimport) {
 		if (!subimport) {
-			this.mergeMap = {};
-			this.manifest = { [ MANIFEST_MODES.AS_IS ] : this.merge({}, this.makeBaseManifest(), uri)};
+      if (!this.cacheIsLoaded) {
+        this.mergeMap = {};
+        this.manifest = { [ MANIFEST_MODES.AS_IS ] : this.merge({}, this.makeBaseManifest(), uri)};
+      }
 			touchProjects = {};
-			this.incReqCounter();
 			// Подключаем манифест самого DocHub
 			// eslint-disable-next-line no-constant-condition
 			if (
 				(!env.isPlugin()) &&
 				((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
 			) {
-				this.import(requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()), true);
+				await this.import(
+          requests.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()),
+          true
+        );
 			}
 		}
 
-		this.incReqCounter();
-		this.touchProjects(uri, () => false);
-		requests.request(uri).then((response) => {
-			const manifest = typeof response.data === 'object' ? response.data : JSON.parse(response.data);
-			if (!manifest) return;
+		await this.touchProjects(uri, () => false);
 
-			// Определяем режим манифеста
-			// eslint-disable-next-line no-unused-vars
-			const mode = manifest.mode || MANIFEST_MODES.AS_IS;
-			this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
+    try {
+      const response = await requests.request(uri);
+      const manifest = typeof response.data === 'object'
+        ? response.data
+        : JSON.parse(response.data);
 
-			for (const section in manifest) {
-				const node = manifest[section];
-				switch(section) {
-				case 'forms':
-				case 'namespaces':
-				case 'aspects':
-				case 'docs':
-				case 'contexts':
-				case 'components':
-				case 'rules':
-				case 'datasets':
-					this.parseEntity(node,`${mode}/${section}`, uri);
-					break;
-				case 'imports':
-					for (const key in node) {
-						this.import(requests.makeURIByBaseURI(node[key], uri), true);
-					}
-					break;
-				}
-			}
-		})
-		// eslint-disable-next-line no-console
-			.catch((e) => {
-				this.registerError(e, uri);
-			})
-			.finally(() => {
-				this.decReqCounter();
-			});
+      if (manifest) {
+        // Определяем режим манифеста
+        // eslint-disable-next-line no-unused-vars
+        const mode = manifest.mode || MANIFEST_MODES.AS_IS;
 
-		!subimport && this.decReqCounter();
-	}
+        if (!this.isCaching(response)) {
+          this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
+        }
+
+        for (const section in manifest) {
+          const node = manifest[section];
+          switch (section) {
+          case 'forms':
+          case 'namespaces':
+          case 'aspects':
+          case 'docs':
+          case 'contexts':
+          case 'components':
+          case 'rules':
+          case 'datasets':
+            await this.parseEntity(node,`${mode}/${section}`, uri);
+            break;
+          case 'imports':
+            for (const key in node) {
+              await this.import(requests.makeURIByBaseURI(node[key], uri), true);
+            }
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      this.registerError(e, uri);
+    }
+	},
+
+  isCaching: env.cache && !env.isPlugin()
+    ? (response) => response
+      ? response.status === 304
+      : true
+    : () => false
 };
 
 export default parser;
