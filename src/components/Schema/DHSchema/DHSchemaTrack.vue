@@ -53,8 +53,48 @@
     computed: {
       // Определяем как и где будет выводиться надпись на линке
       title() {
-        if (!this.track.link.title || (this.track.length < 2))
+        const path = this.simplePath;
+        if ((path.length < 2) || !this.track.link.title || (this.track.length < 2))
           return null;
+
+        const maxSegment = {
+          size: 0,
+          index: 0
+        };
+
+        for (let i = 1; i < path.length; i++) {
+          const point = path[i];
+          const a1 = Math.abs(path[i - 1].x - point.x);
+          const a2 = Math.abs(path[i - 1].y - point.y);
+          const size = Math.round(Math.sqrt(a1 * a1 + a2 * a2));
+          if (size > maxSegment.size) {
+            maxSegment.size = size;
+            maxSegment.from = path[i - 1];
+            maxSegment.to = point;
+          }
+        }
+
+        const result = {
+          text: this.track.link.title,
+          rotate: 0
+        };
+
+        if (maxSegment.from.x !== maxSegment.to.x) 
+          result.point = {
+            x: maxSegment.from.x - (maxSegment.from.x - maxSegment.to.x) * 0.5,
+            y: maxSegment.from.y - 4
+          };
+        else {
+          result.point = {
+            y: maxSegment.from.y - (maxSegment.from.y - maxSegment.to.y) * 0.5,
+            x: maxSegment.from.x + 4
+          };
+          result.rotate = 90;
+        }
+
+        return result;
+
+        /*
         const segments = [];
         let oldX = this.track.path[0].x;
         let oldY = this.track.path[0].y;
@@ -64,6 +104,10 @@
           index: 0,
           point: this.track.path[0]
         };
+
+        if (this.track.link.title === 'PlantUML')
+          debugger;
+
         segments.push(maxSegment.point);
         const len = this.track.path.length;
         for (let i = 1; i < len; i++) {
@@ -106,6 +150,7 @@
         }
 
         return result;
+        */
       },
       id() {
         return this.track.id;
@@ -159,8 +204,37 @@
         return result;
       },
 
+      // Упрощенный путь
+      simplePath() {
+        const track = this.track.path;
+        if (track.length < 2) return [];
+
+        const result = [track[0]];
+
+        const len = this.track.path.length;
+        let oldX = track[0].x;
+        let oldY = track[0].y;
+        for (let i = 1; i < len; i++) {
+          if ((oldX !== track[i].x) && (oldY !== track[i].y)) {
+            result.push(track[i-1]);
+            result.push(track[i]);
+            oldX = track[i].x;
+            oldY = track[i].y;
+          }
+        }
+        result.push(track[len - 1]);
+
+        return result;
+      },
+
       // Путь 
       line() {
+        return rounding(
+          this.simplePath
+            .map((point, index) => `${index ? 'L' : 'M'} ${point.x} ${point.y}`).join(' ')
+          , TRACK_SMOOTHING);
+
+        /*  
         const track = this.track.path;
         if (track.length < 2) return '';
 
@@ -182,6 +256,7 @@
         result = rounding(result, TRACK_SMOOTHING); // Сглаживаем
 
         return result;
+        */
       }
     },
     methods: {

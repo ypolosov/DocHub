@@ -55,6 +55,7 @@
   import SchemaNode from './DHSchemaNode.vue';
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
+  import href from '@/helpers/href';
 
   require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
 
@@ -361,6 +362,7 @@
             this.rebuildViewBox();
             this.cleanSelectedTracks();
             this.cleanSelectedNodes();
+            this.$nextTick(() => this.$el && href.elProcessing(this.$el));
           })
           .catch((e) => {
             // eslint-disable-next-line no-console
