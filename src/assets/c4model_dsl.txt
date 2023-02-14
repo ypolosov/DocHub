@@ -194,10 +194,9 @@ $from -[hidden]right- $to
     !if ($entity == component)
         component "$ACName" as $id
     !elseif ($entity == device)
-        !unquoted procedure $Device($DeviceID, $DeviceName)
-        component $DeviceID <<Device>> [
+        component $id <<Device>> [
         ..<size:88><&monitor,color=Blue></size>..
-        ..===$DeviceName..
+        ..===$ACName..
         ]
     !elseif ($entity == system)
         !if ($ACType)
@@ -207,9 +206,9 @@ $from -[hidden]right- $to
         !endif
         {
     !elseif ($entity == actor || $entity == person)
-        component $PersonID <<Person>> [
+        component $id <<Person>> [
         ..<size:88><&person,color=white></size>..
-        ..===$PersonName..
+        ..===$ACName..
         ]
     !else
         $entity $id [
