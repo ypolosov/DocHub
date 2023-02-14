@@ -1,10 +1,13 @@
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   TAxios,
   TCacheData,
   TLastCachedResult,
-  TCacheMethod
+  TCacheMethod,
+  KEYS,
+  TManifestProps
 } from '@/storage/indexedDB/types/idb.types';
 
 import idb, { TCache } from '../storage/indexedDB';
@@ -65,6 +68,72 @@ export const responseCacheInterceptor = async(
       };
 
       if ((response.config as TLastCachedResult).lastCachedResult) {
+        await Cache.putData(newCachedData);
+      } else {
+        await Cache.setData(newCachedData);
+      }
+    }
+  }
+};
+
+export const plantUmlCache: {
+  set(umlUrl: string, response: AxiosResponse): Promise<void>;
+  get(umlUri: string): Promise<TCacheData>
+} = {
+  async get(umlUri: string): Promise<TCacheData | null> {
+    await initCache();
+
+    if (Cache) {
+      const cachedData: TCacheData = await Cache.getData(umlUri);
+      return cachedData?.id === umlUri ? cachedData : null;
+    }
+  },
+  async set(umlUri: string, response: AxiosResponse): Promise<void> {
+    await initCache();
+
+    if (Cache) {
+      const cachedData: TCacheData = await Cache.getData(umlUri);
+
+      const newCachedData: TCacheData = {
+        id: umlUri,
+        eTag: uuidv4(),
+        data: response.data
+      };
+
+      if (cachedData) {
+        await Cache.putData(newCachedData);
+      } else {
+        await Cache.setData(newCachedData);
+      }
+    }
+  }
+};
+
+export const manifestCache: {
+  set(manifest: TManifestProps): Promise<void>;
+  get(): Promise<TManifestProps | null>
+} = {
+  async get(): Promise<TManifestProps | null> {
+    await initCache();
+
+    if (Cache) {
+      const cachedData: TCacheData = await Cache.getData(KEYS.Manifest);
+      return cachedData?.data ?? null;
+    }
+  },
+  async set(manifest: TManifestProps): Promise<void> {
+    await initCache();
+
+    if (Cache) {
+      const cachedData: TCacheData = await Cache.getData(KEYS.Manifest);
+
+      const newCachedData: TCacheData = {
+        id: KEYS.Manifest,
+        eTag: uuidv4(),
+        data: manifest
+      };
+
+      if (cachedData) {
         await Cache.putData(newCachedData);
       } else {
         await Cache.setData(newCachedData);
