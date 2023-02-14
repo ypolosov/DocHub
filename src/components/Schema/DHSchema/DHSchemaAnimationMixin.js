@@ -25,7 +25,7 @@ export default {
 		// eslint-disable-next-line no-unused-vars
 		animationActionInfo(text, voice, subject) {
 			this.animation.information = text;
-			if (this.voice && window.speechSynthesis) {
+			if (this.voice && window.speechSynthesis && !this.isFirefox) {
 				const utterThis = new SpeechSynthesisUtterance(text);
 				utterThis.voice = this.animationVoice;
 				utterThis.pitch = 1;
@@ -76,8 +76,11 @@ export default {
 					this.animationStop();
 			};
 
-			const delay = scenario[this.animation.currentStep++].delay || 10;
-			this.animation.execution = setTimeout(() => todo(scenario), delay);
+			const delay = scenario[this.animation.currentStep++].delay;
+			if (delay)
+				this.animation.execution = setTimeout(() => todo(scenario), delay);
+			else
+				todo(scenario);
 		},
 		// Запуск сценария
 		animateRun(id) {

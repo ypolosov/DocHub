@@ -21,14 +21,6 @@
         </text>
       </g>
       <g v-else>
-        <!--
-        <rect
-          style="stroke:#f00"
-          v-bind:x="box.left"
-          v-bind:y="box.top"
-          v-bind:width="box.width"
-          v-bind:height="box.height"/>
-          -->
         <use
           v-bind:key="box.node.id"
           v-bind:style="{ opacity: box.opacity }"

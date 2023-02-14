@@ -152,7 +152,7 @@
               });
               if (component.is_context)
                 result += `$EntityExpand("${entity}", ${component.id})\n`;
-              result += `\n$EntityEnd("${entity}")\n`;
+              result += `$EntityEnd("${entity}")\n`;
               result += '\n';
             }
             if (namespace.id && notEmpty) {

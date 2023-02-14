@@ -14,10 +14,10 @@
   },
   "homepage": "https://github.com/RabotaRu/DocHub#readme",
   "scripts": {
-    "lib": "vue-cli-service build --name test --target lib",
-    "plugin": "export VUE_APP_DOCHUB_MODE=plugin && vue-cli-service build",
+    "lib": "export VUE_APP_DOCHUB_SMART_ANTS_SOURCE='../../../assets/libs/smartants' && vue-cli-service build --name test --target lib",
+    "plugin": "export VUE_APP_DOCHUB_MODE=plugin && export VUE_APP_DOCHUB_SMART_ANTS_SOURCE='../../../assets/libs/smartants' && vue-cli-service build",
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "export VUE_APP_DOCHUB_SMART_ANTS_SOURCE='../../../assets/libs/smartants' && vue-cli-service build",
     "build:package": "node vue.lib.js",
     "lint": "vue-cli-service lint",
     "test": "jest --watch",

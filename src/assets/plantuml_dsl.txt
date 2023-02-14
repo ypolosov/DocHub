@@ -102,17 +102,34 @@ skinparam component<<Person>> {
 }
 
 
+!unquoted procedure $join_start()
+    %set_variable_value("$join_append", 0)
+!endprocedure
 
+!unquoted function $join_append()
+    !$val = %get_variable_value("$join_append")
+    !if $val == 0
+        %set_variable_value("$join_append", 1)
+    !endif
+    !return $val
+!endfunction
+
+!unquoted procedure $join_end()
+    %set_variable_value("$join_append", 0)
+!endprocedure
 
 !unquoted procedure $Entity($entity, $ACName, $id, $ACType)
+    $join_start()
     !if ($entity == component)
-        component "$ACName" as $id
+        component $id[
+        <b>$ACName</b>
+        ====
     !elseif ($entity == system)
         component $id[
             <b>$ACName</b>
             ====
     !elseif ($entity == actor || $entity == person)
-        actor $id <<Person>> [
+        actor $id [
         ..===$ACName..
         ]
     !else
@@ -124,21 +141,26 @@ skinparam component<<Person>> {
 
 !unquoted procedure $EntityEnd($entity)
     !if ($entity == component)
-'nothing
+    ]
     !elseif ($entity == system)
-        ]
+    ]
     !elseif ($entity == actor || $entity == person)
 'nothing
     !else
-        ]
+    ]
     !endif
+    $join_end()
 !endprocedure
 
 !unquoted procedure $EntityAspect($entity, $prop)
     !if ($entity == component)
+        !$val = $join_append()
+        !if ($val != 0)
+        ---
+        !endif
         * $prop
     !elseif ($entity == system)
-        * $func
+        * $prop
     !elseif ($entity == actor || $entity == person)
 'nothing
     !else
@@ -148,7 +170,8 @@ skinparam component<<Person>> {
 
 !unquoted procedure $EntityExpand($entity, $ID)
     !if ($entity == component)
-'nothing
+        ---
+        [[/architect/contexts/$ID ≫≫]]
     !elseif ($entity == system)
         ---
         [[/architect/contexts/$ID ≫≫]]

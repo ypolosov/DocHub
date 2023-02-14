@@ -11,9 +11,16 @@
     encoding="UTF-8"
     v-bind:style="style"
     v-on:mousedown="onClickSpace">
-    <defs>
-      <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
-    </defs>
+    <template v-if="isFirefox">
+      <g class="symbols">
+        <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
+      </g>
+    </template>
+    <template v-else>
+      <defs>
+        <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
+      </defs>
+    </template>
     <schema-node 
       v-bind:offset-x="0"
       v-bind:offset-y="0"
@@ -33,6 +40,13 @@
       v-bind:width="landscape.viewBox.width - 24" 
       v-bind:text="animation.information" />
 
+    <schema-debug-node 
+      v-if="debug"
+      v-bind:offset-x="0"
+      v-bind:offset-y="0"
+      v-bind:layer="presentation.layers" 
+      v-on:node-click="onNodeClick" />
+
     Тут должны была быть схема, но что-то пошло не так...
   </svg>
 </template>
@@ -40,13 +54,9 @@
 <script>
   import SchemaNode from './DHSchemaNode.vue';
   import SchemaTrack from './DHSchemaTrack.vue';
-  import env from '@/helpers/env';
+  import SchemaDebugNode from './DHSchemaDebugNode.vue';
 
-  if (!env.isProduction() && (process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE || 'n').toLocaleLowerCase() === 'y' ) {
-    require('../../../hidden/smartants');
-  } else {
-    require('../../../assets/libs/smartants');
-  }
+  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
 
   const  Graph = window.$SmartAnts;
 
@@ -60,15 +70,16 @@
   import SVGSymbolDatabase from '!!raw-loader!./symbols/database.xml';  
   import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';  
 
-  const testMode = 'fixed'; //fixed
   const OPACITY = 0.3;
+  const IS_DEBUG = true;
 
   export default {
     name: 'DHSchema',
     components: {
       SchemaNode,
       SchemaTrack,
-      SchemaInfo
+      SchemaInfo,
+      SchemaDebugNode
     },
     mixins: [ DHSchemaAnimationMixin ],
     props: {
@@ -108,15 +119,9 @@
       }},
     data() {
       return {
-        test: {
-          start: {},
-          end: {},
-          wave: {},
-          path: [],
-          isError: false,
-          lastData: null,
-          showWave: false
-        },
+        debug: IS_DEBUG ? {
+          
+        } : null,
         selected: {
           links: {},
           nodes: {}
@@ -138,6 +143,10 @@
       };
     },
     computed: {
+      // Проверяем что в Firefox
+      isFirefox() {
+        return navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+      },
       // Возвращает определения (defs) примитивов диаграммы
       symbols() {
         const result = [
@@ -204,73 +213,15 @@
       this.$on('prev', () => {
         this.animationPrev();
       });
-      if (testMode === 'random') {
-        this.makeRandom();
-        setInterval(() => {
-          this.makeRandom();
-        }, 5000);
-      } else {
-        this.$nextTick(() => {
-          this.rebuildPresentation();
-        });
-      }
+
+      this.$nextTick(() => {
+        this.rebuildPresentation();
+      });
     },
     beforeDestroy(){
       window.removeEventListener('resize', this.rebuildViewBox);
     },
     methods: {
-      // Генерация рандомных данных
-      makeRandom() {
-        const symbols = Object.keys(this.data.symbols);
-
-        // this.clear();
-        const selectedNodes = {};
-        const randomLinks = [];
-        const generateNodes = () => {
-          for(const node in this.data.nodes) {
-            if (Math.random() * 100 > 50) 
-              selectedNodes[node] = Object.assign(this.data.nodes[node],{
-                symbol: symbols[Math.round(Math.random() * (symbols.length - 1))]
-              });
-          }
-        };
-
-        let ids = Object.keys(selectedNodes);
-        while (ids.length < 3) {
-          generateNodes();
-          ids = Object.keys(selectedNodes);
-        }
-
-        const max = ids.length - 1;
-        const linkCount = Math.round(Math.random() * 20 + 5);
-        for(let i = 0; i < linkCount; ) {
-          const from = Math.round(Math.random() * max);
-          const to = Math.round(Math.random() * max);
-          const fromID = ids[from];
-          const toID = ids[to];
-          if (
-            (from === to) 
-            || (fromID.substring(0, toID.length) === toID)
-            || (toID.substring(0, fromID.length) === fromID)
-          ) continue;
-          randomLinks.push({
-            from: fromID,
-            to: toID,
-            style: ['<->', '<-', '->'][Math.round(Math.random() * 2)],
-            title: ['Title 1', 'Title 2', 'Title 3', 'Title 4'][Math.round(Math.random() * 3)]
-          });
-          ++i;
-        }
-
-        this.test.lastData = {
-          symbols: this.data.symbols,
-          nodes: selectedNodes,
-          links: randomLinks
-        };
-
-        this.rebuildPresentation(selectedNodes, randomLinks);
-
-      },
       // Отчистка
       clear() {
         this.presentation = {
@@ -382,11 +333,11 @@
           const delta = (clientWidth - width) * 0.5;
           this.landscape.viewBox.left = - delta;
           this.landscape.viewBox.width = width + delta * 2;
-          this.style.height = `${height}`;
+          this.style.height = `${height}px`;
         } else {
           this.landscape.viewBox.left = 0;
           this.landscape.viewBox.width = width;
-          this.style.height = `${height * (clientWidth / width)}`;
+          this.style.height = `${height * (clientWidth / width)}px`;
         }
       },
       // Перестроение презентации
@@ -402,7 +353,8 @@
           trackWidth,
           distance,
           this.landscape.symbols,
-          availableWidth
+          availableWidth,
+          this.debug
         )
           .then((presentation) => {
             this.presentation = presentation;
@@ -411,8 +363,8 @@
             this.cleanSelectedNodes();
           })
           .catch((e) => {
+            // eslint-disable-next-line no-console
             console.error(e);
-            if (testMode === 'random') this.makeRandom();
           });
       },
       // Рассчитывает размерность примитивов (символов)
@@ -438,6 +390,7 @@
 .dochub-schema {
   /* border: solid 2px #ff0000; */
   /* max-height: calc(100vh - 64px); */
+  aspect-ratio: unset;
 }
 
 .wave-cell {
@@ -457,6 +410,10 @@
 .error-cell {
   fill: #f00;
   stroke: #fff;
+}
+
+.symbols * {
+  opacity: 0;
 }
 
 </style>
