@@ -56,7 +56,7 @@
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
 
-  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE || '../../../assets/libs/smartants');
+  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
 
   const  Graph = window.$SmartAnts;
 
