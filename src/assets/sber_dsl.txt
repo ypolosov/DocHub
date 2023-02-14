@@ -228,7 +228,7 @@ $from -[hidden]right- $to
     !elseif ($entity == device)
 'nothing
     !elseif ($entity == system)
-        }
+    }
     !elseif ($entity == actor || $entity == person)
 'nothing
     !else
@@ -238,7 +238,7 @@ $from -[hidden]right- $to
 
 !unquoted procedure $EntityAspect($entity, $prop)
     !if ($entity == component)
-        * $prop
+'nothing
     !elseif ($entity == device)
 'nothing
     !elseif ($entity == system)
