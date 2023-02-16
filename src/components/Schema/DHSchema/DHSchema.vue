@@ -318,20 +318,20 @@
       },
       // Перестроить viewbox
       rebuildViewBox() {
-        const width = (this.presentation.layers?.box?.width || 0) + this.distance * 2;
-        const height = (this.presentation.layers?.box?.height || 0) + this.distance * 2;
+        const width = this.presentation.valueBox.dx - this.presentation.valueBox.x;
+        const height = this.presentation.valueBox.dy - this.presentation.valueBox.y;
         const clientWidth = this.$el?.clientWidth || 0;
-        this.landscape.viewBox.top = 0;
-        this.landscape.viewBox.height = height;
+        this.landscape.viewBox.top = this.presentation.valueBox.x - 24;
+        this.landscape.viewBox.height = height + 48;
         if (width < clientWidth) {
           const delta = (clientWidth - width) * 0.5;
-          this.landscape.viewBox.left = - delta;
+          this.landscape.viewBox.left = - delta + this.presentation.valueBox.x;
           this.landscape.viewBox.width = width + delta * 2;
-          this.$el.style.height = `${height}px`;
+          this.$el.style.height = `${height + 48}px`;
         } else {
-          this.landscape.viewBox.left = + this.distance;
-          this.landscape.viewBox.width = width;
-          this.$el.style.height = `${height * (clientWidth / width)}px`;
+          this.landscape.viewBox.left = this.presentation.valueBox.x - 24;
+          this.landscape.viewBox.width = width + 48;
+          this.$el.style.height = `${height * (clientWidth / width) + 48}px`;
         }
       },
       // Перестроение презентации
