@@ -93,64 +93,6 @@
         }
 
         return result;
-
-        /*
-        const segments = [];
-        let oldX = this.track.path[0].x;
-        let oldY = this.track.path[0].y;
-        let segment = 0;
-        let maxSegment = {
-          size: 0,
-          index: 0,
-          point: this.track.path[0]
-        };
-
-        if (this.track.link.title === 'PlantUML')
-          debugger;
-
-        segments.push(maxSegment.point);
-        const len = this.track.path.length;
-        for (let i = 1; i < len; i++) {
-          const point = this.track.path[i];
-          const a1 = Math.abs(this.track.path[i - 1].x - point.x);
-          const a2 = Math.abs(this.track.path[i - 1].y - point.y);
-          segment += i ? Math.round(Math.sqrt(a1 * a1 + a2 * a2)) : 0;
-          if (((oldX !== point.x) && (oldY !== point.y)) || (i+1 === len)) {
-            if (maxSegment.size < segment) {
-              maxSegment.point = point;
-              maxSegment.size = segment;
-              maxSegment.index = segments.length;
-            }
-            segments.push(point);
-            segment = 0;
-            oldX = point.x;
-            oldY = point.y;
-          }
-        }
-
-        const start = segments[maxSegment.index - 1];
-        const end = segments[maxSegment.index] || {x: oldX, y: oldY};
-
-        const result = {
-          text: this.track.link.title,
-          point : {
-            x: 0,
-            y: 0
-          },
-          rotate: 0
-        };
-
-        if (start.x !== end.x) {
-          result.point.x = start.x - (start.x - end.x) * 0.5;
-          result.point.y = start.y - 4;
-        } else  {
-          result.point.y = start.y - (start.y - end.y) * 0.5;
-          result.point.x = start.x + 4;
-          result.rotate = 90;
-        }
-
-        return result;
-        */
       },
       id() {
         return this.track.id;
@@ -206,6 +148,8 @@
 
       // Упрощенный путь
       simplePath() {
+        return this.track.path;
+        /*
         const track = this.track.path;
         if (track.length < 2) return [];
 
@@ -225,6 +169,7 @@
         result.push(track[len - 1]);
 
         return result;
+        */
       },
 
       // Путь 

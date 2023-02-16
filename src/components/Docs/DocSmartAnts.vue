@@ -2,42 +2,50 @@
   <box>
     <v-card flat class="container">
       <v-system-bar
-        v-if="scenario"
         class="toolbar"
         floating
         flat
         color="#fff"
         dense>
-        <v-select
-          v-model="scenario"
-          dense
-          item-text="text"
-          item-value="id"
-          v-bind:items="scenarios" />
         <v-btn
           icon
-          title="Проиграть сценарий"
-          v-on:click="playScenario">
-          <v-icon>{{ isPaying ? 'mdi-stop' : 'mdi-play' }}</v-icon>
+          title="Экспорт в Excalidraw"
+          v-on:click="exportToExcalidraw">
+          <v-icon>mdi-download</v-icon>
         </v-btn>
-        <!--
-          Имеются проблемы с перемоткой назад. 
-          Плохо отрабатывают шаги очистки, т.е. отмотать состояние не удается без артефактов
-        <v-btn
-          v-if="isPaying"
-          icon
-          title="Дальше"
-          v-on:click="playPrev">
-          <v-icon>mdi-skip-previous</v-icon>
-        </v-btn>
-        -->
-        <v-btn
-          v-if="isPaying"
-          icon
-          title="Дальше"
-          v-on:click="playNext">
-          <v-icon>mdi-skip-next</v-icon>
-        </v-btn>
+
+        <template v-if="scenario">
+          <v-select
+            v-model="scenario"
+            dense
+            item-text="text"
+            item-value="id"
+            v-bind:items="scenarios" />
+          <v-btn
+            icon
+            title="Проиграть сценарий"
+            v-on:click="playScenario">
+            <v-icon>{{ isPaying ? 'mdi-stop' : 'mdi-play' }}</v-icon>
+          </v-btn>
+          <!--
+            Имеются проблемы с перемоткой назад. 
+            Плохо отрабатывают шаги очистки, т.е. отмотать состояние не удается без артефактов
+          <v-btn
+            v-if="isPaying"
+            icon
+            title="Дальше"
+            v-on:click="playPrev">
+            <v-icon>mdi-skip-previous</v-icon>
+          </v-btn>
+          -->
+          <v-btn
+            v-if="isPaying"
+            icon
+            title="Дальше"
+            v-on:click="playNext">
+            <v-icon>mdi-skip-next</v-icon>
+          </v-btn>
+        </template>
       </v-system-bar>      
       <schema 
         ref="schema"
@@ -102,6 +110,10 @@
       }
     },
     methods: {
+      // Экспорт в Excalidraw
+      exportToExcalidraw() {
+        this.$refs.schema.$emit('exportToExcalidraw', this.scenario);
+      },
       // Событие остановки проигрывания сценария
       onPlayStop() {
         this.isPaying = false;

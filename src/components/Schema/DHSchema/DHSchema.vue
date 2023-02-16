@@ -62,6 +62,7 @@
   const  Graph = window.$SmartAnts;
 
   import DHSchemaAnimationMixin from './DHSchemaAnimationMixin';
+  import DHSchemaExcalidrawMixin from './DHSchemaExcalidrawMixin';
   import SchemaInfo from './DHSchemaInfo.vue';
 
   // SVG примитивы
@@ -72,7 +73,7 @@
   import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';  
 
   const OPACITY = 0.3;
-  const IS_DEBUG = true;
+  const IS_DEBUG = false;
 
   export default {
     name: 'DHSchema',
@@ -82,7 +83,7 @@
       SchemaInfo,
       SchemaDebugNode
     },
-    mixins: [ DHSchemaAnimationMixin ],
+    mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin],
     props: {
       // Дистанция между объектами на диаграмме
       distance: {
@@ -120,6 +121,7 @@
       }},
     data() {
       return {
+        resizer: null,
         debug: IS_DEBUG ? {
           
         } : null,
@@ -199,22 +201,13 @@
       }
     },
     mounted() {
-      window.addEventListener('resize', this.rebuildViewBox);
-      new ResizeObserver(() => this.rebuildViewBox()).observe(this.$el);
-
-      this.$on('play', (scenario) => {
-        this.animateRun(scenario);
+      window.addEventListener('resize', () => {
+        this.resizer && clearTimeout(this.resizer);
+        this.resizer = setTimeout(() => {
+          this.rebuildViewBox();
+        }, 500);
       });
-      this.$on('stop', () => {
-        this.animationStop();
-      });
-      this.$on('next', () => {
-        this.animationNext();
-      });
-      this.$on('prev', () => {
-        this.animationPrev();
-      });
-
+      // new ResizeObserver(() => this.rebuildViewBox()).observe(this.$el);
       this.$nextTick(() => {
         this.rebuildPresentation();
       });
@@ -325,8 +318,8 @@
       },
       // Перестроить viewbox
       rebuildViewBox() {
-        const width = (this.presentation.layers?.box?.width || 0) + this.distance;
-        const height = (this.presentation.layers?.box?.height || 0) + this.distance;
+        const width = (this.presentation.layers?.box?.width || 0) + this.distance * 2;
+        const height = (this.presentation.layers?.box?.height || 0) + this.distance * 2;
         const clientWidth = this.$el?.clientWidth || 0;
         this.landscape.viewBox.top = 0;
         this.landscape.viewBox.height = height;
@@ -334,11 +327,11 @@
           const delta = (clientWidth - width) * 0.5;
           this.landscape.viewBox.left = - delta;
           this.landscape.viewBox.width = width + delta * 2;
-          this.style.height = `${height}px`;
+          this.$el.style.height = `${height}px`;
         } else {
-          this.landscape.viewBox.left = 0;
+          this.landscape.viewBox.left = + this.distance;
           this.landscape.viewBox.width = width;
-          this.style.height = `${height * (clientWidth / width)}px`;
+          this.$el.style.height = `${height * (clientWidth / width)}px`;
         }
       },
       // Перестроение презентации
