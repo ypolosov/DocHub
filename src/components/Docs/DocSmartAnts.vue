@@ -7,11 +7,14 @@
         flat
         color="#fff"
         dense>
-        <v-btn
-          icon
-          title="Экспорт в Excalidraw"
-          v-on:click="exportToExcalidraw">
+        <v-btn icon title="Экспорт в Excalidraw" v-on:click="exportToExcalidraw">
           <v-icon>mdi-download</v-icon>
+        </v-btn>
+        <v-btn v-if="selectedNodes" icon title="Кадрировать" v-on:click="doFocus">
+          <v-icon>mdi-crop-free</v-icon>
+        </v-btn>
+        <v-btn v-if="focusNodes" icon title="Полная диаграмма" v-on:click="clearFocus">
+          <v-icon>mdi-view-comfy</v-icon>
         </v-btn>
 
         <template v-if="scenario">
@@ -53,7 +56,8 @@
         class="schema"
         v-bind:data="data"
         v-on:playstop="onPlayStop"
-        v-on:playstart="onPlayStart" />
+        v-on:playstart="onPlayStart"
+        v-on:selected-nodes="onSelectedNodes" />
     </v-card>
   </box>
 </template>
@@ -76,7 +80,9 @@
       return {
         status: {}, // Текущий статус схемы
         selectedScenario: null,
-        isPaying: false
+        isPaying: false,
+        selectedNodes: null,
+        focusNodes: null
       };
     },
     computed: {
@@ -93,7 +99,25 @@
         }
       },
       data() {
-        return this.source.dataset || {};
+        let result = this.source.dataset || {};
+        if (this.focusNodes) {
+          const links = [];
+          (result.links || []).map((link) => {
+            if ((this.focusNodes.indexOf(link.from) >=0 ) && (this.focusNodes.indexOf(link.to) >=0 ))
+              links.push(link);
+          });
+
+          const nodes = {};
+          this.focusNodes.map((id) => nodes[id] = result.nodes[id]);
+
+          result = JSON.parse(JSON.stringify({
+            config: result.config,
+            symbols: result.symbols,
+            links,
+            nodes
+          }));
+        }
+        return result;
       },
       scenarios() {
         const result = [];
@@ -110,6 +134,18 @@
       }
     },
     methods: {
+      // Очищает фокус
+      clearFocus() {
+        this.focusNodes = null;
+      },
+      // Сфокусироваться на выбранных нодах
+      doFocus() {
+        this.focusNodes = this.selectedNodes ? Object.keys(this.selectedNodes) : null;
+      },
+      // Изменение выбора нод
+      onSelectedNodes(nodes) {
+        this.selectedNodes = Object.keys(nodes).length ? nodes : null;
+      },
       // Экспорт в Excalidraw
       exportToExcalidraw() {
         this.$refs.schema.$emit('exportToExcalidraw', this.scenario);

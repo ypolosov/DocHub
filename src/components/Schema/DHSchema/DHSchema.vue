@@ -73,7 +73,7 @@
   import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';  
 
   const OPACITY = 0.3;
-  const IS_DEBUG = false;
+  const IS_DEBUG = true;
 
   export default {
     name: 'DHSchema',
@@ -198,6 +198,9 @@
     watch: {
       data() {
         this.$nextTick(() => this.rebuildPresentation());
+      },
+      'selected.nodes'(value) {
+        this.$emit('selected-nodes', value);
       }
     },
     mounted() {
@@ -321,7 +324,7 @@
         const width = this.presentation.valueBox.dx - this.presentation.valueBox.x;
         const height = this.presentation.valueBox.dy - this.presentation.valueBox.y;
         const clientWidth = this.$el?.clientWidth || 0;
-        this.landscape.viewBox.top = this.presentation.valueBox.x - 24;
+        this.landscape.viewBox.top = this.presentation.valueBox.y - 24;
         this.landscape.viewBox.height = height + 48;
         if (width < clientWidth) {
           const delta = (clientWidth - width) * 0.5;
