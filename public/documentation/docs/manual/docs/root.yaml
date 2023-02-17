@@ -131,7 +131,7 @@ docs:
           title: JWT токен
           style: "->"
   dochub.smartants.examples.domains:
-    location: DocHub/Руководство/Документы/SmartAnts/02 Дoомены
+    location: DocHub/Руководство/Документы/SmartAnts/02 Домены
     description: Пример диаграммы SmartAnts с доменами
     autor: R.Piontik
     type: smartants           
