@@ -14,7 +14,7 @@
       }
     },
     {
-      "name": "eTagIndexop",
+      "name": "eTagIndex",
       "keyPath": "eTag",
       "options": {
         "unique": false,
