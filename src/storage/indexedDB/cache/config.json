@@ -1,7 +1,5 @@
 {
-  "version": 1,
-  "dbName": "DocHub",
-  "storeName": "cache",
+  "dbName": "cache",
   "keyOptions": {
     "keyPath": "id",
     "autoIncrement": true
@@ -16,7 +14,7 @@
       }
     },
     {
-      "name": "eTagIndex",
+      "name": "eTagIndexop",
       "keyPath": "eTag",
       "options": {
         "unique": false,

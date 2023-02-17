@@ -1,28 +1,67 @@
-import { TIdbEvent, TOnupgradeneeded } from '../types/idb.types';
+import { TIdbEvent, TIndexes, TOnupgradeneeded } from '../types/idb.types';
+import { iDbIndexesIsEqual } from '../helpers/util';
+import { BlockedIndefinitelyException, ErrorStatus } from '../helpers/Exception';
 
 const _db: { [key: string]: IDBDatabase } = {};
 
 const open = async({ ...props }: {
   dbName: string;
-  version: number;
+  storeName: string;
+  version?: number;
   onupgradeneeded?: TOnupgradeneeded;
+  indexes?: TIndexes[];
+  isUpgrade?: boolean;
 }): Promise<IDBDatabase> => {
   await close(props.dbName);
 
   return new Promise((resolve, reject): void => {
+    if (!props.storeName) {
+      return reject(new Error(ErrorStatus.unknownStoreName));
+    }
+
     const req: IDBOpenDBRequest = indexedDB.open(props.dbName, props.version);
 
-    req.onsuccess = (event: TIdbEvent): void => {
-      _db[props.dbName] = event.target.result;
-      resolve(event.target.result);
+    req.onsuccess = async(event: TIdbEvent): Promise<void> => {
+      const result: IDBDatabase = event.target.result;
+      const upgrade = async(): Promise<void> => resolve(
+        await open({
+          ...props,
+          isUpgrade: true,
+          version: result.version + 1
+        })
+      );
+
+      _db[props.dbName] = result;
+
+      if (result.objectStoreNames.contains(props.storeName)) {
+        if (props.indexes && !props.isUpgrade) {
+          const transaction: IDBTransaction = result.transaction(props.storeName, 'readonly');
+          const objectStore: IDBObjectStore = transaction.objectStore(props.storeName);
+
+          transaction.abort();
+
+          if (!iDbIndexesIsEqual(objectStore.indexNames, props.indexes)) {
+            return await upgrade();
+          }
+        }
+
+        return resolve(result);
+      }
+
+      return await upgrade();
     };
 
-    req.onupgradeneeded = props?.onupgradeneeded;
     req.onerror = reject;
+    req.onblocked = (): void => reject(new BlockedIndefinitelyException());
+    req.onupgradeneeded = (event: IDBVersionChangeEvent): void => {
+      if (props?.onupgradeneeded) {
+        props.onupgradeneeded(event, props.isUpgrade);
+      }
+    };
   });
 };
 
-const close = (dbName: string): Promise<boolean | void> => {
+const close = async(dbName: string): Promise<boolean | void> => {
   const currentDB: IDBDatabase = _db[dbName];
 
   if (currentDB) {
@@ -52,13 +91,32 @@ const get = (dbName: string): Promise<Awaited<IDBDatabase>> | Promise<IDBDatabas
   if (currentDB) {
     return Promise.resolve(currentDB);
   } else {
-    return Promise.reject(new Error(`indexedDB не открыт! Откройте ${dbName} DB!`));
+    return Promise.reject(new Error(ErrorStatus.invalidDB));
   }
+};
+
+const dbVersion = async(dbName: string): Promise<number> => {
+  await close(dbName);
+
+  return new Promise((resolve, reject): void => {
+    const req: IDBOpenDBRequest = indexedDB.open(dbName);
+
+    req.onsuccess = (event: TIdbEvent): void => {
+      const DB: IDBDatabase = event.target.result;
+
+      DB.close();
+      resolve(DB.version);
+    };
+
+    req.onerror = (event: TIdbEvent) => reject(event.target.error);
+    req.onblocked = (): void => reject(new BlockedIndefinitelyException());
+  });
 };
 
 export {
 	open,
 	close,
 	get,
-	deleteDB
+	deleteDB,
+  dbVersion
 };

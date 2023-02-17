@@ -30,10 +30,11 @@ const parser = {
 	// События по ошибкам (ошибки запросов)
 	onError: null,
   cacheIsLoaded: false,
+  isCaching: !!env.cache && !env.isPlugin(),
 	async startLoad() {
     this.onStartReload(this);
 
-    if (this.isCaching()) {
+    if (this.isCaching) {
       const cachedManifest = await manifestCache.get();
 
       if (cachedManifest) {
@@ -47,7 +48,7 @@ const parser = {
     this.expandPrototype();
     this.onReloaded(this);
 
-    if(this.isCaching()) {
+    if(this.isCaching) {
       manifestCache.set({
         original: this.manifest,
         merged: this.mergeMap
@@ -161,7 +162,12 @@ const parser = {
 			this.pushToMergeMap(path, result, location);
 		} else if (Array.isArray(source)) {
 			if (Array.isArray(destination)) {
-				result = [...new Set(destination.concat(source))];
+				result = destination.reduce((acc, currEl) =>
+          Array.isArray(acc) && (typeof acc[0] === 'object')
+            ? source
+            : acc.filter(deepEl => deepEl !== currEl).concat(currEl),
+          source
+        );
 			} else {
 				result = source;
 			}
@@ -218,7 +224,7 @@ const parser = {
       try {
         const response = await requests.request(URI);
 
-        if (!this.isCaching(response)) {
+        if (!this.pathIsCached(response)) {
           const context = this.getManifestContext(path);
           context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
         }
@@ -248,7 +254,7 @@ const parser = {
       try {
         const response = await requests.request(URI);
 
-        if (!this.isCaching(response)) {
+        if (!this.pathIsCached(response)) {
           callback('project/languages', {
             projectID: projectID,
             content: typeof response.data === 'string'
@@ -306,7 +312,7 @@ const parser = {
         // eslint-disable-next-line no-unused-vars
         const mode = manifest.mode || MANIFEST_MODES.AS_IS;
 
-        if (!this.isCaching(response)) {
+        if (!this.pathIsCached(response)) {
           this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
         }
 
@@ -336,11 +342,14 @@ const parser = {
     }
 	},
 
-  isCaching: env.cache && !env.isPlugin()
-    ? (response) => response
-      ? response.status === 304
-      : true
-    : () => false
+  pathIsCached(response) {
+    return this.isCaching &&
+      (
+        response
+          ? (response.status === 304) && this.cacheIsLoaded
+          : true
+      );
+  }
 };
 
 export default parser;
