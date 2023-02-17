@@ -52,7 +52,10 @@ if (env.isPlugin(Plugins.idea)) {
 	}
 }
 
-config.pumlServer = 'https://z.slsdev.ru/vyyizdogpnzwxcwpcano/svg/';
+config.pumlServer =
+	window.$PAPI?.settings?.render?.server
+	|| process.env.VUE_APP_PLANTUML_SERVER
+	|| 'www.plantuml.com/plantuml/svg/';
 
 config.pumlRequestType =
   window.$PAPI?.settings?.render?.request_type
