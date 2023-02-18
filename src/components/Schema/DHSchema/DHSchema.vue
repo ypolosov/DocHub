@@ -47,6 +47,25 @@
       v-bind:layer="presentation.layers" 
       v-on:node-click="onNodeClick" />
 
+
+    <template v-if="isBuilding">
+      <rect 
+        fill="#fff"
+        opacity="0.8"
+        v-bind:x="landscape.viewBox.left"
+        v-bind:y="landscape.viewBox.top"
+        v-bind:width="landscape.viewBox.width"
+        v-bind:height="landscape.viewBox.height" />
+      <circle
+        v-if="isBuilding"
+        class="spinner" 
+        v-bind:cx="landscape.viewBox.left + landscape.viewBox.width * 0.5 - 25"
+        v-bind:cy="landscape.viewBox.top + landscape.viewBox.height * 0.5 - 25"
+        r="20"
+        fill="none"
+        stroke-width="5" />
+    </template>
+
     Тут должны была быть схема, но что-то пошло не так...
   </svg>
 </template>
@@ -56,12 +75,45 @@
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
   import href from '@/helpers/href';
+  import { v4 as uuidv4 } from 'uuid';
 
-  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
+  //  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
   
-  // console.info(require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default);
+  
+  const Graph = new function() {
+    const codeWorker = require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default;
+    const scriptBase64 = btoa(unescape(encodeURIComponent(codeWorker)));
+    const scriptURL = 'data:text/javascript;base64,' + scriptBase64;
 
-  const  Graph = window.$SmartAnts;
+    // Слушатели запросов
+    const listeners = {};
+
+    const worker = new Worker(scriptURL);
+    worker.onmessage = (message)=> {
+      const queryID = message.data.queryID;
+      listeners[queryID] && listeners[queryID](message.data);
+    };
+    this.make = (nodes, links, trackWidth, distance, symbols, availableWidth, isDebug) => {
+      return new Promise((success, reject) => {
+        const queryID = uuidv4();
+        listeners[queryID] = (message) => {
+          try {
+            if (message.result === 'OK')
+              success(message.graph);
+            else reject(message.error);
+          } finally {
+            delete listeners[queryID];
+          }
+        };
+        worker.postMessage({
+          queryID,
+          params: {
+            nodes, links, trackWidth, distance, symbols, availableWidth, isDebug
+          }
+        });
+      });
+    };
+  };
 
   import DHSchemaAnimationMixin from './DHSchemaAnimationMixin';
   import DHSchemaExcalidrawMixin from './DHSchemaExcalidrawMixin';
@@ -123,6 +175,7 @@
       }},
     data() {
       return {
+        isBuilding: 0,
         resizer: null,
         debug: IS_DEBUG ? {
           
@@ -328,7 +381,7 @@
       // Перестроить viewbox
       rebuildViewBox() {
         const width = this.presentation.valueBox.dx - this.presentation.valueBox.x;
-        const height = this.presentation.valueBox.dy - this.presentation.valueBox.y;
+        const height = Math.max(this.presentation.valueBox.dy - this.presentation.valueBox.y, 100);
         const clientWidth = this.$el?.clientWidth || 0;
         this.landscape.viewBox.top = this.presentation.valueBox.y - 24;
         this.landscape.viewBox.height = height + 48;
@@ -350,6 +403,7 @@
         const distance = this.data.config?.distance || this.distance;
         let availableWidth = this.$el?.clientWidth || 0;
         if (availableWidth < 600) availableWidth = 600;
+        this.isBuilding++;
         Graph.make(
           nodes || this.data.nodes || {},
           links || this.data.links || [],
@@ -369,6 +423,9 @@
           .catch((e) => {
             // eslint-disable-next-line no-console
             console.error(e);
+          })
+          .finally(() => {
+            this.isBuilding > 0 && this.isBuilding--;
           });
       },
       // Рассчитывает размерность примитивов (символов)
@@ -418,6 +475,33 @@
 
 .symbols * {
   opacity: 0;
+}
+
+.spinner {
+  stroke: rgb(52, 149, 219);
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
 }
 
 </style>

@@ -146,6 +146,16 @@
       }
     },
     methods: {
+      //Очистка состояния
+      clean() {
+        this.status = {};
+        this.selectedScenario =null;
+        this.isPaying = false;
+        this.selectedNodes = null;
+        this.focusNodes = null;
+        this.isUnwisp = false;
+
+      },
       // Сворачивает связи в жгуты
       unwispLinks(links) {
         const map = {};
@@ -224,6 +234,7 @@
         this.$refs.schema.$emit('next');
       },
       refresh() {
+        this.clean();
         this.selectedScenario = null;
         this.isPaying = false;
         this.sourceRefresh();
