@@ -58,6 +58,8 @@
   import href from '@/helpers/href';
 
   require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
+  
+  // console.info(require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default);
 
   const  Graph = window.$SmartAnts;
 
@@ -73,7 +75,7 @@
   import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';  
 
   const OPACITY = 0.3;
-  const IS_DEBUG = true;
+  const IS_DEBUG = false;
 
   export default {
     name: 'DHSchema',
