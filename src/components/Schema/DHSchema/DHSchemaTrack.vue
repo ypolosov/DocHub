@@ -11,7 +11,8 @@
       v-bind:id="id" 
       v-bind:class="classesLine"
       v-bind:d="line" 
-      v-bind:style="{ opacity: track.opacity }"
+      v-bind:style="{ opacity: track.opacity, 'stroke-width':strokeWidth }"
+      v-bind:stroke-width="strokeWidth"
       v-on:mouseover="onTrackOver"
       v-on:mouseleave="onTrackLeave"
       v-on:mousedown.stop.prevent="onTrackClick" />
@@ -51,57 +52,47 @@
       };
     },  
     computed: {
+      strokeWidth() {
+        return ((this.track.link.contains || []).length || 1) + 1;
+      },
       // Определяем как и где будет выводиться надпись на линке
       title() {
-        if (!this.track.link.title || (this.track.length < 2))
+        const path = this.simplePath;
+        if ((path.length < 2) || !this.track.link.title || (this.track.length < 2))
           return null;
-        const segments = [];
-        let oldX = this.track.path[0].x;
-        let oldY = this.track.path[0].y;
-        let segment = 0;
-        let maxSegment = {
+
+        const maxSegment = {
           size: 0,
-          index: 0,
-          point: this.track.path[0]
+          index: 0
         };
-        segments.push(maxSegment.point);
-        const len = this.track.path.length;
-        for (let i = 1; i < len; i++) {
-          const point = this.track.path[i];
-          const a1 = Math.abs(this.track.path[i - 1].x - point.x);
-          const a2 = Math.abs(this.track.path[i - 1].y - point.y);
-          segment += i ? Math.round(Math.sqrt(a1 * a1 + a2 * a2)) : 0;
-          if (((oldX !== point.x) && (oldY !== point.y)) || (i+1 === len)) {
-            if (maxSegment.size < segment) {
-              maxSegment.point = point;
-              maxSegment.size = segment;
-              maxSegment.index = segments.length;
-            }
-            segments.push(point);
-            segment = 0;
-            oldX = point.x;
-            oldY = point.y;
+
+        for (let i = 1; i < path.length; i++) {
+          const point = path[i];
+          const a1 = Math.abs(path[i - 1].x - point.x);
+          const a2 = Math.abs(path[i - 1].y - point.y);
+          const size = Math.round(Math.sqrt(a1 * a1 + a2 * a2));
+          if (size > maxSegment.size) {
+            maxSegment.size = size;
+            maxSegment.from = path[i - 1];
+            maxSegment.to = point;
           }
         }
 
-        const start = segments[maxSegment.index - 1];
-        const end = segments[maxSegment.index] || {x: oldX, y: oldY};
-
         const result = {
           text: this.track.link.title,
-          point : {
-            x: 0,
-            y: 0
-          },
           rotate: 0
         };
 
-        if (start.x !== end.x) {
-          result.point.x = start.x - (start.x - end.x) * 0.5;
-          result.point.y = start.y - 4;
-        } else  {
-          result.point.y = start.y - (start.y - end.y) * 0.5;
-          result.point.x = start.x + 4;
+        if (maxSegment.from.x !== maxSegment.to.x) 
+          result.point = {
+            x: maxSegment.from.x - (maxSegment.from.x - maxSegment.to.x) * 0.5,
+            y: maxSegment.from.y - 4
+          };
+        else {
+          result.point = {
+            y: maxSegment.from.y - (maxSegment.from.y - maxSegment.to.y) * 0.5,
+            x: maxSegment.from.x + 4
+          };
           result.rotate = 90;
         }
 
@@ -121,6 +112,7 @@
         const result = ['track-title'];
         // Определяем нужно ли подсвечивать путь
         if (this.track.highlight) result.push('title-highlight');
+        if (this.track.link.link) result.push('title-link');
         return result.join(' ');
       },
       // Стиль стрелок
@@ -159,29 +151,18 @@
         return result;
       },
 
+      // Упрощенный путь
+      simplePath() {
+        return this.track.path;
+      },
+
       // Путь 
       line() {
-        const track = this.track.path;
-        if (track.length < 2) return '';
+        return rounding(
+          this.simplePath
+            .map((point, index) => `${index ? 'L' : 'M'} ${point.x} ${point.y}`).join(' ')
+          , TRACK_SMOOTHING);
 
-        let result = `M${track[0].x} ${track[0].y}`;
-
-        const len = this.track.path.length;
-        let oldX = track[0].x;
-        let oldY = track[0].y;
-        for (let i = 1; i < len; i++) {
-          if ((oldX !== track[i].x) && (oldY !== track[i].y)) {
-            result += ` L ${track[i-1].x} ${track[i-1].y}`;
-            result += ` L ${track[i].x} ${track[i].y}`;
-            oldX = track[i].x;
-            oldY = track[i].y;
-          }
-        }
-        result += ` L ${track[len - 1].x} ${track[len - 1].y}`;
-
-        result = rounding(result, TRACK_SMOOTHING); // Сглаживаем
-
-        return result;
       }
     },
     methods: {
@@ -313,6 +294,10 @@
 
 .title-highlight {
   z-index: 10000;
+}
+
+.title-link {
+  cursor: pointer;
 }
 
 </style>

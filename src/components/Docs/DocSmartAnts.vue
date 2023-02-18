@@ -2,42 +2,60 @@
   <box>
     <v-card flat class="container">
       <v-system-bar
-        v-if="scenario"
+        v-if="!isPrintVersion"
         class="toolbar"
         floating
         flat
         color="#fff"
         dense>
-        <v-select
-          v-model="scenario"
-          dense
-          item-text="text"
-          item-value="id"
-          v-bind:items="scenarios" />
-        <v-btn
-          icon
-          title="Проиграть сценарий"
-          v-on:click="playScenario">
-          <v-icon>{{ isPaying ? 'mdi-stop' : 'mdi-play' }}</v-icon>
+        <v-btn icon title="Экспорт в Excalidraw" v-on:click="exportToExcalidraw">
+          <v-icon>mdi-download</v-icon>
         </v-btn>
-        <!--
-          Имеются проблемы с перемоткой назад. 
-          Плохо отрабатывают шаги очистки, т.е. отмотать состояние не удается без артефактов
-        <v-btn
-          v-if="isPaying"
-          icon
-          title="Дальше"
-          v-on:click="playPrev">
-          <v-icon>mdi-skip-previous</v-icon>
+        <v-btn v-if="selectedNodes" icon title="Кадрировать" v-on:click="doFocus">
+          <v-icon>mdi-crop-free</v-icon>
         </v-btn>
-        -->
-        <v-btn
-          v-if="isPaying"
-          icon
-          title="Дальше"
-          v-on:click="playNext">
-          <v-icon>mdi-skip-next</v-icon>
+        <v-btn v-if="focusNodes" icon title="Полная диаграмма" v-on:click="clearFocus">
+          <v-icon>mdi-view-comfy</v-icon>
         </v-btn>
+        <v-btn v-if="isUnwisp" icon title="Показать все связи" v-on:click="setUnwisp(false)">
+          <v-icon>mdi-arrow-decision-outline</v-icon>
+        </v-btn>
+        <v-btn v-if="!isUnwisp" icon title="Свернуть связи в жгуты" v-on:click="setUnwisp(true)">
+          <v-icon>mdi-arrow-decision-auto</v-icon>
+        </v-btn>
+
+        <template v-if="scenario">
+          <v-select
+            v-model="scenario"
+            dense
+            item-text="text"
+            item-value="id"
+            v-bind:items="scenarios" />
+          <v-btn
+            icon
+            title="Проиграть сценарий"
+            v-on:click="playScenario">
+            <v-icon>{{ isPaying ? 'mdi-stop' : 'mdi-play' }}</v-icon>
+          </v-btn>
+          <!--
+            Имеются проблемы с перемоткой назад. 
+            Плохо отрабатывают шаги очистки, т.е. отмотать состояние не удается без артефактов
+          <v-btn
+            v-if="isPaying"
+            icon
+            title="Дальше"
+            v-on:click="playPrev">
+            <v-icon>mdi-skip-previous</v-icon>
+          </v-btn>
+          -->
+          <v-btn
+            v-if="isPaying"
+            icon
+            title="Дальше"
+            v-on:click="playNext">
+            <v-icon>mdi-skip-next</v-icon>
+          </v-btn>
+        </template>
       </v-system-bar>      
       <schema 
         ref="schema"
@@ -45,7 +63,9 @@
         class="schema"
         v-bind:data="data"
         v-on:playstop="onPlayStop"
-        v-on:playstart="onPlayStart" />
+        v-on:playstart="onPlayStart"
+        v-on:selected-nodes="onSelectedNodes"
+        v-on:on-click-link="onClickLink" />
     </v-card>
   </box>
 </template>
@@ -54,6 +74,7 @@
 
   import Schema from '@/components/Schema/DHSchema/DHSchema.vue';
   import DocMixin from './DocMixin';
+  import href from '@/helpers/href';
 
   export default {
     name: 'DocHubViewpoint',
@@ -66,9 +87,12 @@
     },
     data() {
       return {
-        status: {}, // Текущий статус схемы
-        selectedScenario: null,
-        isPaying: false
+        status: {},             // Текущий статус схемы
+        selectedScenario: null, // Выбранный сценарий
+        isPaying: false,        // Признак проигрывания
+        selectedNodes: null,    // Выбранные ноды
+        focusNodes: null,       // Кадрированные ноды
+        isUnwisp: false         // Признак группировки связей
       };
     },
     computed: {
@@ -85,7 +109,28 @@
         }
       },
       data() {
-        return this.source.dataset || {};
+        let result = Object.assign({}, this.source.dataset || {});
+        // Если нужно, оставляем только фокусные ноды и связи между ними
+        if (this.focusNodes) {
+          const links = [];
+          (result.links || []).map((link) => {
+            if ((this.focusNodes.indexOf(link.from) >=0 ) && (this.focusNodes.indexOf(link.to) >=0 ))
+              links.push(link);
+          });
+
+          const nodes = {};
+          this.focusNodes.map((id) => nodes[id] = result.nodes[id]);
+
+          result = JSON.parse(JSON.stringify({
+            config: result.config,
+            symbols: result.symbols,
+            links,
+            nodes
+          }));
+        }
+        // Если нужно, собираем в жгуты
+        this.isUnwisp && (result.links = this.unwispLinks(result.links));
+        return result;
       },
       scenarios() {
         const result = [];
@@ -102,6 +147,72 @@
       }
     },
     methods: {
+      //Очистка состояния
+      clean() {
+        this.status = {};
+        this.selectedScenario =null;
+        this.isPaying = false;
+        this.selectedNodes = null;
+        this.focusNodes = null;
+        this.isUnwisp = false;
+
+      },
+      // Сворачивает связи в жгуты
+      unwispLinks(links) {
+        const map = {};
+        const result = [];
+        links.map((link) => {
+          let item = map[`${link.from}-${link.to}`] || map[`${link.to}-${link.from}`];
+          if (!item) {
+            item = Object.assign({}, link);
+            item.contains = [link];
+            item.title = '';
+            map[`${item.from}-${item.to}`] = item;
+            result.push(item);
+          } else {
+            item.contains.push(link);
+            const originArrow = {
+              start: item.style.slice(0, 1),
+              end: item.style.slice(-1)
+            };
+            const addingArrow = {
+              start: link.style.slice(0, 1),
+              end: link.style.slice(-1)
+            };
+            if ((addingArrow.start) === '<' && (originArrow.start !== '<')) {
+              item.style = `<${item.style}`;
+            }
+            if ((addingArrow.end) === '>' && (originArrow.end !== '>')) {
+              item.style = `${item.style}>`;
+            }
+          }
+        });
+        return result;
+      },
+      // Устанавливает режим сворачивания связей в жгуты
+      setUnwisp(value) {
+        this.isUnwisp = value;
+      },
+      // Очищает фокус
+      clearFocus() {
+        this.focusNodes = null;
+      },
+      // Сфокусироваться на выбранных нодах
+      doFocus() {
+        this.focusNodes = this.selectedNodes ? Object.keys(this.selectedNodes) : null;
+      },
+      // Обработка клика по ссылке
+      onClickLink(link) {
+        href.gotoURL(link.link);
+      },
+      // Изменение выбора нод
+      onSelectedNodes(nodes) {
+        this.selectedNodes = Object.keys(nodes).length ? nodes : null;
+      },
+      // Экспорт в Excalidraw
+      exportToExcalidraw() {
+        this.$refs.schema.$emit('exportToExcalidraw', this.scenario);
+      },
       // Событие остановки проигрывания сценария
       onPlayStop() {
         this.isPaying = false;
@@ -124,6 +235,7 @@
         this.$refs.schema.$emit('next');
       },
       refresh() {
+        this.clean();
         this.selectedScenario = null;
         this.isPaying = false;
         this.sourceRefresh();

@@ -13,12 +13,8 @@ function isLocalRoute(url) {
 
 // Работа с ссылками
 export default {
-	// Обрабатывает клик по ссылке
-	onClickRef(event) {
-		event.preventDefault();
-		if (event.shiftKey) return false;
-		const ref = event.currentTarget.href.baseVal || event.currentTarget.href;
-		if (!ref.length) return false;
+	// Переход по URL 
+	gotoURL(ref) {
 		try {
 			if (requests.isExternalURI(ref)) {
 				window.open(ref, 'blank_');
@@ -27,14 +23,21 @@ export default {
 				if (isLocalRoute(url)) 
 					window.Router.push({ path: url.pathname, query: Object.fromEntries(url.searchParams)});
 				else
-					window.open(ref, 'blank_');
+					window.open(url, 'blank_');
 			}
 		} catch (e) {
 			if (env.isPlugin(Plugins.idea)) {
 				window.Router.push({ path: ref.split('#')[1]});
 			}
 		}
-
+	},
+	// Обрабатывает клик по ссылке
+	onClickRef(event) {
+		event.preventDefault();
+		if (event.shiftKey) return false;
+		const ref = event.currentTarget.href.baseVal || event.currentTarget.href;
+		if (!ref.length) return false;
+		this.gotoURL(ref);
 		return false;
 	},
 

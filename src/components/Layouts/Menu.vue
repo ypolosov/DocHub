@@ -53,7 +53,7 @@
     data() {
       return {
         // Открытые пункты меню
-        currentRoute: this.$router.currentRoute.path,
+        currentRoute: this.$router.currentRoute,
         filter: {
           text: '',
           query: '',
@@ -129,7 +129,7 @@
           node.title = item.title;
           node.route = item.route;
           node.icon = item.icon;
-          if (node.route === this.currentRoute) {
+          if ((node.route === this.currentRoute.fullPath) || (node.route === this.currentRoute.path)) {
             this.$nextTick(() => {
               let subLocation = null;
               location.map((item) => {
@@ -149,7 +149,7 @@
         this.menuCache = null;
       },
       $route(to) {
-        this.currentRoute = to.path;
+        this.currentRoute = to;
       },
       'filter.text'(value) {
         if (this.filter.timer) clearTimeout(this.filter.timer);
@@ -177,7 +177,7 @@
         return true;
       },      
       isMenuItemSelected(item) {
-        return item.route === this.currentRoute;
+        return (item.route === this.currentRoute.fullPath) || (item.route === this.currentRoute.path);
       },
       onClickMenuExpand(item) {
         this.$set(this.expands, item.location, !this.expands[item.location]);
