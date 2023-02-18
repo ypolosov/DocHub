@@ -112,7 +112,7 @@
         const result = ['track-title'];
         // Определяем нужно ли подсвечивать путь
         if (this.track.highlight) result.push('title-highlight');
-        if (this.track.link) result.push('title-link');
+        if (this.track.link.link) result.push('title-link');
         return result.join(' ');
       },
       // Стиль стрелок

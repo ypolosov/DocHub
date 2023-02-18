@@ -338,7 +338,7 @@
       },
       // Фиксируем выбор линка  
       onTrackClick(track) {
-        if(track.link) {
+        if(track.link.link) {
           this.$emit('on-click-link', track.link);
         } else {
           if (!window?.event?.shiftKey) {
