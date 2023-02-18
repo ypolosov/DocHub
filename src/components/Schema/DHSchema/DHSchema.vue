@@ -280,15 +280,19 @@
       },
       // Фиксируем выбор линка  
       onTrackClick(track) {
-        if (!window?.event?.shiftKey) {
-          this.cleanSelectedTracks();
-          this.cleanSelectedNodes();
+        if(track.link) {
+          this.$emit('on-click-link', track.link);
+        } else {
+          if (!window?.event?.shiftKey) {
+            this.cleanSelectedTracks();
+            this.cleanSelectedNodes();
+          }
+          this.selected.links[track.id] = track;
+          this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
+          this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
+          this.updateNodeView();
+          this.updateTracksView();
         }
-        this.selected.links[track.id] = track;
-        this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
-        this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
-        this.updateNodeView();
-        this.updateTracksView();
       },
       // Обработка событий прохода мышки над связями
       onTrackOver(track) {

@@ -11,7 +11,8 @@
       v-bind:id="id" 
       v-bind:class="classesLine"
       v-bind:d="line" 
-      v-bind:style="{ opacity: track.opacity }"
+      v-bind:style="{ opacity: track.opacity, 'stroke-width':strokeWidth }"
+      v-bind:stroke-width="strokeWidth"
       v-on:mouseover="onTrackOver"
       v-on:mouseleave="onTrackLeave"
       v-on:mousedown.stop.prevent="onTrackClick" />
@@ -51,6 +52,9 @@
       };
     },  
     computed: {
+      strokeWidth() {
+        return ((this.track.link.contains || []).length || 1) + 1;
+      },
       // Определяем как и где будет выводиться надпись на линке
       title() {
         const path = this.simplePath;
@@ -108,6 +112,7 @@
         const result = ['track-title'];
         // Определяем нужно ли подсвечивать путь
         if (this.track.highlight) result.push('title-highlight');
+        if (this.track.link) result.push('title-link');
         return result.join(' ');
       },
       // Стиль стрелок
@@ -149,27 +154,6 @@
       // Упрощенный путь
       simplePath() {
         return this.track.path;
-        /*
-        const track = this.track.path;
-        if (track.length < 2) return [];
-
-        const result = [track[0]];
-
-        const len = this.track.path.length;
-        let oldX = track[0].x;
-        let oldY = track[0].y;
-        for (let i = 1; i < len; i++) {
-          if ((oldX !== track[i].x) && (oldY !== track[i].y)) {
-            result.push(track[i-1]);
-            result.push(track[i]);
-            oldX = track[i].x;
-            oldY = track[i].y;
-          }
-        }
-        result.push(track[len - 1]);
-
-        return result;
-        */
       },
 
       // Путь 
@@ -179,29 +163,6 @@
             .map((point, index) => `${index ? 'L' : 'M'} ${point.x} ${point.y}`).join(' ')
           , TRACK_SMOOTHING);
 
-        /*  
-        const track = this.track.path;
-        if (track.length < 2) return '';
-
-        let result = `M${track[0].x} ${track[0].y}`;
-
-        const len = this.track.path.length;
-        let oldX = track[0].x;
-        let oldY = track[0].y;
-        for (let i = 1; i < len; i++) {
-          if ((oldX !== track[i].x) && (oldY !== track[i].y)) {
-            result += ` L ${track[i-1].x} ${track[i-1].y}`;
-            result += ` L ${track[i].x} ${track[i].y}`;
-            oldX = track[i].x;
-            oldY = track[i].y;
-          }
-        }
-        result += ` L ${track[len - 1].x} ${track[len - 1].y}`;
-
-        result = rounding(result, TRACK_SMOOTHING); // Сглаживаем
-
-        return result;
-        */
       }
     },
     methods: {
@@ -333,6 +294,10 @@
 
 .title-highlight {
   z-index: 10000;
+}
+
+.title-link {
+  cursor: pointer;
 }
 
 </style>

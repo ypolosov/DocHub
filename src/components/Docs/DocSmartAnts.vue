@@ -16,6 +16,12 @@
         <v-btn v-if="focusNodes" icon title="Полная диаграмма" v-on:click="clearFocus">
           <v-icon>mdi-view-comfy</v-icon>
         </v-btn>
+        <v-btn v-if="isUnwisp" icon title="Показать все связи" v-on:click="setUnwisp(false)">
+          <v-icon>mdi-arrow-decision-outline</v-icon>
+        </v-btn>
+        <v-btn v-if="!isUnwisp" icon title="Свернуть связи в жгуты" v-on:click="setUnwisp(true)">
+          <v-icon>mdi-arrow-decision-auto</v-icon>
+        </v-btn>
 
         <template v-if="scenario">
           <v-select
@@ -57,7 +63,8 @@
         v-bind:data="data"
         v-on:playstop="onPlayStop"
         v-on:playstart="onPlayStart"
-        v-on:selected-nodes="onSelectedNodes" />
+        v-on:selected-nodes="onSelectedNodes"
+        v-on:on-click-link="onClickLink" />
     </v-card>
   </box>
 </template>
@@ -66,6 +73,7 @@
 
   import Schema from '@/components/Schema/DHSchema/DHSchema.vue';
   import DocMixin from './DocMixin';
+  import href from '@/helpers/href';
 
   export default {
     name: 'DocHubViewpoint',
@@ -78,11 +86,12 @@
     },
     data() {
       return {
-        status: {}, // Текущий статус схемы
-        selectedScenario: null,
-        isPaying: false,
-        selectedNodes: null,
-        focusNodes: null
+        status: {},             // Текущий статус схемы
+        selectedScenario: null, // Выбранный сценарий
+        isPaying: false,        // Признак проигрывания
+        selectedNodes: null,    // Выбранные ноды
+        focusNodes: null,       // Кадрированные ноды
+        isUnwisp: false         // Признак группировки связей
       };
     },
     computed: {
@@ -99,7 +108,8 @@
         }
       },
       data() {
-        let result = this.source.dataset || {};
+        let result = Object.assign({}, this.source.dataset || {});
+        // Если нужно, оставляем только фокусные ноды и связи между ними
         if (this.focusNodes) {
           const links = [];
           (result.links || []).map((link) => {
@@ -117,6 +127,8 @@
             nodes
           }));
         }
+        // Если нужно, собираем в жгуты
+        this.isUnwisp && (result.links = this.unwispLinks(result.links));
         return result;
       },
       scenarios() {
@@ -134,6 +146,42 @@
       }
     },
     methods: {
+      // Сворачивает связи в жгуты
+      unwispLinks(links) {
+        const map = {};
+        const result = [];
+        links.map((link) => {
+          let item = map[`${link.from}-${link.to}`] || map[`${link.to}-${link.from}`];
+          if (!item) {
+            item = Object.assign({}, link);
+            item.contains = [link];
+            item.title = '';
+            map[`${item.from}-${item.to}`] = item;
+            result.push(item);
+          } else {
+            item.contains.push(link);
+            const originArrow = {
+              start: item.style.slice(0, 1),
+              end: item.style.slice(-1)
+            };
+            const addingArrow = {
+              start: link.style.slice(0, 1),
+              end: link.style.slice(-1)
+            };
+            if ((addingArrow.start) === '<' && (originArrow.start !== '<')) {
+              item.style = `<${item.style}`;
+            }
+            if ((addingArrow.end) === '>' && (originArrow.end !== '>')) {
+              item.style = `${item.style}>`;
+            }
+          }
+        });
+        return result;
+      },
+      // Устанавливает режим сворачивания связей в жгуты
+      setUnwisp(value) {
+        this.isUnwisp = value;
+      },
       // Очищает фокус
       clearFocus() {
         this.focusNodes = null;
@@ -141,6 +189,10 @@
       // Сфокусироваться на выбранных нодах
       doFocus() {
         this.focusNodes = this.selectedNodes ? Object.keys(this.selectedNodes) : null;
+      },
+      // Обработка клика по ссылке
+      onClickLink(link) {
+        href.gotoURL(link.link);
       },
       // Изменение выбора нод
       onSelectedNodes(nodes) {
