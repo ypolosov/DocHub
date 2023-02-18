@@ -1,32 +1,40 @@
 import { TIndexes, TKeyOptions } from '../types/idb.types';
 import { get as getDB, open as openDB } from './idb';
+import { ErrorStatus } from '../helpers/Exception';
 
 const create = async({
   dbName,
   storeName,
-  version = 0,
+  version,
   keyOptions = {},
   indexes = []
 }: {
   dbName: string;
   storeName: string;
-  version: number;
   keyOptions: TKeyOptions;
   indexes: TIndexes[];
+  version?: number;
 }): Promise<IDBObjectStore> => {
   let store: IDBObjectStore;
 
   await openDB({
     dbName,
+    storeName,
     version,
-    onupgradeneeded(event: IDBVersionChangeEvent): void {
+    indexes,
+    onupgradeneeded(event: IDBVersionChangeEvent, isUpgrade?: boolean): void {
       const DB: IDBDatabase = (event.target as IDBOpenDBRequest).result;
+      const existStore = DB.objectStoreNames.contains(storeName);
 
-      if (!DB.objectStoreNames.contains(storeName)) {
+      if (isUpgrade && existStore) {
+        DB.deleteObjectStore(storeName);
+      }
+
+      if (!existStore) {
         store = DB.createObjectStore(storeName, keyOptions);
 
-        indexes.forEach(e =>
-          store.createIndex(e.name, e.keyPath, e?.options)
+        indexes.forEach((index: TIndexes) =>
+          store.createIndex(index.name, index.keyPath, index?.options)
         );
       }
     }
@@ -48,7 +56,7 @@ const get = async(dbName: string, storeName: string): Promise<IDBObjectStore> =>
 
       resolve(store);
     } else {
-      reject(new Error('Не тот store!'));
+      reject(new Error(ErrorStatus.invalidStore));
     }
   });
 };
@@ -56,10 +64,11 @@ const get = async(dbName: string, storeName: string): Promise<IDBObjectStore> =>
 const deleteStore = async(
   dbName: string,
   storeName: string,
-  version = 0
+  version?: number
 ): Promise<boolean> => {
   await openDB({
     dbName,
+    storeName,
     version,
     onupgradeneeded(event: IDBVersionChangeEvent): void {
       const DB: IDBDatabase = (event.target as IDBOpenDBRequest).result;
@@ -82,9 +91,28 @@ const clear = async(dbName: string, storeName: string): Promise<boolean> => {
   }
 };
 
+const storeCount = async(dbName: string, storeName: string): Promise<number> => {
+  const store = await get(dbName, storeName);
+
+  return new Promise((
+    resolve: (count: number) => void,
+    reject: (err: Event) => void
+  ): void => {
+    const DB: IDBRequest<number> = store.count();
+
+    DB.onsuccess = (event: Event): void => {
+      const count: number = (event.target as IDBRequest).result;
+      resolve(count);
+    };
+
+    DB.onerror = reject;
+  });
+};
+
 export {
   create,
   get,
   deleteStore,
-  clear
+  clear,
+  storeCount
 };

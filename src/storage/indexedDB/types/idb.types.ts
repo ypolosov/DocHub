@@ -1,6 +1,6 @@
 export type TIdbEvent = Event & { target: IDBOpenDBRequest };
 export type TIdbRequest = Event & { target: IDBRequest };
-export type TOnupgradeneeded = (event: IDBVersionChangeEvent) => void;
+export type TOnupgradeneeded = (event: IDBVersionChangeEvent, isUpgrade?: boolean) => void;
 
 export type TKeyOptions = {
   autoIncrement?: boolean;
