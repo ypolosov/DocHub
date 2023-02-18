@@ -256,6 +256,9 @@
       },
       'selected.nodes'(value) {
         this.$emit('selected-nodes', value);
+      },
+      'animation.information'() {
+        this.rebuildViewBox();
       }
     },
     mounted() {
@@ -381,10 +384,17 @@
       // Перестроить viewbox
       rebuildViewBox() {
         const width = this.presentation.valueBox.dx - this.presentation.valueBox.x;
-        const height = Math.max(this.presentation.valueBox.dy - this.presentation.valueBox.y, 100);
+        let height = Math.max(this.presentation.valueBox.dy - this.presentation.valueBox.y, 100);
         const clientWidth = this.$el?.clientWidth || 0;
         this.landscape.viewBox.top = this.presentation.valueBox.y - 24;
+
+        if (this.animation.information) {
+          this.landscape.viewBox.top -= 64;
+          height += 64;
+        }
+
         this.landscape.viewBox.height = height + 48;
+
         if (width < clientWidth) {
           const delta = (clientWidth - width) * 0.5;
           this.landscape.viewBox.left = - delta + this.presentation.valueBox.x;
@@ -502,6 +512,10 @@
     stroke-dasharray: 90, 150;
     stroke-dashoffset: -124;
   }
+}
+
+* {
+  transition: all 0.15s ease-in;
 }
 
 </style>

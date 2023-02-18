@@ -2,6 +2,7 @@
   <box>
     <v-card flat class="container">
       <v-system-bar
+        v-if="!isPrintVersion"
         class="toolbar"
         floating
         flat
