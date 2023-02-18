@@ -147,7 +147,7 @@
         this.logItems.push({
           id: this.logItems.length,
           moment: (((new Date()).getTime() - this.jsonata.trace?.start || 0) * 0.001).toFixed(5),
-          value: JSON.parse(JSON.stringify(value)), 
+          value: value ? JSON.parse(JSON.stringify(value)) : value, 
           tag
         });
         return value;
