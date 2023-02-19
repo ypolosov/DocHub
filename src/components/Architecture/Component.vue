@@ -120,7 +120,7 @@
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
   import Docs from './tabs/Docs.vue';
-  import requests from '@/helpers/requests';
+  import uri from '@/global/manifest/tools/uri.mjs';
   import entity from '@/components/Entities/Entity.vue';
   import html from '@/helpers/html';
 
@@ -201,7 +201,7 @@
     },
     methods: {
       isURL(str) {
-        return requests.isURL(str);
+        return uri.isURL(str);
       },
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       goToLink() {

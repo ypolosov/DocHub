@@ -1,9 +1,7 @@
-import requests from '../helpers/requests';
-import uriTool from '@/global/manifest/tools/uri.mjs';
-import property from './prototype';
-import env from '../helpers/env';
-import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
-import { manifestCache } from '@/helpers/cache';
+import cache from './services/cache.mjs';
+import uri from './tools/uri.mjs';
+import property from './prototype.mjs';
+import { MANIFEST_MODES } from './enums/manifest-modes.enum';
 
 // Определяет глубину лога источника для секции
 const sectionDeepLog = {
@@ -21,38 +19,22 @@ const sectionDeepLog = {
 };
 
 const parser = {
-	//
 	// Манифест перезагружен
 	onReloaded: null,
 	// Запущена перезагрузка манифеста
 	onStartReload: null,
 	// События по ошибкам (ошибки запросов)
 	onError: null,
-	cacheIsLoaded: false,
-	isCaching: !!env.cache && !env.isPlugin(),
+    // Возвращает базовый, предопределенный манифест
+    getBaseManifest: null,
+    // Сервис управления кэшем
+    cache,
 	async startLoad() {
-		this.onStartReload(this);
-
-		if (this.isCaching) {
-			const cachedManifest = await manifestCache.get();
-
-			if (cachedManifest) {
-				this.manifest = cachedManifest.original;
-				this.mergeMap = cachedManifest.merged;
-				this.cacheIsLoaded = true;
-			}
-		}
+		this.onStartReload && this.onStartReload(this);
 	},
 	stopLoad() {
 		this.expandPrototype();
-		this.onReloaded(this);
-
-		if (this.isCaching) {
-			manifestCache.set({
-				original: this.manifest,
-				merged: this.mergeMap
-			});
-		}
+		this.onReloaded && this.onReloaded(this);
 	},
 	// Журнал объединений
 	mergeMap: {},
@@ -87,7 +69,7 @@ const parser = {
 			['source', 'origin', 'data'].forEach((field) =>
 				item[field]
 				&& (parser.fieldValueType(item[field]) === 'ref')
-				&& (item[field] = uriTool.makeURIByBaseURI(item[field], baseURI))
+				&& (item[field] = uri.makeURIByBaseURI(item[field], baseURI))
 			);
 		},
 		datasets(item, baseURI) {
@@ -132,22 +114,6 @@ const parser = {
 				this.pushToMergeMap(`${path || ''}/${key}`, source[key], location);
 			}
 		}
-		/*
-		const found = this.mergeMap.find((element) => {
-			return ((element.path === storePath) && (element.location === location));
-		});
-		if (!found) {
-			this.mergeMap.push({
-				path: path || '/',
-				location
-			});
-			if (typeof source === 'object') {
-				for (const key in source) {
-					this.pushToMergeMap(`${path || ''}/${key}`, source[key], location);
-				}
-			}
-		}
-		*/
 	},
 	// Склеивание манифестов
 	// destination - Объект с которым происходит объединение. Низкий приоритете.
@@ -213,17 +179,16 @@ const parser = {
 	// Декомпозирует свойство манифеста
 	// Если свойство содержит ссылку, загружает объект
 	// data - Значение свойства
-	// path - пусть к свойству от корня манифеста
+	// path - путь к свойству от корня манифеста
 	async expandProperty(data, path, baseURI) {
 		// const data = this.getManifestContext(path).data;
 		// Если значение является ссылкой, загружает объект по ссылке
 		if (typeof data === 'string') {
-			const URI = uriTool.makeURIByBaseURI(data, baseURI);
+			const URI = uri.makeURIByBaseURI(data, baseURI);
 
 			try {
-				const response = await requests.request(URI);
-
-				if (!this.pathIsCached(response)) {
+				const response = await cache.request(URI, path);
+				if (response) {
 					const context = this.getManifestContext(path);
 					context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
 				}
@@ -242,48 +207,29 @@ const parser = {
 
 	// Создает базовый манифест
 	makeBaseManifest() {
+        return (this.getBaseManifest && this.getBaseManifest()) || {};
 		// По умолчанию подключаем контроль ядра метамодели
-		if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_METAMODEL || 'y').toLowerCase() === 'y') {
-			const YAML = require('yaml');
-			const baseYAML = require('!!raw-loader!../assets/base.yaml').default;
-			return YAML.parse(baseYAML);
-		} else return {};
 	},
 
 	// Подключение манифеста
 	async import(uri, subimport) {
 		if (!subimport) {
-			if (!this.cacheIsLoaded) {
-				this.mergeMap = {};
-				this.manifest = { [MANIFEST_MODES.AS_IS]: this.merge({}, this.makeBaseManifest(), uri) };
-			}
-			// Подключаем манифест самого DocHub
-			// eslint-disable-next-line no-constant-condition
-			if (
-				(!env.isPlugin()) &&
-				((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
-			) {
-				await this.import(
-					uriTool.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()),
-					true
-				);
-			}
+            this.mergeMap = {};
+            this.manifest = { [MANIFEST_MODES.AS_IS]: this.merge({}, this.makeBaseManifest(), uri) };
 		}
 
 		try {
-			const response = await requests.request(uri);
-			const manifest = typeof response.data === 'object'
+			const response = await cache.request(uri, '/');
+			const manifest = response && (typeof response.data === 'object'
 				? response.data
-				: JSON.parse(response.data);
+				: JSON.parse(response.data));
 
 			if (manifest) {
 				// Определяем режим манифеста
 				// eslint-disable-next-line no-unused-vars
 				const mode = manifest.mode || MANIFEST_MODES.AS_IS;
 
-				if (!this.pathIsCached(response)) {
-					this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
-				}
+                this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
 
 				for (const section in manifest) {
 					const node = manifest[section];
@@ -300,7 +246,7 @@ const parser = {
 							break;
 						case 'imports':
 							for (const key in node) {
-								await this.import(uriTool.makeURIByBaseURI(node[key], uri), true);
+								await this.import(uri.makeURIByBaseURI(node[key], uri), true);
 							}
 							break;
 					}
@@ -309,15 +255,6 @@ const parser = {
 		} catch (e) {
 			this.registerError(e, uri);
 		}
-	},
-
-	pathIsCached(response) {
-		return this.isCaching &&
-			(
-				response
-					? (response.status === 304) && this.cacheIsLoaded
-					: true
-			);
 	}
 };
 

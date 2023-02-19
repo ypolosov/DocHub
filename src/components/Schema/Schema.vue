@@ -12,6 +12,7 @@
   import C4ModelDSL from '!!raw-loader!../../assets/c4model_dsl.txt';
   import SberDSL from '!!raw-loader!../../assets/sber_dsl.txt';
   import requests from '@/helpers/requests';
+  import uri from '@/global/manifest/tools/uri.mjs';
   import copyToClipboard from '../../helpers/clipboard';
   import AsyncComputed from 'vue-async-computed';
   import Vue from 'vue';
@@ -343,7 +344,7 @@
             const contactID = link.contract.id;
             linkTitle.style.cursor = 'pointer';
             linkTitle.addEventListener('click', () => {
-              if (requests.isExternalURI(contactID))
+              if (uri.isExternalURI(contactID))
                 window.open(contactID, '_blank');
               else
                 this.$router.push({ path: `/docs/${contactID}`});
@@ -368,7 +369,7 @@
           linkTitle.setAttribute('title', '');
           if (link.contract) {
             const contactID = link.contract.id;
-            const url = requests.isExternalURI(contactID) ? contactID : `/docs/${contactID}`;
+            const url = uri.isExternalURI(contactID) ? contactID : `/docs/${contactID}`;
             linkTitle.setAttribute('xlink:title', url);
             linkTitle.setAttribute('href', url);
           } else if (linkTitle) {

@@ -1,17 +1,20 @@
 import config from '../../config';
 import cookie from 'vue-cookie';
-import GitHelper from '../helpers/gitlab';
+// import GitHelper from '../helpers/gitlab';
 import parser from '../manifest/manifest_parser';
 import Vue from 'vue';
 import requests from '../helpers/requests';
+import uri from '@/global/manifest/tools/uri.mjs';
 import gateway from '../idea/gateway';
 import consts from '../consts';
 import rules from '../helpers/rules';
 import crc16 from '@/helpers/crc16';
 import entities from '@/helpers/entities';
-import env, {Plugins} from '@/helpers/env';
+import env, { Plugins } from '@/helpers/env';
 import plugins from './plugins';
 import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
+
+import GitLab  from '@/helpers/gitlab';
 
 const axios = require('axios');
 
@@ -154,7 +157,7 @@ export default {
 			};
 			parser.onError = (action, data) => {
 				const error = data.error || {};
-				const url = (data.error.config || {url: data.uri}).url;
+				const url = (data.error.config || { url: data.uri }).url;
 				const uid = '$' + crc16(url);
 				if (action === 'syntax') {
 					if (!errors.syntax) {
@@ -172,9 +175,9 @@ export default {
 							title: url,
 							correction: 'Исправьте ошибку в файле',
 							description: 'Допущена синтаксиеческая ошибка при описании манифеста:\n\n'
-                                + `${error.toString()}\n`
-                                + `Код: ${source.toString()}`
-                                + `Диапазон: ${range.start || '--'}..${range.end || '--'}`,
+								+ `${error.toString()}\n`
+								+ `Код: ${source.toString()}`
+								+ `Диапазон: ${range.start || '--'}..${range.end || '--'}`,
 							location: url
 						});
 					}
@@ -193,14 +196,14 @@ export default {
 						title: url,
 						correction: 'Устраните сетевую ошибку',
 						description: 'Возникла сетевая ошибка:\n\n'
-                            + `${error.toString()}\n`,
+							+ `${error.toString()}\n`,
 						location: url
 					});
 					context.commit('setIsReloading', false);
 				}
 			};
 
-      context.dispatch('reloadAll');
+			context.dispatch('reloadAll');
 
 			let changes = {};
 			let refreshTimer = null;
@@ -234,7 +237,7 @@ export default {
 			const params = OAuthCode ? {
 				grant_type: 'authorization_code',
 				code: OAuthCode
-			}: {
+			} : {
 				grant_type: 'refresh_token',
 				refresh_token: context.state.refresh_token
 			};
@@ -278,22 +281,6 @@ export default {
 			context.dispatch('reloadRootManifest', payload);
 		},
 
-		// Search and set document by URI
-		selectDocumentByURI(context, uri) {
-			for (let key in context.state.docs) {
-				let document = context.state.docs[key];
-				if (document.uri.toString() === uri) {
-					context.dispatch('selectDocument', document);
-					break;
-				}
-			}
-		},
-
-		// Set selected document
-		selectDocument(context, document) {
-			context.commit('setSelectedDocument', document);
-		},
-
 		// Reload root manifest
 		updateLastChanges(context) {
 			let request = new function() {
@@ -303,8 +290,8 @@ export default {
 				this.loadLastChange = (doc) => {
 					axios({
 						method: 'get',
-						url: GitHelper.commitsListURI(doc.project_id, doc.branch, 1, doc.source, 1),
-						headers: {'Authorization': `Bearer ${context.state.access_token}`}
+						url: GitLab.commitsListURI(doc.project_id, doc.branch, 1, doc.source, 1),
+						headers: { 'Authorization': `Bearer ${context.state.access_token}` }
 					})
 						.then((response) => {
 							if (!this.terminate) {
@@ -331,23 +318,23 @@ export default {
 
 		// Reload root manifest
 		async reloadRootManifest(_context, payload) {
-      await parser.startLoad();
+			await parser.startLoad();
 
-      if (payload) {
-        await (
-          async function parserImport(next = 0) {
-            if (payload?.length > next) {
-              await parser.import(payload[next], payload[next] !== config.root_manifest);
-              await parserImport(next + 1);
-            }
-          }
-        )();
-      } else {
-        await parser.import(requests.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
-      }
+			if (payload) {
+				await (
+					async function parserImport(next = 0) {
+						if (payload?.length > next) {
+							await parser.import(payload[next], payload[next] !== config.root_manifest);
+							await parserImport(next + 1);
+						}
+					}
+				)();
+			} else {
+				await parser.import(uri.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
+			}
 
-      parser.stopLoad();
-    },
+			parser.stopLoad();
+		},
 
 		// Регистрация проблемы
 		registerProblem(context, problem) {

@@ -45,7 +45,7 @@
 
 <script>
 
-  import requests from '@/helpers/requests';
+  import uri from '@/global/manifest/tools/uri.mjs';
   import query from '@/manifest/query';
 
   export default {
@@ -184,7 +184,7 @@
       },
       onClickMenuItem(item) {
         if (item.route)
-          if (requests.isExternalURI(item.route)) {
+          if (uri.isExternalURI(item.route)) {
             window.open(item.route, '_blank');
           } else {
             this.$router.push({ path: item.route }).catch(()=> null);
