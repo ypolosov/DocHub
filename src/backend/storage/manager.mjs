@@ -32,5 +32,6 @@ export default {
 		logger.log(`Root manifest is ${baseURI}.`, LOG_TAG);
 		await manifestParser.import(baseURI);
 		logger.log('Full reload is done', LOG_TAG);
+		return manifestParser.manifest;
 	}
 };
