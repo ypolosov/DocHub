@@ -4,6 +4,10 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Подключаем переменные среды
+import dotenv from 'dotenv';
+dotenv.config();
+
 const LOG_TAG = 'server';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,7 +27,6 @@ app.get('/core/jsonata', function(req, res) {
 
 app.use(rootHref, express.static(spaFolder));
 app.use(rootHref, function(req, res) {
-    debugger;
     res.sendFile(path.join(spaFolder, 'index.html'));
 });
 

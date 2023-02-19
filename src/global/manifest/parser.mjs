@@ -1,7 +1,6 @@
 import cache from './services/cache.mjs';
-import uri from './tools/uri.mjs';
-import property from './prototype.mjs';
-import { MANIFEST_MODES } from './enums/manifest-modes.enum';
+import uriTool from './tools/uri.mjs';
+import prototype from './prototype.mjs';
 
 // Определяет глубину лога источника для секции
 const sectionDeepLog = {
@@ -61,7 +60,7 @@ const parser = {
 	},
 	// Реализует наследование
 	expandPrototype() {
-		property.expandAll(this.manifest[this.manifest.mode || MANIFEST_MODES.AS_IS]);
+		prototype.expandAll(this.manifest);
 	},
 	// Преобразование относительных ссылок в прямые
 	propResolver: {
@@ -69,7 +68,7 @@ const parser = {
 			['source', 'origin', 'data'].forEach((field) =>
 				item[field]
 				&& (parser.fieldValueType(item[field]) === 'ref')
-				&& (item[field] = uri.makeURIByBaseURI(item[field], baseURI))
+				&& (item[field] = uriTool.makeURIByBaseURI(item[field], baseURI))
 			);
 		},
 		datasets(item, baseURI) {
@@ -184,7 +183,7 @@ const parser = {
 		// const data = this.getManifestContext(path).data;
 		// Если значение является ссылкой, загружает объект по ссылке
 		if (typeof data === 'string') {
-			const URI = uri.makeURIByBaseURI(data, baseURI);
+			const URI = uriTool.makeURIByBaseURI(data, baseURI);
 
 			try {
 				const response = await cache.request(URI, path);
@@ -215,7 +214,8 @@ const parser = {
 	async import(uri, subimport) {
 		if (!subimport) {
             this.mergeMap = {};
-            this.manifest = { [MANIFEST_MODES.AS_IS]: this.merge({}, this.makeBaseManifest(), uri) };
+            this.manifest = this.merge({}, this.makeBaseManifest(), uri);
+			this.onStartReload && this.onStartReload(this);
 		}
 
 		try {
@@ -227,9 +227,7 @@ const parser = {
 			if (manifest) {
 				// Определяем режим манифеста
 				// eslint-disable-next-line no-unused-vars
-				const mode = manifest.mode || MANIFEST_MODES.AS_IS;
-
-                this.manifest[mode] = this.merge(this.manifest[mode], manifest, uri);
+                this.manifest = this.merge(this.manifest, manifest, uri);
 
 				for (const section in manifest) {
 					const node = manifest[section];
@@ -242,11 +240,11 @@ const parser = {
 						case 'components':
 						case 'rules':
 						case 'datasets':
-							await this.parseEntity(node, `${mode}/${section}`, uri);
+							await this.parseEntity(node, `/${section}`, uri);
 							break;
 						case 'imports':
 							for (const key in node) {
-								await this.import(uri.makeURIByBaseURI(node[key], uri), true);
+								await this.import(uriTool.makeURIByBaseURI(node[key], uri), true);
 							}
 							break;
 					}
@@ -254,6 +252,8 @@ const parser = {
 			}
 		} catch (e) {
 			this.registerError(e, uri);
+		} finally {
+			!subimport && this.onReloaded && this.onReloaded(this);
 		}
 	}
 };
