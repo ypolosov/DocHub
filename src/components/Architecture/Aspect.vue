@@ -124,7 +124,7 @@
   import TabContexts from './tabs/TabContext.vue';
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
-  import uri from '@/global/manifest/tools/uri.mjs';
+  import uri from '@/helpers/uri';
   import html from '@/helpers/html';
   import Entity from '@/components/Entities/Entity.vue';
 

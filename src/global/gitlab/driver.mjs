@@ -1,4 +1,13 @@
 export default function(config) {
+	this.axiosInterceptor = async(params) => {
+		if (config.gitlab_server && ((new URL(params.url)).host === (new URL(config.gitlab_server)).host)) {
+			if (!params.headers) params.headers = {};
+			// eslint-disable-next-line no-undef
+			params.headers['Authorization'] = `Bearer ${config.porsonalToken || Vuex?.state?.access_token}`;
+		}
+		return params;
+	},
+	// Вспомогательные функции
 	this.parseHashParams = (hash) => {
 		let hashParams = {};
 		let a = /\+/g,  // Regex for replacing addition symbol with a space

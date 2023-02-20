@@ -1,10 +1,11 @@
-import axios  from  'axios';
-import config from '../../config';
+import axios from 'axios';
 import YAML from 'yaml';
 import crc16 from './crc16';
-import env, {Plugins} from './env';
+import env, { Plugins } from './env';
 import { responseCacheInterceptor, requestCacheInterceptor } from './cache';
-import uriTool from '@/global/manifest/tools/uri.mjs';
+import uriTool from '@/helpers/uri';
+import gitlab from '@/helpers/gitlab';
+
 
 // CRC16 URL задействованных файлов
 const tracers = {};
@@ -12,75 +13,69 @@ const tracers = {};
 // Add a request interceptor
 
 const responseErrorInterceptor = (error) => {
-  if (error.response.status === 304) {
-    if (error.config.lastCachedResult) {
-      return {
-        ...error.response,
-        data: error.config.lastCachedResult.data
-      };
-    }
-  }
+	if (error.response.status === 304) {
+		if (error.config.lastCachedResult) {
+			return {
+				...error.response,
+				data: error.config.lastCachedResult.data
+			};
+		}
+	}
 
-  return Promise.reject(error);
+	return Promise.reject(error);
 };
 
+// Интерцептор для GitLab авторизации
 axios.interceptors.request.use(async(params) => {
+	if (env.cache) {
+		await requestCacheInterceptor(params);
+	}
+	return gitlab.axiosInterceptor(params);
+}, (error) => Promise.reject(error));
 
-  if (env.cache) {
-    await requestCacheInterceptor(params);
-  }
-
-  if (config.gitlab_server && ((new URL(params.url)).host === (new URL(config.gitlab_server)).host)) {
-    if (!params.headers) params.headers = {};
-    // eslint-disable-next-line no-undef
-    params.headers['Authorization'] = `Bearer ${config.porsonalToken || Vuex.state.access_token}`;
-  }
-
-  return params;
-}, (error) =>  Promise.reject(error));
-
+// Здесь разбираемся, что к нам вернулось из запроса и преобразуем к формату внутренних данных
 axios.interceptors.response.use(async(response) => {
-  if (response.config.responseHook)
-    response.config.responseHook(response);
-  if (typeof response.data === 'string') {
-    if (!response.config.raw) {
-      const url = response.config.url.split('?')[0].toLowerCase();
-      if ((url.indexOf('.json/raw') >= 0) || (url.slice(-5) === '.json'))
-        response.data = JSON.parse(response.data);
-      else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
-        response.data = YAML.parse(response.data);
-    }
-  }
+	if (response.config.responseHook)
+		response.config.responseHook(response);
+	if (typeof response.data === 'string') {
+		if (!response.config.raw) {
+			const url = response.config.url.split('?')[0].toLowerCase();
+			if ((url.indexOf('.json/raw') >= 0) || (url.slice(-5) === '.json'))
+				response.data = JSON.parse(response.data);
+			else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
+				response.data = YAML.parse(response.data);
+		}
+	}
 
-  if (env.cache) {
-    const reRequest = await responseCacheInterceptor(response);
+	if (env.cache) {
+		const reRequest = await responseCacheInterceptor(response);
 
-    if (reRequest) {
-      return axios(reRequest);
-    }
-  }
+		if (reRequest) {
+			return axios(reRequest);
+		}
+	}
 
-  return response;
+	return response;
 }, responseErrorInterceptor);
 
-if(window.$PAPI) {
+if (window.$PAPI) {
 	window.$PAPI.middleware = function(response) {
 		let type = response.contentType;
-		switch(type) {
-		case 'yaml': response.data = YAML.parse(response.data); break;
-		case 'json': response.data = JSON.parse(response.data); break;
-		case 'jpg':
-			type = 'jpeg';
-		// eslint-disable-next-line no-fallthrough
-		case 'jpeg':
-		case 'png':
-		case 'svg':
-			if (type === 'svg') type = 'svg+xml';
-			response.data = Buffer.from(response.data, 'base64');
-			response.headers = Object.assign(response.headers || {}, {
-				'content-type': `image/${type}`
-			});
-			break;
+		switch (type) {
+			case 'yaml': response.data = YAML.parse(response.data); break;
+			case 'json': response.data = JSON.parse(response.data); break;
+			case 'jpg':
+				type = 'jpeg';
+			// eslint-disable-next-line no-fallthrough
+			case 'jpeg':
+			case 'png':
+			case 'svg':
+				if (type === 'svg') type = 'svg+xml';
+				response.data = Buffer.from(response.data, 'base64');
+				response.headers = Object.assign(response.headers || {}, {
+					'content-type': `image/${type}`
+				});
+				break;
 		}
 		return response;
 	};
@@ -88,8 +83,8 @@ if(window.$PAPI) {
 
 export default {
 	axios,
-	getSourceRoot(){
-		if(env.isPlugin(Plugins.idea)) {
+	getSourceRoot() {
+		if (env.isPlugin(Plugins.idea)) {
 			return 'plugin:/idea/source/';
 		} else {
 			return window.origin + '/';
@@ -115,9 +110,9 @@ export default {
 		params.source = uriTool.makeURL(uri, baseURI);
 		params.url = params.source.url.toString();
 		if (
-      env.isPlugin(Plugins.idea) && params.url.split(':')[0] === 'plugin' ||
-      env.isPlugin(Plugins.vscode)
-    ) {
+			env.isPlugin(Plugins.idea) && params.url.split(':')[0] === 'plugin' ||
+			env.isPlugin(Plugins.vscode)
+		) {
 			this.trace(params.url);
 			return window.$PAPI.request(params);
 		} else {

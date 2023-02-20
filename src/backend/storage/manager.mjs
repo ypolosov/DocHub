@@ -1,7 +1,7 @@
 import logger from '../utils/logger.mjs';
 import manifestParser from '../../global/manifest/parser.mjs';
 import cache from './cache.mjs';
-import uri from '../../global/manifest/tools/uri.mjs';
+import uriTool from '../helpers/uri.mjs';
 
 
 const LOG_TAG = 'storage-manager';
@@ -28,10 +28,14 @@ manifestParser.onReloaded = (parser) => {
 export default {
 	reloadManifest: async function() {
 		logger.log('Run full reload manifest', LOG_TAG);
-		const baseURI = uri.makeURIByBaseURI(process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || '/documentation/root.yaml', 'file:/');
+		const baseURI = uriTool.makeURIByBaseURI(process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || '/documentation/root.yaml', 'file:/');
+		// const baseURI = uri.makeURIByBaseURI('https://dochub.info/documentation/docs/root.yaml', 'file:/');
 		logger.log(`Root manifest is ${baseURI}.`, LOG_TAG);
 		await manifestParser.import(baseURI);
 		logger.log('Full reload is done', LOG_TAG);
-		return manifestParser.manifest;
+		return {
+			manifest: manifestParser.manifest,
+			mergeMap: manifestParser.mergeMap
+		};
 	}
 };

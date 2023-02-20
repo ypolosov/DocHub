@@ -1,5 +1,4 @@
 import cache from './services/cache.mjs';
-import uriTool from './tools/uri.mjs';
 import prototype from './prototype.mjs';
 
 // Определяет глубину лога источника для секции
@@ -68,7 +67,7 @@ const parser = {
 			['source', 'origin', 'data'].forEach((field) =>
 				item[field]
 				&& (parser.fieldValueType(item[field]) === 'ref')
-				&& (item[field] = uriTool.makeURIByBaseURI(item[field], baseURI))
+				&& (item[field] = parser.cache.makeURIByBaseURI(item[field], baseURI))
 			);
 		},
 		datasets(item, baseURI) {
@@ -183,10 +182,10 @@ const parser = {
 		// const data = this.getManifestContext(path).data;
 		// Если значение является ссылкой, загружает объект по ссылке
 		if (typeof data === 'string') {
-			const URI = uriTool.makeURIByBaseURI(data, baseURI);
+			const URI = parser.cache.makeURIByBaseURI(data, baseURI);
 
 			try {
-				const response = await cache.request(URI, path);
+				const response = await parser.cache.request(URI, path);
 				if (response) {
 					const context = this.getManifestContext(path);
 					context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
@@ -219,7 +218,7 @@ const parser = {
 		}
 
 		try {
-			const response = await cache.request(uri, '/');
+			const response = await parser.cache.request(uri, '/');
 			const manifest = response && (typeof response.data === 'object'
 				? response.data
 				: JSON.parse(response.data));
@@ -244,7 +243,7 @@ const parser = {
 							break;
 						case 'imports':
 							for (const key in node) {
-								await this.import(uriTool.makeURIByBaseURI(node[key], uri), true);
+								await this.import(parser.cache.makeURIByBaseURI(node[key], uri), true);
 							}
 							break;
 					}

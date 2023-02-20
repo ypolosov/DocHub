@@ -1,5 +1,5 @@
-import uri from '@/global/manifest/tools/uri.mjs';
-import gitlab from '../helpers/gitlab';
+import uri from '@/helpers/uri';
+import gitlab from '@/helpers/gitlab';
 
 export default {
 	urlFromProfile(profile, baseURI) {

@@ -12,7 +12,7 @@
   import C4ModelDSL from '!!raw-loader!../../assets/c4model_dsl.txt';
   import SberDSL from '!!raw-loader!../../assets/sber_dsl.txt';
   import requests from '@/helpers/requests';
-  import uri from '@/global/manifest/tools/uri.mjs';
+  import uri from '@/helpers/uri';
   import copyToClipboard from '../../helpers/clipboard';
   import AsyncComputed from 'vue-async-computed';
   import Vue from 'vue';

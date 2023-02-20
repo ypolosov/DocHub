@@ -4,7 +4,7 @@ import cookie from 'vue-cookie';
 import parser from '../manifest/manifest_parser';
 import Vue from 'vue';
 import requests from '../helpers/requests';
-import uri from '@/global/manifest/tools/uri.mjs';
+import uri from '@/helpers/uri';
 import gateway from '../idea/gateway';
 import consts from '../consts';
 import rules from '../helpers/rules';
@@ -318,22 +318,36 @@ export default {
 
 		// Reload root manifest
 		async reloadRootManifest(_context, payload) {
-			await parser.startLoad();
-
-			if (payload) {
-				await (
-					async function parserImport(next = 0) {
-						if (payload?.length > next) {
-							await parser.import(payload[next], payload[next] !== config.root_manifest);
-							await parserImport(next + 1);
-						}
-					}
-				)();
+			const backendURL = env.backendURL();
+			// Если работаем в режиме backend, берем все оттуда
+			if (backendURL) {
+				parser.onStartReload();
+				axios({ url: (new URL('core/manifest/state', new URL(backendURL, window.origin))).toString() })
+					.then((response) => {
+						parser.onReloaded({
+							manifest: { [MANIFEST_MODES.AS_IS] : response.data.manifest},
+							mergeMap: response.data.mergeMap
+						});
+					})
+					.catch((error) => {
+						parser.onError('net', { uri, error: error });
+					});
 			} else {
-				await parser.import(uri.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
+				await parser.startLoad();
+				if (payload) {
+					await (
+						async function parserImport(next = 0) {
+							if (payload?.length > next) {
+								await parser.import(payload[next], payload[next] !== config.root_manifest);
+								await parserImport(next + 1);
+							}
+						}
+					)();
+				} else {
+					await parser.import(uri.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
+				}
+				parser.stopLoad();
 			}
-
-			parser.stopLoad();
 		},
 
 		// Регистрация проблемы

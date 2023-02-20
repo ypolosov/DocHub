@@ -1,5 +1,5 @@
 import config from '../../config';
-import uri from '@/global/manifest/tools/uri.mjs';
+import uri from '@/helpers/uri';
 import axios from 'axios';
 import {plantUmlCache} from '@/helpers/cache';
 import env from '@/helpers/env';

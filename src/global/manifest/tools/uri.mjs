@@ -1,14 +1,15 @@
-import gitlab from '../../gitlab/driver.mjs';
+import gitlabDriver from '../../gitlab/driver.mjs';
 
-export default {
-	isURL(url) {
+export default function(config) {
+	const gitlab = new gitlabDriver(config);
+	this.isURL= (url) => {
 		// eslint-disable-next-line no-useless-escape
 		return url && url.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.?[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
-	},
-	isExternalURI(uri) {
+	};
+	this.isExternalURI = (uri) => {
 		return (uri.slice(0, window.origin.length) !== window.origin) && this.isURL(uri);
-	},
-	makeURIByBaseURI(uri, baseURI) {
+	};
+	this.makeURIByBaseURI = (uri, baseURI) => {
 		let result;
 		// Анализируем URI
 		try {
@@ -39,9 +40,8 @@ export default {
 			}
 		}
 		return result.toString();
-	},
-    
-	makeURL(uri, baseURI) {
+	};
+	this.makeURL = (uri, baseURI) => {
 		let result;
 		// Анализируем URI
 		try {
@@ -94,5 +94,6 @@ export default {
 			}
 		}
 		return result;
-	}
-};
+	};
+}
+

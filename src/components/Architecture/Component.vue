@@ -120,7 +120,7 @@
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
   import Docs from './tabs/Docs.vue';
-  import uri from '@/global/manifest/tools/uri.mjs';
+  import uri from '@/helpers/uri';
   import entity from '@/components/Entities/Entity.vue';
   import html from '@/helpers/html';
 

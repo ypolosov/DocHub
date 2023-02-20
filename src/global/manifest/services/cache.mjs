@@ -2,6 +2,12 @@
 // Должен реализовываться для каждого случая развертывания.
 // По умолчанию является MOC
 export default {
+    // Резолвит URL
+    makeURIByBaseURI(URL, BaseURL) {
+        // eslint-disable-next-line no-console
+        console.warn('makeURIByBaseURI method of cache service is not realized.');
+        return URL;
+    },
     // Вызывается при перед запуском процесса парсинга манифестов
     start() {
         // eslint-disable-next-line no-console

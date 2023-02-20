@@ -93,7 +93,7 @@
 
 <script>
 
-  import uri from '@/global/manifest/tools/uri.mjs';
+  import uri from '@/helpers/uri';
   import Mixin from '../mixin';
 
   export default {

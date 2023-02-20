@@ -1,54 +1,37 @@
+import './helpers/env.mjs';
 import logger from './utils/logger.mjs';
 import storeManager from './storage/manager.mjs';
 import express from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import jsonata from '../global/jsonata/driver.mjs';
-
-// Подключаем переменные среды
-import dotenv from 'dotenv';
-dotenv.config();
+import middlewareCompression from './middlewares/compression.mjs';
+import controllerStatic from './controllers/static.mjs';
+import controllerCore from './controllers/core.mjs';
+import middlewareAccess from './middlewares/access.mjs';
 
 const LOG_TAG = 'server';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 //const express = require('express');
 const app = express();
-const serverPort = 3000;
+const serverPort = process.env.VUE_APP_DOCHUB_BACKEND_PORT || 3030;
 
-// Расположение собранного SPA приложения
-const rootHref = '/';
-const spaFolder = path.join(__dirname, '../../dist/');
+// Актуальный манифест
+app.storage = null;
 
-let manifest = null;
+// Подключаем контроль доступа
+middlewareAccess(app);
 
-// Ввполняет JSONata запрос
-app.get('/core/jsonata/query', function(req, res) {
-    if (!manifest) {
-        res.status(503);
-        return;
-    }
-    const request = req.query.request; 
-    logger.log(`Received JSONata request (${request})`, LOG_TAG);
-    const expression = jsonata.expression(req.query.request);
-    try {
-        res.json(expression.evaluate(manifest));
-    } catch (e) {
-        res.status(500);
-        res.render('error', e);
-    }
-});
+// Подключаем сжатие контента
+middlewareCompression(app);
 
-app.use(rootHref, express.static(spaFolder));
-app.use(rootHref, function(req, res) {
-    res.sendFile(path.join(spaFolder, 'index.html'));
-});
+// API ядра
+controllerCore(app);
+
+// Статические ресурсы
+controllerStatic(app);
 
 // Основной цикл приложения
 const mainLoop = async function() {
     // Загружаем манифест
-    manifest = await storeManager.reloadManifest();
+    app.storage = await storeManager.reloadManifest();
 
     app.listen(serverPort, function(){
         logger.log(`DocHub server running on ${serverPort}`, LOG_TAG);

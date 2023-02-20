@@ -1,6 +1,6 @@
 import env, {Plugins} from './env';
 import routes from '../router/routes';
-import uri from '@/global/manifest/tools/uri.mjs';
+import uri from '@/helpers/uri';
 
 function isLocalRoute(url) {
 	const urlRoot = url.pathname.split('/')[1];

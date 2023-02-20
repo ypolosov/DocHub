@@ -1,5 +1,5 @@
 import requests from '../helpers/requests';
-import uriTool from '@/global/manifest/tools/uri.mjs';
+import uriTool from '@/helpers/uri';
 import property from './prototype';
 import env from '../helpers/env';
 import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';

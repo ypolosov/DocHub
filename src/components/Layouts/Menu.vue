@@ -45,7 +45,7 @@
 
 <script>
 
-  import uri from '@/global/manifest/tools/uri.mjs';
+  import uri from '@/helpers/uri';
   import query from '@/manifest/query';
 
   export default {
