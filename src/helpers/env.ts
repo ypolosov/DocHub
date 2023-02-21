@@ -27,8 +27,13 @@ export default {
       }
     }
   },
+  // Адрес backend сервере
 	backendURL(): string {
 		return process.env.VUE_APP_DOCHUB_BACKEND_URL;
+	},
+  // Адрес API доступа к файлам backend сервера
+	backendFileStorageURL(): string {
+		return (new URL('/core/storage/', this.backendURL())).toString();
 	},
 
 	isProduction(): boolean {

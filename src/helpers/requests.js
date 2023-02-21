@@ -106,8 +106,14 @@ export default {
 	//		raw - если true возвращает ответ без обработки
 	request(uri, baseURI, axios_params) {
 		let params = Object.assign({}, axios_params);
+		
+		let finalURI = uri;
+		// Если протокол "file:" то транслируем запрос в backend запрос файла
+		if (uri.startsWith('file:///')) {
+			finalURI = new URL(uri.slice(8), env.backendFileStorageURL());
+		}
 
-		params.source = uriTool.makeURL(uri, baseURI);
+		params.source = uriTool.makeURL(finalURI, baseURI);
 		params.url = params.source.url.toString();
 		if (
 			env.isPlugin(Plugins.idea) && params.url.split(':')[0] === 'plugin' ||
