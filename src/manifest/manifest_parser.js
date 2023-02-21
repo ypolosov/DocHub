@@ -1,7 +1,7 @@
 import requests from '../helpers/requests';
 import gitlab from '../helpers/gitlab';
 import property from './prototype';
-import env from '../helpers/env';
+import env, {CACHE_LEVEL} from '../helpers/env';
 import { MANIFEST_MODES } from '@/manifest/enums/manifest-modes.enum';
 import {manifestCache} from '@/helpers/cache';
 
@@ -30,7 +30,7 @@ const parser = {
 	// События по ошибкам (ошибки запросов)
 	onError: null,
   cacheIsLoaded: false,
-  isCaching: !!env.cache && !env.isPlugin(),
+  isCaching: env.cacheWithPriority(CACHE_LEVEL.high) && !env.isPlugin(),
 	async startLoad() {
     this.onStartReload(this);
 
