@@ -21,7 +21,6 @@ export const uploadDocument = function(profile, baseURI, params, manifest) {
   const provider = datasets();
   return new Promise((success, reject) => {
       if (profile.template) {
-        debugger;
         requests.request(profile.template, baseURI).then(({ data }) => {
           let content = data;
           provider.getData(manifest, profile, params)

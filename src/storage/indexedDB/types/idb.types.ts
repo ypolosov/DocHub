@@ -1,6 +1,6 @@
 export type TIdbEvent = Event & { target: IDBOpenDBRequest };
 export type TIdbRequest = Event & { target: IDBRequest };
-export type TOnupgradeneeded = (event: IDBVersionChangeEvent) => void;
+export type TOnupgradeneeded = (event: IDBVersionChangeEvent, isUpgrade?: boolean) => void;
 
 export type TKeyOptions = {
   autoIncrement?: boolean;
@@ -22,6 +22,11 @@ export type TCacheData = {
   data: any;
 }
 
+export type TManifestProps = {
+  original: any;
+  merged: any;
+};
+
 export type TCacheMethod = 'get' | 'GET' | 'head' | 'HEAD' | null;
 
 export type TLastCachedResult = {
@@ -30,3 +35,7 @@ export type TLastCachedResult = {
 };
 
 export type TAxios<T> = T & TLastCachedResult;
+
+export enum KEYS {
+  Manifest = 'Manifest'
+}

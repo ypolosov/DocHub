@@ -3,25 +3,32 @@ import { get, add, put } from '../core/data';
 
 import config from './config.json';
 import { TCacheData } from '../types/idb.types';
+import { getCacheStoreName } from '../helpers/util';
 
-const init = (): Promise<IDBObjectStore> => create(config);
+const storeName = getCacheStoreName();
+
+const init = (): Promise<IDBObjectStore> => create({
+  ...config,
+  storeName,
+  version: config['version']
+});
 
 const getData = (id: string): Promise<TCacheData> => get({
+  storeName,
   dbName: config.dbName,
-  storeName: config.storeName,
   indexName: config.indexes[0].name,
   value: id
 });
 
 const setData = (data: TCacheData): Promise<string | number> => add(
   config.dbName,
-  config.storeName,
+  storeName,
   data
 );
 
 const putData = (data: TCacheData): Promise<string | number> => put(
   config.dbName,
-  config.storeName,
+  storeName,
   data
 );
 

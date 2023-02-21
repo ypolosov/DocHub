@@ -2,46 +2,37 @@
   <g>
     <g 
       v-for="box in layer.boxes"
-      v-bind:key="box.node.id"
-      v-bind:transform="`translate(${box.x},${box.y})`">
+      v-bind:key="box.node.id">
       <g v-if="isArea(box)">
         <rect
           v-if="isArea(box)"
           class="box"
-          v-bind:x="box.left"
-          v-bind:y="box.top"
+          v-bind:x="box.absoluteX"
+          v-bind:y="box.absoluteY"
           v-bind:width="box.width"
           v-bind:height="box.height"
           rx="6" />
         <text
           class="box-text"
-          v-bind:x="box.left + 4"
-          v-bind:y="box.top + 16">
+          v-bind:x="box.absoluteX + 4"
+          v-bind:y="box.absoluteY + 16">
           {{ box.node.title || box.node.id }}
         </text>
       </g>
       <g v-else>
-        <!--
-        <rect
-          style="stroke:#f00"
-          v-bind:x="box.left"
-          v-bind:y="box.top"
-          v-bind:width="box.width"
-          v-bind:height="box.height"/>
-          -->
         <use
           v-bind:key="box.node.id"
           v-bind:style="{ opacity: box.opacity }"
-          v-bind:x="box.left"
-          v-bind:y="box.top"
+          v-bind:x="box.absoluteX"
+          v-bind:y="box.absoluteY"
           v-bind:xlink:href="`#${box.node.symbol}`"
           v-on:mousedown.stop.prevent="onNodeClick(box)" />
         <text
           v-bind:style="{ opacity: box.opacity }"
           class="node-text"
           text-anchor="middle"
-          v-bind:x="box.left + box.width * 0.5"
-          v-bind:y="box.top + box.height + 12">
+          v-bind:x="box.absoluteX + box.width * 0.5"
+          v-bind:y="box.absoluteY + box.height + 12">
           {{ box.node.title || box.node.id }}
         </text>
       </g>

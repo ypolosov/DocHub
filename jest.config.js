@@ -1,4 +1,5 @@
 module.exports = {
+  'testEnvironment': 'jest-environment-jsdom',
   setupFiles: [
     'fake-indexeddb/auto'
   ],
@@ -19,5 +20,6 @@ module.exports = {
     'tsx',
     'vue'
   ],
+  testTimeout: 5000,
   verbose: true
 };

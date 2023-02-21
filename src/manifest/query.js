@@ -761,13 +761,15 @@ export default {
                         obj.trace.exposition = this.trace.end - this.trace.start;
                         if (env.isTraceJSONata()) {
                             // eslint-disable-next-line no-console
-                            console.info('JSONata tracer expression:');
+                            console.groupCollapsed(`JSONata tracer expression (${obj.trace.exposition/1000} seconds):`);
                             // eslint-disable-next-line no-console
                             console.info('Statistics:', obj.trace);
                             // eslint-disable-next-line no-console
                             console.info('Query:', obj.expression);
                             // eslint-disable-next-line no-console
                             console.info('Result:', result);
+                            // eslint-disable-next-line no-console
+                            console.groupEnd();
                         }
                         return result;
                     } else return Object.freeze(this.core.evaluate(context));

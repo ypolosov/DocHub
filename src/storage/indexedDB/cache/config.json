@@ -1,7 +1,5 @@
 {
-  "version": 1,
-  "dbName": "DocHub",
-  "storeName": "cache",
+  "dbName": "cache",
   "keyOptions": {
     "keyPath": "id",
     "autoIncrement": true

@@ -11,25 +11,23 @@
       v-bind:id="id" 
       v-bind:class="classesLine"
       v-bind:d="line" 
-      v-bind:style="{ opacity: track.opacity }"
+      v-bind:style="{ opacity: track.opacity, 'stroke-width':strokeWidth }"
+      v-bind:stroke-width="strokeWidth"
       v-on:mouseover="onTrackOver"
       v-on:mouseleave="onTrackLeave"
       v-on:mousedown.stop.prevent="onTrackClick" />
     <text
       v-if="title"
-      dy="-6px"
-      v-bind:rotate="title.rotate"
+      v-bind:x="title.point.x"
+      v-bind:y="title.point.y"
       v-bind:style="{ opacity: track.opacity }"
+      v-bind:transform="`rotate(${title.rotate}, ${title.point.x}, ${title.point.y})`"
+      text-anchor="middle"
       v-bind:class="classesTitle"
       v-on:mouseover="onTrackOver"
       v-on:mouseleave="onTrackLeave"
       v-on:mousedown.stop.prevent="onTrackClick">
-      <textPath 
-        v-bind:href="`#${id}`"
-        text-anchor="middle"
-        v-bind:startOffset="title.offset">
-        {{ title.text }}
-      </textPath>
+      {{ title.text }}
     </text>
   </g>
 </template>
@@ -54,49 +52,51 @@
       };
     },  
     computed: {
+      strokeWidth() {
+        return ((this.track.link.contains || []).length || 1) + 1;
+      },
       // Определяем как и где будет выводиться надпись на линке
       title() {
-        if (!this.track.link.title || (this.track.length < 2))
+        const path = this.simplePath;
+        if ((path.length < 2) || !this.track.link.title || (this.track.length < 2))
           return null;
-        const segments = [];
-        let oldX = this.track.path[0].x;
-        let oldY = this.track.path[0].y;
-        let offset = 0;
-        let segment = 0;
-        let maxSegment = {
+
+        const maxSegment = {
           size: 0,
-          index: 0,
-          point: this.track.path[0]
+          index: 0
         };
-        const len = this.track.path.length;
-        for (let i = 1; i < len; i++) {
-          const point = this.track.path[i];
-          const a1 = Math.abs(this.track.path[i - 1].x - point.x);
-          const a2 = Math.abs(this.track.path[i - 1].y - point.y);
-          segment += i ? Math.round(Math.sqrt(a1 * a1 + a2 * a2)) : 0;
-          if (((oldX !== point.x) && (oldY !== point.y)) || (i+1 === len)) {
-            if (maxSegment.size < segment) {
-              maxSegment.point = point;
-              maxSegment.size = segment;
-              maxSegment.index = segments.length;
-            }
-            segments.push({
-              point,
-              offset,
-              isRotate : point.x < oldX || point.y < oldY
-            });
-            offset += segment;
-            segment = 0;
-            oldX = point.x;
-            oldY = point.y;
+
+        for (let i = 1; i < path.length; i++) {
+          const point = path[i];
+          const a1 = Math.abs(path[i - 1].x - point.x);
+          const a2 = Math.abs(path[i - 1].y - point.y);
+          const size = Math.round(Math.sqrt(a1 * a1 + a2 * a2));
+          if (size > maxSegment.size) {
+            maxSegment.size = size;
+            maxSegment.from = path[i - 1];
+            maxSegment.to = point;
           }
         }
-        const isRotate = segments[maxSegment.index].isRotate;
-        return {
-          text: isRotate ? this.track.link.title.split('').reverse().join('') : this.track.link.title,
-          rotate: isRotate ? 180 : 0,
-          offset: Math.round(maxSegment.size * 0.5 + segments[maxSegment.index].offset)
+
+        const result = {
+          text: this.track.link.title,
+          rotate: 0
         };
+
+        if (maxSegment.from.x !== maxSegment.to.x) 
+          result.point = {
+            x: maxSegment.from.x - (maxSegment.from.x - maxSegment.to.x) * 0.5,
+            y: maxSegment.from.y - 4
+          };
+        else {
+          result.point = {
+            y: maxSegment.from.y - (maxSegment.from.y - maxSegment.to.y) * 0.5,
+            x: maxSegment.from.x + 4
+          };
+          result.rotate = 90;
+        }
+
+        return result;
       },
       id() {
         return this.track.id;
@@ -112,6 +112,7 @@
         const result = ['track-title'];
         // Определяем нужно ли подсвечивать путь
         if (this.track.highlight) result.push('title-highlight');
+        if (this.track.link.link) result.push('title-link');
         return result.join(' ');
       },
       // Стиль стрелок
@@ -150,18 +151,18 @@
         return result;
       },
 
+      // Упрощенный путь
+      simplePath() {
+        return this.track.path;
+      },
+
       // Путь 
       line() {
-        const track = this.track.path;
-        if (track.length < 2) return '';
-        let result = `M${track[0].x} ${track[0].y}`;
-        for (let i = 1; i < track.length; i++) {
-          result += ` L ${track[i].x} ${track[i].y}`;
-        }
+        return rounding(
+          this.simplePath
+            .map((point, index) => `${index ? 'L' : 'M'} ${point.x} ${point.y}`).join(' ')
+          , TRACK_SMOOTHING);
 
-        result = rounding(result, TRACK_SMOOTHING); // Сглаживаем
-
-        return result;
       }
     },
     methods: {
@@ -229,6 +230,7 @@
 }
 
 .track {
+  cursor: crosshair;
   stroke: rgb(52, 149, 219);
   stroke-width: 2;
   stroke-linejoin: round;
@@ -284,17 +286,18 @@
 }
 
 
-
 /* Стили треков */
 .track-highlight {
   stroke: #ff0000;
-  cursor: crosshair;
   z-index: 10000;
 }
 
 .title-highlight {
-  cursor: crosshair;
   z-index: 10000;
+}
+
+.title-link {
+  cursor: pointer;
 }
 
 </style>

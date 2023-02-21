@@ -11,9 +11,16 @@
     encoding="UTF-8"
     v-bind:style="style"
     v-on:mousedown="onClickSpace">
-    <defs>
-      <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
-    </defs>
+    <template v-if="isFirefox">
+      <g class="symbols">
+        <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
+      </g>
+    </template>
+    <template v-else>
+      <defs>
+        <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
+      </defs>
+    </template>
     <schema-node 
       v-bind:offset-x="0"
       v-bind:offset-y="0"
@@ -33,6 +40,32 @@
       v-bind:width="landscape.viewBox.width - 24" 
       v-bind:text="animation.information" />
 
+    <schema-debug-node 
+      v-if="debug"
+      v-bind:offset-x="0"
+      v-bind:offset-y="0"
+      v-bind:layer="presentation.layers" 
+      v-on:node-click="onNodeClick" />
+
+
+    <template v-if="isBuilding">
+      <rect 
+        fill="#fff"
+        opacity="0.8"
+        v-bind:x="landscape.viewBox.left"
+        v-bind:y="landscape.viewBox.top"
+        v-bind:width="landscape.viewBox.width"
+        v-bind:height="landscape.viewBox.height" />
+      <circle
+        v-if="isBuilding"
+        class="spinner" 
+        v-bind:cx="landscape.viewBox.left + landscape.viewBox.width * 0.5 - 25"
+        v-bind:cy="landscape.viewBox.top + landscape.viewBox.height * 0.5 - 25"
+        r="20"
+        fill="none"
+        stroke-width="5" />
+    </template>
+
     Тут должны была быть схема, но что-то пошло не так...
   </svg>
 </template>
@@ -40,12 +73,50 @@
 <script>
   import SchemaNode from './DHSchemaNode.vue';
   import SchemaTrack from './DHSchemaTrack.vue';
+  import SchemaDebugNode from './DHSchemaDebugNode.vue';
+  import href from '@/helpers/href';
+  import { v4 as uuidv4 } from 'uuid';
 
-  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
+  //  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
+  
+  
+  const Graph = new function() {
+    const codeWorker = require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default;
+    const scriptBase64 = btoa(unescape(encodeURIComponent(codeWorker)));
+    const scriptURL = 'data:text/javascript;base64,' + scriptBase64;
 
-  const  Graph = window.$SmartAnts;
+    // Слушатели запросов
+    const listeners = {};
+
+    const worker = new Worker(scriptURL);
+    worker.onmessage = (message)=> {
+      const queryID = message.data.queryID;
+      listeners[queryID] && listeners[queryID](message.data);
+    };
+    this.make = (nodes, links, trackWidth, distance, symbols, availableWidth, isDebug) => {
+      return new Promise((success, reject) => {
+        const queryID = uuidv4();
+        listeners[queryID] = (message) => {
+          try {
+            if (message.result === 'OK')
+              success(message.graph);
+            else reject(message.error);
+          } finally {
+            delete listeners[queryID];
+          }
+        };
+        worker.postMessage({
+          queryID,
+          params: {
+            nodes, links, trackWidth, distance, symbols, availableWidth, isDebug
+          }
+        });
+      });
+    };
+  };
 
   import DHSchemaAnimationMixin from './DHSchemaAnimationMixin';
+  import DHSchemaExcalidrawMixin from './DHSchemaExcalidrawMixin';
   import SchemaInfo from './DHSchemaInfo.vue';
 
   // SVG примитивы
@@ -55,17 +126,18 @@
   import SVGSymbolDatabase from '!!raw-loader!./symbols/database.xml';  
   import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';  
 
-  const testMode = 'fixed'; //fixed
   const OPACITY = 0.3;
+  const IS_DEBUG = false;
 
   export default {
     name: 'DHSchema',
     components: {
       SchemaNode,
       SchemaTrack,
-      SchemaInfo
+      SchemaInfo,
+      SchemaDebugNode
     },
-    mixins: [ DHSchemaAnimationMixin ],
+    mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin],
     props: {
       // Дистанция между объектами на диаграмме
       distance: {
@@ -103,15 +175,11 @@
       }},
     data() {
       return {
-        test: {
-          start: {},
-          end: {},
-          wave: {},
-          path: [],
-          isError: false,
-          lastData: null,
-          showWave: false
-        },
+        isBuilding: 0,
+        resizer: null,
+        debug: IS_DEBUG ? {
+          
+        } : null,
         selected: {
           links: {},
           nodes: {}
@@ -133,6 +201,10 @@
       };
     },
     computed: {
+      // Проверяем что в Firefox
+      isFirefox() {
+        return navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+      },
       // Возвращает определения (defs) примитивов диаграммы
       symbols() {
         const result = [
@@ -181,91 +253,30 @@
     watch: {
       data() {
         this.$nextTick(() => this.rebuildPresentation());
+      },
+      'selected.nodes'(value) {
+        this.$emit('selected-nodes', value);
+      },
+      'animation.information'() {
+        this.rebuildViewBox();
       }
     },
     mounted() {
-      window.addEventListener('resize', this.rebuildViewBox);
-      new ResizeObserver(() => this.rebuildViewBox()).observe(this.$el);
-
-      this.$on('play', (scenario) => {
-        this.animateRun(scenario);
+      window.addEventListener('resize', () => {
+        this.resizer && clearTimeout(this.resizer);
+        this.resizer = setTimeout(() => {
+          this.rebuildViewBox();
+        }, 500);
       });
-      this.$on('stop', () => {
-        this.animationStop();
+      // new ResizeObserver(() => this.rebuildViewBox()).observe(this.$el);
+      this.$nextTick(() => {
+        this.rebuildPresentation();
       });
-      this.$on('next', () => {
-        this.animationNext();
-      });
-      this.$on('prev', () => {
-        this.animationPrev();
-      });
-      if (testMode === 'random') {
-        this.makeRandom();
-        setInterval(() => {
-          this.makeRandom();
-        }, 5000);
-      } else {
-        this.$nextTick(() => {
-          this.rebuildPresentation();
-        });
-      }
     },
     beforeDestroy(){
       window.removeEventListener('resize', this.rebuildViewBox);
     },
     methods: {
-      // Генерация рандомных данных
-      makeRandom() {
-        const symbols = Object.keys(this.data.symbols);
-
-        // this.clear();
-        const selectedNodes = {};
-        const randomLinks = [];
-        const generateNodes = () => {
-          for(const node in this.data.nodes) {
-            if (Math.random() * 100 > 50) 
-              selectedNodes[node] = Object.assign(this.data.nodes[node],{
-                symbol: symbols[Math.round(Math.random() * (symbols.length - 1))]
-              });
-          }
-        };
-
-        let ids = Object.keys(selectedNodes);
-        while (ids.length < 3) {
-          generateNodes();
-          ids = Object.keys(selectedNodes);
-        }
-
-        const max = ids.length - 1;
-        const linkCount = Math.round(Math.random() * 20 + 5);
-        for(let i = 0; i < linkCount; ) {
-          const from = Math.round(Math.random() * max);
-          const to = Math.round(Math.random() * max);
-          const fromID = ids[from];
-          const toID = ids[to];
-          if (
-            (from === to) 
-            || (fromID.substring(0, toID.length) === toID)
-            || (toID.substring(0, fromID.length) === fromID)
-          ) continue;
-          randomLinks.push({
-            from: fromID,
-            to: toID,
-            style: ['<->', '<-', '->'][Math.round(Math.random() * 2)],
-            title: ['Title 1', 'Title 2', 'Title 3', 'Title 4'][Math.round(Math.random() * 3)]
-          });
-          ++i;
-        }
-
-        this.test.lastData = {
-          symbols: this.data.symbols,
-          nodes: selectedNodes,
-          links: randomLinks
-        };
-
-        this.rebuildPresentation(selectedNodes, randomLinks);
-
-      },
       // Отчистка
       clear() {
         this.presentation = {
@@ -327,15 +338,19 @@
       },
       // Фиксируем выбор линка  
       onTrackClick(track) {
-        if (!window?.event?.shiftKey) {
-          this.cleanSelectedTracks();
-          this.cleanSelectedNodes();
+        if(track.link.link) {
+          this.$emit('on-click-link', track.link);
+        } else {
+          if (!window?.event?.shiftKey) {
+            this.cleanSelectedTracks();
+            this.cleanSelectedNodes();
+          }
+          this.selected.links[track.id] = track;
+          this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
+          this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
+          this.updateNodeView();
+          this.updateTracksView();
         }
-        this.selected.links[track.id] = track;
-        this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
-        this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
-        this.updateNodeView();
-        this.updateTracksView();
       },
       // Обработка событий прохода мышки над связями
       onTrackOver(track) {
@@ -368,20 +383,27 @@
       },
       // Перестроить viewbox
       rebuildViewBox() {
-        const width = (this.presentation.layers?.box?.width || 0) + this.distance;
-        const height = (this.presentation.layers?.box?.height || 0) + this.distance;
+        const width = this.presentation.valueBox.dx - this.presentation.valueBox.x;
+        let height = Math.max(this.presentation.valueBox.dy - this.presentation.valueBox.y, 100);
         const clientWidth = this.$el?.clientWidth || 0;
-        this.landscape.viewBox.top = 0;
-        this.landscape.viewBox.height = height;
+        this.landscape.viewBox.top = this.presentation.valueBox.y - 24;
+
+        if (this.animation.information) {
+          this.landscape.viewBox.top -= 64;
+          height += 64;
+        }
+
+        this.landscape.viewBox.height = height + 48;
+
         if (width < clientWidth) {
           const delta = (clientWidth - width) * 0.5;
-          this.landscape.viewBox.left = - delta;
+          this.landscape.viewBox.left = - delta + this.presentation.valueBox.x;
           this.landscape.viewBox.width = width + delta * 2;
-          this.style.height = `${height}`;
+          this.$el.style.height = `${height + 48}px`;
         } else {
-          this.landscape.viewBox.left = 0;
-          this.landscape.viewBox.width = width;
-          this.style.height = `${height * (clientWidth / width)}`;
+          this.landscape.viewBox.left = this.presentation.valueBox.x - 24;
+          this.landscape.viewBox.width = width + 48;
+          this.$el.style.height = `${height * (clientWidth / width) + 48}px`;
         }
       },
       // Перестроение презентации
@@ -391,23 +413,29 @@
         const distance = this.data.config?.distance || this.distance;
         let availableWidth = this.$el?.clientWidth || 0;
         if (availableWidth < 600) availableWidth = 600;
+        this.isBuilding++;
         Graph.make(
           nodes || this.data.nodes || {},
           links || this.data.links || [],
           trackWidth,
           distance,
           this.landscape.symbols,
-          availableWidth
+          availableWidth,
+          this.debug
         )
           .then((presentation) => {
             this.presentation = presentation;
             this.rebuildViewBox();
             this.cleanSelectedTracks();
             this.cleanSelectedNodes();
+            this.$nextTick(() => this.$el && href.elProcessing(this.$el));
           })
           .catch((e) => {
+            // eslint-disable-next-line no-console
             console.error(e);
-            if (testMode === 'random') this.makeRandom();
+          })
+          .finally(() => {
+            this.isBuilding > 0 && this.isBuilding--;
           });
       },
       // Рассчитывает размерность примитивов (символов)
@@ -433,6 +461,7 @@
 .dochub-schema {
   /* border: solid 2px #ff0000; */
   /* max-height: calc(100vh - 64px); */
+  aspect-ratio: unset;
 }
 
 .wave-cell {
@@ -452,6 +481,41 @@
 .error-cell {
   fill: #f00;
   stroke: #fff;
+}
+
+.symbols * {
+  opacity: 0;
+}
+
+.spinner {
+  stroke: rgb(52, 149, 219);
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+* {
+  transition: all 0.15s ease-in;
 }
 
 </style>
