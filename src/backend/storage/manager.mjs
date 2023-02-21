@@ -25,6 +25,19 @@ manifestParser.onReloaded = (parser) => {
 	logger.log(`Manifest is reloaded ${parser.manifest}`, LOG_TAG);
 };
 
+// Преобразует внутренние ссылки (file:) в прямые
+function resolveFileURI(mergeMap) {
+	const result = {};
+	for (const path in mergeMap) {
+		result[path] = mergeMap[path].map((uri) => {
+			if (uri.startsWith('file://')) {
+				return uri;
+			} else return uri;
+		});
+	}
+	return result;
+}
+
 export default {
 	reloadManifest: async function() {
 		logger.log('Run full reload manifest', LOG_TAG);
@@ -35,7 +48,7 @@ export default {
 		logger.log('Full reload is done', LOG_TAG);
 		return {
 			manifest: manifestParser.manifest,
-			mergeMap: manifestParser.mergeMap
+			mergeMap: resolveFileURI(manifestParser.mergeMap)
 		};
 	}
 };

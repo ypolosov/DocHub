@@ -1,12 +1,11 @@
 import prototype from '../../global/manifest/services/cache.mjs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import fs from 'fs';
 import yaml from 'yaml';
 import logger from '../utils/logger.mjs';
 import axios from 'axios';
 import uriTool from '../helpers/uri.mjs';
 import gitlab from '../helpers/gitlab.mjs';
+import path from 'path';
 
 // Подключаем интерцептор авторизации GitLab
 axios.interceptors.request.use(gitlab.axiosInterceptor);
@@ -27,16 +26,12 @@ axios.interceptors.response.use(
     }
 );
 
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const __basedir = path.resolve(__dirname, '../../../public/');
-
 const LOG_TAG = 'manifest-cache';
 
 // Проверяет разрешен ли путь к файлу
 function isAvailablePath(path) {
-    return path.startsWith(`${__basedir}/`);
+    // eslint-disable-next-line no-undef
+    return path.startsWith(`${$paths.public}/`);
 }
 
 export default Object.assign(prototype, {
@@ -46,7 +41,8 @@ export default Object.assign(prototype, {
     async request(url, propPath) {
         const uri = new URL(url);
         if (uri.protocol === 'file:') {
-            const fileName = path.join(__basedir, uri.pathname);
+            // eslint-disable-next-line no-undef
+            const fileName = path.join($paths.file_storage, uri.pathname);
             if (!isAvailablePath(fileName)) {
                 throw `File [${fileName}] is not available.`;
             }
@@ -71,7 +67,6 @@ export default Object.assign(prototype, {
             logger.log(`Import source [${url}] is done.`, LOG_TAG);
             return result;
         } else if (uri.protocol === 'gitlab:') {
-
             const url = uriTool.makeURL(uri).url.toString();
             logger.log(`Importing source [${url}] over gitlab...`, LOG_TAG);
             const result = await axios({ url });
