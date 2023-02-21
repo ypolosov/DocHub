@@ -1,6 +1,6 @@
-import requests from './requests';
 import env, {Plugins} from './env';
 import routes from '../router/routes';
+import uri from '@/helpers/uri';
 
 function isLocalRoute(url) {
 	const urlRoot = url.pathname.split('/')[1];
@@ -16,7 +16,7 @@ export default {
 	// Переход по URL 
 	gotoURL(ref) {
 		try {
-			if (requests.isExternalURI(ref)) {
+			if (uri.isExternalURI(ref)) {
 				window.open(ref, 'blank_');
 			} else {
 				const url = new URL(ref, window.location);

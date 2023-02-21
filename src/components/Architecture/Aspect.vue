@@ -118,14 +118,13 @@
 </template>
 
 <script>
-
   import query from '../../manifest/query';
   import Docs from './tabs/Docs.vue';
   import AspectsMindmap from '@/components/Mindmap/AspectsMindmap.vue';
   import TabContexts from './tabs/TabContext.vue';
   import Empty from '../Controls/Empty.vue';
   import SrcLocations from './tabs/SrcLocations.vue';
-  import requests from '@/helpers/requests';
+  import uri from '@/helpers/uri';
   import html from '@/helpers/html';
   import Entity from '@/components/Entities/Entity.vue';
 
@@ -210,7 +209,7 @@
     },
     methods: {
       isURL(str) {
-        return requests.isURL(str);
+        return uri.isURL(str);
       }
     }
   };

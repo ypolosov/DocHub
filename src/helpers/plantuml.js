@@ -1,5 +1,5 @@
 import config from '../../config';
-import requests from '@/helpers/requests';
+import uri from '@/helpers/uri';
 import axios from 'axios';
 import {plantUmlCache} from '@/helpers/cache';
 import env from '@/helpers/env';
@@ -66,7 +66,7 @@ export default {
 		return this.svgBaseURL() + this.compress(uml);
 	},
 	svgBaseURL() {
-		return !requests.isURL(config.pumlServer)
+		return !uri.isURL(config.pumlServer)
 			? `${window?.location?.protocol || 'https:'}//${config.pumlServer}`
 			: config.pumlServer;
 	},

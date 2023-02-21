@@ -93,7 +93,7 @@
 
 <script>
 
-  import requests from '../../../helpers/requests';
+  import uri from '@/helpers/uri';
   import Mixin from '../mixin';
 
   export default {
@@ -121,7 +121,7 @@
       }
     },
     methods: {
-      isExternalURI: (uri) => requests.isExternalURI(uri)
+      isExternalURI: (url) => uri.isExternalURI(url)
     }
   };
 </script>

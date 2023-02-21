@@ -27,6 +27,10 @@ export default {
       }
     }
   },
+	backendURL(): string {
+		return process.env.VUE_APP_DOCHUB_BACKEND_URL;
+	},
+
 	isProduction(): boolean {
 		return process.env.NODE_ENV === 'production';
 	},
