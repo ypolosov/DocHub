@@ -6,18 +6,18 @@ export function errorMiddleware(params) {
 
 	if (params?.error) {
 		switch (params.error.response?.status) {
-		case 509:
-			error = errConstants.SIZE_LIMIT;
-			break;
-		case 400:
-			error = params.error.response.data.toString();
-			break;
-		default:
-			error = errConstants.UNKNOWN;
+      case 509:
+        error = errConstants.SIZE_LIMIT;
+        break;
+      case 400:
+        error = params.error.response?.data;
+        break;
+      default:
+        error = errConstants.UNKNOWN;
 		}
 
 		// eslint-disable-next-line no-console
-		console.error(error);
+		console.error(['errorMiddleware', params]);
 	}
 
 	return { ...params, error };
