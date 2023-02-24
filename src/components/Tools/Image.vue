@@ -8,7 +8,7 @@
   import requests from '../../helpers/requests';
 
   export default {
-    name: 'Image',
+    name: 'DHImage',
     props: {
       src: { type: String, default: '' },
       baseURI: { type: String, default: '' }
@@ -23,7 +23,7 @@
     },
     methods: {
       reloadImage() {
-        requests.request(this.src, this.baseURI, {responseType: 'arraybuffer'})
+        requests.request(this.src, this.baseURI, { responseType: 'arraybuffer' })
           .then((response) => {
             this.data = URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type']}));
           });

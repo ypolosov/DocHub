@@ -252,7 +252,7 @@ const parser = {
 		} catch (e) {
 			this.registerError(e, uri);
 		} finally {
-			!subimport && this.onReloaded && this.onReloaded(this);
+			!subimport && this.stopLoad();
 		}
 	}
 };

@@ -3,7 +3,7 @@ import YAML from 'yaml';
 import crc16 from './crc16';
 import env, { Plugins } from './env';
 import { responseCacheInterceptor, requestCacheInterceptor } from './cache';
-import uriTool from '@/helpers/uri';
+// import uriTool from '@/helpers/uri';
 import gitlab from '@/helpers/gitlab';
 
 
@@ -39,7 +39,7 @@ axios.interceptors.response.use(async(response) => {
 		response.config.responseHook(response);
 	if (typeof response.data === 'string') {
 		if (!response.config.raw) {
-			const url = response.config.url.split('?')[0].toLowerCase();
+			const url = (response.config.url || '').toString().split('?')[0].toLowerCase();
 			if ((url.indexOf('.json/raw') >= 0) || (url.slice(-5) === '.json'))
 				response.data = JSON.parse(response.data);
 			else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
@@ -101,20 +101,33 @@ export default {
 		return tracers[crc16(url)];
 	},
 
-	// axios_params - параметры передавамые в axios
-	// 		responseHook - содержит функцию обработыки ответа перед работой interceptors
+	// Транслирует ссылки на backend в прямые URL
+	translateBackendURL(url) {
+		const finalURl = url && url.toString();
+		if (finalURl && finalURl.startsWith('backend://')) {
+			return (new URL(finalURl.slice(10), env.backendFileStorageURL()));
+		} else {
+			return url;	
+		}
+	},
+
+	// axios_params - параметры передаваемые в axios
+	// 		responseHook - содержит функцию обработки ответа перед работой interceptors
 	//		raw - если true возвращает ответ без обработки
 	request(uri, baseURI, axios_params) {
 		let params = Object.assign({}, axios_params);
-		
-		let finalURI = uri;
-		// Если протокол "file:" то транслируем запрос в backend запрос файла
-		if (uri.startsWith('file:///')) {
-			finalURI = new URL(uri.slice(8), env.backendFileStorageURL());
+		params.url = uri;
+		// Если ссылка ведет на backend конвертируем ее
+		const strURI = (uri || '').toString();
+		if (strURI.startsWith('backend://')) {
+			debugger;
+			const structURI = strURI.split('/');
+			const origin = `${structURI[0]}//${structURI[2]}/`;
+			const path = strURI.slice(origin.length);
+			params.url = new URL(encodeURIComponent(path), this.translateBackendURL(origin));
+		} else if ((baseURI || '').toString().startsWith('backend://')) {
+			params.url = new URL(encodeURIComponent(uri), this.translateBackendURL(baseURI));
 		}
-
-		params.source = uriTool.makeURL(finalURI, baseURI);
-		params.url = params.source.url.toString();
 		if (
 			env.isPlugin(Plugins.idea) && params.url.split(':')[0] === 'plugin' ||
 			env.isPlugin(Plugins.vscode)
