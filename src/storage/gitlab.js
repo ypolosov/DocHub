@@ -318,15 +318,14 @@ export default {
 
 		// Reload root manifest
 		async reloadRootManifest(_context, payload) {
-			const backendURL = env.backendURL();
 			// Если работаем в режиме backend, берем все оттуда
-			if (backendURL) {
+			if (env.isBackendMode()) {
 				parser.onStartReload();
-				axios({ url: (new URL('core/manifest/state', new URL(backendURL, window.origin))).toString() })
+				axios({ url: (new URL('core/manifest/state', env.backendURL())).toString() })
 					.then((response) => {
 						parser.onReloaded({
-							manifest: { [MANIFEST_MODES.AS_IS] : response.data.manifest},
-							mergeMap: response.data.mergeMap
+							manifest: { [MANIFEST_MODES.AS_IS] : Object.freeze(response.data.manifest)},
+							mergeMap: Object.freeze(response.data.mergeMap)
 						});
 					})
 					.catch((error) => {

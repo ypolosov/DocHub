@@ -43,7 +43,7 @@ export default {
 
 	// Обрабатывает элемент для сормирование корректных ссылок в нем
 	elProcessing(el) {
-		const refs = el.querySelectorAll('[href]');
+		const refs = el?.querySelectorAll && el.querySelectorAll('[href]') || [];
 		for (let i = 0; i < refs.length; i++) {
 			refs[i].onclick = (event) => this.onClickRef(event);
 		}

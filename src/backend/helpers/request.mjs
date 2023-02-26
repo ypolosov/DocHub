@@ -76,9 +76,7 @@ async function request(url, baseURI, response) {
                 result.data = yaml.parse(result.data);
             } else if (contentType === 'application/json') {
                 result.data = JSON.parse(result.data);
-            } else {
-                result.data = result;
-            }
+            } 
             return result;
         }
     } // Если запрос по http / https
