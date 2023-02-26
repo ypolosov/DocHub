@@ -35,11 +35,13 @@ controllerStatic(app);
 // Основной цикл приложения
 const mainLoop = async function() {
     // Загружаем манифест
-    app.storage = await storeManager.reloadManifest();
-
     app.listen(serverPort, function(){
         logger.log(`DocHub server running on ${serverPort}`, LOG_TAG);
     });
+
+    storeManager.reloadManifest()
+    .then((storage) => app.storage = storage);
+
 };
 
 mainLoop();

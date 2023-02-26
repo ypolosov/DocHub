@@ -63,6 +63,8 @@ const parser = {
 	},
 	// Преобразование относительных ссылок в прямые
 	propResolver: {
+		// Закомментировано, т.к. преобразование ссылок идет в самих объектах
+		/*
 		docs(item, baseURI) {
 			['source', 'origin', 'data'].forEach((field) =>
 				item[field]
@@ -73,6 +75,7 @@ const parser = {
 		datasets(item, baseURI) {
 			this.docs(item, baseURI);
 		}
+		*/
 	},
 	//Регистрирует ошибку
 	// e - объект ошибки

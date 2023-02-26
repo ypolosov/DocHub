@@ -52,7 +52,8 @@ export default {
 				this.source.provider.getData(
 					this.manifest,
 					Object.assign({'_id': this.id}, this.profile),
-					this.params
+					this.params,
+					this.baseURI
 				)
 					.then((dataset) => {
 						this.source.dataset = dataset;
@@ -98,9 +99,11 @@ export default {
 			}
 			return head;
 		},
+		baseURI() {
+			return this.$store.state.sources[this.path][0];
+		},
 		url() {
-			const baseURI = this.$store.state.sources[this.path][0];
-			let result = this.profile ? docs.urlFromProfile(this.profile, baseURI).toString() : '';
+			let result = this.profile ? docs.urlFromProfile(this.profile, this.baseURI).toString() : '';
 			result += result.indexOf('?') > 0 ? '&' : '?';
 			result += `id=${this.id}&path=${encodeURI(this.path)}`;
 			return result;

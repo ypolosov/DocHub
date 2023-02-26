@@ -85,9 +85,13 @@ export default function(config) {
 			result = this.makeURL(baseURI);
 			if (result.type === 'gitlab') {
 				let slices = result.url.toString().split('/');
+				const path = (new URL(uri, 'path:/' + slices[slices.length - 2].split('%2F').join('/'))).toString();
+				slices[slices.length - 2] = (path.split('path:/')[1] || '').split('/').join('%2F');
+				/*
 				const subSlices = slices[slices.length - 2].split('%2F');
 				subSlices[subSlices.length - 1] = uri.replace(/\//g, '%2F');
 				slices[slices.length - 2] = subSlices.join('%2F');
+				*/
 				result.url = new URL(slices.join('/'));
 			} else {
 				result.url = new URL(uri, result.url);

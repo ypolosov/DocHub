@@ -40,9 +40,16 @@ axios.interceptors.response.use(async(response) => {
 	if (typeof response.data === 'string') {
 		if (!response.config.raw) {
 			const url = (response.config.url || '').toString().split('?')[0].toLowerCase();
-			if ((url.indexOf('.json/raw') >= 0) || (url.slice(-5) === '.json'))
+			if (
+				(url.indexOf('.json/raw') >= 0)
+				|| (url.slice(-5) === '.json')
+				|| (response?.headers || {})['content-type'] === 'application/json'
+				)
 				response.data = JSON.parse(response.data);
-			else if ((url.indexOf('.yaml/raw') >= 0) || (url.slice(-5) === '.yaml'))
+			else if (
+				(url.indexOf('.yaml/raw') >= 0) 
+				|| (url.slice(-5) === '.yaml') 
+				|| (response?.headers || {})['content-type'] === 'application/x-yaml')
 				response.data = YAML.parse(response.data);
 		}
 	}
@@ -120,7 +127,6 @@ export default {
 		// Если ссылка ведет на backend конвертируем ее
 		const strURI = (uri || '').toString();
 		if (strURI.startsWith('backend://')) {
-			debugger;
 			const structURI = strURI.split('/');
 			const origin = `${structURI[0]}//${structURI[2]}/`;
 			const path = strURI.slice(origin.length);
