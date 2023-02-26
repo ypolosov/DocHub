@@ -16,6 +16,7 @@ manifestParser.getBaseManifest = () => {
 	return {};
 };
 
+// eslint-disable-next-line no-unused-vars
 manifestParser.onStartReload = (parser) => {
 	logger.log('Manifest start reloading', LOG_TAG);
 };

@@ -5,7 +5,7 @@ const LOG_TAG = 'controller-storage';
 
 export default (app) => {
     // Выполняет JSONata запрос
-    app.get('/core/storage/:hash/:url', async function (req, res) {
+    app.get('/core/storage/:hash/:url', async function(req, res) {
         const hash = req.params.hash || '$unknown$';
         const url = decodeURIComponent(req.params.url);
         const uri = url.split('?')[0];

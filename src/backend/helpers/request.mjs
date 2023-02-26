@@ -107,6 +107,6 @@ async function request(url, baseURI, response) {
     }
     // eslint-disable-next-line no-console
     throw `Can not processing protocol [${uri.protocol}] for url=[${url}]`;
-};
+}
 
 export default request;
