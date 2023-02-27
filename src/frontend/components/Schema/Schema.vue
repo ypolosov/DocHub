@@ -80,7 +80,6 @@
         }
         if (this.schema?.uml?.$dsl) {
           try {
-            debugger;
             const dsl = await requests.request(this.schema.uml.$dsl, this.baseURI);
             uml += dsl.data;
           } catch (e) {
