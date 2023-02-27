@@ -174,7 +174,7 @@
               return namespace.components[link.id] && !namespace.components[link.id].extra;
             })()) uml +=
               link.link_title
-                ? `${linkId}: [[http://#${encodeURI(linkId)} ${link.link_title || '⠀'}]]\n`
+                ? (link.link_title.startsWith('[[') && link.link_title.endsWith(']]') ? (`${linkId}: ${link.link_title}\n`):(`${linkId}: [[http://#${encodeURI(linkId)} ${link.link_title || '⠀'}]]\n`))
                 : `${linkId}: ⠀\n`;
           }
           this.schema.uml && this.schema.uml.$after && (uml += this.schema.uml.$after + '\n');
