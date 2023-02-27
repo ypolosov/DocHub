@@ -83,6 +83,7 @@
             const dsl = await requests.request(this.schema.uml.$dsl, this.baseURI);
             uml += dsl.data;
           } catch (e) {
+            // eslint-disable-next-line no-console
             console.error(`Не получилось подключить кастомный DSL ${this.schema.uml.$dsl}`);
             uml += `${PlantUMLDSL}\n`;
           }
