@@ -2,6 +2,7 @@ import axios from 'axios';
 import YAML from 'yaml';
 import crc16 from '@global/helpers/crc16';
 import gitlab from '@front/helpers/gitlab';
+import uriTool from '@front/helpers/uri';
 
 import env, { Plugins } from './env';
 import { responseCacheInterceptor, requestCacheInterceptor } from './cache';
@@ -134,7 +135,12 @@ export default {
 			params.url = new URL(encodeURIComponent(path), this.translateBackendURL(origin));
 		} else if ((baseURI || '').toString().startsWith('backend://')) {
 			params.url = new URL(encodeURIComponent(uri), this.translateBackendURL(baseURI));
+		} else if (baseURI) {
+			params.url = uriTool.makeURIByBaseURI(uri, baseURI);
+		} else {
+			params.url = uriTool.makeURL(uri).url;
 		}
+
 		if (
 			env.isPlugin(Plugins.idea) && params.url.split(':')[0] === 'plugin' ||
 			env.isPlugin(Plugins.vscode)

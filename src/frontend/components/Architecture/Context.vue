@@ -13,7 +13,8 @@
         v-bind:uml="customUML" />
       <schema 
         v-else
-        v-bind:schema="schema" />
+        v-bind:schema="schema" 
+        v-bind:base-u-r-i="baseURI" />
     </template>
   </div>
 </template>

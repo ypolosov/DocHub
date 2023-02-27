@@ -20,14 +20,18 @@
   import PlantUML from './PlantUML';
 
   Vue.use(AsyncComputed);
-  
+
   export default {
     name: 'Schema',
     components: {
-      'plantuml' : PlantUML
+      'plantuml': PlantUML
     },
     props: {
       schema: { type: Object, default: () => ({}) },
+      baseURI: {   // Пусть к объекту контекста
+        type: String,
+        default: null
+      },
       notation: { // Нотация
         type: String,
         default: 'PlantUML',
@@ -69,15 +73,21 @@
           window.$PAPI?.settings?.render?.mode || ''
         ).toLowerCase();
 
-        switch(renderCore)  {
+        switch (renderCore) {
           case 'smetana': uml += '!pragma layout smetana\n'; break;
           case 'elk': uml += '!pragma layout elk\n'; break;
           case 'graphviz': uml += '!pragma layout graphviz\n'; break;
         }
-        if (this.schema.uml && this.schema.uml.$dsl) {
-          const dsl = await requests.request( this.schema.uml.$dsl, this.$parent.baseURI);
-          uml += dsl.data;
-        }else{
+        if (this.schema?.uml?.$dsl) {
+          try {
+            debugger;
+            const dsl = await requests.request(this.schema.uml.$dsl, this.baseURI);
+            uml += dsl.data;
+          } catch (e) {
+            console.error(`Не получилось подключить кастомный DSL ${this.schema.uml.$dsl}`);
+            uml += `${PlantUMLDSL}\n`;
+          }
+        } else {
           switch (notation.toLowerCase()) {
             case 'sber':
               uml += `${SberDSL}\n`;
@@ -91,7 +101,7 @@
           }
         }
         this.orientation === 'horizontal' && (uml += 'left to right direction\n');
-        if(this.schema) {
+        if (this.schema) {
           if (this.schema.uml) {
             if (typeof this.schema.uml === 'string') {
               return this.schema.uml;
@@ -111,7 +121,7 @@
           const structure = this.structure;
 
           // Разбираем архитектурные пространства
-          const expandNamespace = (namespace) =>  {
+          const expandNamespace = (namespace) => {
             // Если область определена, выводим ее
             let result = '';
             let notEmpty = false;
@@ -129,7 +139,7 @@
             if (namespace.namespaces) {
               for (const namespaceID in namespace.namespaces) {
                 const subCode = expandNamespace(namespace.namespaces[namespaceID]);
-                if(subCode) {
+                if (subCode) {
                   notEmpty = true;
                   result += subCode;
                 }
@@ -215,7 +225,7 @@
           });
           !namespaces.components && (namespaces.components = {});
           if (!extra || !namespaces.components[component.id]) {
-            namespaces.components[component.id] = Object.assign({extra}, component);
+            namespaces.components[component.id] = Object.assign({ extra }, component);
           }
         };
 
@@ -226,11 +236,11 @@
           (component.links || []).map((link) => {
             expandComponent(link, true);
             structure.links[`${component.id} ${link.direction} ${link.id}`] =
-              Object.assign(link, {linkFrom: component.id, linkTo: link.id});
-            /*
-          structure.links[`[${component.id}] ${link.direction} [${link.id}]`] =
-              Object.assign(link, { linkFrom: component.id, linkTo: link.id});
-          */
+              Object.assign(link, { linkFrom: component.id, linkTo: link.id });
+          /*
+        structure.links[`[${component.id}] ${link.direction} [${link.id}]`] =
+            Object.assign(link, { linkFrom: component.id, linkTo: link.id});
+        */
           });
         });
 
@@ -303,8 +313,8 @@
             linkPath.style = null;
             const defPathID = `def_${prefix++}_${linkPath.id}`;
             const path = this.createSVGElement('svg:path');
-            path.setAttribute('id',defPathID);
-            path.setAttribute('d',linkPath.getAttribute('d'));
+            path.setAttribute('id', defPathID);
+            path.setAttribute('d', linkPath.getAttribute('d'));
             defs.appendChild(path);
 
             linkTitle = this.createSVGElement('svg:text');
@@ -351,7 +361,7 @@
               if (uri.isExternalURI(contactID))
                 window.open(contactID, '_blank');
               else
-                this.$router.push({ path: `/docs/${contactID}`});
+                this.$router.push({ path: `/docs/${contactID}` });
             });
           }
 
@@ -409,25 +419,24 @@
 </script>
 
 <style>
+.schema-link-title {
+  font-size: 12px;
+  margin-bottom: 6px;
+}
 
-  .schema-link-title {
-    font-size: 12px;
-    margin-bottom: 6px;
-  }
+text.hover {
+  font-size: 16px;
+  cursor: pointer;
+}
 
-  text.hover {
-    font-size: 16px;
-    cursor: pointer;
-  }
+path.link-path {
+  stroke: rgb(52, 149, 219) !important;
+  stroke-width: 2 !important;
+}
 
-  path.link-path {
-    stroke: rgb(52, 149, 219) !important;
-    stroke-width: 2 !important;
-  }
-
-  path.hover, path.selected {
-    stroke: #F00 !important;
-    stroke-width: 2 !important;
-  }
-
+path.hover,
+path.selected {
+  stroke: #F00 !important;
+  stroke-width: 2 !important;
+}
 </style>

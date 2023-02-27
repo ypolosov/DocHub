@@ -29,7 +29,7 @@
         right: 0;
         overflow: auto;
       ">
-      <schema v-bind:schema="schema" style="min-height:calc(100% - 24px)" />
+      <schema v-bind:schema="schema" style="min-height:calc(100% - 24px)" v-bind:base-u-r-i="baseURI" />
     </v-card-text>
   </v-card>
 </template>
@@ -55,6 +55,13 @@
       };
     },
     computed: {
+      baseURI() {
+        const path = this.context.type === 'component' 
+          ?`/components/${this.context.id}`
+          :`/contexts/${this.context.id}`;
+
+        return this.$store.state.sources[path][0];
+      },
       schema() {
         if (!this.context) return null;
 
@@ -81,7 +88,7 @@
     },
     watch: {
       contexts() {
-        this.seleted = null;
+        this.selected = null;
       }
     }
   };
