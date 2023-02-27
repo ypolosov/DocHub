@@ -166,4 +166,9 @@
   margin-top: -32px;
 }
 
+::selection {
+  background-color: #3495db;
+  color: #fff;
+}
+
 </style>
