@@ -1,0 +1,108 @@
+import axios from 'axios';
+
+import config from '@front/config';
+import uri from '@front/helpers/uri';
+import { plantUmlCache } from '@front/helpers/cache';
+import env from '@front/helpers/env';
+
+export default {
+  prepareRequest(uml) {
+		switch(config.pumlRequestType) {
+      case 'post':
+        return this.post(this.svgBaseURL(), uml, {
+          headers: {
+            'Content-Type': 'text/plain; charset=UTF-8'
+          }
+        });
+      case 'post_compressed':
+        return this.post(this.svgBaseURL() + 'compressed', this.compress(uml));
+      default:
+        return this.get(this.svgURL(uml));
+    }
+	},
+  async get(umlUrl) {
+    try {
+      let data = await this.getCachedData(umlUrl);
+
+      if (!data) {
+        data = await axios.get(umlUrl);
+        this.setCachedData(umlUrl, data);
+      }
+
+      return data;
+    } catch (e) {
+      return e;
+    }
+  },
+  async post(umlUrl, uml, config) {
+    try {
+      const cachedUrl = `${umlUrl}:${JSON.stringify(uml)}`;
+      let data = await this.getCachedData(cachedUrl);
+
+      if (!data) {
+        data = await axios.post(umlUrl, uml, config);
+        this.setCachedData(cachedUrl, data);
+      }
+
+      return data;
+    } catch (e) {
+      return e;
+    }
+  },
+  async getCachedData(umlUrl) {
+    if (env.cache) {
+      const cachedData = await plantUmlCache.get(umlUrl);
+
+      if (cachedData) {
+        return cachedData;
+      }
+    }
+  },
+  setCachedData(umlUrl, data) {
+    if (env.cache) {
+      plantUmlCache.set(umlUrl, data);
+    }
+  },
+	svgURL(uml) {
+		return this.svgBaseURL() + this.compress(uml);
+	},
+	svgBaseURL() {
+		return !uri.isURL(config.pumlServer)
+			? `${window?.location?.protocol || 'https:'}//${config.pumlServer}`
+			: config.pumlServer;
+	},
+	encode64_(e) {
+		let r, i;
+		for (r = '', i = 0; i < e.length; i += 3)
+			i + 2 == e.length ? r += this.append3bytes(e[i], e[i + 1], 0) : i + 1 == e.length ? r += this.append3bytes(e[i], 0, 0) : r += this.append3bytes(e[i], e[i + 1], e[i + 2]);
+		return r;
+	},
+	append3bytes(e, n, t) {
+		let c1, c2, c3, c4, r;
+		return c1 = e >> 2,
+		c2 = (3 & e) << 4 | n >> 4,
+		c3 = (15 & n) << 2 | t >> 6,
+		c4 = 63 & t,
+		r = '',
+		r += this.encode6bit(63 & c1),
+		r += this.encode6bit(63 & c2),
+		r += this.encode6bit(63 & c3),
+		r += this.encode6bit(63 & c4),
+		r;
+	},
+	encode6bit(e) {
+		return e < 10 ? String.fromCharCode(48 + e) : (e -= 10) < 26 ? String.fromCharCode(65 + e) : (e -= 26) < 26 ? String.fromCharCode(97 + e) : 0 == (e -= 26) ? '-' : 1 == e ? '_' : '?';
+	},
+	compress(s) {
+		s = unescape(encodeURIComponent(s));
+		let arr = [];
+		for (var i = 0; i < s.length; i++) {
+			arr.push(s.charCodeAt(i));
+		}
+		// eslint-disable-next-line no-undef
+		let compressor = new Zopfli.RawDeflate(arr);
+		let compressed = compressor.compress();
+
+		return this.encode64_(compressed);
+	}
+};
