@@ -54,15 +54,8 @@
         currentContext: 0
       };
     },
-    computed: {
-      baseURI() {
-        const path = this.context.type === 'component' 
-          ?`/components/${this.context.id}`
-          :`/contexts/${this.context.id}`;
-
-        return this.$store.state.sources[path][0];
-      },
-      schema() {
+    asyncComputed: {
+      async schema() {
         if (!this.context) return null;
 
         const expression = query.expression(
@@ -71,7 +64,16 @@
             query.context(this.context.id)
         );
 
-        return expression.evaluate(this.manifest);
+        return await expression.evaluate(this.manifest);
+      }
+    },
+    computed: {
+      baseURI() {
+        const path = this.context.type === 'component' 
+          ?`/components/${this.context.id}`
+          :`/contexts/${this.context.id}`;
+
+        return this.$store.state.sources[path][0];
       },
       context: {
         get() {

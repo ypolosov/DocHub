@@ -70,7 +70,7 @@
       async treeMenu() {
         const result = { items: {} };
 
-        const dataset = this.menuCache ? this.menuCache : await query.expression(query.menu()).evaluate(this.manifest) || [];
+        const dataset = (this.menuCache ? this.menuCache : await query.expression(query.menu()).evaluate(this.manifest)) || [];
         !this.menuCache && this.$nextTick(() => this.menuCache = dataset);
 
         dataset.map((item) => {

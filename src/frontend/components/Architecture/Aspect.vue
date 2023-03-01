@@ -25,7 +25,7 @@
               </v-card-text>
             </v-card>
             <docs v-bind:subject="aspect" />
-            <v-card v-if="components.length" class="card-item" xs12 md12>
+            <v-card v-if="components?.length" class="card-item" xs12 md12>
               <v-card-title>
                 <v-icon left>settings</v-icon>
                 <span class="title">Встречается в компонентах</span>
@@ -52,7 +52,7 @@
             <src-locations v-bind:locations="srcLocations" />
 
             <v-card
-              v-for="widget in widgets.left"
+              v-for="widget in widgets?.left || []"
               v-bind:key="widget.id"
               class="card-item"
               xs12
@@ -71,14 +71,14 @@
       </v-flex>
       <v-flex xs12 md7 d-flex>
         <tab-contexts
-          v-if="contexts.length"
+          v-if="contexts?.length"
           style="width: 100%"
           v-bind:default-context="defaultContext"
           v-bind:contexts="contexts"
           d-flex />
 
         <v-card
-          v-for="widget in widgets.right"
+          v-for="widget in widgets?.right || []"
           v-bind:key="widget.id"
           class="card-item"
           xs12
@@ -96,7 +96,7 @@
 
       <v-flex xs12 md12 d-flex>
         <v-card
-          v-for="widget in widgets.fill"
+          v-for="widget in widgets?.fill || []"
           v-bind:key="widget.id"
           class="card-item"
           xs12
@@ -158,8 +158,35 @@
         return await query.expression(query.contextsForAspects(this.aspect)).evaluate(this.manifest) || [];
       },
       async summary() {
-        return await query.expression(query.summaryForAspect(this.aspect)
-          .evaluate(this.manifest) || []);
+        return await query.expression(query.summaryForAspect(this.aspect)).evaluate(this.manifest) || [];
+      },
+      // Генерируем данные о фиджетах
+      async widgets() {
+        const result = {
+          left: [],   // Виджеты с прижатием налево
+          right: [],  // Виджеты с прижатием направо
+          fill: []    // Виджеты во всю ширину
+        };
+        const widgets = await query.expression(query.widgetsForAspect()).evaluate(this.manifest) || {};
+        for (const id in widgets) {
+          let wiget = widgets[id];
+          wiget.id = `${wiget.id}-${this.aspect}`;
+          wiget.params = Object.assign(wiget.params || {}, {aspect: this.aspect});
+          switch(wiget.align) {
+            case '<': result.left.push(wiget); break;
+            case '>': result.right.push(wiget); break;
+            default: result.fill.push(wiget); break;
+          }
+        }
+        return result;
+      },
+      async srcLocations() {
+        return await html.collectLocationElement({
+          expression: query.locationsForAspect(this.aspect),
+          context: this.$store.state.sources,
+          id: this.aspect,
+          entity: 'aspect'
+        });
       }
     },
     computed: {
@@ -177,34 +204,6 @@
           }
         </style>
       `;
-      },
-      srcLocations() {
-        return html.collectLocationElement({
-          expression: query.locationsForAspect(this.aspect),
-          context: this.$store.state.sources,
-          id: this.aspect,
-          entity: 'aspect'
-        });
-      },
-      // Генерируем данные о фиджетах
-      widgets() {
-        const result = {
-          left: [],   // Виджеты с прижатием налево
-          right: [],  // Виджеты с прижатием направо
-          fill: []    // Виджеты во всю ширину
-        };
-        const widgets = (query.expression(query.widgetsForAspect()).evaluate(this.manifest) || {});
-        for (const id in widgets) {
-          let wiget = widgets[id];
-          wiget.id = `${wiget.id}-${this.aspect}`;
-          wiget.params = Object.assign(wiget.params || {}, {aspect: this.aspect});
-          switch(wiget.align) {
-            case '<': result.left.push(wiget); break;
-            case '>': result.right.push(wiget); break;
-            default: result.fill.push(wiget); break;
-          }
-        }
-        return result;
       }
     },
     methods: {

@@ -1,5 +1,5 @@
 <template>
-  <v-card v-if="items.length" class="card-item">
+  <v-card v-if="items?.length" class="card-item">
     <v-card-title>
       <v-icon left>description</v-icon>
       <span class="title">Документы</span>
@@ -11,7 +11,6 @@
 </template>
 
 <script>
-  import jsonata from 'jsonata';
   import Tree from '@front/components/Controls/Tree.vue';
   import query from '@front/manifest/query';
 
@@ -26,8 +25,8 @@
     data() {
       return {};
     },
-    computed: {
-      items() {
+    asyncComputed: {
+      async items() {
         let counter = 0;
         const result = [];
         const expandItem = (expitem) => {
@@ -49,9 +48,11 @@
             node = item.items;
           });
         };
-        const docs =
+        const docs = await query.expression(query.docsForSubject(this.subject)).evaluate(this.manifest) || [];
+        /*
           (jsonata(query.docsForSubject(this.subject))
             .evaluate(this.manifest) || []);
+        */
         docs.map((item) => expandItem(item));
         return result;
       }    

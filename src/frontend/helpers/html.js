@@ -12,8 +12,8 @@ export default {
 			.replace(/'/g, '&#039;');
 	},
 
-  collectLocationElement({expression, context, id, entity}) {
-    const result = query.expression(expression)
+  async collectLocationElement({expression, context, id, entity}) {
+    const result = await query.expression(expression)
       .evaluate(context) || [];
 
     if (env.isPlugin(Plugins.idea)) {

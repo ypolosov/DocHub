@@ -46,6 +46,13 @@
         customUML: null
       };
     },
+    asyncComputed: {
+      async schema() {
+        this.$nextTick(this.reloadCustomUML);
+        const result = await query.expression(query.context(this.context, this.location)).evaluate(this.dataset) || {};
+        return result;
+      }
+    },
     computed: {
       isEmpty() {
         return !(this.manifest.contexts || {})[this.context];
@@ -56,13 +63,8 @@
       baseURI() {
         return this.$store.state.sources[`/contexts/${this.context}`][0];
       },
-      schema() {
-        this.$nextTick(this.reloadCustomUML);
-        const result = query.expression(query.context(this.context, this.location)).evaluate(this.dataset) || {};
-        return result;
-      },
       isCustomUML() {
-        return typeof this.schema.uml === 'string';
+        return typeof this.schema?.uml === 'string';
       }
     },
     watch: {

@@ -19,7 +19,7 @@ export default (app) => {
         }
 
         // Если запрос уже лежит в кэше, берем оттуда. Если нет, то выполняем
-        const result = app.cache[uuid] || (app.cache[uuid] = jsonata.expression(queries.QUERIES[uuid]).evaluate(app.storage.manifest));
+        const result = app.cache[uuid] || (app.cache[uuid] = await jsonata.expression(queries.QUERIES[uuid]).evaluate(app.storage.manifest));
         res.status(200).json(result);
     });
 

@@ -46,7 +46,7 @@
               <src-locations v-bind:locations="srcLocations" />
 
               <v-card
-                v-for="widget in widgets.left"
+                v-for="widget in widgets?.left || []"
                 v-bind:key="widget.id"
                 class="card-item"
                 xs12
@@ -67,14 +67,14 @@
         <v-flex xs12 md7 d-flex>
           <v-layout wrap>
             <tab-contexts
-              v-if="contexts.length"
+              v-if="contexts?.length"
               style="width: 100%"
               v-bind:contexts="contexts"
               v-bind:manifest="manifest"
               d-flex />
 
             <v-card
-              v-for="widget in widgets.right"
+              v-for="widget in widgets?.right || []"
               v-bind:key="widget.id"
               class="card-item"
               xs12
@@ -91,9 +91,9 @@
           </v-layout>
         </v-flex>
       </v-layout>
-      <v-layout v-if="widgets.fill.length" wrap style="height: auto">
+      <v-layout v-if="widgets?.fill?.length" wrap style="height: auto">
         <v-card
-          v-for="widget in widgets.fill"
+          v-for="widget in widgets?.fill || []"
           v-bind:key="widget.id"
           class="card-item"
           xs12
@@ -142,6 +142,48 @@
         currentContext: 0
       };
     },
+    asyncComputed: {
+      async contexts() {
+        return [{
+          id: this.component,
+          title: 'SELF',
+          type: 'component'
+        }].concat(await query.expression(query.contextsForComponent(this.component))
+          .evaluate(this.manifest) || []);
+      },
+      async summary() {
+        return await query.expression(query.summaryForComponent(this.component))
+          .evaluate(this.manifest) || [];
+      },
+      // Генерируем данные о фиджетах
+      async widgets() {
+        const result = {
+          left: [],   // Виджеты с прижатием налево
+          right: [],  // Виджеты с прижатием направо
+          fill: []    // Виджеты во всю ширину
+        };
+        const widgets = await query.expression(query.widgetsForComponent()).evaluate(this.manifest) || {};
+        for (const id in widgets) {
+          let wiget = widgets[id];
+          wiget.id = `${this.component}-${wiget.id}`;
+          wiget.params = Object.assign(wiget.params || {}, {component: this.component});
+          switch(wiget.align) {
+            case '<': result.left.push(wiget); break;
+            case '>': result.right.push(wiget); break;
+            default: result.fill.push(wiget); break;
+          }
+        }
+        return result;
+      },
+      async srcLocations() {
+        return await html.collectLocationElement({
+          expression: query.locationsForComponent(this.component),
+          context: this.$store.state.sources,
+          id: this.component,
+          entity: 'component'
+        });
+      }
+    },
     computed: {
       isEmpty() {
         return !((this.manifest || {}).components || {})[this.component];
@@ -157,46 +199,6 @@
           }
         </style>
       `;
-      },
-      contexts() {
-        return [{
-          id: this.component,
-          title: 'SELF',
-          type: 'component'
-        }].concat(query.expression(query.contextsForComponent(this.component))
-          .evaluate(this.manifest) || []);
-      },
-      srcLocations() {
-        return html.collectLocationElement({
-          expression: query.locationsForComponent(this.component),
-          context: this.$store.state.sources,
-          id: this.component,
-          entity: 'component'
-        });
-      },
-      summary() {
-        return (query.expression(query.summaryForComponent(this.component))
-          .evaluate(this.manifest) || []);
-      },
-      // Генерируем данные о фиджетах
-      widgets() {
-        const result = {
-          left: [],   // Виджеты с прижатием налево
-          right: [],  // Виджеты с прижатием направо
-          fill: []    // Виджеты во всю ширину
-        };
-        const widgets = (query.expression(query.widgetsForComponent()).evaluate(this.manifest) || {});
-        for (const id in widgets) {
-          let wiget = widgets[id];
-          wiget.id = `${this.component}-${wiget.id}`;
-          wiget.params = Object.assign(wiget.params || {}, {component: this.component});
-          switch(wiget.align) {
-            case '<': result.left.push(wiget); break;
-            case '>': result.right.push(wiget); break;
-            default: result.fill.push(wiget); break;
-          }
-        }
-        return result;
       }
     },
     methods: {

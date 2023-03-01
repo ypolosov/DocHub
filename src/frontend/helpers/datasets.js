@@ -29,7 +29,9 @@ export default function() {
 					if (/^(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(data)) {
 						const exp = query.expression(data, subject, params);
 						exp.onError = reject;
-						resolve(exp.evaluate(context));
+						exp.evaluate(context)
+							.then((data) => resolve(data))
+							.catch(reject);
 						// Ссылка на файл с данными
 					} else if (data.slice(-8) === '.jsonata') {
 						requests.request(data, baseURI).then((response) => {
@@ -37,8 +39,10 @@ export default function() {
 								? response.data 
 								: JSON.stringify(response.data), params);
 							exp.onError = reject;
-							resolve(exp.evaluate(context), subject);
-						}).catch((e) => reject(e));
+							exp.evaluate(context)
+								.then((data) => resolve(data))
+								.catch(reject);
+						}).catch(reject);
 						// Идентификатор источника данных
 					} else if (data.slice(-5) === '.yaml' || data.slice(-5) === '.json' || (data.search(':') > 0)) {
 						requests.request(data, baseURI)
@@ -46,14 +50,14 @@ export default function() {
 								this.parseSource(context, response.data)
 									.then((data) => resolve(data))
 									.catch((e) => reject(e));  
-							}).catch((e) => reject(e));
+							}).catch(reject);
 						// Ссылка на файл с запросом
 					} else {
 						const dataSet = this.dsResolver(data);
 						if (dataSet.subject) {
 							this.getData(context, dataSet.subject, params, dataSet.baseURI)
 								.then((data) => resolve(data))
-								.catch((e) => reject(e));
+								.catch(reject);
 						} else reject(`Не найден источник данных [${data}]`);
 					}
 				} else reject(`Ошибка источника данных [${data}]`);

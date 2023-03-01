@@ -33,7 +33,7 @@
       <text class="line-text" y="304" x="530" text-anchor="middle">Assess</text>
       <text class="line-text" y="304" x="580" text-anchor="middle">Hold</text>
     </g>
-    <template v-for="(dot) in dots">
+    <template v-for="(dot) in dots || []">
       <g
         v-if="!dot.isUnknown"
         v-bind:key="dot.item.key"
@@ -87,6 +87,31 @@
         rings: rings.reverse()
       };
     },
+    asyncComputed: {
+      async dots() {
+        const result = [];
+        let index = 1;
+        (await query.expression(query.collectTechnologies())
+          .evaluate(this.manifest) || []).forEach((item) => {
+          if (this.section && this.section.toLowerCase() !== item.section.key.toLowerCase())
+            return;
+          const ring = this.getRingOfStatus(item.status || 'trial');
+          const section = this.getSectionOfKey(item.section.key);
+          if (!section) {
+            result.push({
+              isUnknown: true,
+              item
+            });
+          } else {
+            const dot = this.makeDot(item, section, ring);
+            dot.index = index++;
+            result.push(dot);
+          }
+        });
+        this.$emit('input', result);
+        return result;
+      }
+    },
     computed: {
       isShowSections() {
         return Object.keys(this.sections).length > 1;
@@ -127,29 +152,6 @@
             offset += size;
           }
         }
-        return result;
-      },
-      dots() {
-        const result = [];
-        let index = 1;
-        (query.expression(query.collectTechnologies())
-          .evaluate(this.manifest) || []).forEach((item) => {
-          if (this.section && this.section.toLowerCase() !== item.section.key.toLowerCase())
-            return;
-          const ring = this.getRingOfStatus(item.status || 'trial');
-          const section = this.getSectionOfKey(item.section.key);
-          if (!section) {
-            result.push({
-              isUnknown: true,
-              item
-            });
-          } else {
-            const dot = this.makeDot(item, section, ring);
-            dot.index = index++;
-            result.push(dot);
-          }
-        });
-        this.$emit('input', result);
         return result;
       }
     },

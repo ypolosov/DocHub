@@ -53,7 +53,7 @@
     asyncComputed: {
       async uml() {
 
-        if (!this.schema.components) return '';
+        if (!this.schema?.components) return '';
 
         let uml = '@startuml\n';
 

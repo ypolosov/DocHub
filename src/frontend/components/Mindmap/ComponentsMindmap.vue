@@ -3,8 +3,6 @@
 </template>
 
 <script>
-  import jsonata from 'jsonata';
-  
   import PlantUML from '@front/components/Schema/PlantUML.vue';
   import query from '@front/manifest/query';
 
@@ -29,16 +27,17 @@
       return {
       };
     },
-    computed: {
-      uml() {
+    asyncComputed: {
+      async uml() {
         const asis = this.manifest;
-        const nodes = jsonata(query.archMindMapComponents(this.root)).evaluate(asis);
+        const nodes = await query.expression(query.archMindMapComponents(this.root)).evaluate(asis) || [];
+        // const nodes = jsonata(query.archMindMapComponents(this.root)).evaluate(asis);
         const namespaces = asis.namespaces || {};
         const contexts = asis.contexts || {};
         const components = asis.components || {};
         let uml = '@startwbs\n* Архитектура\n';
         let prevStruct = [];
-        nodes && nodes.map((node) => {
+        nodes.map((node) => {
           uml += '**';
           let nsid = '';
           const makeTitle = (id, title) => {

@@ -158,14 +158,16 @@
         this.logItems = [];
         this.jsonata = query.expression(this.query, null, null, true, { log: this.log});
         this.jsonata.onError = (e) => this.error = e;
-        const result = JSON.stringify(this.jsonata.evaluate(this.manifest), null, 4);
-        this.logItems.push({
-          id: this.logItems.length,
-          moment: ((this.jsonata.trace?.end - this.jsonata.trace?.start || 0) * 0.001).toFixed(5),
-          tag: 'END',
-          value: result
+        this.jsonata.evaluate(this.manifest).then((data) => {
+          const result = JSON.stringify(data, null, 4);
+          this.logItems.push({
+            id: this.logItems.length,
+            moment: ((this.jsonata.trace?.end - this.jsonata.trace?.start || 0) * 0.001).toFixed(5),
+            tag: 'END',
+            value: result
+          });
+          this.selectedLog = this.logItems.length - 1;
         });
-        this.selectedLog = this.logItems.length - 1;
       }
     }
   };

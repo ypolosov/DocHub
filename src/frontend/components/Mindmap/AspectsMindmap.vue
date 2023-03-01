@@ -19,10 +19,10 @@
       return {
       };
     },
-    computed: {
-      uml() {
+    asyncComputed: {
+      async uml() {
         const asis = this.manifest;
-        const nodes = query.expression(query.archMindMapAspects(this.root)).evaluate(asis);
+        const nodes = await query.expression(query.archMindMapAspects(this.root)).evaluate(asis);
         let uml = '@startwbs\n* Аспекты\n';
 
         const appendNode = (before, current, title) => {
