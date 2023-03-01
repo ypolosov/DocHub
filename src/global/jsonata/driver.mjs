@@ -75,7 +75,7 @@ export default {
 			// Исполняет запрос
 			//  context - контекст исполнения запроса
 			//  def - если возникла ошибка, будет возращено это дефолтное значение
-			evaluate(context, def) {
+			async evaluate(context, def) {
 				try {
 					if (!this.core) {
 						this.core = jsonata(this.expression);

@@ -35,8 +35,9 @@ export default function(config) {
 					result = `${segments[0]}@${base.slice(0, base.length - 1).join('/')}${base.length > 1 ? '/' : ''}${uri}`;
 				}
 			} else {
-				const slices = baseURI.split('/');
-				result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri).url;
+				result = new URL(uri, baseURI);
+				// const slices = baseURI.toString().split('/');
+				// result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri).url;
 			}
 		}
 		return result.toString();
