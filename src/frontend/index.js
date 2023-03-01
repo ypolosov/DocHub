@@ -29,6 +29,7 @@ import Entity from '@front/components/Entities/Entity.vue';
 import DocHubObject from '@front/components/Docs/DocHubObject';
 import GlobalMixin from '@front/mixins/global';
 import gitlab from '@front/storage/gitlab';
+import AsyncComputed from 'vue-async-computed';
 
 import '@assets/styles/main.css';
 import '@front/plugins/api';
@@ -43,6 +44,7 @@ Vue.use(Vuex);
 Vue.use(Vuetify);
 Vue.use(VueCookie);
 Vue.use(VueSplit);
+Vue.use(AsyncComputed);
 
 Vue.prototype.$axios = Axios;
 Vuex.Store.prototype.$axios = Axios;

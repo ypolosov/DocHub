@@ -146,7 +146,21 @@
       return {};
     },
     asyncComputed: {
+      async components() {
+        return await query.expression(query.componentsForAspects(this.aspect)).evaluate(this.manifest) || [];
+      },
+      async defaultContext() {
+        const contextId = await query.expression(query.defaultContextForAspect(this.aspect)).evaluate(this.manifest);
 
+        return contextId ? this.contexts.find(i => i.id === contextId) : null;
+      },
+      async contexts() {
+        return await query.expression(query.contextsForAspects(this.aspect)).evaluate(this.manifest) || [];
+      },
+      async summary() {
+        return await query.expression(query.summaryForAspect(this.aspect)
+          .evaluate(this.manifest) || []);
+      }
     },
     computed: {
       isEmpty() {
@@ -171,21 +185,6 @@
           id: this.aspect,
           entity: 'aspect'
         });
-      },
-      components() {
-        return query.expression(query.componentsForAspects(this.aspect)).evaluate(this.manifest) || [];
-      },
-      defaultContext() {
-        const contextId = query.expression(query.defaultContextForAspect(this.aspect)).evaluate(this.manifest);
-
-        return contextId ? this.contexts.find(i => i.id === contextId) : null;
-      },
-      contexts() {
-        return query.expression(query.contextsForAspects(this.aspect)).evaluate(this.manifest) || [];
-      },
-      summary() {
-        return (query.expression(query.summaryForAspect(this.aspect))
-          .evaluate(this.manifest) || []);
       },
       // Генерируем данные о фиджетах
       widgets() {

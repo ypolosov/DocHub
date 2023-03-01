@@ -66,6 +66,41 @@
         }
       };
     },
+    asyncComputed: {
+      async treeMenu() {
+        const result = { items: {} };
+
+        const dataset = this.menuCache ? this.menuCache : await query.expression(query.menu()).evaluate(this.manifest) || [];
+        !this.menuCache && this.$nextTick(() => this.menuCache = dataset);
+
+        dataset.map((item) => {
+          if (!this.isInFilter(item.location)) return;
+          const location = item.location.split('/');
+          let node = result;
+          let key = null;
+          for(let i = 0; i < location.length; i++) {
+            key = location[i];
+            !node.items[key] && (node.items[key] = { title: key, items: {} });
+            node = node.items[key];
+          }
+          node.title = item.title;
+          node.route = item.route;
+          node.icon = item.icon;
+          if ((node.route === this.currentRoute.fullPath) || (node.route === this.currentRoute.path)) {
+            this.$nextTick(() => {
+              let subLocation = null;
+              location.map((item) => {
+                subLocation = subLocation ? `${subLocation}/${item}` : item;
+                if (!this.expands[subLocation])
+                  this.$set(this.expands, subLocation, true);
+              });
+            });
+          }
+        });
+
+        return result;
+      }
+    },
     computed: {
       // Выясняем сколько значимых отклонений зафиксировано
       // исключения не учитываем
@@ -105,42 +140,9 @@
             }
           }
         };
-        expand(this.treeMenu);
         
-        return result;
-      },
-
-      treeMenu() {
-        const result = { items: {} };
-
-        const dataset = this.menuCache ? this.menuCache : query.expression(query.menu()).evaluate(this.manifest) || [];
-        !this.menuCache && this.$nextTick(() => this.menuCache = dataset);
-
-        dataset.map((item) => {
-          if (!this.isInFilter(item.location)) return;
-          const location = item.location.split('/');
-          let node = result;
-          let key = null;
-          for(let i = 0; i < location.length; i++) {
-            key = location[i];
-            !node.items[key] && (node.items[key] = { title: key, items: {} });
-            node = node.items[key];
-          }
-          node.title = item.title;
-          node.route = item.route;
-          node.icon = item.icon;
-          if ((node.route === this.currentRoute.fullPath) || (node.route === this.currentRoute.path)) {
-            this.$nextTick(() => {
-              let subLocation = null;
-              location.map((item) => {
-                subLocation = subLocation ? `${subLocation}/${item}` : item;
-                if (!this.expands[subLocation])
-                  this.$set(this.expands, subLocation, true);
-              });
-            });
-          }
-        });
-
+        this.treeMenu && expand(this.treeMenu);
+        
         return result;
       }
     },

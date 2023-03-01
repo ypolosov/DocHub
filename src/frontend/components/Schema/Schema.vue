@@ -7,9 +7,6 @@
 </template>
 
 <script>
-  import Vue from 'vue';
-  import AsyncComputed from 'vue-async-computed';
-
   import PlantUMLDSL from '!!raw-loader!@assets/plantuml_dsl.txt';
   import C4ModelDSL from '!!raw-loader!@assets/c4model_dsl.txt';
   import SberDSL from '!!raw-loader!@assets/sber_dsl.txt';
@@ -18,8 +15,6 @@
   import copyToClipboard from '@front/helpers/clipboard';
 
   import PlantUML from './PlantUML';
-
-  Vue.use(AsyncComputed);
 
   export default {
     name: 'Schema',

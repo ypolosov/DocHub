@@ -4,7 +4,7 @@ const QUERY_ID_USER_MENU = 'f3ee63af-bcd6-49bb-bc2a-a9849772e602';
 // Предопределенные запросы
 const queries = {
     // Строит пользовательское меню
-    'f3ee63af-bcd6-49bb-bc2a-a9849772e602': `
+    [QUERY_ID_USER_MENU]: `
     (
         $isURL := $matcher := /^[a-zA-Z]*\\:.*$/i;
         $isRoot := $matcher := /^\\/.*$/i;
@@ -109,7 +109,11 @@ const queries = {
 };
 
 export default {
-    // Строит пользовательское меню
-    USER_MENU: queries[QUERY_ID_USER_MENU]
+    // Идентификаторы предопределенных запросов
+    IDS: {
+        USER_MENU: QUERY_ID_USER_MENU
+    },
+    // Предопределенные запросы
+    QUERIES: queries
 };
 

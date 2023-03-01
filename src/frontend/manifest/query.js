@@ -1,5 +1,7 @@
 import jsonataDriver from '@global/jsonata/driver.mjs';
 import queries from '@global/jsonata/queries.mjs';
+import env from '@front/helpers/env';
+import requests from '@front/helpers/requests';
 
 const SCHEMA_CONTEXT = `
 (
@@ -541,10 +543,23 @@ const JSONSCEMA_ENTITIES_QUERY = `
 )
 `;
 
-export default Object.assign(jsonataDriver, {
+export default {
+    driver: jsonataDriver,
+    expression(expression, self_, params, isTrace, funcs) {
+        if (env.isBackendMode() && expression.startsWith('backend://')) {
+            return {
+                // eslint-disable-next-line no-unused-vars
+                async evaluate(context, def) {
+                    const result = await requests.request(expression);
+                    return result.data;
+                }
+            };
+        } else 
+            return this.driver.expression(expression, self_, params, isTrace, funcs);
+    },
 	// Меню
 	menu() {
-		return queries.USER_MENU;
+		return env.isBackendMode() ? `backend://query-preset/${queries.IDS.USER_MENU}` : queries.QUERIES[queries.IDS.USER_MENU];
 	},
 	// Запрос по контексту
 	context(context) {
@@ -622,4 +637,4 @@ export default Object.assign(jsonataDriver, {
 	entitiesJSONChema() {
 		return JSONSCEMA_ENTITIES_QUERY;
 	}
-});
+};
