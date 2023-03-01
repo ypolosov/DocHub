@@ -1,11 +1,17 @@
 const WebpackPwaManifest = require('webpack-pwa-manifest');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('@effortlessmotion/html-webpack-inline-source-plugin');
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const pluginsConf = require('./plugins.json');
 const PluginMaker = require('./src/building/plugin-maker');
+const path = require('path');
 
 const plugins = [];
-const entries = {};
+const entries = {
+	app: './src/frontend/main.js'
+};
+
+!process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE && (process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE = '@assets/libs/smartants');
 
 // Собираем встраиваемые плагины
 //if (process.env.VUE_APP_DOCHUB_MODE === 'production') {
@@ -34,7 +40,7 @@ plugins.push(new PluginMaker());
 if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 	plugins.push(new HtmlWebpackPlugin({
 		filename: 'plugin.html',
-		template: 'src/plugin.html',
+		template: 'src/ide/plugin.html',
 		inlineSource: '.(woff(2)?|ttf|eot|svg|js|css)$',
 		inject: true
 		/* ,
@@ -49,6 +55,8 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 		} */
 	}));
 	plugins.push(new HtmlWebpackInlineSourcePlugin());
+} else {
+	// plugins.push(new BundleAnalyzerPlugin());
 }
 
 // Дефолтная конфигурация dev-сервера
@@ -56,13 +64,22 @@ let config = {
 	runtimeCompiler: true,
 	devServer: {
 		/*
-        allowedHosts: [
-            'localhost'
-        ],
-        */
+		allowedHosts: [
+			'localhost'
+		],
+		*/
 	},
 	transpileDependencies: ['vueitfy'],
 	configureWebpack: {
+		cache: (process.env.VUE_APP_DOCHUB_BUILDING_CACHE || 'memory').toLowerCase() === 'filesystem'
+			? {
+				type: 'filesystem',
+				compression: 'gzip',
+				allowCollectingMemory: true
+			}
+			: {
+				type: 'memory'
+			},
 		experiments: {
 			outputModule: true
 		},
@@ -70,20 +87,10 @@ let config = {
 			splitChunks: false,
 			runtimeChunk: 'single'
 		},
-		entry: {...entries},
+		entry: { ...entries },
 		plugins,
 		module: {
 			rules: [
-				/*
-				{
-					test: /\/libs\/.*\.js$/,
-					use: {
-                        options: {
-                            compact: false
-                        }
-                    }					
-				},
-				*/
 				{
 					test: /\.mjs$/,
 					include: /node_modules/,
@@ -92,37 +99,47 @@ let config = {
 				{
 					test: /\.tsx?$/,
 					use: [
-							{
-								loader: 'ts-loader',
-									options: {
-										compilerOptions: {
-										noEmit: false
-										}
-									}
+						{
+							loader: 'ts-loader',
+							options: {
+								compilerOptions: {
+									noEmit: false
+								}
 							}
-						]
+						}
+					]
 				}
 			]
 		},
-    output: {
-      filename: '[name].js'
-    },
-    resolve: {
-      extensions: ['.ts', '.js']
-    }
+		output: {
+			filename: '[name].js'
+		},
+		resolve: {
+			alias: {
+				'@front': path.resolve(__dirname, './src/frontend'),
+				'@assets': path.resolve(__dirname, './src/assets'),
+				'@back': path.resolve(__dirname, './src/backend'),
+				'@idea': path.resolve(__dirname, './src/ide/idea'),
+				'@vscode': path.resolve(__dirname, './src/ide/vscode'),
+				'@ide': path.resolve(__dirname, './src/ide'),
+				'@global': path.resolve(__dirname, './src/global'),
+				'@': path.resolve(__dirname, './')
+			},
+			extensions: ['.ts', '.js']
+		}
 	}
 };
 
 // Подключает сертификаты, если они обнаружены
 /*
 if(fs.lstatSync(__dirname + '/certs').isDirectory()) {
-    config.devServer = {
-        http2: true,
-        https: {
-            key: fs.readFileSync(__dirname + '/certs/server.key'),
-            cert: fs.readFileSync(__dirname + '/certs/server.cert')
-        }
-    }
+	config.devServer = {
+		http2: true,
+		https: {
+			key: fs.readFileSync(__dirname + '/certs/server.key'),
+			cert: fs.readFileSync(__dirname + '/certs/server.cert')
+		}
+	}
 }
 */
 module.exports = config;

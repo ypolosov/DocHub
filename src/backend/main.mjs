@@ -5,6 +5,7 @@ import express from 'express';
 import middlewareCompression from './middlewares/compression.mjs';
 import controllerStatic from './controllers/static.mjs';
 import controllerCore from './controllers/core.mjs';
+import controllerStorage from './controllers/storage.mjs';
 import middlewareAccess from './middlewares/access.mjs';
 
 const LOG_TAG = 'server';
@@ -25,17 +26,25 @@ middlewareCompression(app);
 // API ядра
 controllerCore(app);
 
+// Контроллер доступа к файлам в хранилище
+controllerStorage(app);
+
 // Статические ресурсы
 controllerStatic(app);
 
 // Основной цикл приложения
 const mainLoop = async function() {
     // Загружаем манифест
-    app.storage = await storeManager.reloadManifest();
-
     app.listen(serverPort, function(){
         logger.log(`DocHub server running on ${serverPort}`, LOG_TAG);
     });
+
+    storeManager.reloadManifest()
+        .then((storage) =>{
+            app.storage = storage;  // Инициализируем данные хранилища
+            app.cache = {};         // Инициализируем / очищаем кэш
+        });
+
 };
 
 mainLoop();
