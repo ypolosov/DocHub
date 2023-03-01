@@ -1,5 +1,6 @@
 import logger from '../utils/logger.mjs';
-import jsonata from '../../global/jsonata/driver.mjs';
+import datasets from '../helpers/datasets.mjs';
+import cache from '../storage/cache.mjs';
 
 const LOG_TAG = 'controller-core';
 
@@ -11,18 +12,11 @@ export default (app) => {
             res.json({});
             return;
         }
-        const request = req.query.request; 
+        const request = decodeURIComponent(req.query.request); 
         logger.log(`Received JSONata request (${request})`, LOG_TAG);
-        const expression = jsonata.expression(req.query.request);
-        try {
-            res.json(expression.evaluate(app.storage.manifest));
-        } catch (e) {
-            res.status(500);
-            res.json({
-                message: e.message,
-                error: e
-            });
-        }
+        cache.pullFromCache(request, async()=> {    
+            return await datasets(app).getData(app.storage.manifest, { source: request });
+        }, res);
     });
     app.get('/core/manifest/state', function(req, res) {
         if (!app.storage) {
