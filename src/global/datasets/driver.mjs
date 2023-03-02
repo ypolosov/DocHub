@@ -19,11 +19,11 @@ export default {
 		throw 'request driver is not implemented in the dataset module :(';
 	},
 	// Парсит поле данных в любом объекте
-	//  context - Контекст данных для выполнения запросов
-	//  data - данные требующие парсинга
-	//	subject - объект - владелец
-	//  params - параметры передающиеся в запрос
-	//  baseURI	- URI от которого будут строиться относительные пути
+	//  context 	- Контекст данных для выполнения запросов
+	//  data 		- данные требующие парсинга (запрос / структура / идентификатор dataset)
+	//	subject 	- объект - владелец
+	//  params 		- параметры передающиеся в запрос
+	//  baseURI		- URI от которого будут строиться относительные пути
 	parseSource(context, data, subject, params, baseURI) {
 		return new Promise((resolve, reject) => {
 			// Константные данные
@@ -59,7 +59,7 @@ export default {
 					// Ссылка на файл с запросом
 				} else {
 					const dataSet = this.dsResolver(data);
-					if (dataSet.subject) {
+					if (dataSet && dataSet.subject) {
 						this.getData(context, dataSet.subject, params, dataSet.baseURI)
 							.then((data) => resolve(data))
 							.catch(reject);

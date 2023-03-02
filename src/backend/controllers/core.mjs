@@ -5,6 +5,28 @@ import cache from '../storage/cache.mjs';
 const LOG_TAG = 'controller-core';
 
 export default (app) => {
+    app.get('/core/storage/jsonata/:query', function(req, res) {
+        if (!app.storage) {
+            res.status(503);
+            res.json({});
+            return;
+        }
+
+        const request = {
+            query: decodeURIComponent(req.params.query),
+            params: req.query.params ? JSON.parse(decodeURIComponent(req.query.params)) : undefined,
+            subject: req.query.subject ? JSON.parse(decodeURIComponent(req.query.subject)) : undefined
+        };
+
+        cache.pullFromCache(JSON.stringify(request), async()=> {    
+            return await datasets(app).parseSource(
+                app.storage.manifest,
+                request.query,
+                request.subject,
+                request.params
+            );
+        }, res);
+    });
     // Выполняет JSONata запрос
     app.get('/core/jsonata/query', function(req, res) {
         if (!app.storage) {

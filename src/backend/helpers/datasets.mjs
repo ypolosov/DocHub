@@ -7,11 +7,12 @@ export default function(app) {
 		{
 			// Дефолтный метод получения объекта данных
 			dsResolver(datasetID) {
-				return {
+				const origin  = (app.storage.manifest.datasets || {})[datasetID];
+				return origin ? {
 					// Обогащаем профиль информацией об идентификаторе
-					subject: Object.assign({ _id: datasetID }, (app.storage.manifest.datasets || {})[datasetID]),
-					baseURI: app.storage.mergeMap[`/datasets/${datasetID}`][0]
-				};
+					subject: Object.assign({ _id: datasetID }, origin),
+					baseURI: (app.storage.mergeMap[`/datasets/${datasetID}`] || []) [0]
+				} : null;
 			},
 			// Драйвер запросов к ресурсам
 			request,

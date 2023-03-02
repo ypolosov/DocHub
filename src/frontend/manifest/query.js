@@ -2,6 +2,7 @@ import jsonataDriver from '@global/jsonata/driver.mjs';
 import queries from '@global/jsonata/queries.mjs';
 import env from '@front/helpers/env';
 import requests from '@front/helpers/requests';
+import { MANIFEST_MODES } from '@front/manifest/enums/manifest-modes.enum';
 
 const SCHEMA_CONTEXT = `
 (
@@ -546,95 +547,110 @@ const JSONSCEMA_ENTITIES_QUERY = `
 export default {
     driver: jsonataDriver,
     expression(expression, self_, params, isTrace, funcs) {
-        if (env.isBackendMode() && expression.startsWith('backend://')) {
-            return {
-                // eslint-disable-next-line no-unused-vars
-                async evaluate(context, def) {
-                    const result = await requests.request(expression);
-                    return result.data;
+        return {
+            driver: this.driver,
+            expOrigin: null,
+            // eslint-disable-next-line no-unused-vars
+            async evaluate(context, def) {
+                let result = null;
+                try {
+                    if (!context && env.isBackendMode()) {
+                        let url = `backend://jsonata/${encodeURIComponent(expression)}`;
+                        params && (url += `&params=${encodeURIComponent(JSON.stringify(params))}`);
+                        self_ && (url += `&subject=${encodeURIComponent(JSON.stringify(self_))}`);
+                        result = (await requests.request(url)).data;
+                    } else if (expression.startsWith('backend://')) {
+                        result = (await requests.request(expression)).data;
+                    } else {
+                        !this.expOrigin && (this.expOrigin = this.driver.expression(expression, self_, params, isTrace, funcs));
+                        result = await this.expOrigin.evaluate(context || window.Vuex.state.manifest[MANIFEST_MODES.AS_IS] || {});
+                    }
+                } catch (e) {
+                    // eslint-disable-next-line no-console
+                    console.error(e);
                 }
-            };
-        } else 
-            return this.driver.expression(expression, self_, params, isTrace, funcs);
+                return result || def;
+            }
+        };
     },
-	// Меню
-	menu() {
-		return env.isBackendMode() ? `backend://query-preset/${queries.IDS.USER_MENU}` : queries.QUERIES[queries.IDS.USER_MENU];
-	},
-	// Запрос по контексту
-	context(context) {
-		return SCHEMA_CONTEXT.replace(/{%CONTEXT_ID%}/g, context);
-	},
-	// Запрос по компоненту
-	component(component) {
-		return SCHEMA_COMPONENT.replace(/{%COMPONENT_ID%}/g, component);
-	},
-	// Запрос контекстов в которых встречается компонент
-	contextsForComponent(component) {
-		return CONTEXTS_QUERY_FOR_COMPONENT.replace(/{%COMPONENT%}/g, component);
-	},
-	// Сводка по компоненту
-	summaryForComponent(component) {
-		return SUMMARY_COMPONENT_QUERY.replace(/{%COMPONENT%}/g, component);
-	},
-	// Виджеты компонентов
-	widgetsForComponent() {
-		return WIDGETS_COMPONENT_QUERY;
-	},
-	// Определение размещения манифестов описывающих компонент
-	locationsForComponent(component) {
-		return COMPONENT_LOCATIONS_QUERY.replace(/{%COMPONENT%}/g, component);
-	},
-	// Запрос по аспекту
-	aspect(aspect, context) {
-		return SCHEMA_QUERY
-			.replace(/{%CONTEXT_ID%}/g, context || 'self')
-			.replace(/{%CONDITIONS%}/g, `'${aspect}' in aspects.id`);
-	},
-	// Сводка по аспекту
-	summaryForAspect(aspect) {
-		return SUMMARY_ASPECT_QUERY.replace(/{%ASPECT%}/g, aspect);
-	},
-	widgetsForAspect() {
-		return WIDGETS_ASPECT_QUERY;
-	},
-	defaultContextForAspect(aspect) {
-		return ASPECT_DEFAULT_CONTEXT.replace(/{%ASPECT%}/g, aspect);
-	},
-	// Определение размещения манифестов описывающих аспект
-	locationsForAspect(aspect) {
-		return ASPECT_LOCATIONS_QUERY.replace(/{%ASPECT%}/g, aspect);
-	},
-	// Запрос контекстов в которых встречается аспект
-	contextsForAspects(aspect) {
-		return CONTEXTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect);
-	},
-	// Запрос компонентов в которых встречается аспект
-	componentsForAspects(aspect) {
-		return COMPONENTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect);
-	},
-	// Сбор информации об использованных технологиях
-	collectTechnologies() {
-		return TECHNOLOGIES_QUERY;
-	},
-	// Карточка технологии
-	summaryForTechnology(technology) {
-		return TECHNOLOGY_QUERY.replace(/{%TECH_ID%}/g, technology);
-	},
-	// Документы для сущности
-	docsForSubject(entity) {
-		return DOCUMENTS_FOR_ENTITY_QUERY.replace(/{%ENTITY%}/g, entity);
-	},
-	// MindMap по архитектурным компонентам
-	archMindMapComponents(root) {
-		return ARCH_MINDMAP_COMPONENTS_QUERY.replace(/{%ROOT%}/g, root || '');
-	},
-	// MindMap по архитектурным аспектам
-	archMindMapAspects(root) {
-		return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
-	},
-	// Сводная JSONSchema по всем кастомным сущностям
-	entitiesJSONChema() {
-		return JSONSCEMA_ENTITIES_QUERY;
-	}
+    // Меню
+    menu() {
+        return env.isBackendMode() ? `backend://query-preset/${queries.IDS.USER_MENU}` : queries.QUERIES[queries.IDS.USER_MENU];
+    },
+    // Запрос по контексту
+    context(context) {
+        return SCHEMA_CONTEXT.replace(/{%CONTEXT_ID%}/g, context);
+    },
+    // Запрос по компоненту
+    component(component) {
+        return SCHEMA_COMPONENT.replace(/{%COMPONENT_ID%}/g, component);
+    },
+    // Запрос контекстов в которых встречается компонент
+    contextsForComponent(component) {
+        return CONTEXTS_QUERY_FOR_COMPONENT.replace(/{%COMPONENT%}/g, component);
+    },
+    // Сводка по компоненту
+    summaryForComponent(component) {
+        return SUMMARY_COMPONENT_QUERY.replace(/{%COMPONENT%}/g, component);
+    },
+    // Виджеты компонентов
+    widgetsForComponent() {
+        return WIDGETS_COMPONENT_QUERY;
+    },
+    // Определение размещения манифестов описывающих компонент
+    locationsForComponent(component) {
+        return COMPONENT_LOCATIONS_QUERY.replace(/{%COMPONENT%}/g, component);
+    },
+    // Запрос по аспекту
+    aspect(aspect, context) {
+        return SCHEMA_QUERY
+            .replace(/{%CONTEXT_ID%}/g, context || 'self')
+            .replace(/{%CONDITIONS%}/g, `'${aspect}' in aspects.id`);
+    },
+    // Сводка по аспекту
+    summaryForAspect(aspect) {
+        return SUMMARY_ASPECT_QUERY.replace(/{%ASPECT%}/g, aspect);
+    },
+    widgetsForAspect() {
+        return WIDGETS_ASPECT_QUERY;
+    },
+    defaultContextForAspect(aspect) {
+        return ASPECT_DEFAULT_CONTEXT.replace(/{%ASPECT%}/g, aspect);
+    },
+    // Определение размещения манифестов описывающих аспект
+    locationsForAspect(aspect) {
+        return ASPECT_LOCATIONS_QUERY.replace(/{%ASPECT%}/g, aspect);
+    },
+    // Запрос контекстов в которых встречается аспект
+    contextsForAspects(aspect) {
+        return CONTEXTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect);
+    },
+    // Запрос компонентов в которых встречается аспект
+    componentsForAspects(aspect) {
+        return COMPONENTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect);
+    },
+    // Сбор информации об использованных технологиях
+    collectTechnologies() {
+        return TECHNOLOGIES_QUERY;
+    },
+    // Карточка технологии
+    summaryForTechnology(technology) {
+        return TECHNOLOGY_QUERY.replace(/{%TECH_ID%}/g, technology);
+    },
+    // Документы для сущности
+    docsForSubject(entity) {
+        return DOCUMENTS_FOR_ENTITY_QUERY.replace(/{%ENTITY%}/g, entity);
+    },
+    // MindMap по архитектурным компонентам
+    archMindMapComponents(root) {
+        return ARCH_MINDMAP_COMPONENTS_QUERY.replace(/{%ROOT%}/g, root || '');
+    },
+    // MindMap по архитектурным аспектам
+    archMindMapAspects(root) {
+        return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
+    },
+    // Сводная JSONSchema по всем кастомным сущностям
+    entitiesJSONChema() {
+        return JSONSCEMA_ENTITIES_QUERY;
+    }
 };

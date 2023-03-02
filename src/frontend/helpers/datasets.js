@@ -16,8 +16,16 @@ export default function() {
 				};
 			},
 			// Драйвер запросов к ресурсам
-			request: requests.request,
+			request(url, baseURI) {
+				return requests.request(url, baseURI);
+			},
 			// Драйвер запросов JSONata
-			jsonataDriver: query
+			jsonataDriver: query,
+			// Переопределяем метод получения данных для работы с бэком
+			getDataOriginal: datasetDriver.getData,
+			getData(context, subject, params, baseURI) {
+				// Пока ничего не делаем
+				return this.getDataOriginal(context, subject, params, baseURI);
+			}
 		});
 }
