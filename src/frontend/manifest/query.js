@@ -8,8 +8,8 @@ import { MANIFEST_MODES } from '@front/manifest/enums/manifest-modes.enum';
 function resolveJSONataRequest(ID, params) {
     let result = null;
     if (env.isBackendMode()) {
-        result = `backend://query-preset/${ID}`;
-        params && (result = `${result}?params=${encodeURIComponent(JSON.stringify(params))}`);
+        result = `backend://jsonata/${encodeURIComponent(ID)}`;
+        params && (result += `?params=${encodeURIComponent(JSON.stringify(params))}`);
     } else {
         result = queries.makeQuery(queries.QUERIES[ID], params);
     }
@@ -22,7 +22,6 @@ export default {
         return {
             driver: this.driver,
             expOrigin: null,
-            // eslint-disable-next-line no-unused-vars
             async evaluate(context, def) {
                 let result = null;
                 try {
@@ -30,8 +29,8 @@ export default {
                         result = (await requests.request(expression)).data;
                     } else if (!context && env.isBackendMode()) {
                         let url = `backend://jsonata/${encodeURIComponent(expression)}`;
-                        params && (url += `&params=${encodeURIComponent(JSON.stringify(params))}`);
-                        self_ && (url += `&subject=${encodeURIComponent(JSON.stringify(self_))}`);
+                        url += `?params=${encodeURIComponent(JSON.stringify(params || null))}`;
+                        url += `&subject=${encodeURIComponent(JSON.stringify(self_ || null))}`;
                         result = (await requests.request(url)).data;
                     } else {
                         !this.expOrigin && (this.expOrigin = this.driver.expression(expression, self_, params, isTrace, funcs));

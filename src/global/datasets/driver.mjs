@@ -35,7 +35,7 @@ export default {
 					const exp = this.jsonataDriver.expression(data, subject, params);
 					exp.onError = reject;
 					exp.evaluate(context)
-						.then((data) => resolve(data))
+						.then((result) => resolve(result))
 						.catch(reject);
 					// Ссылка на файл с данными
 				} else if (data.slice(-8) === '.jsonata') {
@@ -45,7 +45,7 @@ export default {
 							: JSON.stringify(response.data), params);
 						exp.onError = reject;
 						exp.evaluate(context)
-							.then((data) => resolve(data))
+							.then((result) => resolve(result))
 							.catch(reject);
 					}).catch(reject);
 					// Идентификатор источника данных
@@ -53,7 +53,7 @@ export default {
 					this.request(data, baseURI)
 						.then((response) => {
 							this.parseSource(context, response.data)
-								.then((data) => resolve(data))
+								.then((result) => resolve(result))
 								.catch((e) => reject(e));
 						}).catch(reject);
 					// Ссылка на файл с запросом

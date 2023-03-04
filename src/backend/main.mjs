@@ -42,7 +42,6 @@ const mainLoop = async function() {
     storeManager.reloadManifest()
         .then((storage) =>{
             app.storage = storage;  // Инициализируем данные хранилища
-            app.cache = {};         // Инициализируем / очищаем кэш
         });
 
 };
