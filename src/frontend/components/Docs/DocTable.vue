@@ -71,10 +71,10 @@
     },
     computed: {
       headers() {
-        return this.profile.headers || [];
+        return this.profile?.headers || [];
       },
       perPage() {
-        return this.profile['per-page'];
+        return (this.profile || {})['per-page'];
       },
       isTemplate() {
         return true;

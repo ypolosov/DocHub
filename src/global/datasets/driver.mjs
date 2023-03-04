@@ -1,9 +1,15 @@
 export default {
-	// Метод получения объекта данных 
-	// Должен быть реализован
+	// Метод получения объекта данных по пути в структуре
+	// Путь имеет вид "/foo/foo/0/foo"
+	// Возвращает структуру:
+	//	{
+	//		context - данные, по которым необходимо выполнять запросы
+	//		subject - объект данных
+	//		baseURI	- URI расположения исходников кода для разрешения относительных путей
+	//  }
 	// eslint-disable-next-line no-unused-vars
-	dsResolver(datasetID) {
-		throw 'dsResolver is not implemented in the dataset module :(';
+	async pathResolver(path) {
+		throw 'pathResolver is not released for backend yet :(';
 	},
 
 	// Драйвер доступа к данным через JSONata
@@ -58,7 +64,8 @@ export default {
 						}).catch(reject);
 					// Ссылка на файл с запросом
 				} else {
-					const dataSet = this.dsResolver(data);
+					// const dataSet = this.dsResolver(data);
+					const dataSet = this.pathResolver(`/datasets/${data}`);
 					if (dataSet && dataSet.subject) {
 						this.getData(context, dataSet.subject, params, dataSet.baseURI)
 							.then((data) => resolve(data))
@@ -101,6 +108,22 @@ export default {
 				} else exec(context);
 			} else resolve(null); // Нет данных
 		});
+	},
+
+	// [path] = {
+	//		origin - Необязательно. Ссылка на оригинальный DataSet / JSONata запрос / Ссылка на файл данных / константная структура
+	//		source - идентификатор DataSet / JSONata запрос / Ссылка на файл данных / константная структура
+	// }
+	// Сам объект передается в запрос в переменной $self
+	// $self._id автоматически генерируемое поле содержащее последний сегмент path
+	async releaseData(path, params) {
+		const meta = await this.pathResolver(path);
+		if (!meta) throw `Error of access to object via path [${path}]`;
+
+		const subject = Object.assign( {_id: path.split('/').pop()}, meta.subject || {});
+		const baseURI = meta.baseURI || '/';
+
+		return await this.getData(meta.context, subject, params, baseURI);
 	}
 };
 
