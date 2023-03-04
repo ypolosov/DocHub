@@ -149,11 +149,11 @@
           title: 'SELF',
           type: 'component'
         }].concat(await query.expression(query.contextsForComponent(this.component))
-          .evaluate(this.manifest) || []);
+          .evaluate() || []);
       },
       async summary() {
         return await query.expression(query.summaryForComponent(this.component))
-          .evaluate(this.manifest) || [];
+          .evaluate() || [];
       },
       // Генерируем данные о фиджетах
       async widgets() {
@@ -162,7 +162,7 @@
           right: [],  // Виджеты с прижатием направо
           fill: []    // Виджеты во всю ширину
         };
-        const widgets = await query.expression(query.widgetsForComponent()).evaluate(this.manifest) || {};
+        const widgets = await query.expression(query.widgetsForComponent()).evaluate() || {};
         for (const id in widgets) {
           let wiget = widgets[id];
           wiget.id = `${this.component}-${wiget.id}`;

@@ -48,11 +48,7 @@
             node = item.items;
           });
         };
-        const docs = await query.expression(query.docsForSubject(this.subject)).evaluate(this.manifest) || [];
-        /*
-          (jsonata(query.docsForSubject(this.subject))
-            .evaluate(this.manifest) || []);
-        */
+        const docs = await query.expression(query.docsForSubject(this.subject)).evaluate() || [];
         docs.map((item) => expandItem(item));
         return result;
       }    

@@ -554,13 +554,13 @@ export default {
             async evaluate(context, def) {
                 let result = null;
                 try {
-                    if (!context && env.isBackendMode()) {
+                    if (expression.startsWith('backend://')) {
+                        result = (await requests.request(expression)).data;
+                    } else if (!context && env.isBackendMode()) {
                         let url = `backend://jsonata/${encodeURIComponent(expression)}`;
                         params && (url += `&params=${encodeURIComponent(JSON.stringify(params))}`);
                         self_ && (url += `&subject=${encodeURIComponent(JSON.stringify(self_))}`);
                         result = (await requests.request(url)).data;
-                    } else if (expression.startsWith('backend://')) {
-                        result = (await requests.request(expression)).data;
                     } else {
                         !this.expOrigin && (this.expOrigin = this.driver.expression(expression, self_, params, isTrace, funcs));
                         result = await this.expOrigin.evaluate(context || window.Vuex.state.manifest[MANIFEST_MODES.AS_IS] || {});

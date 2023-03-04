@@ -29,9 +29,9 @@
     },
     asyncComputed: {
       async uml() {
+        //todo Здесь нужно рефачить запросы, чтобы в бэк ходили
         const asis = this.manifest;
-        const nodes = await query.expression(query.archMindMapComponents(this.root)).evaluate(asis) || [];
-        // const nodes = jsonata(query.archMindMapComponents(this.root)).evaluate(asis);
+        const nodes = await query.expression(query.archMindMapComponents(this.root)).evaluate() || [];
         const namespaces = asis.namespaces || {};
         const contexts = asis.contexts || {};
         const components = asis.components || {};

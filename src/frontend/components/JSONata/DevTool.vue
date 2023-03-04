@@ -158,7 +158,7 @@
         this.logItems = [];
         this.jsonata = query.expression(this.query, null, null, true, { log: this.log});
         this.jsonata.onError = (e) => this.error = e;
-        this.jsonata.evaluate(this.manifest).then((data) => {
+        this.jsonata.evaluate().then((data) => {
           const result = JSON.stringify(data, null, 4);
           this.logItems.push({
             id: this.logItems.length,

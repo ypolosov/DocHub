@@ -22,7 +22,9 @@ function loadBaseMatamodel() {
     return yaml.parse(content);
 }
 
+// Кэш в памяти
 const memoryCache = {};
+
 
 export default Object.assign(prototype, {
     // Выполняет resolve URL 
@@ -40,16 +42,20 @@ export default Object.assign(prototype, {
                 case 'none': result = resolve && await resolve() || undefined; break;
                 case 'memory': result = memoryCache[md5(key)] || (resolve && (memoryCache[md5(key)] = await resolve())); break;
                 default: {
-                    fileName = path.resolve(__dirname, '../../../', cacheMode, `${md5(key)}.json`);
-                    !fs.existsSync(fileName) && fs.writeFileSync(fileName, JSON.stringify(await resolve()), 'utf-8');
+                    const hash = md5(key);
+                    fileName = path.resolve(__dirname, '../../../', cacheMode, `${hash}.cache`);
+                    if (!fs.existsSync(fileName)) {
+                        result = JSON.stringify(await resolve() || null);
+                        fs.writeFileSync(fileName, result, { encoding: 'utf8' });
+                    }
                 }
             }
 
             if (res) {
-                if (fileName) res.sendFile(fileName);
+                if (fileName) setTimeout(() => res.sendFile(fileName), 10);
                 else res.status(200).json(result);
             } else if (fileName) {
-                result = JSON.parse(fs.readFileSync(fileName, 'utf-8'));
+                result = JSON.parse(fs.readFileSync(fileName, { encoding: 'utf8' }));
             }
 
             return res ? true : result;

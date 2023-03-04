@@ -64,7 +64,7 @@
             query.context(this.context.id)
         );
 
-        return await expression.evaluate(this.manifest);
+        return await expression.evaluate();
       }
     },
     computed: {

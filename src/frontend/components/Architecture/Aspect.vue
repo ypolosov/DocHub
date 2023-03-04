@@ -147,18 +147,18 @@
     },
     asyncComputed: {
       async components() {
-        return await query.expression(query.componentsForAspects(this.aspect)).evaluate(this.manifest) || [];
+        return await query.expression(query.componentsForAspects(this.aspect)).evaluate() || [];
       },
       async defaultContext() {
-        const contextId = await query.expression(query.defaultContextForAspect(this.aspect)).evaluate(this.manifest);
+        const contextId = await query.expression(query.defaultContextForAspect(this.aspect)).evaluate();
 
         return contextId ? this.contexts.find(i => i.id === contextId) : null;
       },
       async contexts() {
-        return await query.expression(query.contextsForAspects(this.aspect)).evaluate(this.manifest) || [];
+        return await query.expression(query.contextsForAspects(this.aspect)).evaluate() || [];
       },
       async summary() {
-        return await query.expression(query.summaryForAspect(this.aspect)).evaluate(this.manifest) || [];
+        return await query.expression(query.summaryForAspect(this.aspect)).evaluate() || [];
       },
       // Генерируем данные о фиджетах
       async widgets() {
