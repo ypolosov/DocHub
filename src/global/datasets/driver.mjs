@@ -8,7 +8,7 @@ export default {
 	//		baseURI	- URI расположения исходников кода для разрешения относительных путей
 	//  }
 	// eslint-disable-next-line no-unused-vars
-	async pathResolver(path) {
+	pathResolver(path) {
 		throw 'pathResolver is not released for backend yet :(';
 	},
 
@@ -64,7 +64,6 @@ export default {
 						}).catch(reject);
 					// Ссылка на файл с запросом
 				} else {
-					// const dataSet = this.dsResolver(data);
 					const dataSet = this.pathResolver(`/datasets/${data}`);
 					if (dataSet && dataSet.subject) {
 						this.getData(context, dataSet.subject, params, dataSet.baseURI)

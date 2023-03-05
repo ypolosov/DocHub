@@ -52,8 +52,9 @@ export default Object.assign(prototype, {
             }
 
             if (res) {
-                if (fileName) setTimeout(() => res.sendFile(fileName), 10);
-                else res.status(200).json(result);
+                if (fileName) {
+                    res.setHeader('Content-Type', 'application/json').sendFile(fileName);
+                } else res.status(200).json(result);
             } else if (fileName) {
                 result = JSON.parse(fs.readFileSync(fileName, { encoding: 'utf8' }));
             }

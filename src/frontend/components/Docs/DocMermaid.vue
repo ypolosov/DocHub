@@ -38,7 +38,7 @@
     methods: {
       refresh() {
         // Получаем шаблон документа
-        setTimeout(() => {
+        this.sourceRefresh().then(() => {
           requests.request(this.url).then(({ data }) => {
             let source = this.isTemplate
               ? mustache.render(data, this.source.dataset)
@@ -55,8 +55,7 @@
             };
             mermaid.renderAsync('buffer', source, cb);
           }).catch((e) => this.error = e);
-        }, 50);
-        this.sourceRefresh();
+        });
       }
     }
   };

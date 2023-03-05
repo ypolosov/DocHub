@@ -2,6 +2,8 @@ import datasets from '@front/helpers/datasets';
 import gateway from '@idea/gateway';
 import docs from '@front/helpers/docs';
 import query from '@front/manifest/query';
+import env from '@front/helpers/env';
+import md5 from 'md5';
 
 const SOURCE_PENGING = 'pending';
 const SOURCE_READY = 'ready';
@@ -47,19 +49,26 @@ export default {
 			this.sourceRefresh();
 		},
 		sourceRefresh() {
-			this.source.status = SOURCE_PENGING;
-			this.source.dataset = null;
-			if (this.isTemplate && this.profile?.source) {
-				this.source.provider.releaseData(this.path, this.params)
-					.then((dataset) => {
-						this.source.dataset = dataset;
-						this.source.status = SOURCE_READY;
-					})
-					.catch((e) => {
-						this.error = e;
-						this.source.status = SOURCE_ERROR;
-					});
-			} else this.source.dataset = {};
+			return new Promise((success, reject) => {
+				this.source.status = SOURCE_PENGING;
+				this.source.dataset = null;
+				if (this.isTemplate && this.profile?.source) {
+					this.source.provider.releaseData(this.path, this.params)
+						.then((dataset) => {
+							this.source.dataset = dataset;
+							this.source.status = SOURCE_READY;
+							success(dataset);
+						})
+						.catch((e) => {
+							this.error = e;
+							this.source.status = SOURCE_ERROR;
+							reject(e);
+						});
+				} else {
+					this.source.dataset = null;
+					success(this.source.dataset);
+				}
+			});
 		},
 		onChangeSource(data) {
 			if (data) {
@@ -82,8 +91,7 @@ export default {
 	},
 	asyncComputed: {
 		async profile() {
-			const id = `"${this.path.slice(1).split('/').join('"."')}"`;
-			console.info('>>>>>>>', id);
+			const id = `("${this.path.slice(1).split('/').join('"."')}")`;
 			return await query.expression(id).evaluate();
 		}
 	},
@@ -95,10 +103,14 @@ export default {
 			return this.profile?.template;
 		},
 		baseURI() {
-			return this.$store.state.sources[this.path][0];
+			if (env.isBackendMode()) {
+				return `backend://${md5(this.path)}/`;
+			} else 
+				return this.$store.state.sources[this.path][0];
 		},
 		url() {
-			let result = this.profile ? docs.urlFromProfile(this.profile, this.baseURI).toString() : '';
+			let result = this.profile ? docs.urlFromProfile(this.profile, this.baseURI).toString() : null;
+			if (!result) return null;
 			result += result.indexOf('?') > 0 ? '&' : '?';
 			result += `id=${this.id}&path=${encodeURI(this.path)}`;
 			return result;

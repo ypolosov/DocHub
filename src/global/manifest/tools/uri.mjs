@@ -81,6 +81,7 @@ export default function(config) {
 		} catch (e) {
 			// Если возникла ошибка, считаем путь относительным
 			if (!baseURI) {
+				debugger;
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
 			result = this.makeURL(baseURI);

@@ -104,8 +104,8 @@
         this.outHTML = null;
         this.showDocument = false;
         this.toc = '';
-        // Получаем шаблон документа
-        setTimeout(() => {
+        this.sourceRefresh().then(() => {
+          console.info('>>>>>>>>>>>', this.url);
           requests.request(this.url).then(({ data }) => {
             if (!data)
               this.markdown = 'Здесь пусто :(';
@@ -114,8 +114,7 @@
             } else
               this.markdown = data;
           }).catch((e) => this.error = e);
-        }, 50);
-        this.sourceRefresh();
+        });
       }
     }
   };

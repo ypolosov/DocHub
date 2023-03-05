@@ -38,7 +38,8 @@ export default {
 		};
 		for (const path in manifestParser.mergeMap) {
 			result.mergeMap[path] = manifestParser.mergeMap[path].map((url) => {
-				const hash = md5(url);
+				//const hash = md5(url);
+				const hash = md5(path);
 				result.md5Map[hash] = url;
 				return `backend://${hash}/`;
 			});
@@ -46,3 +47,4 @@ export default {
 		return result;
 	}
 };
+

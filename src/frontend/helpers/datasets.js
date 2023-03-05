@@ -17,7 +17,7 @@ export default function() {
 					baseURI: state.sources[`/datasets/${datasetID}`][0]
 				};
 			},
-			async pathResolver(path) {
+			pathResolver(path) {
 				if (env.isBackendMode())
 					throw 'pathResolver backend mode is not released yet...';
 				const state = window.Vuex.state;
@@ -41,8 +41,11 @@ export default function() {
 			},
 			getReleaseData: datasetDriver.releaseData,
 			async releaseData(path, params) {
-				if (env.isBackendMode()) throw 'releaseData Can not work in backend mode yet...';
-				return this.getReleaseData(path, params);
+				if (env.isBackendMode()) {
+					let url = `backend://release-data-profile/${encodeURIComponent(path)}`;
+					url += `?params=${encodeURIComponent(JSON.stringify(params || null))}`;
+					return (await requests.request(url)).data;
+				} else return this.getReleaseData(path, params);
 			}
 		});
 }

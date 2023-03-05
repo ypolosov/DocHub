@@ -19,26 +19,49 @@ export default (app) => {
         }, res);
     }
 
-    // Выполняет произвольные запросы 
-    app.get('/core/storage/jsonata/:query', function(req, res) {
+    // Проверяет доступность сервиса
+    function isReady(res) {
         if (!app.storage) {
             res.status(503);
             res.json({});
-            return;
+            return false;
         }
+        return true;
+    }
 
+    // Парсит переданные во внутреннем формате данные 
+    function parseRequest(req) {
         const url = new URL(req.params.query, 'backend:/');
-        const JSONataQuery = url.pathname.slice(1);
         const searchParams = Object.fromEntries(url.searchParams);
-        
-        const params = searchParams.params ? JSON.parse(decodeURIComponent(searchParams.params)) : undefined;
-        const subject = searchParams.subject ? JSON.parse(decodeURIComponent(searchParams.subject)) : undefined;
+       
+        return {
+            query: decodeURIComponent(url.pathname.slice(1)),
+            params: searchParams.params ? JSON.parse(decodeURIComponent(searchParams.params)) : undefined,
+            subject: searchParams.subject ? JSON.parse(decodeURIComponent(searchParams.subject)) : undefined
+        };
+    }
 
-        if ((JSONataQuery.length === 36) && queries.QUERIES[JSONataQuery]) {
-            makeJSONataQueryResponse(res, `(${queries.makeQuery(queries.QUERIES[JSONataQuery], params)})`);
+    // Выполняет произвольные запросы 
+    app.get('/core/storage/jsonata/:query', function(req, res) {
+        if (!isReady(res)) return;
+
+        const request = parseRequest(req);
+
+        if ((request.query.length === 36) && queries.QUERIES[request.query]) {
+            makeJSONataQueryResponse(res, `(${queries.makeQuery(queries.QUERIES[request.query], request.params)})`);
         } else {
-            makeJSONataQueryResponse(res, decodeURIComponent(JSONataQuery), params, subject);
+            makeJSONataQueryResponse(res, request.query, request.params, request.subject);
         }
+    });
+
+    // Выполняет произвольные запросы 
+    app.get('/core/storage/release-data-profile/:query', function(req, res) {
+        if (!isReady(res)) return;
+
+        const request = parseRequest(req);
+        cache.pullFromCache(JSON.stringify({query: request.query, params: request.params}), async()=> {
+            return await datasets(app).releaseData(request.query, request.params);
+        }, res);
     });
 
     // Выполняет JSONata запрос
