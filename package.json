@@ -100,5 +100,9 @@
     "plugins": {
       "autoprefixer": {}
     }
-  }
+  },
+  "engines": {
+    "npm": ">=8.1.0",
+    "node": ">=16.0.0"
+  }  
 }

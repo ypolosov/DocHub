@@ -22,10 +22,10 @@
 <script>
   import Empty from '@front/components/Controls/Empty.vue';
   import requests from '@front/helpers/requests';
-  import datasets from '@front/helpers/datasets';
   import Schema from '@front/components/Schema/Schema.vue';
   import query from '@front/manifest/query';
   import Plantuml from '@front/components/Schema/PlantUML.vue';
+  import uriTool from '@front/helpers/uri';
 
   export default {
     name: 'Context',
@@ -39,44 +39,36 @@
     },
     data() {
       return {
-        provider: datasets(),
         error: null,
-        dataset: null,
-        refresher: null,
-        customUML: null
+        customUML: null,
+        isReady: false
       };
     },
     asyncComputed: {
       async schema() {
         this.$nextTick(this.reloadCustomUML);
-        const result = await query.expression(query.context(this.context, this.location)).evaluate(this.dataset) || {};
+        // *******************************************************
+        //      ТУТ ВЕРОЯТНО ОТЪЕХАЛИ ДАТАСЕТЫ В КОНТЕКСТАХ
+        //  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // *******************************************************
+        const result = await query.expression(query.context(this.context, this.location)).evaluate() || {};
+        this.isReady = true;
         return result;
       }
     },
     computed: {
-      isEmpty() {
-        return !(this.manifest.contexts || {})[this.context];
+      path() {
+        return `/contexts/${this.context}`;
       },
-      contextParams() {
-        return Object.assign({'source': '($)'}, (this.manifest.contexts || {})[this.context] || {}) ;
+      isEmpty() {
+        return this.isReady && !this.$store.state.isReloading && !this.schema;
       },
       baseURI() {
-        return this.$store.state.sources[`/contexts/${this.context}`][0];
+        return uriTool.getBaseURIOfPath(this.path);
       },
       isCustomUML() {
         return typeof this.schema?.uml === 'string';
       }
-    },
-    watch: {
-      context() { 
-        this.refresh(); 
-      },
-      manifest() { 
-        this.refresh(); 
-      }
-    },
-    mounted(){
-      this.refresh();
     },
     methods : {
       reloadCustomUML() {
@@ -88,18 +80,6 @@
             // eslint-disable-next-line no-console
             console.error(err);
           });
-      },
-      refresh() {
-        this.refresher && clearTimeout(this.refresher);
-        this.dataset = null;
-        this.refresher = setTimeout(() => {
-          this.provider.getData(this.manifest, this.contextParams)
-            .then((dataset) => {
-              this.dataset = dataset;
-            })
-            .catch((e) => this.error = e)
-            .finally(() => this.refresher = null);
-        }, 50);
       }
     }
   };

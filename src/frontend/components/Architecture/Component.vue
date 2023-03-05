@@ -70,7 +70,6 @@
               v-if="contexts?.length"
               style="width: 100%"
               v-bind:contexts="contexts"
-              v-bind:manifest="manifest"
               d-flex />
 
             <v-card
@@ -139,6 +138,7 @@
     },
     data() {
       return {
+        isReady: false,
         currentContext: 0
       };
     },
@@ -149,11 +149,13 @@
           title: 'SELF',
           type: 'component'
         }].concat(await query.expression(query.contextsForComponent(this.component))
-          .evaluate(this.manifest) || []);
+          .evaluate() || []);
       },
       async summary() {
-        return await query.expression(query.summaryForComponent(this.component))
-          .evaluate(this.manifest) || [];
+        const result = await query.expression(query.summaryForComponent(this.component))
+          .evaluate() || [];
+        this.isReady = true;
+        return result;
       },
       // Генерируем данные о фиджетах
       async widgets() {
@@ -162,7 +164,7 @@
           right: [],  // Виджеты с прижатием направо
           fill: []    // Виджеты во всю ширину
         };
-        const widgets = await query.expression(query.widgetsForComponent()).evaluate(this.manifest) || {};
+        const widgets = await query.expression(query.widgetsForComponent()).evaluate() || {};
         for (const id in widgets) {
           let wiget = widgets[id];
           wiget.id = `${this.component}-${wiget.id}`;
@@ -178,7 +180,6 @@
       async srcLocations() {
         return await html.collectLocationElement({
           expression: query.locationsForComponent(this.component),
-          context: this.$store.state.sources,
           id: this.component,
           entity: 'component'
         });
@@ -186,7 +187,7 @@
     },
     computed: {
       isEmpty() {
-        return !((this.manifest || {}).components || {})[this.component];
+        return this.isReady && !this.$store.state.isReloading && !this.summary;
       },
       focusStyle() {
         return `

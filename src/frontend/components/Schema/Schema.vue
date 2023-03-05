@@ -52,7 +52,6 @@
     },
     asyncComputed: {
       async uml() {
-
         if (!this.schema?.components) return '';
 
         let uml = '@startuml\n';
@@ -122,12 +121,7 @@
             let notEmpty = false;
             if (namespace.id) {
               const type = namespace.type ? `"${namespace.type}"` : '';
-              let title = namespace.title;
-              if (this.manifest.contexts[namespace.id]) {
-                title = `[[/architect/contexts/${namespace.id} ${title}]]`;
-              } else if (this.manifest.components[namespace.id]) {
-                title = `[[/architect/components/${namespace.id} ${title}]]`;
-              }
+              const title = namespace.link ? `[[${namespace.link} ${namespace.title}]]` : namespace.title;
               result += `$Region(${namespace.id},"${title}", ${type}) {\n`;
             }
             // Если есть вложенные пространства, отображаем их тоже

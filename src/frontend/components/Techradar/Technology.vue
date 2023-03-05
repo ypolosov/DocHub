@@ -47,7 +47,7 @@
     computed: {
       summary() {
         return (jsonata(query.summaryForTechnology(this.technology))
-          .evaluate(this.manifest) || []);
+          .evaluate() || []);
       }
     }
   };

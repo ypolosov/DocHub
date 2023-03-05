@@ -92,7 +92,7 @@
         const result = [];
         let index = 1;
         (await query.expression(query.collectTechnologies())
-          .evaluate(this.manifest) || []).forEach((item) => {
+          .evaluate() || []).forEach((item) => {
           if (this.section && this.section.toLowerCase() !== item.section.key.toLowerCase())
             return;
           const ring = this.getRingOfStatus(item.status || 'trial');
