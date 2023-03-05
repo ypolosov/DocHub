@@ -34,7 +34,8 @@ export default {
 		const result = {
 			manifest: manifestParser.manifest,
 			mergeMap: {},
-			md5Map: {}
+			md5Map: {},
+			validators: []
 		};
 		for (const path in manifestParser.mergeMap) {
 			result.mergeMap[path] = manifestParser.mergeMap[path].map((url) => {

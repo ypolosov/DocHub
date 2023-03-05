@@ -1,9 +1,9 @@
-import logger from '../utils/logger.mjs';
+// import logger from '../utils/logger.mjs';
 import datasets from '../helpers/datasets.mjs';
 import cache from '../storage/cache.mjs';
 import queries from '../../global/jsonata/queries.mjs';
 
-const LOG_TAG = 'controller-core';
+// const LOG_TAG = 'controller-core';
 
 export default (app) => {
 
@@ -64,27 +64,29 @@ export default (app) => {
         }, res);
     });
 
+    // Возвращает результат работы валидаторов
+    app.get('/core/storage/validators/', function(req, res) {
+        if (!isReady(res)) return;
+        res.json(app.storage.validators || []);
+    });
+
+    /*
     // Выполняет JSONata запрос
     app.get('/core/jsonata/query', function(req, res) {
-        if (!app.storage) {
-            res.status(503);
-            res.json({});
-            return;
-        }
+        if (!isReady(res)) return;
+
         const request = decodeURIComponent(req.query.request); 
         logger.log(`Received JSONata request (${request})`, LOG_TAG);
         cache.pullFromCache(request, async()=> {    
             return await datasets(app).getData(app.storage.manifest, { source: request });
         }, res);
     });
+    */
+
+    // Текущее полное состояние
     app.get('/core/manifest/state', function(req, res) {
-        if (!app.storage) {
-            res.status(503);
-            res.json({
-                message: 'Server is not ready.'
-            });
-            return;
-        }
+        if (!isReady(res)) return;
+
         res.json({
             manifest: app.storage.manifest,
             mergeMap: app.storage.mergeMap
