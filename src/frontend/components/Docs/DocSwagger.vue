@@ -28,21 +28,21 @@
     },
     methods: {
       refresh() {
-        const params = this.isTemplate ? {
-          responseHook: (response) => {
-            if (typeof response.data === 'string') {
-              response.data = mustache.render(response.data, this.source.dataset);
+        this.sourceRefresh().then(() => {
+          const params = this.isTemplate ? {
+            responseHook: (response) => {
+              if (typeof response.data === 'string') {
+                response.data = mustache.render(response.data, this.source.dataset);
+              }
+              return response;
             }
-
-            return response;
-          }
-        } : undefined;
-        requests.request(this.url, undefined, params)
-          .then((response) => {
-            this.data = response.data;
-            this.swaggerRender();
-          }).catch((e) => this.error = e);
-        this.sourceRefresh();
+          } : undefined;
+          requests.request(this.url, undefined, params)
+            .then((response) => {
+              this.data = response.data;
+              this.swaggerRender();
+            }).catch((e) => this.error = e);
+        });
       },
 
       swaggerRender() {

@@ -13,6 +13,7 @@ export default {
 	},
 
   async collectLocationElement({expression, context, id, entity}) {
+    // Здесь нужно рефачить, чтобы запросы в бэк ходили
     const result = await query.expression(expression)
       .evaluate(context) || [];
 

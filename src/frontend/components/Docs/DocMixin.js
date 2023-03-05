@@ -1,6 +1,8 @@
 import datasets from '@front/helpers/datasets';
 import gateway from '@idea/gateway';
 import docs from '@front/helpers/docs';
+import query from '@front/manifest/query';
+import uriTool from '@front/helpers/uri';
 
 const SOURCE_PENGING = 'pending';
 const SOURCE_READY = 'ready';
@@ -32,7 +34,7 @@ export default {
 				}
 			},
 			data() {
-				return {errors: []};
+				return { errors: [] };
 			}
 		}
 	},
@@ -46,24 +48,26 @@ export default {
 			this.sourceRefresh();
 		},
 		sourceRefresh() {
-			this.source.status = SOURCE_PENGING;
-			this.source.dataset = null;
-			if (this.isTemplate && this.profile.source) {
-				this.source.provider.getData(
-					this.manifest,
-					Object.assign({'_id': this.id}, this.profile),
-					this.params,
-					this.baseURI
-				)
-					.then((dataset) => {
-						this.source.dataset = dataset;
-						this.source.status = SOURCE_READY;
-					})
-					.catch((e) => {
-						this.error = e;
-						this.source.status = SOURCE_ERROR;
-					});
-			} else this.source.dataset = {};
+			return new Promise((success, reject) => {
+				this.source.status = SOURCE_PENGING;
+				this.source.dataset = null;
+				if (this.isTemplate && this.profile?.source) {
+					this.source.provider.releaseData(this.path, this.params)
+						.then((dataset) => {
+							this.source.dataset = dataset;
+							this.source.status = SOURCE_READY;
+							success(dataset);
+						})
+						.catch((e) => {
+							this.error = e;
+							this.source.status = SOURCE_ERROR;
+							reject(e);
+						});
+				} else {
+					this.source.dataset = null;
+					success(this.source.dataset);
+				}
+			});
 		},
 		onChangeSource(data) {
 			if (data) {
@@ -84,32 +88,31 @@ export default {
 			});
 		}
 	},
+	asyncComputed: {
+		async profile() {
+			const id = `("${this.path.slice(1).split('/').join('"."')}")`;
+			return await query.expression(id).evaluate();
+		}
+	},
 	computed: {
 		id() {
 			return this.path.split('/').pop();
 		},
 		isTemplate() {
-			return this.profile.template;
-		},
-		profile() {
-			const nodes = this.path.split('/');
-			let head = this.manifest;
-			for (let i = 1; head && i < nodes.length; i++) {
-				head = head[nodes[i]];
-			}
-			return head;
+			return this.profile?.template;
 		},
 		baseURI() {
-			return this.$store.state.sources[this.path][0];
+			return uriTool.getBaseURIOfPath(this.path);
 		},
 		url() {
-			let result = this.profile ? docs.urlFromProfile(this.profile, this.baseURI).toString() : '';
+			let result = this.profile ? docs.urlFromProfile(this.profile, this.baseURI).toString() : null;
+			if (!result) return null;
 			result += result.indexOf('?') > 0 ? '&' : '?';
 			result += `id=${this.id}&path=${encodeURI(this.path)}`;
 			return result;
 		},
 		isPrintVersion() {
-			return this.toPrint || this.$store.state.isPrintVersion; 
+			return this.toPrint || this.$store.state.isPrintVersion;
 		}
 	},
 	props: {
@@ -119,7 +122,7 @@ export default {
 			required: true
 		},
 		// Параметры передающиеся в запросы документа
-		params: { 
+		params: {
 			type: Object,
 			required: true
 		},
@@ -139,11 +142,6 @@ export default {
 	},
 	data() {
 		const provider = datasets();
-		provider.dsResolver = (id) => {
-			return {
-				subject: Object.assign({'_id': id}, (this.manifest.datasets || {})[id])
-			}; 
-		};
 		return {
 			error: null,
 			menu: {
@@ -162,9 +160,6 @@ export default {
 	watch: {
 		url() { this.doRefresh(); },
 		params() { this.doRefresh(); },
-		manifest() { 
-			this.isTemplate && this.doRefresh(); 
-		},
 		error(error) {
 			// eslint-disable-next-line no-console
 			console.error(error, this.url ? `Ошибка запроса [${this.url}]` : undefined);

@@ -20,8 +20,17 @@
     mixins: [DocMixin],
     data() {
       return {
-        uml: ''
+        content: ''
       };
+    },
+    asyncComputed: {
+      async uml() {
+        let result = '';
+        if (this.isTemplate) {
+          this.source.dataset && (result = mustache.render(this.content, this.source.dataset));
+        } else result= this.content;
+        return result;
+      }
     },
     methods: {
       refresh() {
@@ -30,10 +39,7 @@
           return;
         }
         requests.request(this.url).then((response) => {
-          const content = response.data.toString();
-          if (this.isTemplate) {
-            this.uml = mustache.render(content, this.source.dataset);
-          } else this.uml = content;
+          this.content = response.data.toString();
         }).catch((e) => this.error = e);
         this.sourceRefresh();
       }

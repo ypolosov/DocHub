@@ -7,6 +7,7 @@ import controllerStatic from './controllers/static.mjs';
 import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import middlewareAccess from './middlewares/access.mjs';
+import validators from './helpers/validators.mjs';
 
 const LOG_TAG = 'server';
 
@@ -42,7 +43,7 @@ const mainLoop = async function() {
     storeManager.reloadManifest()
         .then((storage) =>{
             app.storage = storage;  // Инициализируем данные хранилища
-            app.cache = {};         // Инициализируем / очищаем кэш
+            validators(app);        // Выполняет валидаторы
         });
 
 };
