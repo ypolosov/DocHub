@@ -2,8 +2,7 @@ import datasets from '@front/helpers/datasets';
 import gateway from '@idea/gateway';
 import docs from '@front/helpers/docs';
 import query from '@front/manifest/query';
-import env from '@front/helpers/env';
-import md5 from 'md5';
+import uriTool from '@front/helpers/uri';
 
 const SOURCE_PENGING = 'pending';
 const SOURCE_READY = 'ready';
@@ -103,10 +102,7 @@ export default {
 			return this.profile?.template;
 		},
 		baseURI() {
-			if (env.isBackendMode()) {
-				return `backend://${md5(this.path)}/`;
-			} else 
-				return this.$store.state.sources[this.path][0];
+			return uriTool.getBaseURIOfPath(this.path);
 		},
 		url() {
 			let result = this.profile ? docs.urlFromProfile(this.profile, this.baseURI).toString() : null;

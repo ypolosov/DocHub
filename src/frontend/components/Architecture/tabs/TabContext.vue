@@ -38,6 +38,7 @@
 
   import Schema from '@front/components/Schema/Schema.vue';
   import query from '@front/manifest/query';
+  import uriTool from '@front/helpers/uri';
 
   export default {
     name: 'TabContexts',
@@ -72,8 +73,7 @@
         const path = this.context.type === 'component' 
           ?`/components/${this.context.id}`
           :`/contexts/${this.context.id}`;
-
-        return this.$store.state.sources[path][0];
+        return uriTool.getBaseURIOfPath(path);
       },
       context: {
         get() {

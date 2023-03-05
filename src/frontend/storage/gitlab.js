@@ -321,13 +321,12 @@ export default {
 			// Если работаем в режиме backend, берем все оттуда
 			if (env.isBackendMode()) {
 				parser.onStartReload();
-				/*
 				parser.onReloaded({
 					manifest: { [MANIFEST_MODES.AS_IS] : Object.freeze({})},
 					mergeMap: Object.freeze({})
 				});
-				*/
 
+				/*
 				axios({ url: (new URL('core/manifest/state', env.backendURL())).toString() })
 					.then((response) => {
 						parser.onReloaded({
@@ -338,6 +337,7 @@ export default {
 					.catch((error) => {
 						parser.onError('net', { uri, error: error });
 					});
+				*/
 			} else {
 				await parser.startLoad();
 				if (payload) {

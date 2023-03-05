@@ -70,7 +70,6 @@
               v-if="contexts?.length"
               style="width: 100%"
               v-bind:contexts="contexts"
-              v-bind:manifest="manifest"
               d-flex />
 
             <v-card
@@ -139,6 +138,7 @@
     },
     data() {
       return {
+        isReady: false,
         currentContext: 0
       };
     },
@@ -152,8 +152,10 @@
           .evaluate() || []);
       },
       async summary() {
-        return await query.expression(query.summaryForComponent(this.component))
+        const result = await query.expression(query.summaryForComponent(this.component))
           .evaluate() || [];
+        this.isReady = true;
+        return result;
       },
       // Генерируем данные о фиджетах
       async widgets() {
@@ -178,7 +180,6 @@
       async srcLocations() {
         return await html.collectLocationElement({
           expression: query.locationsForComponent(this.component),
-          context: this.$store.state.sources,
           id: this.component,
           entity: 'component'
         });
@@ -186,7 +187,7 @@
     },
     computed: {
       isEmpty() {
-        return !((this.manifest || {}).components || {})[this.component];
+        return this.isReady && !this.$store.state.isReloading && !this.summary;
       },
       focusStyle() {
         return `

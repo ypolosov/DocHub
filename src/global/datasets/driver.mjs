@@ -119,7 +119,7 @@ export default {
 		const meta = await this.pathResolver(path);
 		if (!meta) throw `Error of access to object via path [${path}]`;
 
-		const subject = Object.assign( {_id: path.split('/').pop()}, meta.subject || {});
+		const subject = Object.assign({_id: path.split('/').pop()}, meta.subject || {});
 		const baseURI = meta.baseURI || '/';
 
 		return await this.getData(meta.context, subject, params, baseURI);

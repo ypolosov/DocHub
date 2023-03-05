@@ -22,7 +22,6 @@
     asyncComputed: {
       async uml() {
         //todo здесь нужно рефачить запросы, чтобы в бэк ходить умели.... 
-        const asis = this.manifest;
         const nodes = await query.expression(query.archMindMapAspects(this.root)).evaluate();
         let uml = '@startwbs\n* Аспекты\n';
 
@@ -38,8 +37,6 @@
                 uml += `${deep} [[/architect/aspects/${current} ${title}]]`;
               } else {
                 const aspectID = curentStruct.slice(0, i + 1).join('.');
-                const aspect = asis.aspects && asis.aspects[aspectID];
-                const title = (aspect && aspect.title) || curentStruct[i];
                 uml += `${deep} [[/architect/aspects/${aspectID} ${title}]]\n`;
               }
             }
@@ -50,7 +47,7 @@
 
         let before = '';
         nodes && nodes.map((node) => {
-          appendNode(before, node.id, node.title);
+          appendNode(before, node.id, node.title || node.id);
           before = node.id;
         });
         uml += '@endwbs\n';

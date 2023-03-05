@@ -143,7 +143,9 @@
       aspect: { type: String, default: '' }
     },
     data() {
-      return {};
+      return {
+        isReady: false
+      };
     },
     asyncComputed: {
       async components() {
@@ -158,7 +160,9 @@
         return await query.expression(query.contextsForAspects(this.aspect)).evaluate() || [];
       },
       async summary() {
-        return await query.expression(query.summaryForAspect(this.aspect)).evaluate() || [];
+        const result = await query.expression(query.summaryForAspect(this.aspect)).evaluate() || [];
+        this.idReady = true;
+        return result;
       },
       // Генерируем данные о фиджетах
       async widgets() {
@@ -167,7 +171,7 @@
           right: [],  // Виджеты с прижатием направо
           fill: []    // Виджеты во всю ширину
         };
-        const widgets = await query.expression(query.widgetsForAspect()).evaluate(this.manifest) || {};
+        const widgets = await query.expression(query.widgetsForAspect()).evaluate() || {};
         for (const id in widgets) {
           let wiget = widgets[id];
           wiget.id = `${wiget.id}-${this.aspect}`;
@@ -183,7 +187,6 @@
       async srcLocations() {
         return await html.collectLocationElement({
           expression: query.locationsForAspect(this.aspect),
-          context: this.$store.state.sources,
           id: this.aspect,
           entity: 'aspect'
         });
@@ -191,7 +194,7 @@
     },
     computed: {
       isEmpty() {
-        return !((this.manifest || {}).aspects || {})[this.aspect];
+        return this.isReady && !this.$store.state.isReloading && !this.summary;
       },
       focusStyle() {
         return `

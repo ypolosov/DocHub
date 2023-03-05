@@ -139,12 +139,15 @@ const queries = {
         $MKNS := function($IDS) {(
             $map($IDS, function($v, $i) {(
                 $ID := $join($ARRLEFT($IDS, $i + 1), ".");
-                $TITLE := $lookup($MANIFEST.components, $ID).title;
+                $IS_CONTEXT := $lookup($MANIFEST.contexts, $ID);
+                $IS_COMPONENT := $lookup($MANIFEST.components, $ID);
+                $TITLE := $IS_COMPONENT.title;
                 $TITLE := $TITLE ? $TITLE : $lookup($MANIFEST.namespaces, $ID).title;
                 $TITLE := $TITLE ? $TITLE : $ID;
                 {
                     "id": $ID,
                     "title": $TITLE,
+                    "link": ($IS_CONTEXT ? "/architect/contexts/" & $ID : ($IS_COMPONENT ? "/architect/components/" & $ID)),
                     "type": $NAMESPACE.type
                 }
             )})
@@ -229,12 +232,15 @@ const queries = {
         $MKNS := function($IDS) {(
             $map($IDS, function($v, $i) {(
                 $ID := $join($ARRLEFT($IDS, $i + 1), ".");
-                $TITLE := $lookup($MANIFEST.components, $ID).title;
+                $IS_COMPONENT := $lookup($MANIFEST.components, $ID);
+                $IS_CONTEXT := $lookup($MANIFEST.contexts, $ID);
+                $TITLE := $IS_COMPONENT.title;
                 $TITLE := $TITLE ? $TITLE : $lookup($MANIFEST.namespaces, $ID).title;
                 $TITLE := $TITLE ? $TITLE : $ID;
                 {
                     "id": $ID,
                     "title": $TITLE,
+                    "link": ($IS_CONTEXT ? "/architect/contexts/" & $ID : ($IS_COMPONENT ? "/architect/components/" & $ID)),
                     "type": $NAMESPACE.type
                 }
             )})
@@ -295,13 +301,16 @@ const queries = {
     (
         $FILTER := '{%ROOT%}';
         $FILTER_LN := $length($FILTER);
+        $CONTEXTS := contexts;
         [[components.$spread().(
             $ID := $keys()[0];
             $PREFIX := $substring($ID, 0, $FILTER_LN + 1);
+            $IS_CONTEXT := $lookup($CONTEXTS, $ID);
             $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
             {
                 "id": $ID,
-                "title": $.*.title
+                "title": $.*.title,
+                "link": $IS_CONTEXT ? "/architect/contexts/" & $ID : "/architect/components/" & $ID
             }) : undefined
         )]^(id)]
     )`,
@@ -379,12 +388,15 @@ const queries = {
         $MKNS := function($IDS) {(
             $map($IDS, function($v, $i) {(
                 $ID := $join($ARRLEFT($IDS, $i + 1), ".");
-                $TITLE := $lookup($MANIFEST.components, $ID).title;
+                $IS_COMPONENT := $lookup($MANIFEST.components, $ID);
+                $IS_CONTEXT := $lookup($MANIFEST.contexts, $ID);
+                $TITLE := $IS_COMPONENT.title;
                 $TITLE := $TITLE ? $TITLE : $lookup($MANIFEST.namespaces, $ID).title;
                 $TITLE := $TITLE ? $TITLE : $ID;
                 {
                     "id": $ID,
                     "title": $TITLE,
+                    "link": ($IS_CONTEXT ? "/architect/contexts/" & $ID : ($IS_COMPONENT ? "/architect/components/" & $ID)),
                     "type": $NAMESPACE.type
                 }
             )})
