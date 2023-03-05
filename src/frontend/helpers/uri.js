@@ -8,6 +8,6 @@ export default Object.assign({
         if (env.isBackendMode()) {
             return `backend://${md5(path)}/`;
         } else 
-            return this.$store.state.sources[path][0];
+            return window.Vuex.state.sources[path][0];
     }
 }, new uriTool(config));
