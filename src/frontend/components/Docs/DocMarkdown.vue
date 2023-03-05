@@ -105,7 +105,6 @@
         this.showDocument = false;
         this.toc = '';
         this.sourceRefresh().then(() => {
-          console.info('>>>>>>>>>>>', this.url);
           requests.request(this.url).then(({ data }) => {
             if (!data)
               this.markdown = 'Здесь пусто :(';

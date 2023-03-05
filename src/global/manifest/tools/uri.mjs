@@ -52,11 +52,15 @@ export default function(config) {
 				let segments = url.pathname.split('@');
 				if (segments.length !== 2) {
 					// Не указаны идентификатор проекта и бранч GitLab
+					// eslint-disable-next-line no-debugger
+					debugger;
 					throw `Error in URI ${uri}! Not found divider '@'`;
 				} else {
 					let gilab_params = segments[0].split(':');
 					if (gilab_params.length !== 2) {
 						// Неверно указаны идентификатор проекта и бранч GitLab
+						// eslint-disable-next-line no-debugger
+						debugger;
 						throw `Error in URI ${uri}! Incorrect project id and branch`;
 					}
 
@@ -81,6 +85,7 @@ export default function(config) {
 		} catch (e) {
 			// Если возникла ошибка, считаем путь относительным
 			if (!baseURI) {
+				// eslint-disable-next-line no-debugger
 				debugger;
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
@@ -89,11 +94,6 @@ export default function(config) {
 				let slices = result.url.toString().split('/');
 				const path = (new URL(uri, 'path:/' + slices[slices.length - 2].split('%2F').join('/'))).toString();
 				slices[slices.length - 2] = (path.split('path:/')[1] || '').split('/').join('%2F');
-				/*
-				const subSlices = slices[slices.length - 2].split('%2F');
-				subSlices[subSlices.length - 1] = uri.replace(/\//g, '%2F');
-				slices[slices.length - 2] = subSlices.join('%2F');
-				*/
 				result.url = new URL(slices.join('/'));
 			} else {
 				result.url = new URL(uri, result.url);

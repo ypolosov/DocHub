@@ -25,6 +25,7 @@
   import Empty from '@front/components/Controls/Empty.vue';
   import requests from '@front/helpers/requests';
   import datasets from '@front/helpers/datasets';
+  import query from '@front/manifest/query';
 
   import Swagger from './DocSwagger.vue';
   import Plantuml from './DocPlantUML.vue';
@@ -33,7 +34,7 @@
   import DocMermaid from './DocMermaid.vue';
   import DocNetwork from './DocNetwork.vue';
   import DocSmartants from './DocSmartAnts.vue';
-
+  
   // Встроенные типы документов
   const inbuiltTypes = {
     [DocTypes.ASYNCAPI]: 'async-api-component',
@@ -87,19 +88,17 @@
         dataProvider: datasets()
       };
     },
+    asyncComputed: {
+      async profile() {
+        const id = `("${this.currentPath.slice(1).split('/').join('"."')}")`;
+        return await query.expression(id).evaluate();
+      }
+    },
     computed: {
       is() {
         return inbuiltTypes[this.docType] 
           || (this.$store.state.plugins.documents[this.docType] && `plugin-doc-${this.docType}`)
           || null;
-      },
-      profile() {
-        const nodes = this.currentPath.split('/');
-        let result = this.manifest;
-        for (let i = 1; result && i < nodes.length; i++) {
-          result = result[nodes[i]];
-        }
-        return result;
       },
       docType() {
         return (this.profile?.type || 'unknown').toLowerCase();
@@ -143,10 +142,8 @@
       //  params - значение переменной $params в запросе
       //  context - контекст запроса (по умолчанию равен manifest)
       pullData(expression, self_, params, context) {
-        const subject = Object.assign(JSON.parse(JSON.stringify(self_ || this.profile || {})), expression ? { source : expression } : {});
-        return datasets().getData(context || this.manifest, subject, params || this.params, this.baseURI);
+        return query.expression(expression, self_, params).evaluate(context);
       }
-
     }
   };
 </script>

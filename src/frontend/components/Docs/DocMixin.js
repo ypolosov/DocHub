@@ -164,11 +164,6 @@ export default {
 	watch: {
 		url() { this.doRefresh(); },
 		params() { this.doRefresh(); },
-		/*
-		manifest() { 
-			this.isTemplate && this.doRefresh(); 
-		},
-		*/
 		error(error) {
 			// eslint-disable-next-line no-console
 			console.error(error, this.url ? `Ошибка запроса [${this.url}]` : undefined);
