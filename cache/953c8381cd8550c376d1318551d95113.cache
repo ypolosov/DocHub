@@ -1,0 +1,1 @@
+{"type":"PlantUML","source":"(\n  {\n    \"entities\": $distinct([     /* Получаем все использованные сущности при описании архитектуры */ \n        components.*.entity\n    ])\n  }\n)\n","subjects":["dochub.front","dochub.front.spa","dochub.front.spa.blank","dochub.front.spa.blank.doc"],"template":"examples/template.puml"}

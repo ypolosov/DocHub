@@ -1,0 +1,1 @@
+{"type":"markdown","template":"templates/gomicroservice/db.md","source":"(\n    $id:=$reverse($split($params.component,\".\"))[0];\n    $id\n)\n"}

@@ -10,7 +10,8 @@ DocHub - инструмент описания архитектуры через
 * [Markdown](https://ru.wikipedia.org/wiki/Markdown) - язык разметки, созданный с целью обозначения форматирования в тексте;
 * [Swagger](https://swagger.io/) - язык описания HTTP API контрактов;
 * [AsyncAPI](https://www.asyncapi.com/) - язык описания событийных контрактов;
-* [Манифесты](https://dochub.info/docs/dochub_contexts) - структурированные файлы в формате YAML/JSON для описания архитектурных объектов.
+* [SmartAnts](https://dochub.info/docs/dochub.smartants) - продвинутый инструмент презентации архитектуры.
+* [Манифесты](https://dochub.info/docs/dochub_contexts) - структурированные файлы в формате YAML/JSON для описания архитектурных объектов;
 
 Решаемые проблемы:
 
@@ -32,6 +33,24 @@ DocHub - инструмент описания архитектуры через
 
 Вступайте в сообщество [DocHubTeam](https://t.me/archascode). Здесь мы
 обсуждаем подход "Архитектура как код" и опыт применения DocHub.
+
+## План развития
+
+```mermaid
+timeline
+    title Новые фичи продукта
+    Q1 23   : (+) SmartAnts
+            : (+) Export to Excalidraw
+            : (+) Plugins
+            : (...) Backend 
+    Q2 23   : Event Storming tool
+            : Mutators
+            : Revers architecture tool
+    Q3 23   : Process Disigner tool
+            : Public metamodel repository
+            : Time Machine
+    Q4 23   : Architectire Commutiny tool
+```
 
 ## <a name="versions"></a> Управление версиями архитектуры
 

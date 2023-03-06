@@ -1,0 +1,1 @@
+[{"title":"Идентификатор","content":"sberauto.workspaces.b24","field":"id","required":true},{"title":"Название","content":"B24 workspace","field":"title","required":true},{"title":"Краткое описание","required":false,"field":"about"},{"title":"Тип","required":false,"field":"type"}]

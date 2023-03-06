@@ -1,0 +1,1 @@
+[{"title":"Идентификатор","content":"sberauto.api.api.apix","field":"id","required":true},{"title":"Название","content":"APIx","field":"title","required":true},{"title":"Краткое описание","required":false,"content":"Защищенный gateway","field":"about"},{"title":"Тип","required":false,"field":"type"}]

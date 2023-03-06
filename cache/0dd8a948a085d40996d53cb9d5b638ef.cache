@@ -1,0 +1,1 @@
+{"type":"table","headers":[{"value":"id","text":"Идентификатор","sortable":true,"align":"left","width":"20%","link":"link"},{"value":"title","text":"Наименование","sortable":true,"align":"left","link":"link"}],"source":"contexts.jsonata"}

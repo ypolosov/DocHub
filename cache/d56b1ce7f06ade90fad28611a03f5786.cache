@@ -1,0 +1,1 @@
+[{"title":"Идентификатор","content":"sberauto.sendhub.sendhub","field":"id","required":true},{"title":"Название","content":"Отправка нотификаций","field":"title","required":true},{"title":"Краткое описание","required":false,"field":"about"},{"title":"Тип","required":false,"field":"type"}]

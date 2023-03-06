@@ -1,0 +1,1 @@
+[{"title":"Идентификатор","content":"dochub.dataset","field":"id","required":true},{"title":"Название","content":"Источники данных","field":"title","required":true},{"title":"Краткое описание","required":false,"field":"about"},{"title":"Тип","required":false,"field":"type"}]

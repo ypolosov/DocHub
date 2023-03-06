@@ -1,0 +1,1 @@
+[{"title":"Идентификатор","content":"dochub.cache","field":"id","required":true},{"title":"Название","content":"Кэш данных","field":"title","required":true},{"title":"Краткое описание","required":false,"field":"about"},{"title":"Тип","required":false,"field":"type"}]

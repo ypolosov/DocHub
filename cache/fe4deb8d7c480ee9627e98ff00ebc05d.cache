@@ -1,0 +1,1 @@
+{"params":{"type":"object","properties":{"aspect":{"title":"Идентификатор аспекта","type":"string"}},"required":["aspect"]},"type":"markdown","template":"templates/people.md","source":"(\n  $lookup(aspects, $params.aspect)\n)\t          \n"}

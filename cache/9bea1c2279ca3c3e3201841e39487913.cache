@@ -1,0 +1,1 @@
+[{"title":"Идентификатор","content":"sberauto.addservices.carbuyout.grade","field":"id","required":true},{"title":"Название","content":"Оценка машины","field":"title","required":true},{"title":"Краткое описание","required":false,"field":"about"},{"title":"Тип","required":false,"field":"type"}]
