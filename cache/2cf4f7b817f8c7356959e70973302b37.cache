@@ -1,1 +1,0 @@
-{"type":"table","headers":[{"value":"name","text":"Имя","sortable":true,"align":"left","width":"70%"},{"value":"version","text":"Версия","width":"30%"}],"source":"(\n  $c:=$lookup(components, $params.component);\n  $c.parts.golang.libraries;\n)\n"}

@@ -1,1 +1,0 @@
-{"type":"table","headers":[{"value":"id","text":"Идентификатор","sortable":true,"align":"left","width":"20%"},{"value":"payload","text":"Значение","sortable":true,"align":"left"}],"source":[{"id":1,"payload":"Значение 1"},{"id":2,"payload":"Значение 2"}]}

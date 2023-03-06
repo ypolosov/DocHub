@@ -1,1 +1,0 @@
-{"type":"OpenAPI","source":"(\n  $BODY := $mergedeep([components.*.openapi]);\n  {\n      \"content\": [$BODY.$spread().{\n          \"field\": $keys()[0],\n          \"body\": $string($lookup($, $keys()[0]))\n      }]\n  }\n)\n","template":"examples/openapi_template.json"}

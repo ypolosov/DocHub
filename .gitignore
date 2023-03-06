@@ -6,6 +6,7 @@ node_modules
 /gitlab
 /plugins
 /src/hidden
+/cache
 
 ./plugins.json
 

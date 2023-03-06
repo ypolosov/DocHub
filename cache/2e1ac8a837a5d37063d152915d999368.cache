@@ -1,1 +1,0 @@
-[{"title":"Идентификатор","content":"sberauto.marketing.analytics","field":"id","required":true},{"title":"Название","content":"Аналитика платформы","field":"title","required":true},{"title":"Краткое описание","required":false,"field":"about"},{"title":"Тип","required":false,"field":"type"}]
