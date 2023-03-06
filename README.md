@@ -37,31 +37,28 @@ DocHub - инструмент описания архитектуры через
 ## План развития
 
 ```mermaid
-timeline
-    title Новые фичи продукта
-    Q1 23   : (+) SmartAnts
-            : (+) Export to Excalidraw
-            : (+) Plugins
-            : (...) Backend 
-    Q2 23   : Event Storming tool
-            : Mutators
-            : Revers architecture tool
-    Q3 23   : Process Disigner tool
-            : Public metamodel repository
-            : Time Machine
-    Q4 23   : Architectire Commutiny tool
-```
-
-```mermaid
 gantt
-    title A Gantt Diagram
-    dateFormat  YYYY-MM-DD
-    section Section
-    A task           :a1, 2014-01-01, 30d
-    Another task     :after a1  , 20d
-    section Another
-    Task in sec      :2014-01-12  , 12d
-    another task      : 24d
+    title Новые фичи продукта
+    dateFormat  YYYY-MM
+    section Q1
+        Plugins                 :done, plugins, 2023-01-01, 40d
+        SmartAnts               :done, smartants, 2023-02-01, 30d
+        Export to Excalidraw    :done, exportexc, 2023-02-20, 11d
+        Backend                 :active, 2023-02-27, 30d
+    section Q2
+        Event Storming tool         :2023-04-01, 90d
+        Mutators                    :2023-04-01, 90d
+        Revers architecture tool    :2023-04-01, 90d
+    section Q3
+        Process Disigner tool       :2023-07-01, 90d
+        Public metamodel repository :2023-07-01, 90d
+        Time Machine                :2023-07-01, 90d
+    section Q4
+        Architectire Commutiny tool :2023-10-01, 90d
+
+click plugins href "https://dochub.info/docs/dochub.plugins.intro"
+click smartants href "https://dochub.info/docs/dochub.smartants"
+click exportexc href "https://dochub.info/docs/dochub.smartants#%D0%BF%D1%80%D0%BE%D1%81%D1%82%D0%B5%D0%B9%D1%88%D0%B5%D0%B5-%D0%BF%D1%80%D0%B5%D0%B4%D1%81%D1%82%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5"
 ```
 
 ## <a name="versions"></a> Управление версиями архитектуры
