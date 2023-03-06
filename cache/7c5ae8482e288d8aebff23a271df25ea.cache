@@ -1,1 +1,0 @@
-[{"title":"Идентификатор","content":"infra.erp.1c.ut","field":"id","required":true},{"title":"Название","content":"1C Управление торговлей","field":"title","required":true},{"title":"Краткое описание","required":false,"field":"about"}]

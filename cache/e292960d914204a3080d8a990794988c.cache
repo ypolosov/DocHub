@@ -1,1 +1,0 @@
-{"type":"table","headers":[{"value":"title","text":"Документ","sortable":true,"align":"left","width":"100%","link":"link"}],"origin":"dochub.docs","source":"(\n  $[$substring(location, 0, 29) = \"DocHub/Руководство/Документы/\"].{\n    \"title\": $substring(location, 29),\n    \"link\": link\n  }\n)\n"}

@@ -1,1 +1,0 @@
-[{"title":"Идентификатор","content":"sberauto.api.api.way","field":"id","required":true},{"title":"Название","content":"Маршрутизация запросов","field":"title","required":true},{"title":"Краткое описание","required":false,"field":"about"},{"title":"Тип","required":false,"field":"type"}]

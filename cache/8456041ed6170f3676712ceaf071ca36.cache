@@ -1,1 +1,0 @@
-[{"title":"Идентификатор","content":"sberauto.analytics.connectors","field":"id","required":true},{"title":"Название","content":"Коннекторы к аналитике","field":"title","required":true},{"title":"Краткое описание","required":false,"field":"about"}]

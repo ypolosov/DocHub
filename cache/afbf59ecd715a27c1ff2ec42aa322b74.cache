@@ -1,1 +1,0 @@
-[{"title":"Идентификатор","content":"external.sber.unifying_elements.sberid","field":"id","required":true},{"title":"Название","content":"СберИД","field":"title","required":true},{"title":"Краткое описание","required":false,"content":"Oauth 2.0 аутентификация от сбера","field":"about"}]

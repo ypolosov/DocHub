@@ -1,1 +1,0 @@
-{"type":"plantuml","title":"Диаграмма взаимодействия","template":"templates/blank.puml","params":{"type":"object","properties":{"id":{"type":"string"}},"required":["id"]},"source":"(\n    $lookup(interactions, $params.id)\n)\n"}
