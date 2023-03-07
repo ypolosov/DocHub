@@ -302,11 +302,18 @@ const queries = {
         $FILTER := '{%ROOT%}';
         $FILTER_LN := $length($FILTER);
         $CONTEXTS := contexts;
+        $COMPONENTS := components;
+        $PARENTS := $FILTER.$split(".")~>$map(function($v, $i, $a){(
+            $LIMIT := $i;
+            $a~>$map(function($v, $i) { $i <= $LIMIT ? $v})~>$join(".");
+        )});
         [[components.$spread().(
             $ID := $keys()[0];
             $PREFIX := $substring($ID, 0, $FILTER_LN + 1);
             $IS_CONTEXT := $lookup($CONTEXTS, $ID);
-            $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
+            $FILTER_LN = 0
+            or ($PREFIX = $FILTER) or ($PREFIX = ($FILTER & "."))
+            or ($PARENTS[$=$ID]) ? (
             {
                 "id": $ID,
                 "title": $.*.title,

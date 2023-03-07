@@ -29,7 +29,6 @@
     },
     asyncComputed: {
       async uml() {
-        //todo Здесь нужно рефачить запросы, чтобы в бэк ходили
         const nodes = await query.expression(query.archMindMapComponents(this.root)).evaluate() || [];
         let uml = '@startwbs\n* Архитектура\n';
         let prevStruct = [];
@@ -38,15 +37,6 @@
           let nsid = '';
           const makeTitle = (id, node) => {
             return node.link ? ` [[${node.link} ${node.title || id}]]\n` : ` ${node.title || id}\n`;
-            /*
-            if ((['smart', 'context'].indexOf(this.links) >= 0) && contexts[id]) {
-              return ` [[/architect/contexts/${id} ${title}]]\n`;
-            } else if ((['smart', 'component'].indexOf(this.links) >= 0) && components[id]) {
-              return ` [[/architect/components/${id} ${title}]]\n`;
-            } else {
-              return ` ${title}\n`;
-            }
-            */
           };
           const struct = node.id.split('.');
           for (let i = 0; i < struct.length; i++) {
@@ -55,8 +45,7 @@
               uml += makeTitle(node.id, node);
             } else {
               const id = `${nsid}${struct[i]}`;
-              uml += makeTitle(id, { id, title: id, link: `/architect/components/${id}`} ); // <<<<<<<<<<<<<<<<<< ТУТ КОСЯЧИНА С ИМЕНАМИ, тите берется конечного компонента
-              //uml += makeTitle(id, (components[id] || namespaces[id] || {}).title || '...');
+              uml += makeTitle(id, { id, title: id, link: `/architect/components/${id}`} );
               for (let f = 0; f <= i + 2; f++) uml += '*';
             }
             nsid += `${struct[i]}.`;
