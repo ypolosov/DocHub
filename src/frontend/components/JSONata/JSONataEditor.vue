@@ -5,12 +5,13 @@
 <script>
 
   import * as monaco from 'monaco-editor';
+  import env from '@front/helpers/env';
 
   monaco.languages.register({id: 'jsonata'});
   monaco.languages.setMonarchTokensProvider('jsonata', {
     keywords: ['function'],
     functions: ['$spread'],
-    special: ['$log('],
+    special: env.isBackendMode() ? [] : ['$log('],
     tokenizer: {
       root: [
         [/@?\$[a-zA-Z][\w$]*\(/, {
@@ -58,7 +59,7 @@
       value: {
         type: String,
         default: ''
-      } 
+      }
     },
     data() {
       return {

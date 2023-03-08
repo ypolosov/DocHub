@@ -7,7 +7,7 @@
             <v-btn v-show="!autoExec" icon title="Выполнить" v-on:click="execute">
               <v-icon>mdi-arrow-right-drop-circle</v-icon>
             </v-btn>
-            <v-toolbar-title>
+            <v-toolbar-title v-if="isLogFuncAvailable">
               Используйте $log(value[, tag]) для трассировки запросов.
             </v-toolbar-title>
             <v-spacer />
@@ -61,7 +61,8 @@
 </template>
 
 <script>
-  import cookie from 'vue-cookie'; 
+  import cookie from 'vue-cookie';
+  import env from '@front/helpers/env';
 
   import query from '@front/manifest/query';
   
@@ -79,6 +80,7 @@
     },
     data() {
       return {
+        isLogFuncAvailable: !env.isBackendMode(),
         query: cookie.get(COOKIE_NAME_QUERY) || '"Здесь введите JSONata запрос."',
         error: null,
         observer: null,
