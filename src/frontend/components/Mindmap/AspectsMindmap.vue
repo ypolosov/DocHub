@@ -21,7 +21,6 @@
     },
     asyncComputed: {
       async uml() {
-        //todo здесь нужно рефачить запросы, чтобы в бэк ходить умели.... 
         const nodes = await query.expression(query.archMindMapAspects(this.root)).evaluate();
         let uml = '@startwbs\n* Аспекты\n';
 

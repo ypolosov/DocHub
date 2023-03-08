@@ -91,9 +91,10 @@
       async dots() {
         const result = [];
         let index = 1;
+        const sectionID = (this.section || '').toLowerCase();
         (await query.expression(query.collectTechnologies())
           .evaluate() || []).forEach((item) => {
-          if (this.section && this.section.toLowerCase() !== item.section.key.toLowerCase())
+          if (sectionID && sectionID !== item.section.key.toLowerCase())
             return;
           const ring = this.getRingOfStatus(item.status || 'trial');
           const section = this.getSectionOfKey(item.section.key);
