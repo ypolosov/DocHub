@@ -22,6 +22,7 @@ export default {
         return {
             driver: this.driver,
             expOrigin: null,
+            onError: null,
             async evaluate(context, def) {
                 let result = null;
                 try {
@@ -37,6 +38,7 @@ export default {
                         result = await this.expOrigin.evaluate(context || window.Vuex.state.manifest[MANIFEST_MODES.AS_IS] || {});
                     }
                 } catch (e) {
+                    this.onError && this.onError(e);
                     // eslint-disable-next-line no-console
                     console.error(e);
                 }

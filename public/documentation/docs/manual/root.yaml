@@ -119,14 +119,14 @@ docs:
         - dochub.front.spa
         - dochub.front.spa.dataset
       source: entities.md
-    dochub.config:
+    dochub.deployment:
       icon: settings
-      location: DocHub/Конфигурирование
-      description: Конфигурирование
+      location: DocHub/Развертывание
+      description: Развертывание
       type: markdown
       subjects:
         - dochub.front
-      source: config/config.md
+      source: config/deployment.md
     dochub.context.source:
       type: plantuml
       source: context_source.puml
