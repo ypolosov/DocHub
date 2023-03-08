@@ -21,7 +21,6 @@
     },
     asyncComputed: {
       async uml() {
-        //todo здесь нужно рефачить запросы, чтобы в бэк ходить умели.... 
         const nodes = await query.expression(query.archMindMapAspects(this.root)).evaluate();
         let uml = '@startwbs\n* Аспекты\n';
 
@@ -34,10 +33,10 @@
             isPrefix = isPrefix && (beforeStruct[i] === curentStruct[i]);
             if (!isPrefix) {
               if (i === curentStruct.length - 1) {
-                uml += `${deep} [[/architect/aspects/${current} ${title}]]`;
+                uml += `${deep} ${title}`;
               } else {
                 const aspectID = curentStruct.slice(0, i + 1).join('.');
-                uml += `${deep} [[/architect/aspects/${aspectID} ${title}]]\n`;
+                uml += `${deep} ${aspectID}\n`;
               }
             }
             deep += '*';

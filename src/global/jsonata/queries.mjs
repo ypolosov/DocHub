@@ -302,11 +302,18 @@ const queries = {
         $FILTER := '{%ROOT%}';
         $FILTER_LN := $length($FILTER);
         $CONTEXTS := contexts;
+        $COMPONENTS := components;
+        $PARENTS := $FILTER.$split(".")~>$map(function($v, $i, $a){(
+            $LIMIT := $i;
+            $a~>$map(function($v, $i) { $i <= $LIMIT ? $v})~>$join(".");
+        )});
         [[components.$spread().(
             $ID := $keys()[0];
             $PREFIX := $substring($ID, 0, $FILTER_LN + 1);
             $IS_CONTEXT := $lookup($CONTEXTS, $ID);
-            $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
+            $FILTER_LN = 0
+            or ($PREFIX = $FILTER) or ($PREFIX = ($FILTER & "."))
+            or ($ID in $PARENTS) ? (
             {
                 "id": $ID,
                 "title": $.*.title,
@@ -459,14 +466,24 @@ const queries = {
         $FILTER := '{%ROOT%}';
         $FILTER_LN := $length($FILTER);
         $USED_ASPECTS := $distinct($.components.*.aspects);
-        $ASPECTS := $.aspects.$spread().$keys()[0];
-        [[$append($USED_ASPECTS, $ASPECTS)[$].(
+        $PARENTS := $FILTER.$split(".")~>$map(function($v, $i, $a){(
+            $LIMIT := $i;
+            $a~>$map(function($v, $i) { $i <= $LIMIT ? $v})~>$join(".");
+        )});
+        $ASPECTS := $distinct($append(aspects.$spread().$keys()[0], $PARENTS));
+        $RESULT := [[$ASPECTS.(
             $PREFIX := $substring("" & $, 0, $FILTER_LN + 1);
-            $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
+            $ID := $;
+            $FILTER_LN = 0
+            or $PREFIX = $FILTER
+            or $PREFIX = ($FILTER & ".")
+            or ($ID in $PARENTS)
+            ? (
                 $ASPECT := $lookup($MANIFEST.aspects, $);
+                $FOUND := $ASPECT ? 1 : 0;
                 {
                     "id": $,
-                    "title": $ASPECT.title ? $ASPECT.title : id,
+                    "title": $FOUND ? "[[/architect/aspects/" & $ID & " " & ($ASPECT.title ? $ASPECT.title : $ID) & "]]" : $ID,
                     "used": $ in $USED_ASPECTS
                 }
             ) : undefined

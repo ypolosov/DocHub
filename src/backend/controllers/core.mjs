@@ -1,7 +1,7 @@
-// import logger from '../utils/logger.mjs';
 import datasets from '../helpers/datasets.mjs';
 import cache from '../storage/cache.mjs';
 import queries from '../../global/jsonata/queries.mjs';
+import helpers from './helpers.mjs';
 
 // const LOG_TAG = 'controller-core';
 
@@ -19,16 +19,6 @@ export default (app) => {
         }, res);
     }
 
-    // Проверяет доступность сервиса
-    function isReady(res) {
-        if (!app.storage) {
-            res.status(503);
-            res.json({});
-            return false;
-        }
-        return true;
-    }
-
     // Парсит переданные во внутреннем формате данные 
     function parseRequest(req) {
         const url = new URL(req.params.query, 'backend:/');
@@ -43,7 +33,7 @@ export default (app) => {
 
     // Выполняет произвольные запросы 
     app.get('/core/storage/jsonata/:query', function(req, res) {
-        if (!isReady(res)) return;
+        if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
 
@@ -56,7 +46,7 @@ export default (app) => {
 
     // Выполняет произвольные запросы 
     app.get('/core/storage/release-data-profile/:query', function(req, res) {
-        if (!isReady(res)) return;
+        if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
         cache.pullFromCache(JSON.stringify({query: request.query, params: request.params}), async()=> {
@@ -66,26 +56,13 @@ export default (app) => {
 
     // Возвращает результат работы валидаторов
     app.get('/core/storage/validators/', function(req, res) {
-        if (!isReady(res)) return;
+        if (!helpers.isServiceReady(app, res)) return;
         res.json(app.storage.validators || []);
     });
 
-    /*
-    // Выполняет JSONata запрос
-    app.get('/core/jsonata/query', function(req, res) {
-        if (!isReady(res)) return;
-
-        const request = decodeURIComponent(req.query.request); 
-        logger.log(`Received JSONata request (${request})`, LOG_TAG);
-        cache.pullFromCache(request, async()=> {    
-            return await datasets(app).getData(app.storage.manifest, { source: request });
-        }, res);
-    });
-    */
-
     // Текущее полное состояние
     app.get('/core/manifest/state', function(req, res) {
-        if (!isReady(res)) return;
+        if (!helpers.isServiceReady(app, res)) return;
 
         res.json({
             manifest: app.storage.manifest,
