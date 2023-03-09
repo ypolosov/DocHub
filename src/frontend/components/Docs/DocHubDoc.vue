@@ -26,6 +26,7 @@
   import requests from '@front/helpers/requests';
   import datasets from '@front/helpers/datasets';
   import query from '@front/manifest/query';
+  import uriTool from '@front/helpers/uri';
 
   import Swagger from './DocSwagger.vue';
   import Plantuml from './DocPlantUML.vue';
@@ -104,7 +105,8 @@
         return (this.profile?.type || 'unknown').toLowerCase();
       },
       baseURI() {
-        return this.$store.state.sources[this.currentPath][0];
+        return uriTool.getBaseURIOfPath(this.currentPath);
+        // return this.$store.state.sources[this.currentPath][0];
       },
       isReloading() {
         return this.$store.state.isReloading;
@@ -142,7 +144,10 @@
       //  params - значение переменной $params в запросе
       //  context - контекст запроса (по умолчанию равен manifest)
       pullData(expression, self_, params, context) {
-        return query.expression(expression, self_, params).evaluate(context);
+        if (!expression) {
+          return datasets.releaseData(this.currentPath, params);
+        } else
+          return query.expression(expression || this.profile?.source, self_, params).evaluate(context);
       }
     }
   };
