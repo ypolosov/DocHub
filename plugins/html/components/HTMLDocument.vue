@@ -130,6 +130,8 @@
             });
         } else this.content = '';
 
+        this.pullData().then((result) => console.log(result));
+
         // Выполняем запрос к данным архитектуры
         this.pullData(`
           ({

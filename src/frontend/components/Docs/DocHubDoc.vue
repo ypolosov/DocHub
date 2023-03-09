@@ -106,7 +106,6 @@
       },
       baseURI() {
         return uriTool.getBaseURIOfPath(this.currentPath);
-        // return this.$store.state.sources[this.currentPath][0];
       },
       isReloading() {
         return this.$store.state.isReloading;
@@ -145,7 +144,7 @@
       //  context - контекст запроса (по умолчанию равен manifest)
       pullData(expression, self_, params, context) {
         if (!expression) {
-          return datasets.releaseData(this.currentPath, params);
+          return this.dataProvider.releaseData(this.path, params);
         } else
           return query.expression(expression || this.profile?.source, self_, params).evaluate(context);
       }
