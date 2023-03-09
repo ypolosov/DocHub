@@ -30,8 +30,8 @@ export default {
       }
 
       return data;
-    } catch (e) {
-      return e;
+    } catch (err) {
+      return Promise.reject(err);
     }
   },
   async post(umlUrl, uml, config) {
@@ -45,8 +45,8 @@ export default {
       }
 
       return data;
-    } catch (e) {
-      return e;
+    } catch (err) {
+      return Promise.reject(err);
     }
   },
   async getCachedData(umlUrl) {
