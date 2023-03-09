@@ -1,10 +1,9 @@
 import config from '@front/config';
 import cookie from 'vue-cookie';
 // import GitHelper from '../helpers/gitlab';
-import parser from '@front/manifest/manifest_parser';
+import storageManager from '@front/manifest/manager';
 import Vue from 'vue';
 import requests from '@front/helpers/requests';
-import uri from '@front/helpers/uri';
 import gateway from '@idea/gateway';
 import consts from '@front/consts';
 import rules from '@front/helpers/rules';
@@ -12,7 +11,6 @@ import crc16 from '@global/helpers/crc16';
 import entities from '@front/helpers/entities';
 import env, { Plugins } from '@front/helpers/env';
 import plugins from './plugins';
-import { MANIFEST_MODES } from '@front/manifest/enums/manifest-modes.enum';
 
 import GitLab  from '@front/helpers/gitlab';
 
@@ -123,7 +121,7 @@ export default {
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
 
-			parser.onReloaded = (parser) => {
+      storageManager.onReloaded = (parser) => {
 				// Очищяем прошлую загрузку
 				context.commit('clean');
 				// Регистрируем обнаруженные ошибки
@@ -139,9 +137,8 @@ export default {
 					context.commit('setCriticalError', true);
 				}
 
-				const asis = manifest[MANIFEST_MODES.AS_IS];
-				entities(asis);
-				rules(asis,
+				entities(manifest);
+				rules(manifest,
 					(problems) => context.commit('appendProblems', problems),
 					(error) => {
 						// eslint-disable-next-line no-console
@@ -149,13 +146,13 @@ export default {
 						context.commit('appendProblems', error);
 					});
 			};
-			parser.onStartReload = () => {
+      storageManager.onStartReload = () => {
 				errors.syntax = null;
 				errors.net = null;
 				context.commit('setNoInited', null);
 				context.commit('setIsReloading', true);
 			};
-			parser.onError = (action, data) => {
+      storageManager.onError = (action, data) => {
 				const error = data.error || {};
 				const url = (data.error.config || { url: data.uri }).url;
 				const uid = '$' + crc16(url);
@@ -320,9 +317,9 @@ export default {
 		async reloadRootManifest(_context, payload) {
 			// Если работаем в режиме backend, берем все оттуда
 			if (env.isBackendMode()) {
-				parser.onStartReload();
-				parser.onReloaded({
-					manifest: { [MANIFEST_MODES.AS_IS] : Object.freeze({})},
+        storageManager.onStartReload();
+        storageManager.onReloaded({
+					manifest: Object.freeze({}),
 					mergeMap: Object.freeze({})
 				});
 
@@ -330,7 +327,7 @@ export default {
 				axios({ url: (new URL('core/manifest/state', env.backendURL())).toString() })
 					.then((response) => {
 						parser.onReloaded({
-							manifest: { [MANIFEST_MODES.AS_IS] : Object.freeze(response.data.manifest)},
+							manifest: Object.freeze(response.data.manifest),
 							mergeMap: Object.freeze(response.data.mergeMap)
 						});
 					})
@@ -339,20 +336,7 @@ export default {
 					});
 				*/
 			} else {
-				await parser.startLoad();
-				if (payload) {
-					await (
-						async function parserImport(next = 0) {
-							if (payload?.length > next) {
-								await parser.import(payload[next], payload[next] !== config.root_manifest);
-								await parserImport(next + 1);
-							}
-						}
-					)();
-				} else {
-					await parser.import(uri.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()));
-				}
-				parser.stopLoad();
+				await storageManager.reloadManifest(payload);
 			}
 		},
 
