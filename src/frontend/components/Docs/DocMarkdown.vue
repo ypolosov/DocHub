@@ -106,6 +106,7 @@
         this.toc = '';
         this.sourceRefresh().then(() => {
           requests.request(this.url).then(({ data }) => {
+            this.error = null;
             if (!data)
               this.markdown = 'Здесь пусто :(';
             else if (this.isTemplate) {

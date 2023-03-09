@@ -39,10 +39,25 @@ export default {
 		}
 	},
 	methods: {
+		makeDataLakeID(path) {
+			return `("${path.slice(1).split('/').join('"."')}")`;
+		},
 		doRefresh() {
 			this.error = null;
 			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
-			this.source.refreshTimer = setTimeout(() => this.refresh(), 100);
+			this.source.refreshTimer = setTimeout(() =>{
+				this.profile = null;
+				const dateLakeId = this.makeDataLakeID(this.path);
+				query.expression(dateLakeId).evaluate()
+					.then((data) => {
+						// Проверяем, что результат запроса не устарел
+						if (dateLakeId === this.makeDataLakeID(this.path)) {
+							this.profile = data;
+							this.refresh();
+						}
+					})
+					.catch((e) => this.error = e);
+			}, 100);
 		},
 		refresh() {
 			this.sourceRefresh();
@@ -86,12 +101,6 @@ export default {
 			this.$nextTick(() => {
 				this.menu.show = true;
 			});
-		}
-	},
-	asyncComputed: {
-		async profile() {
-			const id = `("${this.path.slice(1).split('/').join('"."')}")`;
-			return await query.expression(id).evaluate();
 		}
 	},
 	computed: {
@@ -144,6 +153,7 @@ export default {
 		const provider = datasets();
 		return {
 			error: null,
+			profile: null,
 			menu: {
 				show: false,
 				x: 0,
@@ -158,14 +168,14 @@ export default {
 		};
 	},
 	watch: {
-		url() { this.doRefresh(); },
+		path() { this.doRefresh(); },
 		params() { this.doRefresh(); },
 		error(error) {
-			// eslint-disable-next-line no-console
-			console.error(error, this.url ? `Ошибка запроса [${this.url}]` : undefined);
-			if (error)
+			if (error) {
+				// eslint-disable-next-line no-console
+				console.error(error, this.url ? `Ошибка запроса [${this.url}]` : undefined);
 				this.$emit('appendError', error);
-			else
+			} else
 				this.$emit('clearErrors');
 		}
 	},
