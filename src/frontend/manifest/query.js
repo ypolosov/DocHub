@@ -2,7 +2,6 @@ import jsonataDriver from '@global/jsonata/driver.mjs';
 import queries from '@global/jsonata/queries.mjs';
 import env from '@front/helpers/env';
 import requests from '@front/helpers/requests';
-import { MANIFEST_MODES } from '@front/manifest/enums/manifest-modes.enum';
 
 // Возвращает тело запроса в зависимости от платформы развертывания
 function resolveJSONataRequest(ID, params) {
@@ -35,7 +34,7 @@ export default {
                         result = (await requests.request(url)).data;
                     } else {
                         !this.expOrigin && (this.expOrigin = this.driver.expression(expression, self_, params, isTrace, funcs));
-                        result = await this.expOrigin.evaluate(context || window.Vuex.state.manifest[MANIFEST_MODES.AS_IS] || {});
+                        result = await this.expOrigin.evaluate(context || window.Vuex.state.manifest || {});
                     }
                 } catch (e) {
                     this.onError && this.onError(e);

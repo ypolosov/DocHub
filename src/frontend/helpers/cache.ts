@@ -15,6 +15,8 @@ import env from './env';
 
 let Cache: TCache | null;
 
+const useIdbKey = (key: string | object): string => JSON.stringify(key);
+
 const initCache = async(): Promise<void> => {
   if (!Cache) {
     Cache = (await idb)?.cache;
@@ -31,7 +33,7 @@ export const requestCacheInterceptor = async(
       params.method = 'GET';
       params.reRequest = false;
     } else {
-      const lastCachedResult: TCacheData = await Cache.getData(params.url);
+      const lastCachedResult: TCacheData = await Cache.getData(useIdbKey(params.url));
 
       if (lastCachedResult && lastCachedResult.eTag) {
         params.method = env.cache as TCacheMethod;
@@ -62,7 +64,7 @@ export const responseCacheInterceptor = async(
 
     if (response.headers.etag) {
       const newCachedData: TCacheData = {
-        id: response.config.url,
+        id: useIdbKey(response.config.url),
         eTag: response.headers.etag,
         data: response.data
       };

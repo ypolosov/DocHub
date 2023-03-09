@@ -1,6 +1,5 @@
 import requests from './requests';
 import query from '../manifest/query';
-import { MANIFEST_MODES } from '@front/manifest/enums/manifest-modes.enum';
 import datasetDriver from '@global/datasets/driver.mjs';
 import pathTool from '@global/manifest/tools/path.mjs';
 import env from '@front/helpers/env';
@@ -13,7 +12,7 @@ export default function() {
 				const state = window.Vuex.state;
 				return {
 					// Обогащаем профиль информацией об идентификаторе
-					subject: Object.assign({ _id: datasetID }, (state.manifest[MANIFEST_MODES.AS_IS].datasets || {})[datasetID]),
+					subject: Object.assign({ _id: datasetID }, (state.manifest.datasets || {})[datasetID]),
 					baseURI: state.sources[`/datasets/${datasetID}`][0]
 				};
 			},
@@ -22,8 +21,8 @@ export default function() {
 					throw 'pathResolver backend mode is not released yet...';
 				const state = window.Vuex.state;
 				return {
-					context: state.manifest[MANIFEST_MODES.AS_IS],
-					subject: pathTool.get(state.manifest[MANIFEST_MODES.AS_IS], path),
+					context: state.manifest,
+					subject: pathTool.get(state.manifest, path),
 					baseURI: state.sources[path][0]
 				};
 			},
