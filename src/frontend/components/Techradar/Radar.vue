@@ -14,14 +14,9 @@
     </g>
     <template v-if="isShowSections">
       <g v-for="(item, index) in sections" v-bind:key="index">
-        <line
-          x1="300"
-          y1="300"
-          v-bind:x2="item.line.x"
-          v-bind:y2="item.line.y"
-          class="section-line" />
+        <line x1="300" y1="300" v-bind:x2="item.line.x" v-bind:y2="item.line.y" class="section-line" />
         <text class="section-title" text-anchor="middle" v-on:click="onClickSection(item)">
-          <textPath v-bind:startOffset="`${(item.title.angle / 360 * 100 + 25)%100}%`" xlink:href="#outsideTextPath">
+          <textPath v-bind:startOffset="`${(item.title.angle / 360 * 100 + 25) % 100}%`" xlink:href="#outsideTextPath">
             {{ item.title.title }}
           </textPath>
         </text>
@@ -84,17 +79,17 @@
         return item.r;
       }, 0);
       return {
+        data: null,
         rings: rings.reverse()
       };
     },
-    asyncComputed: {
-      async dots() {
+    computed: {
+      dots() {
         const result = [];
         let index = 1;
         const sectionID = (this.section || '').toLowerCase();
-        (await query.expression(query.collectTechnologies())
-          .evaluate() || []).forEach((item) => {
-          if (sectionID && sectionID !== item.section.key.toLowerCase())
+        (this.data?.dots || []).forEach((item) => {
+          if (sectionID && (sectionID !== item.section.key.toLowerCase()))
             return;
           const ring = this.getRingOfStatus(item.status || 'trial');
           const section = this.getSectionOfKey(item.section.key);
@@ -112,24 +107,14 @@
         this.$emit('input', result);
         return result;
       }
-    },
-    computed: {
+      ,
       isShowSections() {
-        return Object.keys(this.sections).length > 1;
+        return Object.keys(this.showSections).length > 1;
       },
       showSections() {
-        let result = {};
-        const manifest = this.manifest;
-        if (manifest) {
-          if (this.section) {
-            manifest.technologies && manifest.technologies && manifest.technologies.sections
-              && manifest.technologies.sections[this.section] &&
-              (result[this.section] = JSON.parse(JSON.stringify(manifest.technologies.sections[this.section])));
-          } else {
-            result = JSON.parse(JSON.stringify((manifest.technologies || {sections: {}}).sections));
-          }
-        }
-        return result;
+        return this.section ?  { 
+          [this.section]: this.data?.sections[this.section]
+        } : this.data?.sections || {};
       },
       sections() {
         let result = this.showSections;
@@ -156,7 +141,19 @@
         return result;
       }
     },
+    watch: {
+      section() {
+        this.refreshData();
+      }
+    },
+    mounted() {
+      this.refreshData();
+    },
     methods: {
+      refreshData() {
+        query.expression(query.collectTechnologies()).evaluate()
+          .then((data) => this.data = data);
+      },
       onClickSection(section) {
         this.$router.push({ path: `/techradar/${section.key}` });
       },
@@ -166,7 +163,7 @@
       getXY(distance, angle) {
         return {
           x: Math.sin(angle / 360 * 6.28) * distance + 300,
-          y: Math.cos(angle / 360  * 6.28) * distance + 300
+          y: Math.cos(angle / 360 * 6.28) * distance + 300
         };
       },
       makeDot(item, section, ring) {
@@ -187,7 +184,7 @@
         return this.sections[key];
       },
       getRingOfStatus(status) {
-        for(let i=0; i < this.rings.length; i++) {
+        for (let i = 0; i < this.rings.length; i++) {
           const ring = this.rings[i];
           if (ring.key.toLowerCase() === status.toLowerCase()) {
             return ring;
@@ -200,7 +197,6 @@
 </script>
 
 <style scoped>
-
 svg circle.ring-arc-0 {
   stroke: none;
   fill: #bababa;
@@ -256,8 +252,7 @@ svg .dots {
   cursor: pointer;
 }
 
-svg .dots:hover .dot{
+svg .dots:hover .dot {
   fill: #BA68C8
 }
-
 </style>

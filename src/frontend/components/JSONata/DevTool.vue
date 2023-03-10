@@ -158,7 +158,7 @@
       execute() {
         this.error = null;
         this.logItems = [];
-        this.jsonata = query.expression(this.query, null, null, true, { log: this.log});
+        this.jsonata = query.expression(`(${this.query})`, null, null, true, { log: this.log});
         this.jsonata.onError = (e) => this.error = e;
         this.jsonata.evaluate().then((data) => {
           const result = JSON.stringify(data, null, 4);

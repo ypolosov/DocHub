@@ -581,7 +581,7 @@ const queries = {
     [QUERY_ID_TECHNOLOGIES] : `
     (
         $MANIFEST := $;
-        $distinct($distinct(components.*.technologies).(
+        $DOTS := $distinct($distinct(components.*.technologies).(
             $TECHKEY := $;
             $TECHNOLOGY := $lookup($MANIFEST.technologies.items, $type($)="string" ? $ : undefined);
             $TECHNOLOGY := $TECHNOLOGY ? $merge([$TECHNOLOGY, {"id": $TECHKEY}]) : $single(
@@ -607,7 +607,12 @@ const queries = {
                     "title": $SECTION.title ? $SECTION.title : "Не определено"
                 }
             }
-        ))
+        ));
+
+        {
+            "sections": $merge([$DOTS.section.({key: $})]),
+            "dots": $DOTS
+        }
     )
     `,
     [QUERY_ID_TECHNOLOGY] : `
