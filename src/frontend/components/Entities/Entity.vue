@@ -19,6 +19,7 @@
   const ajv_localize = require('ajv-i18n/localize/ru');
 
   import doc from '@front/components/Docs/DocHubDoc.vue';
+  import query from '@front/manifest/query';
   
   import { uploadDocument } from './EntityUpload';
 
@@ -44,6 +45,8 @@
     data() {
       return {
         refresh: false,
+        profile: null,
+        refresher: null,
         menu: {
           show: false,
           x : 0,
@@ -60,7 +63,7 @@
       },
       // Валидируем входящие параметры, если контракт на параметры определен
       isParamsInvalid() {
-        return this.isInvalidParamsToPres(this.presProfile.params);
+        return this.isInvalidParamsToPres(this.presProfile?.params);
       },
       // Текущая презентация с учетом альтернативного выбора
       currentPres() {
@@ -68,7 +71,7 @@
       },
       // Все доступные презентации сущности для переключения
       toSwitchPres() {
-        const items = this.manifest?.entities?.[this.entity]?.presentations || {};
+        const items = this.profile?.presentations || {};
         const result = [];
         Object.keys(items).map((id) => {
           if (id === this.currentPres) return;
@@ -84,23 +87,51 @@
       },  
       // Получаем профиль представления
       presProfile() {
-        return this.manifest?.entities?.[this.entity]?.presentations?.[this.currentPres] || {};
+        return this.profile?.presentations?.[this.currentPres] || {};
       },
       // Формируем параметры для документа
       entityParams() {
         return this.params || (this.$route.params && this.$router.currentRoute.query);
       },
       presentationPath() {
-        return `/entities/${this.entity}/presentations/${this.currentPres}`;
+        return `${this.entityPath}/presentations/${this.currentPres}`;
+      },
+      entityPath() {
+        return `/entities/${this.entity}`;
       }
     },
     watch: {
       entityParams() {
-        this.selectedPres = null;
-        this.refreshPres();
+        this.reloadProfile();
+      },
+      presentationPath() {
+        this.reloadProfile();
       }
     },
+    mounted() {
+      this.reloadProfile();
+    },
     methods: {
+      makeDataLakeID(path) {
+        return `("${path.slice(1).split('/').join('"."')}")`;
+      },
+      // Перезагружает профиль сущности
+      reloadProfile() {
+        if (this.refresher) clearTimeout(this.refresher);
+        this.refresher = setTimeout(() =>{
+          this.selectedPres = null;
+          const dateLakeId = this.makeDataLakeID(this.entityPath);
+          query.expression(dateLakeId).evaluate()
+            .then((data) => {
+              // Проверяем, что результат запроса не устарел
+              if (dateLakeId === this.makeDataLakeID(this.entityPath)) {
+                this.profile = data;
+              }
+            })
+            .catch((e) => this.error = e)
+            .finally(() => this.refresher = null);
+        } ,100);
+      },
       // Принудительное обновление представления
       refreshPres() {
         this.refresh = true;
@@ -129,12 +160,12 @@
       },
       // Выбор альтернативной презентации
       onSelectedPres(presentation) {
-        const profile = this.manifest?.entities?.[this.entity]?.presentations?.[presentation] || {};
+        const presProfile = this.profile?.presentations?.[presentation] || {};
         // Если презентация направлена на выгрузку данных, генерируем их без переключения презентации
-        if (profile.type.toLowerCase() === 'upload') {
+        if (presProfile.type.toLowerCase() === 'upload') {
           const path = `/entities/${this.entity}/presentations/${presentation}`;
           const baseURI = this.$store.state.sources[path][0];
-          uploadDocument(profile, baseURI, this.entityParams, this.manifest);
+          uploadDocument(presProfile, baseURI, this.entityParams, this.manifest);
         } else { // Иначе переключаем презентацию
           this.selectedPres = presentation;
           this.refreshPres();
