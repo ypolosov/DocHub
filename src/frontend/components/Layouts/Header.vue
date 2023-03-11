@@ -4,6 +4,7 @@
     clipped-left
     color="#3495db"
     dark
+    v-bind:class="isPrintVersion ? 'print-version' : ''"
     style="z-index: 99">
     <v-btn v-if="isBackShow" icon v-on:click="back">
       <v-icon>arrow_back</v-icon>
@@ -100,3 +101,11 @@
     }
   };
 </script>
+
+<style scoped>
+
+header.print-version {
+  position: absolute;
+}
+
+</style>
