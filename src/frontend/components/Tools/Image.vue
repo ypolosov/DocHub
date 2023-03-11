@@ -21,7 +21,8 @@
     },
     methods: {
       reloadImage() {
-        requests.request(this.src, this.baseURI, { responseType: 'arraybuffer' })
+        const url = new URL(this.src, this.baseURI);
+        requests.request(url.toString(), undefined, { responseType: 'arraybuffer' })
           .then((response) => {
             this.data = URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type']}));
           });

@@ -110,6 +110,9 @@ docs:
         - dochub.front.spa
         - dochub.front.spa.dataset
       source: jsonata.md
+#**************************************************************
+#                       Сущности
+#**************************************************************
     dochub.entities:
       location: DocHub/Руководство/Сущности
       description: Расширения метамодели
@@ -118,7 +121,18 @@ docs:
         - dochub.front
         - dochub.front.spa
         - dochub.front.spa.dataset
-      source: entities.md
+      source: entities/intro.md
+
+    dochub.entities.examples:
+      location: DocHub/Руководство/Сущности/Пример
+      description: Пример расширения метамодели
+      type: markdown
+      subjects:
+        - dochub.front
+        - dochub.front.spa
+        - dochub.front.spa.dataset
+      source: entities/entities.md
+
     dochub.deployment:
       icon: settings
       location: DocHub/Развертывание
