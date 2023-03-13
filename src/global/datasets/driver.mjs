@@ -116,6 +116,7 @@ export default {
 	// Сам объект передается в запрос в переменной $self
 	// $self._id автоматически генерируемое поле содержащее последний сегмент path
 	async releaseData(path, params) {
+		debugger;
 		const meta = await this.pathResolver(path);
 		if (!meta) throw `Error of access to object via path [${path}]`;
 
