@@ -148,10 +148,12 @@
           .then((result) => this.componentsL1 = result);
 
       },
-      
+
       // Обработчик события обновления
       onRefresh() {
+        // Если обработчик уже запущен, останавливаем его
         if (this.refresher) clearTimeout(this.refresher);
+        // Для исключения избыточных обращений к Data Lake откладывам обноление на 50мс
         this.refresher = setTimeout(this.doRefresh, 50);
       }
     }
