@@ -114,8 +114,8 @@ docs:
 #                       Сущности
 #**************************************************************
     dochub.entities:
-      location: DocHub/Руководство/Сущности
-      description: Расширения метамодели
+      location: DocHub/Руководство/Адаптивая метамодель
+      description: Адаптивая метамодель
       type: markdown
       subjects:
         - dochub.front
@@ -124,8 +124,8 @@ docs:
       source: entities/intro.md
 
     dochub.entities.examples:
-      location: DocHub/Руководство/Сущности/Пример
-      description: Пример расширения метамодели
+      location: DocHub/Руководство/Адаптивая метамодель/Entity
+      description: Сущность
       type: markdown
       subjects:
         - dochub.front
