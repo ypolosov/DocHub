@@ -19,4 +19,14 @@ docs:
       head1:
         type: test
     source: examples/example.html
-    
+
+  dochub.plugins.example2:
+    location: DocHub/Руководство/Плагины/Пример 2
+    type: html
+    headers:
+      head1:
+        type: test2
+    source: >
+      (
+        $
+      )
