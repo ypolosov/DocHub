@@ -144,7 +144,7 @@
       //  context - контекст запроса (по умолчанию равен manifest)
       pullData(expression, self_, params, context) {
         if (!expression) {
-          return this.dataProvider.releaseData(this.resolvePath(), params);
+          return this.dataProvider.releaseData(this.resolvePath(), params || this.params);
         } else
           return query.expression(expression || this.profile?.source, self_, params).evaluate(context);
       }
