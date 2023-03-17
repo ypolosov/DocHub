@@ -17,4 +17,8 @@ global.$paths = {
     )
 };
 
+global.$listeners = {
+    onFoundLoadingError: process.env.VUE_APP_DOCHUB_BACKEND_EVENT_LOADING_ERRORS_FOUND
+};
+
 export default dotenv;

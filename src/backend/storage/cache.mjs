@@ -25,18 +25,47 @@ function loadBaseMatamodel() {
 // Кэш в памяти
 const memoryCache = {};
 
+const errorType = {
+    system: 'Внутрисистемная ошибка',
+    syntax: 'Синтаксическая ошибка',
+    net: 'Сетевая ошибка'
+};
 
 export default Object.assign(prototype, {
     // Выполняет resolve URL 
     makeURIByBaseURI: uriTool.makeURIByBaseURI,
+    // Содержит ошибки, которые возникли за сессию
+    errors: {},
+    // Очищает регистр ошибок
+    errorClear() {
+        this.errors = {};
+    },
+    // Регистрирует ошибку
+    // type         - Секция ошибки (system/syntax/net)
+    // uid          - Уникальный идентификатор ошибки. 
+    // title        - Определяет представление ошибки в дереве.
+    // location     - URL с расположением объекта, где выявлена ошибка.
+    // correction   - Краткое пояснение, как исправить ошибку.
+    // description  - Описание причины ошибки.
+    registerError(type, uid, title, location, correction, description) {
+        !this.errors[type] && (this.errors[type] = {
+            id: `$error.${type}`,
+            title: errorType[type] || 'Неизвестная ошибка',
+            items: []
+        });
+        logger.error(`${title}: ${description} [${location}]`, LOG_TAG);
+        this.errors[type].items.push({
+            uid, title, location, correction, description
+        });
+    },
     // Получает данные из кэша 
     //  key - ключ
     //  resolve - если в кэше данные не будут найдены, будет вызвана функция для генерации данных
     //  res - response объект express. Если указано, то ответ сразу отправляется клиенту
     async pullFromCache(key, resolve, res) {
+        let fileName = null;
         try {
             let result = null;
-            let fileName = null;
             const cacheMode = process.env.VUE_APP_DOCHUB_DATALAKE_CACHE || 'none';
             switch (cacheMode.toLocaleLowerCase()) {
                 case 'none': result = resolve && await resolve() || undefined; break;
@@ -61,7 +90,7 @@ export default Object.assign(prototype, {
 
             return res ? true : result;
         } catch (e) {
-            logger.error(`Error of pull from cache with error: ${e.message}`, LOG_TAG);
+            this.registerError('system', md5(key), 'Cache error', fileName || 'memory', 'See error log at backed server', e.message);
             if (res) {
                 res.status(500);
                 res.json({
@@ -93,8 +122,12 @@ export default Object.assign(prototype, {
                 data: content
             };
         } else {
-            logger.log(`Importing source [${url}]...`, LOG_TAG);
-            result = await request(url);
+            try {
+                result = await request(url);
+            } catch(e) {
+                this.registerError('net', md5(url), 'Request error', url, 'See details in error log of backed server', e.message);
+                throw e;
+            }
             logger.log(`Source [${url}] is imported.`, LOG_TAG);
         }
         return result;

@@ -110,7 +110,6 @@
             if (!data)
               this.markdown = 'Здесь пусто :(';
             else if (this.isTemplate) {
-              debugger;
               this.markdown = mustache.render(data, this.source.dataset);
             } else
               this.markdown = data;

@@ -12,7 +12,7 @@ import entities from '@front/helpers/entities';
 import env, { Plugins } from '@front/helpers/env';
 import plugins from './plugins';
 
-import GitLab  from '@front/helpers/gitlab';
+import GitLab from '@front/helpers/gitlab';
 
 const axios = require('axios');
 
@@ -121,7 +121,7 @@ export default {
 			let diff_format = cookie.get('diff_format');
 			context.commit('setDiffFormat', diff_format ? diff_format : context.state.diff_format);
 
-      storageManager.onReloaded = (parser) => {
+			storageManager.onReloaded = (parser) => {
 				// Очищяем прошлую загрузку
 				context.commit('clean');
 				// Регистрируем обнаруженные ошибки
@@ -146,13 +146,13 @@ export default {
 						context.commit('appendProblems', error);
 					});
 			};
-      storageManager.onStartReload = () => {
+			storageManager.onStartReload = () => {
 				errors.syntax = null;
 				errors.net = null;
 				context.commit('setNoInited', null);
 				context.commit('setIsReloading', true);
 			};
-      storageManager.onError = (action, data) => {
+			storageManager.onError = (action, data) => {
 				const error = data.error || {};
 				const url = (data.error.config || { url: data.uri }).url;
 				const uid = '$' + crc16(url);
@@ -317,24 +317,11 @@ export default {
 		async reloadRootManifest(_context, payload) {
 			// Если работаем в режиме backend, берем все оттуда
 			if (env.isBackendMode()) {
-        storageManager.onStartReload();
-        storageManager.onReloaded({
+				storageManager.onStartReload();
+				storageManager.onReloaded({
 					manifest: Object.freeze({}),
 					mergeMap: Object.freeze({})
 				});
-
-				/*
-				axios({ url: (new URL('core/manifest/state', env.backendURL())).toString() })
-					.then((response) => {
-						parser.onReloaded({
-							manifest: Object.freeze(response.data.manifest),
-							mergeMap: Object.freeze(response.data.mergeMap)
-						});
-					})
-					.catch((error) => {
-						parser.onError('net', { uri, error: error });
-					});
-				*/
 			} else {
 				await storageManager.reloadManifest(payload);
 			}

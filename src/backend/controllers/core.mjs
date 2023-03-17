@@ -55,9 +55,9 @@ export default (app) => {
     });
 
     // Возвращает результат работы валидаторов
-    app.get('/core/storage/validators/', function(req, res) {
+    app.get('/core/storage/problems/', function(req, res) {
         if (!helpers.isServiceReady(app, res)) return;
-        res.json(app.storage.validators || []);
+        res.json(app.storage.problems || []);
     });
 
     // Текущее полное состояние
