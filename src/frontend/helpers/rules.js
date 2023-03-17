@@ -6,7 +6,7 @@ import requests from './requests';
 // Выполняет валидаторы и накладывает исключения
 export default function(manifest, success, reject) {
 	if (env.isBackendMode()) {
-		requests.request('backend://validators/')
+		requests.request('backend://problems/')
 			.then((response) => {
 				for (const id in response.data || {}) {
 					const node = response.data[id];
