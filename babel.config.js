@@ -1,5 +1,11 @@
 module.exports = {
-  presets: [
-    '@vue/cli-plugin-babel/preset'
+	presets: [
+    ['@babel/preset-typescript', { 'onlyRemoveTypeImports': true }],
+		'@vue/cli-plugin-babel/preset',
+    '@babel/preset-env'
+	],
+  plugins: [
+    '@babel/plugin-proposal-class-properties',
+    '@babel/proposal-object-rest-spread'
   ]
-}
+};

@@ -1,110 +1,61 @@
 <template>
-    <div
-        :id="id"
-        v-if="this.url"
-    >{{error}}</div>
+  <box v-bind:id="dom_id" />
 </template>
 
 <script>
-import SwaggerUI from "swagger-ui";
-// import config from "../../../config";
-import manifest_parser from "../../manifest/manifest_parser";
-import docs from "../../helpers/docs";
-import requests from "../../helpers/requests"
+  import SwaggerUI from 'swagger-ui';
+  import requests from '../../helpers/requests';
+  import mustache from 'mustache';
+  import DocMixin from './DocMixin';
 
-export default {
-  name: 'Swagger',
-  methods: {
-    requestData() {
-      requests.request(this.url)
-      .then((response) => {
-        this.data = response.data;
-        this.swaggerRender();
-      }).catch((e) => {
-        this.error = e;
-      });
+  export default {
+    name: 'Swagger',
+    mixins: [DocMixin],
+    data() {
+      return {
+        dom_id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`,
+        data: null
+      };
     },
+    watch: {
+      isPrintVersion() {
+        const el = document.getElementById(this.dom_id);
+        el.innerHTML = '';
+        this.$nextTick(this.swaggerRender);
+      }
+    },
+    methods: {
+      refresh() {
+        const params = this.isTemplate ? {
+          responseHook: (response) => {
+            if (typeof response.data === 'string') {
+              response.data = mustache.render(response.data, this.source.dataset);
+            }
 
-    swaggerRender() {
-      if (this.url) {
-        SwaggerUI({
-          dom_id: `#${this.id}`,
-          spec: this.data
-        })
+            return response;
+          }
+        } : undefined;
+        requests.request(this.url, undefined, params)
+          .then((response) => {
+            this.data = response.data;
+            this.swaggerRender();
+          }).catch((e) => this.error = e);
+        this.sourceRefresh();
+      },
+
+      swaggerRender() {
+        if (this.url) {
+          SwaggerUI({
+            dom_id: `#${this.dom_id}`,
+            spec: this.data,
+            deepLinking: true,
+            docExpansion: this.isPrintVersion ? 'full' : 'list',
+            presets: [
+              SwaggerUI.presets.apis
+            ]
+          });
+        }
       }
     }
-  },
-  computed: {
-    manifest() {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
-    },
-    url () {
-      // eslint-disable-next-line vue/no-async-in-computed-properties
-      setTimeout(() => this.requestData(), 50);
-      const profile = this.manifest.docs ? this.manifest.docs[this.document] : null;
-      return profile ?
-          docs.urlFromProfile(profile,
-              (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location
-          )
-          : '';
-    }
-  },
-  props: {
-    document: String
-  },
-  data() {
-    return {
-      id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`,
-      data: null,
-      error: ""
-    };
-  }
-};
+  };
 </script>
-
-<style>
-
-.swagger-ui .info {
-  display: none;
-}
-
-.swagger-ui .info {
-  border-radius: 3px;
-}
-
-.swagger-ui .info .title {
-  margin-left: 24px;
-  margin-top: 24px;
-  display: block;
-  font-size: 24px !important;
-  color: #fff;
-}
-
-.swagger-ui .info .url {
-  margin-left: 24px;
-  margin-top: 8px;
-  display: block;
-  font-size: 16px !important;
-  color: #fff;
-}
-
-.swagger-ui .scheme-container {
-  margin: 0;
-  padding: 0 0 0 30px;
-  background: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
-
-.swagger-ui .info .main {
-  background: #3495db;
-}
-
-.v-application code {
-  background-color: transparent;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
-</style>

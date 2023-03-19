@@ -1,6 +1,7 @@
 skinparam useBetaStyle true
+allow_mixing
 '!pragma layout elk
-!pragma layout smetana
+'!pragma layout smetana
 skinparam {
     HyperLinkColor #000
 	wrapWidth 200
@@ -89,43 +90,6 @@ skinparam {
 !endprocedure
 
 
-'Развертывание контекста
-!unquoted procedure $SystemExpand($ID)
----
-[[/architect/contexts/$ID ≫≫]]
-!endprocedure
-
-'Неизвестные объекты
-!unquoted procedure $Unknown($ID, $ACName)
-    rectangle $ID [
-        <b>$ACName</b>
-        ====
-!endprocedure
-
-!unquoted procedure $UnknownEnd()
-    ]
-!endprocedure
-
-!unquoted procedure $UnknownAspect($func="", $AType = "")
-    * $func
-!endprocedure
-
-
-'Компоненты
-!unquoted procedure $System($ID, $ACName, $AType = "")
-    component $ID[
-        <b>$ACName</b>
-        ====
-!endprocedure
-
-!unquoted procedure $SystemEnd()
-    ]
-!endprocedure
-
-!unquoted procedure $SystemAspect($func="", $AType = "")
-    * $func
-!endprocedure
-
 'Стили Person
 skinparam component<<Person>> {
 	backgroundColor Transparent
@@ -137,30 +101,83 @@ skinparam component<<Person>> {
     FontStyle Bold
 }
 
-'Person
-'#################################################################
-!unquoted procedure $Person($PersonID, $PersonName, $Type)
-actor $PersonID <<Person>> [
-..===$PersonName..
-]
+
+!unquoted procedure $join_start()
+    %set_variable_value("$join_append", 0)
 !endprocedure
 
-!unquoted procedure $PersonEnd()
+!unquoted function $join_append()
+    !$val = %get_variable_value("$join_append")
+    !if $val == 0
+        %set_variable_value("$join_append", 1)
+    !endif
+    !return $val
+!endfunction
+
+!unquoted procedure $join_end()
+    %set_variable_value("$join_append", 0)
 !endprocedure
 
-!unquoted procedure $PersonAspect($ID, $title)
-!endprocedure
-
-!unquoted procedure $PersonExpand($ID, $title)
-!endprocedure
-
-
-'Entity
-'#################################################################
-!unquoted procedure $Entity($entity, $title, $id)
+!unquoted procedure $Entity($entity, $ACName, $id, $ACType)
+    $join_start()
     !if ($entity == component)
-        participant "$title" as $id
+        component $id[
+        <b>$ACName</b>
+        ====
+    !elseif ($entity == system)
+        component $id[
+            <b>$ACName</b>
+            ====
+    !elseif ($entity == actor || $entity == person)
+        actor $id [
+        ..===$ACName..
+        ]
     !else
-        $entity "$title" as $id
+        $entity $id [
+            <b>$ACName</b>
+            ====
+    !endif
+!endprocedure
+
+!unquoted procedure $EntityEnd($entity)
+    !if ($entity == component)
+    ]
+    !elseif ($entity == system)
+    ]
+    !elseif ($entity == actor || $entity == person)
+'nothing
+    !else
+    ]
+    !endif
+    $join_end()
+!endprocedure
+
+!unquoted procedure $EntityAspect($entity, $prop)
+    !if ($entity == component)
+        !$val = $join_append()
+        !if ($val != 0)
+        ---
+        !endif
+        * $prop
+    !elseif ($entity == system)
+        * $prop
+    !elseif ($entity == actor || $entity == person)
+'nothing
+    !else
+        * $prop
+    !endif
+!endprocedure
+
+!unquoted procedure $EntityExpand($entity, $ID)
+    !if ($entity == component)
+        ---
+        [[/architect/contexts/$ID ≫≫]]
+    !elseif ($entity == system)
+        ---
+        [[/architect/contexts/$ID ≫≫]]
+    !elseif ($entity == actor || $entity == person)
+'nothing
+    !else
+'nothing
     !endif
 !endprocedure

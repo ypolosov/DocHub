@@ -1,66 +1,92 @@
 {
-  "name": "dochub",
-  "version": "0.1.0",
-  "private": true,
+  "name": "dochubcore",
+  "version": "1.0.4",
+  "main": "/dist/dochub.js",
+  "files": [
+    "/dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RabotaRu/DocHub.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RabotaRu/DocHub/issues"
+  },
+  "homepage": "https://github.com/RabotaRu/DocHub#readme",
   "scripts": {
+    "lib": "export VUE_APP_DOCHUB_SMART_ANTS_SOURCE='../../../assets/libs/smartants' && vue-cli-service build --name test --target lib",
+    "plugin": "export VUE_APP_DOCHUB_MODE=plugin && export VUE_APP_DOCHUB_SMART_ANTS_SOURCE='../../../assets/libs/smartants' && vue-cli-service build",
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "export VUE_APP_DOCHUB_SMART_ANTS_SOURCE='../../../assets/libs/smartants' && vue-cli-service build",
+    "build:package": "node vue.lib.js",
     "lint": "vue-cli-service lint",
+    "test": "jest --watch",
     "meta-import": "node src/tools/meta/import.js"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "@asyncapi/react-component": "1.0.0-next.44",
+    "@asyncapi/web-component": "0.24.23",
+    "@mdi/font": "5.9.55",
+    "@mermaid-js/mermaid-mindmap": "9.3.0",
+    "ajv": "8.11.0",
+    "ajv-i18n": "4.2.0",
+    "axios": "0.21.4",
+    "core-js": "3.26.1",
     "dateformat": "3.0.3",
-    "jsonata": "^1.8.4",
-    "swagger-ui": "3.24.3",
-    "vue": "2.6.11",
-    "vue-code-diff": "0.0.4",
+    "jsonata": "1.8.6",
+    "monaco-editor": "0.34.1",
+    "mustache": "4.2.0",
+    "swagger-ui": "3.52.5",
+    "uuid": "8.3.2",
+    "vis-network": "9.1.2",
+    "vue": "2.7.14",
     "vue-cookie": "1.1.4",
-    "vue-markdown": "^2.2.4",
-    "vue-router": "3.1.5",
-    "vuetify": "2.2.14",
-    "vuex": "3.1.2",
-    "yaml": "^1.10.2"
+    "vue-markdown": "2.2.4",
+    "vue-router": "3.6.5",
+    "vue-async-computed": "3.9.0",
+    "vuetify": "2.6.14",
+    "vuex": "3.6.2",
+    "yaml": "1.10.2",
+    "mermaid": "9.3.0"
   },
   "devDependencies": {
-    "@mdi/font": "5.0.45",
-    "@vue/cli-plugin-babel": "4.2.2",
-    "@vue/cli-plugin-eslint": "4.2.2",
-    "@vue/cli-service": "4.2.2",
-    "babel-eslint": "^10.1.0",
-    "babel-loader": "8.0.6",
-    "css-loader": "3.4.2",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.2.3",
-    "html-webpack-inline-source-plugin": "^0.0.10",
-    "postcss-loader": "2.0.8",
-    "raw-loader": "^4.0.2",
+    "@babel/eslint-parser": "7.19.1",
+    "@babel/preset-env": "7.20.2",
+    "@babel/preset-typescript": "7.18.6",
+    "@effortlessmotion/html-webpack-inline-source-plugin": "1.0.3",
+    "@types/jest": "28.1.8",
+    "@typescript-eslint/eslint-plugin": "5.46.1",
+    "@typescript-eslint/parser": "5.46.1",
+    "@vue/cli-plugin-babel": "5.0.8",
+    "@vue/cli-plugin-eslint": "5.0.8",
+    "@vue/cli-service": "5.0.8",
+    "babel-eslint": "10.1.0",
+    "babel-loader": "8.3.0",
+    "css-loader": "3.6.0",
+    "eslint": "7.32.0",
+    "eslint-plugin-vue": "7.20.0",
+    "fake-indexeddb": "4.0.1",
+    "generator-code": "1.7.1",
+    "html-webpack-plugin": "5.5.0",
+    "jest": "28.1.3",
+    "jest-environment-jsdom": "28.1.3",
+    "postcss-loader": "2.1.6",
+    "raw-loader": "4.0.2",
+    "ts-loader": "8.2.0",
+    "typescript": "4.9.4",
     "vue-loader": "13.7.3",
-    "vue-monaco": "^0.3.1",
+    "vue-monaco": "0.3.2",
     "vue-style-loader": "3.1.2",
-    "vue-template-compiler": "2.6.11"
+    "vue-template-compiler": "2.7.14",
+    "webpack-pwa-manifest": "4.3.0",
+    "yo": "4.3.0"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "rules": {},
-    "parserOptions": {
-      "parser": "babel-eslint"
-    }
+  "overrides": {
+    "es5-ext": "0.10.53"
   },
   "postcss": {
     "plugins": {
       "autoprefixer": {}
     }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ]
+  }
 }

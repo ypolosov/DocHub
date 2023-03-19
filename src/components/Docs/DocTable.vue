@@ -1,127 +1,147 @@
 <template>
-<v-card>
-    <template v-if="!error">
-      <v-card-title v-if="(dataset || []).length > 10">
+  <box>
+    <v-card>
+      <v-card-title v-if="(source.dataset || []).length > 10 && !isPrintVersion">
         <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
           label="Поиск"
           single-line
-          hide-details
-        ></v-text-field>
+          hide-details />
       </v-card-title>
       <v-data-table
-        :headers="headers"
-        :items="dataset || []"
-        :search="search"
-        :items-per-page="15"
-        :multi-sort="true"
-        class="elevation-1"
-      >
+        v-bind:headers="headers"
+        v-bind:items="source.dataset || []"
+        v-bind:search="search"
+        v-bind:items-per-page="15"
+        v-bind:multi-sort="true"
+        v-bind:hide-default-footer="isPrintVersion"
+        v-bind:disable-pagination="isPrintVersion"
+        class="elevation-1">
+        <!-- eslint-disable vue/valid-v-slot -->
+        <template #footer.prepend>
+          <v-btn icon colo1r="primary" v-on:click="exportToExcel">
+            <v-icon title="Экспорт в Excel">mdi-export</v-icon>
+          </v-btn>
+          Экспорт в Excel
+        </template>        
         <template #item="{ item }">
           <tr>
             <td 
               v-for="(field, index) in rowFields(item)" 
-              :key = "index"
-              :align = "field.align"
-            >
+              v-bind:key="index"
+              v-bind:align="field.align">
               <template v-if="field.link">
-                <router-link :to="field.link">
-                  {{ field.value }}
-                </router-link>              
+                <d-c-link v-bind:href="field.link">{{ field.value }}</d-c-link>
               </template>
-              <template v-else>
-                {{ field.value }}
-              </template>
+              <template v-else>{{ field.value }}</template>
             </td>
           </tr>  
         </template>
-        <template v-slot:no-data>
-          <v-alert :value="true" color="error" icon="warning">
+        <template #no-data>
+          <v-alert v-bind:value="true" icon="warning">
             Данных нет :(
           </v-alert>
         </template>  
       </v-data-table>
-    </template>
-    <template v-else>
-      <v-alert :value="true" color="error" icon="warning">
-        Возникла ошибка при генерации таблицы [{{document}}]
-        <br>[{{error}}]
-      </v-alert>
-    </template>
-  </v-card>
+    </v-card>
+  </box>
 </template>
 
 <script>
 
-import manifest_parser from "../../manifest/manifest_parser";
-import datasets from "../../helpers/datasets";
+  import DCLink from '../Controls/DCLink.vue';
+  import DocMixin from './DocMixin';
+  import env, {Plugins} from '@/helpers/env';
 
-export default {
-  name: 'DocTable',
-  methods: {
-    refresh() {
-      this.provider.getData(this.manifest, this.docParams, this.baseURI)
-      .then((dataset) => this.dataset = dataset)
-      .catch((e) => this.error = e)
+  export default {
+    name: 'DocTable',
+    components: { 
+      DCLink 
     },
-    rowFields(row) {
-      const result = this.headers.map((column) => {
-        return {
-          value: (row[column.value] || '').toString().replace("\\n","\n"),
-          link: column.link ? row[column.link] : undefined,
-          align: column.align || 'left'
-        }
-      });
-      return result;
-    }
-  },
-  mounted(){
-    this.refresh();
-  },
-  watch: {
-    url () { this.refresh() }
-  },
-  computed: {
-    baseURI() {
-      return (this.$store.state.sources.find((item) => item.path === `/docs/${this.document}`) || {}).location;
+    mixins: [DocMixin],
+    props: {
+      document: { type: String, default: '' }
     },
-    manifest() {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
-    },
-    docParams() {
-      return (this.manifest.docs || {})[this.document] || {};
-    },
-    headers () {
-      return this.docParams.headers || [];
-    },
-    perPage() {
-      // eslint-disable-next-line no-debugger
-      debugger
-      return this.docParams["per-page"];
-    }
-  },
-  props: {
-    document: String
-  },
-  data() {
-    const provider = datasets();
-    provider.dsResolver = (id) => {
+    data() {
       return {
-        subject: (this.manifest.datasets || {})[id],
-        baseURI: (this.$store.state.sources.find((item) => item.path === `/datasets/${id}`) || {}).location
+        search: ''
+      };
+    },
+    computed: {
+      headers() {
+        return this.profile.headers || [];
+      },
+      perPage() {
+        return this.profile['per-page'];
+      },
+      isTemplate() {
+        return true;
       }
-    };
-    return {
-      provider,
-      error: null,
-      dataset: null,
-      search: ''
+    },
+    methods: {
+      exportToExcel() {
+        const template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><meta http-equiv="content-type" content="text/plain; charset=UTF-8"/></head><body><table>{table}</table></body></html>'
+              , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))); }
+              , format = function(s, c) { 	    	 
+                return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }); 
+              },
+              htmlEscape = function(str) {
+                return String(str)
+                  .replace(/&/g, '&amp;')
+                  .replace(/"/g, '&quot;')
+                  .replace(/'/g, '&#39;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/\n/g, '<br>');
+              },
+              ctx = {
+                worksheet: this.document || 'Worksheet', 
+                table: 
+                  '<tr>' + this.headers.map((header) => `<td>${header.text}</td>`).join('') + '</tr>' 
+                  + (this.source.dataset || []).map((row) => {
+                    return '<tr>' + 
+                      this.rowFields(row).map((cell) => {
+                        return `<td>${htmlEscape(cell.value)}</td>`;
+                      }).join('')
+                      + '</tr>';
+                  }).join('')
+              };
+
+        if (env.isPlugin(Plugins.idea)) {
+          window.$PAPI.download(
+            format(template, ctx),
+            'Экспорт в Excel',
+            'Выберите файл для сохранения выгрузки',
+            'xls'
+          );
+        } else {
+          const link = document.createElement('a');
+          link.download = `${this.document}.xls`;
+          link.href = 'data:application/vnd.ms-excel;base64,' + base64(format(template, ctx));
+          link.click();
+        }
+      },
+      rowFields(row) {
+        const result = this.headers.map((column) => {
+          return {
+            value: (row[column.value] || '').toString().replace('\\n','\n'),
+            link: column.link ? row[column.link] : undefined,
+            align: column.align || 'left'
+          };
+        });
+        return result;
+      }
     }
-  }
-};
+
+  };
 </script>
 
-<style>
-
+<style scoped>
+table {
+  max-width: 100%;
+}
+td {
+  white-space: pre-wrap
+}
 </style>

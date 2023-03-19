@@ -1,6 +1,6 @@
 # Источники данных (datasets)
 
-Источники данных во многом работают идентично [таблицам]](/docs/dochub.tables) с данными. 
+Источники данных во многом работают идентично [таблицам](/docs/dochub.tables) с данными. 
 Ключевое их отличие в том, что они сами не визуализуруют их, а предоставляют потребителям.
 
 ## Предопределенные данные в источниках
@@ -10,7 +10,7 @@
 ```yaml
 datasets:                       
   dochub.components.criticality:  # Определяет уровни критичности
-    data:                         # Предопределенные данные
+    source:                       # Предопределенные данные
       - id: k1
         title: Уровень K1
       - id: k2
@@ -35,12 +35,12 @@ datasets:
 ```yaml
 datasets:                       # Источники данных
   dochub.components:            # Идентификатор источника
-    data: >                     # JSONata запрос к архитектуре
+    source: >                   # JSONata запрос к архитектуре
       (
         [components.$spread().{
             "id": $keys()[0],
             "location": *.title,
-            "link": "/docs/" & $keys()[0]
+            "link": "/architect/components/" & $keys()[0]
         }[$substring(id, 0, 7)="dochub."]^(title)]
       )
 ```
@@ -57,17 +57,17 @@ datasets:                       # Источники данных
 ```yaml
 datasets:                       
   dochub.components:            # Возвращает все архитектурные компоненты DocHub
-    data: >                     # JSONata запрос к архитектуре
+    source: >                   # JSONata запрос к архитектуре
       (
         [components.$spread().{
             "id": $keys()[0],
             "location": *.title,
-            "link": "/docs/" & $keys()[0]
+            "link": "/architect/components/" & $keys()[0]
         }[$substring(id, 0, 7)="dochub."]^(title)]
       )
   dochub.components.l1:         # Выбирает только L1 для архитектурных компонентов DocHub
     origin: dochub.components   # Базовый источник данных
-    data: >                     # JSONata запрос к архитектуре
+    source: >                   # JSONata запрос к архитектуре
       ($[$count($split(id, "."))=2])
 ```
 
@@ -75,8 +75,4 @@ datasets:
 
 ![Зависимый источник](@document/dochub.dataset.li)
 
-[Далее](/docs/dochub.forms)
-
-
-
-
+[Далее](/docs/dochub.jsonata)

@@ -1,34 +1,116 @@
+const WebpackPwaManifest = require('webpack-pwa-manifest');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlWebpackInlineSourcePlugin = require('@effortlessmotion/html-webpack-inline-source-plugin');
+const pluginsConf = require('./plugins.json');
+const PluginMaker = require('./src/building/plugin-maker');
 
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+const plugins = [];
+const entries = {};
 
-// const fs = require('fs');
+// Собираем встраиваемые плагины
+//if (process.env.VUE_APP_DOCHUB_MODE === 'production') {
+(pluginsConf?.inbuilt || []).map((item) => {
+	const config = require(`./${item}/package.json`);
+	entries[`plugins/${item}`] = `./${item}/${config.main || 'index.js'}`;
+});
+//}
 
+// Добавляем в манифест внешние плагины
+const manifest = {
+	name: 'DocHub',
+	short_name: 'DocHub',
+	description: 'Architecture as a code',
+	background_color: '#ffffff',
+	crossorigin: 'use-credentials',
+	plugins: pluginsConf?.external,
+	filename: 'manifest.json'
+};
+
+plugins.push(new WebpackPwaManifest(manifest));
+
+// Добавляем собственный плагин-мейкер
+plugins.push(new PluginMaker());
+
+if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
+	plugins.push(new HtmlWebpackPlugin({
+		filename: 'plugin.html',
+		template: 'src/plugin.html',
+		inlineSource: '.(woff(2)?|ttf|eot|svg|js|css)$',
+		inject: true
+		/* ,
+		minify: {
+			removeComments: true,
+			collapseWhitespace: true,
+			removeAttributeQuotes: true,
+			minifyCSS: true,
+			minifyJS: true
+			// more options:
+			// https://github.com/kangax/html-minifier#options-quick-reference
+		} */
+	}));
+	plugins.push(new HtmlWebpackInlineSourcePlugin());
+}
 
 // Дефолтная конфигурация dev-сервера
 let config = {
-    runtimeCompiler: true,
-    devServer: {
-        /*
+	runtimeCompiler: true,
+	devServer: {
+		/*
         allowedHosts: [
-            'dochub.rabota.space',
             'localhost'
         ],
         */
+	},
+	transpileDependencies: ['vueitfy'],
+	configureWebpack: {
+		experiments: {
+			outputModule: true
+		},
+		optimization: {
+			splitChunks: false,
+			runtimeChunk: 'single'
+		},
+		entry: {...entries},
+		plugins,
+		module: {
+			rules: [
+				/*
+				{
+					test: /\/libs\/.*\.js$/,
+					use: {
+                        options: {
+                            compact: false
+                        }
+                    }					
+				},
+				*/
+				{
+					test: /\.mjs$/,
+					include: /node_modules/,
+					type: 'javascript/auto'
+				},
+				{
+					test: /\.tsx?$/,
+					use: [
+							{
+								loader: 'ts-loader',
+									options: {
+										compilerOptions: {
+										noEmit: false
+										}
+									}
+							}
+						]
+				}
+			]
+		},
+    output: {
+      filename: '[name].js'
     },
-    configureWebpack: {
-        optimization: {
-          splitChunks: false 
-        },
-        plugins: [
-            new HtmlWebpackPlugin({
-                filename: 'plugin.html', 
-                template: 'src/plugin.html', 
-                inlineSource: '.(woff(2)?|ttf|eot|svg|js|css)$'
-            }),
-            new HtmlWebpackInlineSourcePlugin()
-        ]
-      }    
+    resolve: {
+      extensions: ['.ts', '.js']
+    }
+	}
 };
 
 // Подключает сертификаты, если они обнаружены

@@ -1,71 +1,105 @@
 <template>
-    <div 
-      style="min-height:100%; position:relative"
-    >
+  <div style="height: 100%;">
+    <empty v-if="isEmpty" />
+    <template v-else-if="error">
+      <v-alert v-bind:value="true" color="error" icon="warning">
+        Возникла ошибка при генерации контекста [{{ context }}]
+        <br>[{{ error }}]
+      </v-alert>
+    </template>
+    <template v-else>
       <plantuml 
         v-if="isCustomUML && customUML" 
-        :uml="customUML"
-      ></plantuml>
+        v-bind:uml="customUML" />
       <schema 
-        style="position: absolute; bottom: 0; right: 0; left:0; top: 0;"
         v-else
-        :schema="schema"
-      ></schema>
-    </div>
+        v-bind:schema="schema" />
+    </template>
+  </div>
 </template>
 
 <script>
-import Schema from '../Schema/Schema';
-import manifest_parser from "../../manifest/manifest_parser";
-import query from "../../manifest/query";
-import Plantuml from "../Schema/PlantUML";
-import requests from "../../helpers/requests";
+  import Schema from '../Schema/Schema';
+  import query from '../../manifest/query';
+  import Plantuml from '../Schema/PlantUML';
+  import requests from '../../helpers/requests';
+  import Empty from '../Controls/Empty.vue';
+  import datasets from '../../helpers/datasets';
 
-export default {
-  name: 'Context',
-  components: {
-    Schema,
-    Plantuml
-  },
-  methods : {
-    reloadCustomUML () {
-      if (!this.isCustomUML) return;
-      const basePath = (this.$store.state.sources.find((item) => item.path === `/contexts/${this.context}`) || {}).location;
-      requests.request(this.schema.uml, basePath)
-        .then((response) => {
-          this.customUML = response.data
-        }).catch((err) => {
-        // eslint-disable-next-line no-console
-          console.error(err);
-        })
+  export default {
+    name: 'Context',
+    components: {
+      Schema,
+      Plantuml,
+      Empty
+    },
+    props: {
+      context: { type: String, default: '' }
+    },
+    data() {
+      return {
+        provider: datasets(),
+        error: null,
+        dataset: null,
+        refresher: null,
+        customUML: null
+      };
+    },
+    computed: {
+      isEmpty() {
+        return !(this.manifest.contexts || {})[this.context];
+      },
+      contextParams() {
+        return Object.assign({'source': '($)'}, (this.manifest.contexts || {})[this.context] || {}) ;
+      },
+      baseURI() {
+        return this.$store.state.sources[`/contexts/${this.context}`][0];
+      },
+      schema() {
+        this.$nextTick(this.reloadCustomUML);
+        const result = query.expression(query.context(this.context, this.location)).evaluate(this.dataset) || {};
+        return result;
+      },
+      isCustomUML() {
+        return typeof this.schema.uml === 'string';
+      }
+    },
+    watch: {
+      context() { 
+        this.refresh(); 
+      },
+      manifest() { 
+        this.refresh(); 
+      }
+    },
+    mounted(){
+      this.refresh();
+    },
+    methods : {
+      reloadCustomUML() {
+        if (!this.isCustomUML) return;
+        requests.request(this.schema.uml, this.baseURI)
+          .then((response) => {
+            this.customUML = response.data;
+          }).catch((err) => {
+            // eslint-disable-next-line no-console
+            console.error(err);
+          });
+      },
+      refresh() {
+        this.refresher && clearTimeout(this.refresher);
+        this.dataset = null;
+        this.refresher = setTimeout(() => {
+          this.provider.getData(this.manifest, this.contextParams)
+            .then((dataset) => {
+              this.dataset = dataset;
+            })
+            .catch((e) => this.error = e)
+            .finally(() => this.refresher = null);
+        }, 50);
+      }
     }
-  },
-  computed: {
-    manifest() {
-      return this.$store.state.manifest[manifest_parser.MODE_AS_IS] || {};
-    },
-    basePath() {
-      return (this.$store.state.sources.find((item) => item.path === `/contexts/${this.context}`) || {}).location;
-    },
-    schema () {
-      const asIs = this.$store.state.manifest[manifest_parser.MODE_AS_IS];
-      this.$nextTick(this.reloadCustomUML);
-      const result = query.expression(query.context(this.context, this.location)).evaluate(asIs);
-      return result;
-    },
-    isCustomUML () {
-      return typeof this.schema.uml === 'string';
-    }
-  },
-  props: {
-    context: String
-  },
-  data() {
-    return {
-      customUML: null
-    };
-  }
-};
+  };
 </script>
 
 <style scoped>

@@ -2,11 +2,14 @@
 
 Документ - многофункциональная сущность. Поддерживаются форматы:
 * **[PlantUML](/docs/dochub.plantuml)** - позволяет создавать диаграммы из обычного текстового языка. [Подробнее](https://plantuml.com/ru/).
-* **[Swagger (OpenAPI)](/docs/dochub.swagger)**  - язык описания интерфейсов для описания RESTful API, выраженных с помощью JSON. [Подробнее](https://swagger.io/);
-* **[Markdown](/docs/dochub.markdown)** - облегчённый язык разметки, созданный с целью обозначения форматирования в простом тексте. [Подробнее](https://ru.wikipedia.org/wiki/Markdown)
-* **[Table](/docs/dochub.tables)** - документ для представления данных в табличной форме.
+* **[Mermaid](/docs/dochub.mermaid)** - Аналогично PlantUML позволяет создавать диаграммы из текста. [Подробнее](https://mermaid-js.github.io/mermaid/#/).
+* **[Swagger (OpenAPI)](/docs/dochub.swagger)**  - язык описания интерфейсов для описания RESTful API, выраженных с помощью JSON. [Подробнее](https://swagger.io/).
+* **[AsyncApi](/docs/dochub.asyncapi)**  - язык для описания событийно-ориентированных сервисов. [Подробнее](https://www.asyncapi.com/).
+* **[Markdown](/docs/dochub.markdown)** - облегчённый язык разметки, созданный с целью обозначения форматирования в простом тексте. [Подробнее](https://ru.wikipedia.org/wiki/Markdown).
+* **[Table](/docs/dochub.tables)** - документ для представления данных в табличной форме;
+* **[Network](/docs/dochub.network)** - сетевые диаграммы.
 
-Описание документов в манифесте [/docs/manual/manifest.yaml](/docs/manual/manifest.yaml):
+Описание документов в манифесте:
 ```yaml
 docs:                                 # Документы
     dochub.manual:                    # Идентификатор документа
@@ -18,7 +21,7 @@ docs:                                 # Документы
             - dochub.front            # Идентификатор архитектурного объекта
         source: ../docs/manual.md     # Путь к документу 
         data: ...                     # Данные для документа (см. таблицы)  
-        origin: ...                   # Исхотдные данные (см. таблицы)
+        origin: ...                   # Исходные данные (см. таблицы)
 ```
 
 Документы могут иметь связи с архитектурными объектами. Для этого в секции "subjects" необходимо перечислить их

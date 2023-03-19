@@ -1,25 +1,25 @@
 <template>
-  <v-card 
+  <v-card
     style="
       overflow: hidden;
       position: relative;
-      min-height: 400px;
-    "
-  >
+      min-height: 600px;
+    ">
     <v-card-title>
-      <v-icon left>link</v-icon>
+      <v-icon left>mdi-link</v-icon>
       <span class="title">Контексты</span>
     </v-card-title>
     <v-select
       v-model="context"
-      :items="contexts"
+      v-bind:items="contexts"
       item-text="title"
       item-value="id"
       return-object
-      class="d-flex" cols="12" sm="12"
-      style="margin: 0 12px 0px 12px"
-    ></v-select>
-    <v-card-text 
+      class="d-flex"
+      cols="12"
+      sm="12"
+      style="margin: 0 12px 0px 12px" />
+    <v-card-text
       class="headline font-weight-bold"
       style="
         position: absolute;
@@ -27,67 +27,62 @@
         left: 0;
         bottom: 0;
         right: 0;
-      "
-    >
-      <schema :schema="schema" style="min-height:100%"></schema>
+        overflow: auto;
+      ">
+      <schema v-bind:schema="schema" style="min-height:calc(100% - 24px)" />
     </v-card-text>
   </v-card>
 </template>
 
 <script>
 
-import Schema from '../../Schema/Schema';
-import query from "../../../manifest/query";
+  import Schema from '@/components/Schema/Schema.vue';
+  import query from '../../../manifest/query';
 
-export default {
-  name: 'TabContexts',
-  components: {
-    Schema,
-  },
-  methods: {
-    goToLink() {
-
-    }
-  },
-  computed: {
-    schema () {
-      if (!this.context) return null;
-      let expression;
-      if (this.context.type === 'component') {
-        expression = query.expression(query.component(this.context.id));
-      } else {
-        expression = query.expression(query.context(this.context.id));
-      }
-      return expression.evaluate(this.manifest);
+  export default {
+    name: 'TabContexts',
+    components: {
+      Schema
     },
-    context: {
-      get() {
-        return this.seleted ? this.seleted : (this.contexts[0]);
+    props: {
+      defaultContext: { type: Object, default: null },
+      contexts: { type: Array, default: () => ([]) }
+    },
+    data() {
+      return {
+        selected : null,
+        currentContext: 0
+      };
+    },
+    computed: {
+      schema() {
+        if (!this.context) return null;
+
+        const expression = query.expression(
+          this.context.type === 'component' ?
+            query.component(this.context.id) :
+            query.context(this.context.id)
+        );
+
+        return expression.evaluate(this.manifest);
       },
-      set(value) {
-        this.seleted = value;
+      context: {
+        get() {
+          if (!this.selected) {
+            return this.defaultContext || this.contexts[0];
+          }
+
+          return this.selected;
+        },
+        set(value) {
+          this.selected = value;
+        }
+      }
+    },
+    watch: {
+      contexts() {
+        this.seleted = null;
       }
     }
-  },
-  watch: {
-    contexts() {
-      this.seleted = null;
-    }
-  },
-  props: {
-    contexts: Array,
-    manifest: Object
-  },
-  data() {
-    return {
-      seleted : null,
-      currentContext: 0
-    };
-  }
-};
+  };
 </script>
-
-<style scoped>
-
-
-</style>

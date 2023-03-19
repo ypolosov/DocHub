@@ -1,5 +1,7 @@
 imports:
   - docs/root.yaml
+  - rules/root.yaml
+  - plugins/root.yaml
 docs:
     dochub.manual:
         location: DocHub/Руководство
@@ -90,6 +92,33 @@ docs:
         - dochub.front
         - dochub.front.spa
         - dochub.front.spa.dataset
+    dochub.inheritance:
+      location: DocHub/Руководство/Наследование
+      description: Наследование объектов
+      type: markdown
+      source: inheritance.md
+      subjects:
+        - dochub.front
+        - dochub.front.spa
+        - dochub.front.spa.dataset
+    dochub.jsonata:
+      location: DocHub/Руководство/JSONata+
+      description: Расширения JSONata
+      type: markdown
+      subjects:
+        - dochub.front
+        - dochub.front.spa
+        - dochub.front.spa.dataset
+      source: jsonata.md
+    dochub.entities:
+      location: DocHub/Руководство/Сущности
+      description: Расширения метамодели
+      type: markdown
+      subjects:
+        - dochub.front
+        - dochub.front.spa
+        - dochub.front.spa.dataset
+      source: entities.md
     dochub.config:
       icon: settings
       location: DocHub/Конфигурирование
@@ -98,3 +127,6 @@ docs:
       subjects:
         - dochub.front
       source: config/config.md
+    dochub.context.source:
+      type: plantuml
+      source: context_source.puml

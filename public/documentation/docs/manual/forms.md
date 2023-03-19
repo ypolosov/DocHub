@@ -8,7 +8,7 @@ forms:                    # Формы
   - entity:               # Сущности для которых форма релевантна (см. PlantUML)
       - component         # В данном случае, это компонент
     fields:               # Поля формы
-      source_file:        # Идентификатор поля
+      source:             # Идентификатор поля
         title: Файл       # Название поля
         required: true    # Признак обязательности 
 ```
@@ -35,4 +35,4 @@ links:
 ![Карточка компонента](@component/dochub.front.spa.workspace) 
 
 
-[Далее](/docs/dochub.technologies)
+[Далее](/docs/dochub.entities)

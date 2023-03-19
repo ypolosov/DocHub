@@ -6,7 +6,9 @@ Dochub supports:
 
 * [PlantUML](https://plantuml.com/)
 * [Markdown](https://ru.wikipedia.org/wiki/Markdown)
+* [Mermaid](https://mermaid-js.github.io/mermaid/#/)
 * [Swagger](https://swagger.io/)
+* [AsyncAPI](https://www.asyncapi.com/)
 * [Manifests](https://dochub.info/docs/dochub_contexts)
 
 
@@ -18,7 +20,8 @@ Dochub allows solves issues with:
 * [Decentralized architecture management in Agile-oriented companies](#decentralized);
 * [Ecosystem Architecture Management](#ecosystem);
 * [Unified portal of documentations](#facade);
-* [Consistency control](#problems).
+* [Consistency control](#problems);
+* [Extensible metamodel](extmetamodel)
 
 ### <a name="versioning"></a> Versioning Architecture
 
@@ -56,6 +59,14 @@ DocHub can find problems in the description of the architecture.
 
 ![problems](pics/problems.png)
 
+## <a name="extmetamodel"></a> Extensible metamodel
+
+МThe DocHub math model can be extended as you wish. It is possible to
+both modify existing entities and create your own.
+
+An example of creating the [C4 Model notation](https://github.com/rpiontik/DocHubExamples/tree/main/src/C4Model)
+
+
 ## Live demo portal
 
 https://dochub.info/
@@ -80,11 +91,13 @@ Dochub is regular vuejs single page application (spa).
 
 **Requirements:**
 
-* docker >= 20
-* docker-compose >= 3.8
+* docker >= **v20**
+* docker-compose >= **v2.2.3**
 
 
 ```bash
+export DOCKER_BUILDKIT=1 # or configure in daemon.json
+export COMPOSE_DOCKER_CLI_BUILD=1
 git clone git@github.com:RabotaRu/DocHub.git
 cd DocHub
 docker-compose up --build
@@ -140,15 +153,13 @@ You can serve dochub like regular static site via nginx, s3 or something else.
 Full VueJS [documentation](https://cli.vuejs.org/ru/guide/deployment.html) about deployment.
 
 
-
-
 ### Kubernetes
 
 You can use the [helm chart](https://github.com/RabotaRu/helm-charts/tree/main/charts/dochub)
 
 ## License
 
-[GNU GPL v.2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html), see [LICENSE](LICENSE)
+Apache License 2.0 Open source license.
 
 ## Articles
 

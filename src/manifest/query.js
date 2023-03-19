@@ -1,5 +1,7 @@
-import jsonata from "jsonata";
-
+import jsonata from 'jsonata';
+import ajv from 'ajv';
+import env from '@/helpers/env';
+const ajv_localize = require('ajv-i18n/localize/ru');
 
 const SCHEMA_CONTEXT = `
 (
@@ -35,7 +37,7 @@ const SCHEMA_CONTEXT = `
             $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
                 $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
             });
-            $COMPONENT := $lookup($MANIFEST.components, $);
+            $COMPONENT := $ ? $lookup($MANIFEST.components, $);
             $COMPONENTS := $COMPONENT 
                 ? [$merge([$COMPONENT, {"id": $}])]
                 : [(
@@ -54,15 +56,15 @@ const SCHEMA_CONTEXT = `
                     "entity": $COMPONENT.entity ? $COMPONENT.entity : 'component',
                     "type": $COMPONENT.type,
                     "namespaces":[$MKNS($NAMESPACES_IDS)],
-                    "is_context": $lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false,
+                    "is_context": $COMPONENT_ID ? ($lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false),
                     "links": [$distinct($COMPONENT.links)[id].(
                         $ID := $.id;
-                        $COMPONENT := $lookup($MANIFEST.components, $ID);
+                        $COMPONENT := $ID ? $lookup($MANIFEST.components, $ID);
                         $NAMESPACES_IDS := $split($ID, ".");
                         $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
                             $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
                         });
-                        $CONTRACT := $lookup($MANIFEST.docs, $.contract);
+                        $CONTRACT := $.contract ? $lookup($MANIFEST.docs, $.contract);
                         {
                             "id": $ID,
                             "title": $COMPONENT.title ? $COMPONENT.title : $ID,
@@ -77,11 +79,12 @@ const SCHEMA_CONTEXT = `
                         }
                     )],
                     "aspects": [$COMPONENT.aspects.$spread().(
-                        $ASPECT := $lookup($MANIFEST.aspects, $);
+                        $ASPECT := $ ? $lookup($MANIFEST.aspects, $);
                         {
-                        "id": $,
-                        "title": $ASPECT.title ? $ASPECT.title : $
-                    })]
+                            "id": $,
+                            "title": $ASPECT.title ? $ASPECT.title : $
+                        }
+                    )]
                 }                
             )
             
@@ -130,17 +133,17 @@ const SCHEMA_COMPONENT = `
                 "entity": $COMPONENT.entity,
                 "type": $COMPONENT.type,
                 "namespaces":[$MKNS($NAMESPACES_IDS)],
-                "is_context": $lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false,
+                "is_context": $COMPONENT_ID ? ($lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false),
                 "contexts": $distinct(
                     $MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].$keys()[0]
                 ),
                 "links": [$distinct($COMPONENT.links).(
-                    $COMPONENT := $lookup($MANIFEST.components, $.id);
+                    $COMPONENT := $.id ? $lookup($MANIFEST.components, $.id);
                     $NAMESPACES_IDS := $split($.id, ".");
                     $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
                         $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
                     });
-                    $CONTRACT := $lookup($MANIFEST.docs, $.contract);
+                    $CONTRACT := $.contract ? $lookup($MANIFEST.docs, $.contract);
                     {
                         "id": $.id,
                         "title": $COMPONENT.title ? $COMPONENT.title : $.id,
@@ -155,7 +158,7 @@ const SCHEMA_COMPONENT = `
                     }
                 )],
                 "aspects": [$COMPONENT.aspects.$spread().(
-                    $ASPECT := $lookup($MANIFEST.aspects, $);
+                    $ASPECT := $ ? $lookup($MANIFEST.aspects, $);
                     {
                     "id": $,
                     "title": $ASPECT.title ? $ASPECT.title : $
@@ -244,93 +247,118 @@ const SCHEMA_QUERY = `
 
 const MENU_QUERY = `
 (
-    $GET_TITLE := function($LOCATION) {(
-        $STRUCT := $split($LOCATION, "/");
-        $STRUCT[$count($STRUCT) - 1];
-    )};
+	$isURL := $matcher := /^[a-zA-Z]*\\:.*$/i;
+	$isRoot := $matcher := /^\\/.*$/i;
 
-    $MANIFEST := $;
-    [
+    $append((
+        $GET_TITLE := function($LOCATION) {(
+            $STRUCT := $split($LOCATION, "/");
+            $STRUCT[$count($STRUCT) - 1];
+        )};
+    
+        $MANIFEST := $;
+        $append([
+                {
+                    "title": 'Архитектура',
+                    "location": 'Архитектура',
+                    "route": 'architect/',
+                    "expand": true,
+                    "icon": 'home'
+                },
+                {
+                    "title": "Контексты",
+                    "location": 'Архитектура/Контексты',
+                    "icon": 'location_searching'
+                },
+                {
+                    "title": "Аспекты",
+                    "location": 'Архитектура/Аспекты',
+                    "icon": 'visibility',
+                    "route": 'aspects/'
+                },
+                {
+                    "title": 'Документы',
+                    "location": 'Документы',
+                    "expand": true,
+                    "icon": 'description'
+                },
+                contexts.$spread().{
+                    "title": $GET_TITLE($.*.location ? $.*.location : $keys()[0]),
+                    "route": 'architect/contexts/' & $keys()[0],
+                    "hiden": $.*.location ? false : true,
+                    "location": 'Архитектура/Контексты/' & $.*.location,
+                    "icon": $.*.icon ? $.*.icon : ''
+                },
+                aspects.$spread().{
+                    "title": $GET_TITLE($.*.location),
+                    "route": 'architect/aspects/' & $keys()[0],
+                    "location": 'Архитектура/Аспекты/' & $.*.location,
+                    "icon": $.*.icon ? $.*.icon : ''
+                },
+                docs.$spread().{
+                    "title": $GET_TITLE($.*.location),
+                    "route": 'docs/' & $keys()[0],
+                    "hiden": $.*.location ? false : true,
+                    "location": 'Документы/' & $.*.location,
+                    "icon": $.*.icon ? $.*.icon : ''
+                },
+                {
+                    "title": 'Техрадар',
+                    "location": 'Техрадар',
+                    "route": 'techradar',
+                    "icon": 'track_changes'
+                },
+                technologies.sections.$spread().{
+                    "title": $.*.title,
+                    "route": 'techradar/' & $keys()[0],
+                    "location": 'Техрадар/' & $.*.title
+                },
+                {
+                    "title": 'Проблемы',
+                    "location": 'Проблемы',
+                    "route": 'problems',
+                    "icon": 'report_problem'
+                }
+            ][($exists(hiden) and $not(hiden)) or $not($exists(hiden))],
+            entities.*.(
+                $eval(menu, $MANIFEST).{
+                    "route": link,
+                    "location": location,
+                    "icon": icon,
+                    "title": $GET_TITLE(location)
+                }
+            )
+        )
+    ).{
+        "title": "" & title,
+        "route": route ? (
+            $isURL(route) ? route
+            : ($isRoot(route) ? route : '/' & route)
+        ) : undefined,
+        "icon": icon,
+        "location": "" & (location ? location : route)
+    }^(location), [
         {
-            "title": 'Архитектура',
-            "location": 'architect',
-            "route": 'architect/',
-            "expand": true,
-            "icon": 'home'
-        },
-        {
-            "title": "Контексты",
-            "location": 'architect/contexts',
-            "icon": 'location_searching'
-        },
-        {
-            "title": "Аспекты",
-            "location": 'architect/aspects',
-            "icon": 'visibility',
-            "route": 'aspects/'
-        },
-        {
-            "title": 'Документы',
-            "location": 'docs',
-            "expand": true,
-            "icon": 'description'
-        },
-        contexts.$spread().{
-            "title": $GET_TITLE($.*.location ? $.*.location : $keys()[0]),
-            "route": 'architect/contexts/' & $keys()[0],
-            "hiden": $.*.location ? false : true,
-            "location": 'architect/contexts/' & $.*.location,
-            "icon": $.*.icon ? $.*.icon : ''
-        },
-        aspects.$spread().{
-            "title": $GET_TITLE($.*.location),
-            "route": 'architect/aspects/' & $keys()[0],
-            "location": 'architect/aspects/' & $.*.location,
-            "icon": $.*.icon ? $.*.icon : ''
-        },
-        docs.$spread().{
-            "title": $GET_TITLE($.*.location),
-            "route": 'docs/' & $keys()[0],
-            "hiden": $.*.location ? false : true,
-            "location": 'docs/' & $.*.location,
-            "icon": $.*.icon ? $.*.icon : ''
-        },
-        {
-            "title": 'Техрадар',
-            "route": 'techradar',
-            "icon": 'track_changes'
-        },
-        technologies.sections.$spread().{
-            "title": $.*.title,
-            "route": 'techradar/' & $keys()[0],
-            "location": 'techradar/' & $.*.title
-        },
-        {
-            "title": 'Проблемы',
-            "route": 'problems',
-            "icon": 'report_problem'
+            "title": 'JSONata',
+            "route": '/devtool',
+            "icon": 'chrome_reader_mode',
+            "location": "devtool"
         }
-    ][($exists(hiden) and $not(hiden)) or $not($exists(hiden))]
-).{
-    "title": title,
-    "route": route ? '/' & route : undefined,
-    "icon": icon,
-    "location": location ? location : route
-}^(location)
+    ])
+)
 `;
 
 const CONTEXTS_QUERY_FOR_COMPONENT = `
 (
     $MANIFEST := $;
-    [contexts.$spread().(
+    [$distinct([contexts.$spread().(
         $CONTEXT := $;
         $ID := $keys()[0];
-        $.*.components[$ = '{%COMPONENT%}'].{
+        *.components[$wcard('{%COMPONENT%}', $)].{
             "id": $ID,
             "title": $CONTEXT.*.title
         }
-        
-    )]
+    )])];
 )
 `;
 
@@ -340,9 +368,10 @@ const SUMMARY_COMPONENT_QUERY = `
     $MANIFEST := $;
     $lookup(components, $COMPONENT_ID).(
         $COMPONENT := $;
-        $ENTYTY := entity;
-        $FORM := $MANIFEST.forms[$ENTYTY in entity].fields;
-        $FIELDS := $append([
+        $ENTITY := $.entity ? $.entity : "component";
+        $FORM := $MANIFEST.forms[entity.$contains($ENTITY)].fields;
+        
+        $append([
             {
                 "title": "Идентификатор",
                 "content": $COMPONENT_ID,
@@ -355,13 +384,22 @@ const SUMMARY_COMPONENT_QUERY = `
                 "field": "title",
                 "required": true
             }
-        ], $FORM.$spread().{
+        ], $merge($FORM).$spread().{
             "title": $.*.title,
             "required": $.*.required,
-            "content": $lookup($COMPONENT, $keys()[0]),
-            "field": $keys()[0]
+            "content": $lookup($COMPONENT, $.$keys()),
+            "field": $.$keys()
         });
     )
+)
+`;
+
+const WIDGETS_COMPONENT_QUERY = `
+(
+	$pres := entities.components.presentations;
+	[$pres.blank.widgets.$spread().(
+		$merge([{ "id": $keys()[0]}, *])
+	)]
 )
 `;
 
@@ -384,8 +422,10 @@ const DOCUMENTS_FOR_ENTITY_QUERY = `
 
 const COMPONENT_LOCATIONS_QUERY = `
 (
-    $COMPONENT_ID := '{%COMPONENT%}';
-    [$distinct($[$substring(path, 0, $length($COMPONENT_ID) + 12) = '/components/' & $COMPONENT_ID].location)]
+    [$lookup($, '/components/' & '{%COMPONENT%}').{
+        "link": $,
+        "title": $
+    }]
 )
 `;
 
@@ -419,10 +459,31 @@ const SUMMARY_ASPECT_QUERY = `
 )
 `;
 
-const ASPECT_LOCATIONS_QUERY = `
+const WIDGETS_ASPECT_QUERY = `
+(
+    $pres := entities.aspects.presentations;
+    [$pres.blank.widgets.$spread().(
+        $merge([{ "id": $keys()[0]}, *])
+    )]
+)   
+`;
+
+const ASPECT_DEFAULT_CONTEXT = `
 (
     $ASPECT_ID := '{%ASPECT%}';
-    [$distinct($[$substring(path, 0, $length($ASPECT_ID) + 9) = '/aspects/' & $ASPECT_ID].location)]
+    $MANIFEST := $;
+    $lookup(aspects, $ASPECT_ID).(
+				$.'default-context'
+    )
+)
+`;
+
+const ASPECT_LOCATIONS_QUERY = `
+(
+    [$lookup($, '/aspects/' & '{%ASPECT%}').{
+        "link": $,
+        "title": $
+    }]
 )
 `;
 
@@ -432,13 +493,14 @@ const CONTEXTS_QUERY_FOR_ASPECT = `
     [$distinct(
     components.$spread().(
         $COMPONENT_ID := $keys()[0];
-        $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
-        $COMPONENT['{%ASPECT%}' in aspects] ? 
+        *.['{%ASPECT%}' in aspects] ? 
         (
-            [$MANIFEST.contexts.$spread()[$COMPONENT_ID in *.components].(
-                {
-                    "id": $keys()[0],
-                    "title": *.title
+            [$MANIFEST.contexts.$spread().(
+                $CONTEXT_ID := $keys()[0];
+                $TITLE := *.title;
+                *.components[$wcard($COMPONENT_ID, $)].{
+                    "id": $CONTEXT_ID,
+                    "title": $TITLE
                 }
             )];
         ) : undefined
@@ -556,8 +618,8 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
     $FILTER_LN := $length($FILTER);
     $USED_ASPECTS := $distinct($.components.*.aspects);
     $ASPECTS := $.aspects.$spread().$keys()[0];
-    [[$append($USED_ASPECTS, $ASPECTS).(
-        $PREFIX := $substring($, 0, $FILTER_LN + 1);
+    [[$append($USED_ASPECTS, $ASPECTS)[$].(
+        $PREFIX := $substring("" & $, 0, $FILTER_LN + 1);
         $FILTER_LN = 0 or $PREFIX = $FILTER or $PREFIX = ($FILTER & ".") ? (
             $ASPECT := $lookup($MANIFEST.aspects, $);
             {
@@ -569,210 +631,241 @@ const ARCH_MINDMAP_ASPECTS_QUERY = `
     )]^(id)]
 )`;
 
-const PROBLEMS_QUERY = `
+const JSONSCEMA_ENTITIES_QUERY = `
 (
-    $MANIFEST := $;
-    $NOFOUND_COMPONENTS := [
-        $map($distinct($MANIFEST.contexts.*.components), function($v) {
-            (
-                $COMPONENT := $lookup($MANIFEST.components, $v);
-                $exists($COMPONENT) or $substring($v, -2) = ".*" ? undefined : {
-                    "problem": 'Несуществующие компонент',
-                    "id": $v,
-                    "title": "Ссылка на несуществующий компонент [" & $v & "]",
-                    "route": '/architect/components/' & $v
-                }
-            )
-        })
-    ];    
-    $LOST_COMPONENTS := [
-        components.$spread().{
-            "problem": 'Компонент вне контекста',
-            "id": $keys()[0],
-            "title": *.title,
-            "route": '/architect/components/' & $keys()[0]
-        }.(
-            $ID := id;
-            $exists($MANIFEST.contexts.*.components[$wcard($ID, $)]) 
-            ? undefined
-            : $
-        )
-    ];
-    $UNDEFINED_NAMESPACES := (
-        $ens := function($id) {
-            (
-                $ids := $split($id, ".");
-                $join($map($ids, function($v, $i, $a) {
-                        $i < $count($ids) - 1 ? $v : undefined
-                }), ".")
-            )
-        };
-        [
-            components.$spread().{
-                "id": $keys()[0],
-                "route": "architect/components/" & $keys()[0],
-                "title": title,
-                "namespace": $ens($keys()[0]),
-                "entity": "компоненте"
-            }
-        ].(
-            $SELF := $lookup($MANIFEST.components, namespace); 
-            $SELF := $SELF ? $SELF : $lookup($MANIFEST.namespaces, namespace); 
-            $exists($SELF) ? undefined :
-            {
-                "problem": 'Идентификаторы без описания',
-                "route": route,
-                "title": namespace & " в " & entity & " " & title & " [" & id & "]"
-            }
-        )
-    );
-    $UNDEFINED_COMPONENT := 
-        [
-            components.$spread().(
-                $COMPONENT_ID := $keys()[0];
-                $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
-                $COMPONENT.presentations.links[$not($exists($lookup($MANIFEST.components, id)))].(
-                    id ?
-                    {
-                        "problem": 'Компоненты не описаны',
-                        'route': '/architect/components/' & $COMPONENT_ID,
-                        "title": "Зависимость [" & id & "] не описана для компонента " & $COMPONENT_ID
-                    } : undefined
-                )
-            )
-        ];
-    $UNDEFINED_ASPECT := 
-        [
-            components.$spread().(
-                $COMPONENT_ID := $keys()[0];
-                $COMPONENT := $lookup($MANIFEST.components, $COMPONENT_ID);
-                $COMPONENT.aspects.(
-                    $lookup($MANIFEST.aspects, $) ? undefined :                     {
-                        "problem": 'Аспекты не определены',
-                        'route': '/architect/aspects/' & $,
-                        "title": "Аспект не описан [" & $ & "]"
-                    }
-                )
-            )
-        ];
-    [
-        $distinct($NOFOUND_COMPONENTS),
-        $distinct($UNDEFINED_CONTEXTS),
-        $distinct($LOST_COMPONENTS),
-        $distinct($UNDEFINED_NAMESPACES),
-        $distinct($UNDEFINED_COMPONENT),
-        $distinct($UNDEFINED_ASPECT)
-    ]
+	$manifest := $;
+	{
+		"type": "object",
+		"properties": $merge([
+			$manifest.entities.$spread().({
+				$keys()[0]: $.*.schema
+			})
+		]),
+		"$defs": $merge([$manifest.entities.*.schema."$defs"])
+	};
 )
 `;
 
-/*
-    $FIELD_ERRORS := [
-        (
-            $MANIFEST := $;
-            [components.$spread().(
-                $COMPONENT := $;
-                $ID := $keys()[0];
-                $.*.expert ? undefined : {
-                    "problem": "Ошибки в полях",
-                    "id": $ID,
-                    "title": "Не указан эксперт в компоненте [" & $COMPONENT.*.title & "]",
-                    "route": '/architect/components/' & $ID
-                }
-            )]
-        )
-    ];
-*/
+// Расширенные функции JSONata
 
-// $distinct($FIELD_ERRORS),
+function wcard(id, template) {
+	if (!id || !template) return false;
+	const tmlStruct = template.split('.');
+	let items = [];
+	for (let i = 0; i < tmlStruct.length; i++) {
+		const pice = tmlStruct[i];
+		if (pice === '**') {
+			items.push('.*$');
+			break;
+		} else if (pice === '*') {
+			items.push('[^\\.]*');
+		} else items.push(pice);
+	}
+
+	const isOk = new RegExp(`^${items.join('\\.')}$`);
+
+	return isOk.test(id);
+
+	/*
+	const idStruct = id.split('.');
+	if (tmlStruct.length < idStruct) return false;
+	for (let i = 0; i < tmlStruct.length; i++) {
+		const pice = tmlStruct[i];
+		if (pice === '**') return true;
+		if (pice === '*') continue;
+		if (pice !== idStruct[i]) return false;
+	}
+	return idStruct.length === tmlStruct.length;
+    */
+}
+
+function mergeDeep(sources) {
+	function mergeDeep(target, sources) {
+		function isObject(item) {
+			return (item && typeof item === 'object' && !Array.isArray(item));
+		}
+
+		if (!sources.length) return target;
+		const source = sources.shift();
+
+		if (isObject(target) && isObject(source)) {
+			for (const key in source) {
+				if (isObject(source[key])) {
+					if (!target[key]) Object.assign(target, { [key]: {} });
+					mergeDeep(target[key], [source[key]]);
+				} else {
+					Object.assign(target, { [key]: source[key] });
+				}
+			}
+		}
+		return mergeDeep(target, sources);
+	}
+	return mergeDeep({}, sources);
+}
+
+function jsonSchema(schema) {
+	const rules = new ajv({ allErrors: true });
+	const validator = rules.compile(schema);
+	return (data) => {
+		const isOk = validator(data);
+		if (isOk) return true;
+		ajv_localize(validator.errors);
+		return validator.errors;
+	};
+}
 
 export default {
-    expression(expression) {
-        const result = jsonata(expression);
-        result.registerFunction("wcard", (id, template) => {
-            if (!id || !template) return false;
-            const idStruct = id.split('.');
-            const tmlStruct = template.split('.');
-            if (tmlStruct.length < idStruct) return false;
-            for (let i = 0; i < tmlStruct.length; i++) {
-                const pice = tmlStruct[i];
-                if (pice === "**") return true;
-                if (pice === "*") continue;
-                if (pice !== idStruct[i]) return false;
-            }
-            return idStruct.length === tmlStruct.length;
-        });
-        return result;
-    },
+	// Создает объект запроса JSONata
+	//  expression - JSONata выражение
+	//  self    - объект, который вызывает запрос (доступен по $self в запросе)
+	//  params  - параметры передающиеся в запрос
+    //  isTrace - признак необходимости проанализировать выполнение запроса.
+    //          Если true, то в объекте запроса, после его выполнения, появится поле "trace"
+    //  funcs - кастомные функции, регистрируемые в JSONata 
+	expression(expression, self_, params, isTrace, funcs) {
+		const obj = {
+			expression,
+			core: null,
+			onError: null,  // Событие ошибки выполнения запроса
+			store: {},      // Хранилище вспомогательных переменных для запросов
+			// Исполняет запрос
+			//  context - контекст исполнения запроса
+			//  def - если возникла ошибка, будет возращено это дефолтное значение
+			evaluate(context, def) {
+				try {
+					if (!this.core) {
+						this.core = jsonata(this.expression);
+						this.core.assign('self', self_);
+						this.core.assign('params', params);
+						this.core.registerFunction('wcard', wcard);
+						this.core.registerFunction('mergedeep', mergeDeep);
+						this.core.registerFunction('jsonschema', jsonSchema);
+						this.core.registerFunction('set', (key, data) => {
+							return obj.store[key] = data;
+						});
+						this.core.registerFunction('get', (key) => {
+							return obj.store[key];
+						});
+                        for(const name in funcs || {}) {
+                            this.core.registerFunction(name, funcs[name]);
+                        }
+					}
 
-    // Меню
-    menu () {
-        return MENU_QUERY;
-    },
-    // Запрос по контексту
-    context(context) {
-        return SCHEMA_CONTEXT.replace(/{%CONTEXT_ID%}/g, context);
-    },
-    // Запрос по компоненту
-    component(component) {
-        return SCHEMA_COMPONENT.replace(/{%COMPONENT_ID%}/g, component)
-    },
-    // Запрос контекстов в которых встречается компонент
-    contextsForComponent(component) {
-        return CONTEXTS_QUERY_FOR_COMPONENT.replace(/{%COMPONENT%}/g, component)
-    },
-    // Сводка по компоненту
-    summaryForComponent(component) {
-        return SUMMARY_COMPONENT_QUERY.replace(/{%COMPONENT%}/g, component)
-    },
-    // Определение размещения манифестов описывающих компонент
-    locationsForComponent(component) {
-        return COMPONENT_LOCATIONS_QUERY.replace(/{%COMPONENT%}/g, component)
-    },
-    // Запрос по аспекту
-    aspect(aspect, context) {
-        return SCHEMA_QUERY
-            .replace(/{%CONTEXT_ID%}/g, context || 'self')
-            .replace(/{%CONDITIONS%}/g, `'${aspect}' in aspects.id`)
-    },
-    // Сводка по аспекту
-    summaryForAspect(aspect) {
-        return SUMMARY_ASPECT_QUERY.replace(/{%ASPECT%}/g, aspect)
-    },
-    // Определение размещения манифестов описывающих аспект
-    locationsForAspect(aspect) {
-        return ASPECT_LOCATIONS_QUERY.replace(/{%ASPECT%}/g, aspect)
-    },
-    // Запрос контекстов в которых встречается аспект
-    contextsForAspects(aspect) {
-        return CONTEXTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect)
-    },
-    // Запрос компонентов в которых встречается аспект
-    componentsForAspects(aspect) {
-        return COMPONENTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect)
-    },
-    // Сбор информации об использованных технологиях
-    collectTechnologies() {
-        return TECHNOLOGIES_QUERY;
-    },
-    // Карточка технологии
-    summaryForTechnology(technology) {
-        return TECHNOLOGY_QUERY.replace(/{%TECH_ID%}/g, technology);
-    },
-    // Выявление проблем
-    problems() {
-        return PROBLEMS_QUERY;
-    },
-    // Документы для сущности
-    docsForEntity(entity) {
-        return DOCUMENTS_FOR_ENTITY_QUERY.replace(/{%ENTITY%}/g, entity);
-    },
-    // MindMap по архитектурным компонентам
-    archMindMapComponents(root) {
-        return ARCH_MINDMAP_COMPONENTS_QUERY.replace(/{%ROOT%}/g, root || '');
-    },
-    // MindMap по архитектурным аспектам
-    archMindMapAspects(root) {
-        return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
-    }
-}
+                    if (isTrace || env.isTraceJSONata()) {
+                        obj.trace = {
+                            start: (new Date()).getTime(),
+                            end: null
+                        };
+                        const result = Object.freeze(this.core.evaluate(context));
+                        obj.trace.end = (new Date()).getTime();
+                        obj.trace.exposition = this.trace.end - this.trace.start;
+                        if (env.isTraceJSONata()) {
+                            // eslint-disable-next-line no-console
+                            console.groupCollapsed(`JSONata tracer expression (${obj.trace.exposition/1000} seconds):`);
+                            // eslint-disable-next-line no-console
+                            console.info('Statistics:', obj.trace);
+                            // eslint-disable-next-line no-console
+                            console.info('Query:', obj.expression);
+                            // eslint-disable-next-line no-console
+                            console.info('Result:', result);
+                            // eslint-disable-next-line no-console
+                            console.groupEnd();
+                        }
+                        return result;
+                    } else return Object.freeze(this.core.evaluate(context));
+
+				} catch (e) {
+					// eslint-disable-next-line no-console
+					console.error('JSONata error:');
+					// eslint-disable-next-line no-console
+					console.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red');
+					// eslint-disable-next-line no-console
+					console.error(e);
+					this.onError && this.onError(e);
+					return def;
+				}
+			}
+		};
+		return obj;
+	},
+	// Меню
+	menu() {
+		return MENU_QUERY;
+	},
+	// Запрос по контексту
+	context(context) {
+		return SCHEMA_CONTEXT.replace(/{%CONTEXT_ID%}/g, context);
+	},
+	// Запрос по компоненту
+	component(component) {
+		return SCHEMA_COMPONENT.replace(/{%COMPONENT_ID%}/g, component);
+	},
+	// Запрос контекстов в которых встречается компонент
+	contextsForComponent(component) {
+		return CONTEXTS_QUERY_FOR_COMPONENT.replace(/{%COMPONENT%}/g, component);
+	},
+	// Сводка по компоненту
+	summaryForComponent(component) {
+		return SUMMARY_COMPONENT_QUERY.replace(/{%COMPONENT%}/g, component);
+	},
+	// Виджеты компонентов
+	widgetsForComponent() {
+		return WIDGETS_COMPONENT_QUERY;
+	},
+	// Определение размещения манифестов описывающих компонент
+	locationsForComponent(component) {
+		return COMPONENT_LOCATIONS_QUERY.replace(/{%COMPONENT%}/g, component);
+	},
+	// Запрос по аспекту
+	aspect(aspect, context) {
+		return SCHEMA_QUERY
+			.replace(/{%CONTEXT_ID%}/g, context || 'self')
+			.replace(/{%CONDITIONS%}/g, `'${aspect}' in aspects.id`);
+	},
+	// Сводка по аспекту
+	summaryForAspect(aspect) {
+		return SUMMARY_ASPECT_QUERY.replace(/{%ASPECT%}/g, aspect);
+	},
+	widgetsForAspect() {
+		return WIDGETS_ASPECT_QUERY;
+	},
+	defaultContextForAspect(aspect) {
+		return ASPECT_DEFAULT_CONTEXT.replace(/{%ASPECT%}/g, aspect);
+	},
+	// Определение размещения манифестов описывающих аспект
+	locationsForAspect(aspect) {
+		return ASPECT_LOCATIONS_QUERY.replace(/{%ASPECT%}/g, aspect);
+	},
+	// Запрос контекстов в которых встречается аспект
+	contextsForAspects(aspect) {
+		return CONTEXTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect);
+	},
+	// Запрос компонентов в которых встречается аспект
+	componentsForAspects(aspect) {
+		return COMPONENTS_QUERY_FOR_ASPECT.replace(/{%ASPECT%}/g, aspect);
+	},
+	// Сбор информации об использованных технологиях
+	collectTechnologies() {
+		return TECHNOLOGIES_QUERY;
+	},
+	// Карточка технологии
+	summaryForTechnology(technology) {
+		return TECHNOLOGY_QUERY.replace(/{%TECH_ID%}/g, technology);
+	},
+	// Документы для сущности
+	docsForSubject(entity) {
+		return DOCUMENTS_FOR_ENTITY_QUERY.replace(/{%ENTITY%}/g, entity);
+	},
+	// MindMap по архитектурным компонентам
+	archMindMapComponents(root) {
+		return ARCH_MINDMAP_COMPONENTS_QUERY.replace(/{%ROOT%}/g, root || '');
+	},
+	// MindMap по архитектурным аспектам
+	archMindMapAspects(root) {
+		return ARCH_MINDMAP_ASPECTS_QUERY.replace(/{%ROOT%}/g, root || '');
+	},
+	// Сводная JSONSchema по всем кастомным сущностям
+	entitiesJSONChema() {
+		return JSONSCEMA_ENTITIES_QUERY;
+	}
+};
