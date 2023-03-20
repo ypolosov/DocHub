@@ -31,6 +31,10 @@ DocHub - инструмент описания архитектуры через
 Примеры использования можно найти в специальном репозитории, который развивает 
 сообщество - [Примеры DocHub](https://github.com/rpiontik/DocHubExamples)
 
+Последние версии плагинов лежат здесь:
+1. [IDEA](./distrib/idea/) и в [маркете JetBrains](https://plugins.jetbrains.com/plugin/18518-dochub-architecture-as-code);
+2. [VSCode](./distrib//vscode/);
+
 Вступайте в сообщество [DocHubTeam](https://t.me/archascode). Здесь мы
 обсуждаем подход "Архитектура как код" и опыт применения DocHub.
 
