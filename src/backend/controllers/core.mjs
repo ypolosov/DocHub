@@ -21,14 +21,22 @@ export default (app) => {
 
     // Парсит переданные во внутреннем формате данные 
     function parseRequest(req) {
-        const url = new URL(req.params.query, 'backend:/');
-        const searchParams = Object.fromEntries(url.searchParams);
-       
+        //const url = new URL(req.params.query, 'backend:/');
+        // const searchParams = Object.fromEntries(url.searchParams);
+
+        return {
+            query: req.params.query,
+            params: req.query?.params ? JSON.parse(req.query?.params) : undefined,
+            subject: req.query?.subject ? JSON.parse(req.query?.subject) : undefined
+        };
+        
+        /*
         return {
             query: decodeURIComponent(url.pathname.slice(1)),
             params: searchParams.params ? JSON.parse(decodeURIComponent(searchParams.params)) : undefined,
             subject: searchParams.subject ? JSON.parse(decodeURIComponent(searchParams.subject)) : undefined
         };
+        */
     }
 
     // Выполняет произвольные запросы 
