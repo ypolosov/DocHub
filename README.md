@@ -32,8 +32,8 @@ DocHub - инструмент описания архитектуры через
 сообщество - [Примеры DocHub](https://github.com/rpiontik/DocHubExamples)
 
 Свежие версии плагинов лежат:
-1. Для IDEA в [проекта](./distrib/idea/) и в [маркете JetBrains](https://plugins.jetbrains.com/plugin/18518-dochub-architecture-as-code);
-2. Для VSCode в [проекте]](./distrib//vscode/);
+1. Для IDEA в [проекте](./distrib/idea/) и в [маркете JetBrains](https://plugins.jetbrains.com/plugin/18518-dochub-architecture-as-code);
+2. Для VSCode в [проекте]](./distrib/vscode/);
 
 Вступайте в сообщество [DocHubTeam](https://t.me/archascode). Здесь мы
 обсуждаем подход "Архитектура как код" и опыт применения DocHub.
