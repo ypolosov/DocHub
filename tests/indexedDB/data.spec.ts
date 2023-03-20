@@ -1,12 +1,12 @@
 import {describe, expect, it} from '@jest/globals';
 
-import { TCacheData } from '@/storage/indexedDB/types/idb.types';
+import { TCacheData } from '@front/storage/indexedDB/types/idb.types';
 import { checkIdbIdType } from '../helpers/types';
 
-import * as store from '@/storage/indexedDB/core/store';
-import * as data from '@/storage/indexedDB/core/data';
+import * as store from '@front/storage/indexedDB/core/store';
+import * as data from '@front/storage/indexedDB/core/data';
 
-import config from '@/storage/indexedDB/cache/config.json';
+import config from '@front/storage/indexedDB/cache/config.json';
 import idbCacheData from '../default/idbCacheData.json';
 
 const TEST_URL = 'http://localhost:8080/documentation/arch/rules.yaml';

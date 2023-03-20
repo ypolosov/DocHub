@@ -1,7 +1,7 @@
 import {describe, expect, it} from '@jest/globals';
 
-import * as store from '@/storage/indexedDB/core/store';
-import config from '@/storage/indexedDB/cache/config.json';
+import * as store from '@front/storage/indexedDB/core/store';
+import config from '@front/storage/indexedDB/cache/config.json';
 
 describe('store', (): void => {
   describe('create', (): void => {
