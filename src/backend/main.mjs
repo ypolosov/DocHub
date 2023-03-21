@@ -48,6 +48,7 @@ const mainLoop = async function() {
         .then((storage) =>{
             app.storage = storage;  // Инициализируем данные хранилища
             validators(app);        // Выполняет валидаторы
+            Object.freeze(app.storage);
         });
 
 };
