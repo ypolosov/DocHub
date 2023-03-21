@@ -1,5 +1,5 @@
 <template>
-  <box v-bind:id="dom_id" />
+  <box v-bind:id="dom_id" v-bind:class="getClass" />
 </template>
 
 <script>
@@ -18,6 +18,11 @@
         dom_id : `swagger-${Date.now()}-${Math.round(Math.random() * 10000)}`,
         data: null
       };
+    },
+    computed: {
+      getClass() {
+        return this.inline ? 'inline' : 'not-inline';
+      }
     },
     watch: {
       isPrintVersion() {
@@ -61,3 +66,11 @@
     }
   };
 </script>
+
+<style scoped>
+.not-inline {
+  padding: 16px;
+  width: 100%;
+}
+
+</style>

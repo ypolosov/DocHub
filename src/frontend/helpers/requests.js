@@ -135,7 +135,6 @@ export default {
 			// params.url = new URL(encodeURIComponent(path), this.translateBackendURL(origin));
 			params.url = new URL(path, this.translateBackendURL(origin));
 		} else if ((baseURI || '').toString().startsWith('backend://')) {
-			debugger;
 			params.url = new URL(encodeURIComponent(uri), this.translateBackendURL(baseURI));
 		} else if (baseURI) {
 			params.url = uriTool.makeURIByBaseURI(uri, baseURI);

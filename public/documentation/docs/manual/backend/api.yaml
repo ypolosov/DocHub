@@ -2,6 +2,11 @@ openapi: 3.0.3
 info:
   version: 1.0.0
   title: DocHub backend API
+  description: >
+    Данный документ актуален только для развертывания в режиме Client-Server.
+    В этом режиме предоставляются интеграционные API, которые вы можете использовать для 
+    встраивания DocHub в свои производственные процессы.
+    Подробнее тут http://dochub.info/docs/dochub.deployment
 servers:
   - url: "http://localhost:3030/"
     description: Локальный сервер
@@ -99,7 +104,7 @@ paths:
     get:
       tags:
       - Entities
-      summary: Вызывает специальную (upload) презентацию сущности с параметрами
+      summary: Вызывает специальную (upload) презентацию сущности 
       parameters:
         - in: path
           name: entity
@@ -126,7 +131,11 @@ paths:
       
       responses:
         "200":
-          description: "Результат генерации презентации"
+          description: "Массив обнаруженных проблем"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemsResult'
 components:
   schemas:
     JSONataQuery:
@@ -141,10 +150,10 @@ components:
       pattern: '^\/[a-zA-Z][a-zA-Z\_0-9]*(\/[a-zA-Z][a-zA-Z\_0-9]*)*$'
     EntityID: 
       type: string
-      pattern: '^[a-zA-Z\_0-9]*$'
+      pattern: '^[a-zA-Z\_0-9]$'
     PresentationID: 
       type: string
-      pattern: '^[a-zA-Z\_0-9]*$'
+      pattern: '^[a-zA-Z\_0-9]$'
     EntityParam:
       type: string
     ProblemsResult:

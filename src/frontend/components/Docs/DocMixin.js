@@ -125,6 +125,11 @@ export default {
 		}
 	},
 	props: {
+		// Признак того, что документ встроен в другой документ
+		inline: {
+			type: Boolean,
+			required: true
+		},
 		// Путь к данным профиля документа
 		path: {
 			type: String,
