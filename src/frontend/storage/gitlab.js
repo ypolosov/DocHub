@@ -131,7 +131,7 @@ export default {
 				const manifest = Object.freeze(parser.manifest);
 				// Обновляем манифест и фризим объекты
 				context.commit('setManifest', manifest);
-				context.commit('setSources', Object.freeze(parser.mergeMap));
+				context.commit('setSources', parser.mergeMap);
 				context.commit('setIsReloading', false);
 				if (!Object.keys(context.state.manifest || {}).length) {
 					context.commit('setCriticalError', true);
