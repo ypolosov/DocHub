@@ -145,6 +145,20 @@ entities: # Сущности расширенной матемодели
                       }])
                   )
                 )
+            data:
+              type: upload
+              title: Выгрузка данных JSON
+              params:
+                type: object
+                properties:
+                  id:
+                    type: string
+                required:
+                  - id
+              source: >
+                  (
+                      $lookup(interactions, $params.id)
+                  )
         schema:                  # JSON Schema контролирующая описание объекта сущности
             type: object
             patternProperties:
