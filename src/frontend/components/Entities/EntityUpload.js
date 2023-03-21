@@ -24,9 +24,7 @@ export const uploadDocument = function(profile, path, params) {
   return new Promise((success, reject) => {
       if (profile.template) {
         const baseURI = uriTool.getBaseURIOfPath(path);
-        debugger;
         requests.request(profile.template, baseURI).then(({ data }) => {
-          debugger;
           let content = data;
           provider.releaseData(path, params)
           .then((dataset) => {
@@ -39,7 +37,6 @@ export const uploadDocument = function(profile, path, params) {
           .catch((e) => reject(e));
         }).catch((e) => reject(e));
       } else {
-        debugger;
         provider.releaseData(path, params)
         .then((dataset) => {
           try {

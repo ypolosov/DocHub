@@ -17,14 +17,7 @@
       v-if="showDocument"
       v-bind:template="outHTML"
       v-bind:base-u-r-i="url" />
-    <v-progress-circular
-      v-else
-      v-bind:size="64"
-      v-bind:width="7"
-      style="left: 50%; top: 50%; position: absolute; margin-left: -32px; margin-top: -32px;"
-      v-bind:value="60"
-      color="primary"
-      indeterminate />
+    <spinner v-else />
   </box>
 </template>
 
@@ -38,12 +31,14 @@
   import DocMarkdownObject from './DocHubObject';
   import DocMixin from './DocMixin';
   import ContextMenu from './DocContextMenu.vue';
+  import Spinner from '@front/components/Controls/Spinner.vue';
 
   export default {
     name: 'DocMarkdown',
     components: {
       markdown,
       ContextMenu,
+      Spinner,
       finalMarkdown: {
         components: {
           'dochub-object': DocMarkdownObject
