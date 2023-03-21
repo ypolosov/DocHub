@@ -12,9 +12,12 @@
         v-bind:to-print="isPrintVersion"
         v-bind:pull-data="pullData"
         v-bind:context-menu="contextMenu" />
-      <v-alert v-else icon="warning">
-        Неизвестный тип документа [{{ docType }}]
-      </v-alert>
+      <template v-else>
+        <v-alert v-if="profile" icon="warning">
+          Неизвестный тип документа [{{ docType }}]
+        </v-alert>
+        <spinner v-else />
+      </template>
     </template>
   </div>
 </template>
@@ -35,6 +38,7 @@
   import DocMermaid from './DocMermaid.vue';
   import DocNetwork from './DocNetwork.vue';
   import DocSmartants from './DocSmartAnts.vue';
+  import Spinner from '@front/components/Controls/Spinner.vue';
   
   // Встроенные типы документов
   const inbuiltTypes = {
@@ -60,7 +64,8 @@
       Empty,
       DocMermaid,
       DocNetwork,
-      DocSmartants
+      DocSmartants,
+      Spinner
     },
     props: {
       path: {
@@ -92,7 +97,7 @@
     asyncComputed: {
       async profile() {
         const id = `("${this.currentPath.slice(1).split('/').join('"."')}")`;
-        return await query.expression(id).evaluate();
+        return await query.expression(id).evaluate() || { type: 'unknown' };
       }
     },
     computed: {
