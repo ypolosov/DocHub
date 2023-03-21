@@ -21,22 +21,11 @@ export default (app) => {
 
     // Парсит переданные во внутреннем формате данные 
     function parseRequest(req) {
-        //const url = new URL(req.params.query, 'backend:/');
-        // const searchParams = Object.fromEntries(url.searchParams);
-
         return {
             query: req.params.query,
             params: req.query?.params ? JSON.parse(req.query?.params) : undefined,
             subject: req.query?.subject ? JSON.parse(req.query?.subject) : undefined
         };
-        
-        /*
-        return {
-            query: decodeURIComponent(url.pathname.slice(1)),
-            params: searchParams.params ? JSON.parse(decodeURIComponent(searchParams.params)) : undefined,
-            subject: searchParams.subject ? JSON.parse(decodeURIComponent(searchParams.subject)) : undefined
-        };
-        */
     }
 
     // Выполняет произвольные запросы 
@@ -57,7 +46,7 @@ export default (app) => {
         if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
-        cache.pullFromCache(JSON.stringify({query: request.query, params: request.params}), async()=> {
+        cache.pullFromCache(JSON.stringify({path: request.query, params: request.params}), async()=> {
             return await datasets(app).releaseData(request.query, request.params);
         }, res);
     });
@@ -68,6 +57,7 @@ export default (app) => {
         res.json(app.storage.problems || []);
     });
 
+    /*
     // Текущее полное состояние
     app.get('/core/manifest/state', function(req, res) {
         if (!helpers.isServiceReady(app, res)) return;
@@ -77,5 +67,6 @@ export default (app) => {
             mergeMap: app.storage.mergeMap
         });
     });
+    */
 };
 

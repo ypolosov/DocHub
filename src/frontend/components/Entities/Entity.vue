@@ -20,7 +20,7 @@
 
   import doc from '@front/components/Docs/DocHubDoc.vue';
   import query from '@front/manifest/query';
-  
+   
   import { uploadDocument } from './EntityUpload';
 
   export default {
@@ -164,8 +164,7 @@
         // Если презентация направлена на выгрузку данных, генерируем их без переключения презентации
         if (presProfile.type.toLowerCase() === 'upload') {
           const path = `/entities/${this.entity}/presentations/${presentation}`;
-          const baseURI = this.$store.state.sources[path][0];
-          uploadDocument(presProfile, baseURI, this.entityParams, this.manifest);
+          uploadDocument(presProfile, path, this.entityParams, this.manifest);
         } else { // Иначе переключаем презентацию
           this.selectedPres = presentation;
           this.refreshPres();

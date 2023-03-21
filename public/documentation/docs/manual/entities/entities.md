@@ -333,4 +333,155 @@ entities:
 
 Живой пример работы доступен вам из [меню](/entities/interactions/tree).
 
+## Специальный тип презентаций - upload
+
+Данный тип презентаций служил для подготовки контента с последующей выгрузкой в виде файла. 
+Проще говоря, вы можете генерировать файлы из DocHub на основании данных архитектуры с любым форматом.
+
+
+Пример презентации для выгрузки BPMN диаграммы из сущности "interactions":
+
+```yaml
+entities:
+    interactions:
+      presentations:
+        ...
+          export:            # Экспорт взаимодействия в BPMN диаграмму
+            type: upload     # Специальный тип документа, который выгружает результат генерации документа
+            # Тип выгружаемого контента. По умолчанию text/plain. 
+            # Подробнее https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
+            mimetype: "application/xml" 
+            # Генерация будет происходить на основании XML шаблона
+            template: templates/bpmn.xml
+            title: Экспорт в BPMN
+            params:         
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+            # Готовим данные для шаблона - преобразуем сценарий взаимодействия в BPMN диаграмму
+            source: >
+              (
+                $mul := 120;
+                $lookup(interactions, $params.id).(
+                    $this := $;
+                    $body := {
+                        "id": $params.id,
+                        "start": {
+                            "name": $this.triggers[0],
+                            "stepid": "step0",
+                            "outgoing": "flow0",
+                            "shapey": $mul,
+                            "labely": $mul - 30
+                        },
+                        "steps": $this.steps ~> $map(function($v, $i) { 
+                            {
+                                "name": $v.value,
+                                "stepid": "step" & ($i+1),
+                                "flowid": "flow" & ($i),
+                                "incoming": "flow" & ($i),
+                                "outgoing": "flow" & ($i+1),
+                                "sourceRef": "step" & ($i),
+                                "targetRef": "step" & ($i+1),
+                                "shapey": ($i * $mul) + ($mul * 2),
+                                "flowy": ($i * $mul) + ($mul * 2) - ($i = 0 ? 84 : 40),
+                                "flowdy": ($i * $mul) + ($mul * 2)
+                            }
+                        })
+                    };
+                    $step_count := $count($body.steps);
+                    $merge([$body, {
+                        "end": {
+                            "name": $this.results[0],
+                            "stepid": "step" & ($step_count + 1),
+                            "flowid": "flow" & ($step_count),
+                            "incoming": "flow" & ($step_count),
+                            "sourceRef": "step" & ($step_count),
+                            "targetRef": "step" & ($step_count+1),
+                            "shapey": $step_count * $mul + ($mul * 2) + 50,
+                            "labely": $step_count * $mul - 30 + ($mul * 2) + 50,
+                            "flowy": ($step_count * $mul) + ($mul * 2 - 40),
+                            "flowdy": ($step_count * $mul) + ($mul * 2) + 54
+
+                        }
+                    }])
+                )
+              )
+        ...
+```
+
+Содержимое шаблона "templates/bpmn.xml":
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="sid-38422fae-e03e-43a3-bef4-bd33b32041b2" targetNamespace="http://bpmn.io/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="11.1.0">
+  <process id="{{id}}" isExecutable="false">
+    <startEvent id="{{start.stepid}}" name="{{start.name}}">
+      <outgoing>{{start.outgoing}}</outgoing>
+    </startEvent>
+    
+    {{#steps}}
+    <task id="{{stepid}}" name="{{name}}">
+      <incoming>{{incoming}}</incoming>
+      <outgoing>{{outgoing}}</outgoing>
+    </task>
+    <sequenceFlow id="{{flowid}}" sourceRef="{{sourceRef}}" targetRef="{{targetRef}}" />
+    {{/steps}}
+
+    <exclusiveGateway id="{{end.stepid}}" name="{{end.name}}">
+      <incoming>{{end.incoming}}</incoming>
+    </exclusiveGateway>
+    <sequenceFlow id="{{end.flowid}}" sourceRef="{{end.sourceRef}}" targetRef="{{end.targetRef}}" />
+  </process>
+  <bpmndi:BPMNDiagram id="BpmnDiagram_1">
+    <bpmndi:BPMNPlane id="BpmnPlane_1" bpmnElement="{{id}}">
+
+      <bpmndi:BPMNShape id="step0_di" bpmnElement="step0">
+        <omgdc:Bounds x="192" y="{{start.shapey}}" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="173" y="{{start.labely}}" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      {{#steps}}  
+      <bpmndi:BPMNShape id="{{stepid}}_di" bpmnElement="{{stepid}}">
+        <omgdc:Bounds x="160" y="{{shapey}}" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      {{/steps}}
+
+      <bpmndi:BPMNShape id="end_di" bpmnElement="{{end.stepid}}" isMarkerVisible="true">
+        <omgdc:Bounds x="185" y="{{end.shapey}}" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds x="178" y="{{end.labely}}" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      
+      {{#steps}}
+      <bpmndi:BPMNEdge id="{{flowid}}_di" bpmnElement="{{flowid}}">
+        <omgdi:waypoint x="210" y="{{flowy}}" />
+        <omgdi:waypoint x="210" y="{{flowdy}}" />
+      </bpmndi:BPMNEdge>
+      {{/steps}}  
+
+      <bpmndi:BPMNEdge id="{{end.flowid}}_di" bpmnElement="{{end.flowid}}">
+        <omgdi:waypoint x="210" y="{{end.flowy}}" />
+        <omgdi:waypoint x="210" y="{{end.flowdy}}" />
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
+```
+
+Теперь презентация станет доступна в выпадающем меню. Кликните правой кнопкой мышки на диаграмме
+и выберите пункт "Экспорт в BPMN".
+
+![](@entity/interactions/blank?id=dochub.user)
+
+В результате будет сгенерирован файл, который вы сможете сохранить и открыть в 
+[BPMN редакторе](https://demo.bpmn.io/). 
+
 [Далее](/docs/dochub.radar)
