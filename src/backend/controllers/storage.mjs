@@ -5,9 +5,10 @@ const LOG_TAG = 'controller-storage';
 
 export default (app) => {
     // Проксирует запрос к хранилищу
-    app.get('/core/storage/:hash/:url', async function(req, res) {
+    app.get('/core/storage/:hash/*', async function(req, res) {
         const hash = req.params.hash || '$unknown$';
-        const url = decodeURIComponent(req.params.url);
+        const url = req.originalUrl.slice(`/core/storage/${hash}/`.length);
+        //const url = decodeURIComponent(req.params.url);
         const uri = url.split('?')[0];
         const baseURL = app.storage?.md5Map[hash];
         logger.log(`Request to storage ${req.originalUrl}`, LOG_TAG);

@@ -132,9 +132,10 @@ export default {
 			const structURI = strURI.split('/');
 			const origin = `${structURI[0]}//${structURI[2]}/`;
 			const path = strURI.slice(origin.length);
-			params.url = new URL(encodeURIComponent(path), this.translateBackendURL(origin));
+			// params.url = new URL(encodeURIComponent(path), this.translateBackendURL(origin));
+			params.url = new URL(path, this.translateBackendURL(origin));
 		} else if ((baseURI || '').toString().startsWith('backend://')) {
-			params.url = new URL(encodeURIComponent(uri), this.translateBackendURL(baseURI));
+			params.url = new URL(uri, this.translateBackendURL(baseURI));
 		} else if (baseURI) {
 			params.url = uriTool.makeURIByBaseURI(uri, baseURI);
 		} else {

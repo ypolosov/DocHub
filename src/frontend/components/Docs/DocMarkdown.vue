@@ -110,7 +110,6 @@
             if (!data)
               this.markdown = 'Здесь пусто :(';
             else if (this.isTemplate) {
-              debugger;
               this.markdown = mustache.render(data, this.source.dataset);
             } else
               this.markdown = data;
@@ -137,6 +136,7 @@
   /* min-height: 100vh; */
   min-height: 60px;
 }
+
 .toc {
   margin-bottom: 24px;
 }
@@ -223,19 +223,27 @@
 }
 
 .markdown-document h2 {
-  margin-top: 56px;
   margin-bottom: 18px;
   font-size: 1.25rem;
   clear:both;
 }
 
+.markdown-document:not(:first-child) h2 {
+  margin-top: 56px;
+}
+
 .markdown-document h3,
 .markdown-document h4,
 .markdown-document h5 {
-  margin-top: 32px;
   margin-bottom: 18px;
   font-size: 1.125rem;
   clear:both;
+}
+
+.markdown-document:not(:first-child) h3,
+.markdown-document:not(:first-child) h4,
+.markdown-document:not(:first-child) h5 {
+  margin-top: 32px;
 }
 
 .markdown-document ul,

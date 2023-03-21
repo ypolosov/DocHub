@@ -2,6 +2,7 @@ import mustache from 'mustache';
 
 import datasets from '@front/helpers/datasets';
 import requests from '@front/helpers/requests';
+import uriTool from '@front/helpers/uri';
 
 function doUpload(content, mime) {
   const base64 = window.btoa(unescape(encodeURIComponent(content)));
@@ -18,13 +19,16 @@ function doUpload(content, mime) {
 //  baseURI     - Базовый URI 
 //  params      - Параметры передаваемые в документ
 //  manifest    - архитектурный манифест
-export const uploadDocument = function(profile, baseURI, params, manifest) {
+export const uploadDocument = function(profile, path, params) {
   const provider = datasets();
   return new Promise((success, reject) => {
       if (profile.template) {
+        const baseURI = uriTool.getBaseURIOfPath(path);
+        debugger;
         requests.request(profile.template, baseURI).then(({ data }) => {
+          debugger;
           let content = data;
-          provider.getData(manifest, profile, params)
+          provider.releaseData(path, params)
           .then((dataset) => {
             try {
               success(doUpload(mustache.render(content, dataset), profile.mimetype || 'text/plain'));
@@ -35,7 +39,8 @@ export const uploadDocument = function(profile, baseURI, params, manifest) {
           .catch((e) => reject(e));
         }).catch((e) => reject(e));
       } else {
-        provider.getData(manifest, profile, params)
+        debugger;
+        provider.releaseData(path, params)
         .then((dataset) => {
           try {
             success(doUpload(JSON.stringify(dataset, null, 2), 'application/json'));

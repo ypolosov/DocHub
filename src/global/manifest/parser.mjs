@@ -82,9 +82,9 @@ const parser = {
 	// uri - источник ошибки
 	registerError(e, uri) {
 		const errorPath = `$errors/requests/${new Date().getTime()}`;
-		this.pushToMergeMap(errorPath, null, uri);
 		// eslint-disable-next-line no-console
 		console.error(e, `Ошибка запроса [${errorPath}:${uri}]`, e);
+		this.pushToMergeMap(errorPath, null, uri);
 		let errorType = (() => {
 			switch (e.name) {
 				case 'YAMLSyntaxError':
@@ -107,8 +107,7 @@ const parser = {
 		const storePath = path || '/';
 
 		!this.mergeMap[storePath] && (this.mergeMap[storePath] = []);
-
-		!this.mergeMap[storePath][location] && (this.mergeMap[storePath].push(location));
+		this.mergeMap[storePath].push(location);
 
 		if (typeof source === 'object') {
 			for (const key in source) {
