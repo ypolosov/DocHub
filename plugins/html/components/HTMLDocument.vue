@@ -93,6 +93,8 @@
     },
     data() {
       return {
+        // Обработчик события обновления
+        refresher: null,
         // Здесь будет храниться контент из полученного HTML файла 
         content: '',
         // Здесь будет храниться результат запроса к данным архитектуры
@@ -104,21 +106,21 @@
 
     watch: {
       profile() {
-        // При изменении переметров, перезагружаем контент документа с их учетом
-        this.refresh();
+        // При изменении переметров, генерируем событие обновления
+        this.onRefresh();
       }
     },
     mounted() {
-      // При монтировании компонента в DOM загружаем контент документа
-      this.refresh();
+      // При монтировании компонента в DOM, генерируем событие обновления
+      this.onRefresh();
     },
     methods: {
       // Функция обновления контента документа с учетом параметров содержащихся в "this.profile"
-      refresh() {
+      doRefresh() {
         if (this.profile) {
           // В архитектурной кодовой базе указываются относительные пути к файлам при описании документа.
           // Для успешного получения контента этих файлов необходимо использовать функцию getContent.
-          // Рекумендуется также использовать эту функцию для доступа к любым иным ресурсам по http/https. 
+          // Рекумендуется также использовать эту функцию для доступа к любым иным ресурсам по http/https.
           this.getContent(this.profile.source)
             // Если все хорошо, рендерим HTML "как есть"
             .then((response) => {
@@ -143,6 +145,14 @@
         this.pullData('dochub.plugins.example')
           .then((result) => this.componentsL1 = result);
 
+      },
+
+      // Обработчик события обновления
+      onRefresh() {
+        // Если обработчик уже запущен, останавливаем его
+        if (this.refresher) clearTimeout(this.refresher);
+        // Для исключения избыточных обращений к Data Lake откладывам обноление на 50мс
+        this.refresher = setTimeout(this.doRefresh, 50);
       }
     }
   };
@@ -152,18 +162,22 @@
 h2 {
   margin-top: 24px;
 }
+
 td {
-  padding: 6px;;
+  padding: 6px;
+  ;
 }
+
 .space {
   padding: 12px;
 }
+
 .label {
   width: 20%;
 }
+
 .html-example {
   padding: 12px;
   margin: 12px;
   border: solid 1px #ccc;
-}
-</style>
+}</style>
