@@ -69,5 +69,13 @@ export default {
     }
 
     throw new Error(`Неправильно указан параметр "VUE_APP_DOCHUB_CACHE=${currentMethod}" в env!`);
+  },
+  // Возвращает ссылку на кастомную иконку
+  customIcon(): string {
+    return process.env.VUE_APP_DOCHUB_ICON;
+  },
+  // Возвращает кастомный заголовок
+  customTitle(): string {
+    return process.env.VUE_APP_DOCHUB_TITLE;
   }
 };

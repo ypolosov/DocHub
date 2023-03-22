@@ -12,7 +12,15 @@
     <v-app-bar-nav-icon v-on:click="() => handleDrawer()">
       <header-logo />
     </v-app-bar-nav-icon>
-    <v-toolbar-title style="cursor: pointer" v-on:click="onLogoClick">DocHub</v-toolbar-title>
+    <v-toolbar-title style="cursor: pointer" v-on:click="onLogoClick">
+      <template v-if="customTitle">
+        <div style="font-weight: 600;">{{ customTitle }}</div>
+        <div style="font-size: 9px; line-height: 9px;">DocHub</div>
+      </template>
+      <template v-else>
+        DocHub
+      </template>
+    </v-toolbar-title>
     <v-spacer />
     <v-btn v-if="isSearchInCode" icon title="Найти в коде" v-on:click="gotoCode">
       <v-icon class="material-icons" style="display: inline">search</v-icon>
@@ -38,6 +46,7 @@
 
   import HeaderLogo from './HeaderLogo';
 
+
   export default {
     name: 'Header',
     components: {
@@ -58,6 +67,9 @@
         get() {
           return this.$store.state.isPrintVersion;
         }
+      },
+      customTitle() {
+        return env.customTitle();
       }
     },
     methods: {

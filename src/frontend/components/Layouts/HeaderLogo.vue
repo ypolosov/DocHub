@@ -1,6 +1,8 @@
 <template>
   <div v-bind:class="$style.logo">
+    <img v-if="customIcon" v-bind:src="customIcon" style="width: 32px; height: 32px; margin-left: -3px; margin-top: -3px;">
     <svg
+      v-else
       width="24px"
       height="24px"
       viewBox="0 0 24 24"
@@ -21,7 +23,16 @@
 </template>
 
 <script>
-  export default {};
+
+  import env from '@front/helpers/env';
+
+  export default {
+    computed: {
+      customIcon() {
+        return env.customIcon();
+      }
+    }
+  };
 </script>
 
 <style module>
