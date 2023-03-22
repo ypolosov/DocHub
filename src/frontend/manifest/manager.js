@@ -31,6 +31,22 @@ manifestParser.reloadManifest = async function(payload){
       }
     )();
   } else {
+    if (!env.isPlugin()) {
+      let doClearManifest = true;
+      if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y') {
+        await manifestParser.import(manifestParser.cache.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()));
+        doClearManifest = false;
+      }
+      
+      await manifestParser.import(manifestParser.cache.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()), !doClearManifest);
+    } else {
+      await manifestParser.import(
+        manifestParser.cache.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()),
+        true
+      );
+    }
+    /*
+    let doClearManifest = true;
     if (
       (!env.isPlugin()) &&
       ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
@@ -39,12 +55,15 @@ manifestParser.reloadManifest = async function(payload){
         manifestParser.cache.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()),
         false
       );
+      doClearManifest = false;
     }
 
+    //todo  Не ясно, почему !env.isPlugin(). Для того, чтобы вмердживать изменения? 
     await manifestParser.import(
       manifestParser.cache.makeURIByBaseURI(config.root_manifest, requests.getSourceRoot()),
       !env.isPlugin()
     );
+    */
   }
 
   manifestParser.stopLoad();
