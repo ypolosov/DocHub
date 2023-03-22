@@ -52,6 +52,7 @@ export default {
         return systemSetting === priority;
       }
     } else if (systemSetting) {
+      // eslint-disable-next-line no-console
       console.error(`Неправильно указан параметр "VUE_APP_DOCHUB_CACHE_LEVEL=${systemSetting}" в env!`);
     }
 
