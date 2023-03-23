@@ -1,6 +1,6 @@
 import {describe, expect, it} from '@jest/globals';
 
-import * as cache from '@/storage/indexedDB/cache';
+import * as cache from '@front/storage/indexedDB/cache';
 
 import { checkIdbIdType } from '../helpers/types';
 

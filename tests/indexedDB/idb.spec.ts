@@ -1,9 +1,9 @@
 import {describe, expect, it} from '@jest/globals';
 
-import * as idb from '@/storage/indexedDB/core/idb';
+import * as idb from '@front/storage/indexedDB/core/idb';
 
-import { TIdbEvent } from '@/storage/indexedDB/types/idb.types';
-import { dbName, keyOptions } from '@/storage/indexedDB/cache/config.json';
+import { TIdbEvent } from '@front/storage/indexedDB/types/idb.types';
+import { dbName, keyOptions } from '@front/storage/indexedDB/cache/config.json';
 
 describe('idb', (): void => {
 	describe('openDB', (): void => {
@@ -15,7 +15,6 @@ describe('idb', (): void => {
           (e.target as IDBOpenDBRequest).result.createObjectStore('example:root', keyOptions);
         }
       }).then((db: IDBDatabase): void => {
-          console.log('11111');
         expect(db instanceof IDBDatabase).toEqual(true);
         expect(db.name).toEqual(dbName);
       })
