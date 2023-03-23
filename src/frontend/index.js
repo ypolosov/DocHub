@@ -11,6 +11,7 @@ import Vue from 'vue';
 import VueCookie from 'vue-cookie';
 import Vuetify from 'vuetify';
 import Vuex from 'vuex';
+import AsyncComputed from 'vue-async-computed';
 import VsCode from '@vscode';
 import Root from '@front/components/Root.vue';
 import router from './router';
@@ -29,10 +30,8 @@ import Entity from '@front/components/Entities/Entity.vue';
 import DocHubObject from '@front/components/Docs/DocHubObject';
 import GlobalMixin from '@front/mixins/global';
 import gitlab from '@front/storage/gitlab';
-import AsyncComputed from 'vue-async-computed';
 
 import '@assets/styles/main.css';
-import '@front/plugins/api';
 import '@front/storage/indexedDB';
 import 'swagger-ui/dist/swagger-ui.css';
 import 'vuetify/dist/vuetify.min.css';
@@ -84,7 +83,7 @@ const vuetify = new Vuetify({
   }
 });
 
-export {
+export default {
   router,
   vuetify,
   store,
