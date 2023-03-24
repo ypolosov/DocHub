@@ -88,7 +88,7 @@
         const result = [];
         let index = 1;
         const sectionID = (this.section || '').toLowerCase();
-        (this.data?.dots || []).forEach((item) => {
+        (this.data?.dots || []).map((item) => {
           if (sectionID && (sectionID !== item.section.key.toLowerCase()))
             return;
           const ring = this.getRingOfStatus(item.status || 'trial');
@@ -117,7 +117,7 @@
         } : this.data?.sections || {};
       },
       sections() {
-        let result = this.showSections;
+        let result = JSON.parse(JSON.stringify(this.showSections));
         const keys = Object.keys(result);
         if (keys.length) {
           const size = 360 / keys.length;
@@ -152,7 +152,7 @@
     methods: {
       refreshData() {
         query.expression(query.collectTechnologies()).evaluate()
-          .then((data) => this.data = data);
+          .then((data) => this.data = Object.freeze(data));
       },
       onClickSection(section) {
         this.$router.push({ path: `/techradar/${section.key}` });
