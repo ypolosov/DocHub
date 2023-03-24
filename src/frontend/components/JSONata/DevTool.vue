@@ -4,13 +4,44 @@
       <split-area v-bind:size="40" class="area-space">
         <div class="console">
           <v-toolbar dense flat>
-            <v-btn v-show="!autoExec" icon title="Выполнить" v-on:click="execute">
+            <v-btn v-show="!autoExec" icon title="Выполнить" v-on:click="onExecute(true)">
               <v-icon>mdi-arrow-right-drop-circle</v-icon>
             </v-btn>
             <v-toolbar-title v-if="isLogFuncAvailable">
               Используйте $log(value[, tag]) для трассировки запросов.
             </v-toolbar-title>
             <v-spacer />
+            <v-autocomplete
+              v-model="origin"
+              hide-details
+              clearable
+              v-bind:items="origins"
+              label="origin"
+              title="Базовый источник данных"
+              item-text="id"
+              item-value="id"
+              prepend-icon="mdi-semantic-web"
+              single-line>
+              <template #selection="data">
+                <v-chip
+                  close
+                  v-bind="data.attrs"
+                  v-bind:input-value="data.selected"
+                  v-on:click:close="clearOrigin()">
+                  {{ data.item.id }}
+                </v-chip>
+              </template>              
+              <template #item="data">
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ data.item.id }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle v-if="data.item.title">
+                    {{ data.item.title }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </template>
+            </v-autocomplete>
             <v-menu offset-y>
               <template #activator="{ on, attrs }">
                 <v-btn icon v-bind="attrs" v-on="on">
@@ -65,6 +96,7 @@
   import env from '@front/helpers/env';
 
   import query from '@front/manifest/query';
+  import datasets from '@front/helpers/datasets';
   
   import editor from './JSONataEditor.vue';
   import result from './JSONResult.vue';
@@ -83,11 +115,13 @@
         isLogFuncAvailable: !env.isBackendMode(),
         query: cookie.get(COOKIE_NAME_QUERY) || '"Здесь введите JSONata запрос."',
         error: null,
-        observer: null,
+        observer: null, // Таймер отложенного исполнения запросов
         search: '',
         jsonata: null,
         selectedLog: 0,
         autoExec: cookie.get(COOKIE_NAME_AUTOEXEC) === 'false' ? false : true,
+        origin: null,   // Выбранный базовый источник
+        origins: [],    // Список доступных источников данных
         logHeaders: [
           {
             text: 'Таймлайн',
@@ -119,29 +153,38 @@
       }
     },
     watch: {
+      origin() {
+        this.onExecute();
+      },
       isLoading() {
         this.doAutoExecute();
       },
       autoExec(value) {
-        value && this.execute();
+        value && this.onExecute();
         cookie.set(COOKIE_NAME_AUTOEXEC, value, 365);
       },
-      query(value) {
-        this.observer && clearTimeout(this.observer);
-        if (this.autoExec)
-          this.observer = setTimeout(() => {
-            this.execute();
-            this.observer = null;
-          }, 500);
-        cookie.set(COOKIE_NAME_QUERY, value, 365);
+      query() {
+        this.onExecute();
       }
     },
     mounted() {
       this.doAutoExecute();
+      this.refreshOrigins();
     },
     methods: {
+      clearOrigin() {
+        this.origin = null;
+        this.doAutoExecute();
+      },
+      refreshOrigins() {
+        const pipe = query.expression(`datasets.$spread().{
+          "id": $keys()[0],
+          "title": *.title
+        }`, null, null, true, { log: this.log});
+        pipe.evaluate().then((data) => this.origins = data);
+      },
       doAutoExecute() {
-        if (!this.isLoading && this.autoExec) this.execute();
+        if (!this.isLoading && this.autoExec) this.onExecute();
       },
       logOnClick(item) {
         this.selectedLog = item.id;
@@ -155,12 +198,18 @@
         });
         return value;
       },
-      execute() {
+
+      doExecute(context) {
+        cookie.set(COOKIE_NAME_QUERY, this.query, 365);
         this.error = null;
         this.logItems = [];
         this.jsonata = query.expression(`(${this.query})`, null, null, true, { log: this.log});
-        this.jsonata.onError = (e) => this.error = e;
-        this.jsonata.evaluate().then((data) => {
+        this.jsonata.onError = (e) => {
+          debugger;
+          this.error = e;
+        };
+        debugger;
+        this.jsonata.evaluate(context).then((data) => {
           const result = JSON.stringify(data, null, 4);
           this.logItems.push({
             id: this.logItems.length,
@@ -170,6 +219,19 @@
           });
           this.selectedLog = this.logItems.length - 1;
         });
+      },
+      onExecute(force) {
+        this.observer && clearTimeout(this.observer);
+        if (this.autoExec || force) {
+          this.observer = setTimeout(() => {
+            this.observer = null;
+            if (this.origin) {
+              datasets().releaseData(`/datasets/${this.origin}`)
+                .then((data) => this.doExecute(data))
+                .catch((e) => this.error = e);
+            } else this.doExecute();
+          }, force ? 10 : 500);
+        }
       }
     }
   };

@@ -179,15 +179,10 @@ docs:
             $[from="VUEX" or to="VUEX"]
         )
 datasets:                       # Источники данных
-  dochub.docs:                  # Возвращает список всех документов
-    source: >                     # Выводит все документы
-      (
-        [docs.$spread().{
-          "location": *.location,
-          "link": "/docs/" & $keys()[0]
-        }[location]^(location)]
-      )
-  dochub.components.criticality:  # Определяет уровни критичности
+  # **********************************************
+  #     Источник с предопределенными данными
+  # **********************************************
+  dochub.components.criticality:    # Определяет уровни критичности
     source:                         # Предопределенные данные
       - id: k1
         title: Уровень K1
@@ -197,7 +192,23 @@ datasets:                       # Источники данных
         title: Уровень K3
       - id: k4
         title: Уровень K4
-  dochub.components:            # Возвращает все архитектурные компоненты DocHub
+
+  # **********************************************
+  #   Источники с запросами к данным архитектуры
+  # **********************************************
+
+  # Возвращает список всех документов
+  dochub.docs:                    
+    source: >                     # Выводит все документы
+      (
+        [docs.$spread().{
+          "location": *.location,
+          "link": "/docs/" & $keys()[0]
+        }[location]^(location)]
+      )
+
+  # Возвращает все архитектурные компоненты DocHub
+  dochub.components:            
     source: >                     # JSONata запрос к архитектуре
       (
         [components.$spread().{
@@ -206,12 +217,20 @@ datasets:                       # Источники данных
             "link": "/architect/components/" & $keys()[0]
         }[$substring(id, 0, 7)="dochub."]^(title)]
       )
-  dochub.components.l1:         # Выбирает только L1 для архитектурных компонентов DocHub
-    origin: dochub.components   # Базовый источник данных
+
+  # **********************************************
+  # Источники с зависимостями от других источников
+  # **********************************************
+
+  # Выбирает только L1 для архитектурных компонентов DocHub
+  dochub.components.l1:         
+    origin: dochub.components     # Базовый источник данных
     source: >                     # JSONata запрос к архитектуре
       ($[$count($split(id, "."))=2])
-  dochub.integrations:          # Базовый источник данных интеграций
-    source: >                   # JSONata запрос к архитектуре
+
+  # Базовый источник данных интеграций
+  dochub.integrations:
+    source: >                     # JSONata запрос к архитектуре
       (
         $MANIFEST := $;
         $distinct([components.$spread().(
@@ -228,4 +247,16 @@ datasets:                       # Источники данных
                 "direction": direction
             };
         )])^(from)
+      )
+
+  # **********************************************
+  # Источники с множественными зависимостями
+  # **********************************************
+  dochub.multi_dependencies:
+    origin:
+      integrations: dochub.integrations # Указываем зависимость от источника "dochub.integrations"
+      components: dochub.components     # Указываем зависимость от источника "dochub.components"
+    source: >
+      (
+        $.components
       )
