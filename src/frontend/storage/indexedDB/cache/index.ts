@@ -5,7 +5,7 @@ import { get, add, put } from '../core/data';
 import config from './config.json';
 import { TCacheData } from '../types/idb.types';
 
-const storeName = env.dochub.VUE_APP_DOCHUB_ROOT_MANIFEST || 'dochub';
+const storeName = env.rootManifest || 'dochub';
 
 const init = (): Promise<IDBObjectStore> => create({
   ...config,

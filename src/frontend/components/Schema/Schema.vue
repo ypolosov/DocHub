@@ -64,7 +64,7 @@
         }
 
         const renderCore = (
-          env.dochub.VUE_APP_DOCHUB_RENDER_CORE ||
+          env.renderCore ||
           window.$PAPI?.settings?.render?.mode || ''
         ).toLowerCase();
 

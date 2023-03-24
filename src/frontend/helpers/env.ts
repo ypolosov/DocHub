@@ -14,7 +14,6 @@ export enum CACHE_LEVEL {
 }
 
 const ENV_ERROR_TAG = '[env.dochub]';
-const ENV_KEY_TAG = 'processEnv';
 
 export default {
   isPlugin(plugin?: Plugins): boolean {
@@ -76,30 +75,38 @@ export default {
 
     throw new Error(`Неправильно указан параметр "VUE_APP_DOCHUB_CACHE=${currentMethod}" в env!`);
   },
-  dochub: new Proxy({
-    [ENV_KEY_TAG]: {}
-  } as TProcessEnvValues, {
-    get: (target: { [ENV_KEY_TAG]: TProcessEnvValues }, prop?: symbol | string) => {
-      if ((prop === ENV_KEY_TAG) || !prop) {
-        return target[ENV_KEY_TAG];
-      }
-
-      return target[ENV_KEY_TAG][String(prop)];
-    },
-    set: (target: { [ENV_KEY_TAG]: TProcessEnvValues }, prop: string | symbol, value: TProcessEnvValues) => {
-      if (value && typeof value !== 'object') {
-        throw new Error(`${ENV_ERROR_TAG}: value=${value}, value должен быть объектом!`);
-      } else if (String(prop) !== 'processEnv') {
-        throw new Error(`${ENV_ERROR_TAG}: prop=${String(prop)}. Обратиться к объекту можно только через ${ENV_KEY_TAG}!`);
-      }
-
-      if (value) {
-        target[ENV_KEY_TAG] = value;
-      } else {
-        target[ENV_KEY_TAG] = {};
-      }
-
-      return true;
-    }
-  })
+  dochub: <TProcessEnvValues>{},
+  get rootManifest() {
+    return this.dochub.VUE_APP_DOCHUB_ROOT_DOCUMENT;
+  },
+  get renderCore() {
+    return this.dochub.VUE_APP_DOCHUB_RENDER_CORE;
+  },
+  get gitlabUrl() {
+    return this.dochub.VUE_APP_DOCHUB_GITLAB_URL;
+  },
+  get appendDocHubMetamodel() {
+    return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_METAMODEL;
+  },
+  get appendDocHubDocs() {
+    return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS;
+  },
+  get appId() {
+    return this.dochub.VUE_APP_DOCHUB_APP_ID;
+  },
+  get clientSecret() {
+    return this.dochub.VUE_APP_DOCHUB_CLIENT_SECRET;
+  },
+  get personalToken() {
+    return this.dochub.VUE_APP_DOCHUB_PERSONAL_TOKEN;
+  },
+  get plantUmlServer() {
+    return this.dochub.VUE_APP_PLANTUML_SERVER;
+  },
+  get isAppendDocHubMetamodel() {
+    return (this.appendDocHubMetamodel || 'y').toLowerCase() === 'y';
+  },
+  get isAppendDocHubDocs() {
+    return (this.appendDocHubDocs || 'y').toLowerCase() === 'y';
+  }
 };

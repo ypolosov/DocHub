@@ -15,7 +15,7 @@
     },
     computed: {
       path() {
-        return '/docs/' + (env.dochub.VUE_APP_DOCHUB_ROOT_DOCUMENT || 'dochub.welcome');
+        return '/docs/' + (env.rootManifest|| 'dochub.welcome');
       }
     }
   };

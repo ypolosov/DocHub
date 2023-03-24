@@ -7,42 +7,42 @@ console.info('ENVIRONMENTS:');
 
 const hiddenEnvs = ['VUE_APP_DOCHUB_CLIENT_SECRET'];
 
-for(const key in env.dochub.processEnv) {
+for(const key in env.dochub) {
 	// eslint-disable-next-line no-console
 	console.info(`  ${key}=`, hiddenEnvs.indexOf(key) < 0 ? JSON.stringify(env.dochub[key]) : '**HIDDEN**');
 }
 
 const config: any = {};
 
-if(!env.dochub.VUE_APP_DOCHUB_GITLAB_URL) {
+if(!env.gitlabUrl) {
 	// eslint-disable-next-line no-console
 	console.warn('Not specified the URL of the GitLab (VUE_APP_DOCHUB_GITLAB_URL)');
 	config.oauth = false;
 } else {
-	config.gitlab_server = env.dochub.VUE_APP_DOCHUB_GITLAB_URL;
+	config.gitlab_server = env.gitlabUrl;
 
-	if (env.dochub.VUE_APP_DOCHUB_PERSONAL_TOKEN) {
+	if (env.personalToken) {
 		// Персональный токен генерируемый пользователем
-		config.porsonalToken = env.dochub.VUE_APP_DOCHUB_PERSONAL_TOKEN;
+		config.porsonalToken = env.personalToken;
 		config.oauth = false;
 	} else {
 		// Секреты приложения для OAuth авторизации в GitLab
-		if(!env.dochub.VUE_APP_DOCHUB_CLIENT_SECRET)
+		if(!env.clientSecret)
 			throw 'Not specified the application secret at GitLab (VUE_APP_DOCHUB_CLIENT_SECRET)';
 
-		if(!env.dochub.VUE_APP_DOCHUB_APP_ID)
+		if(!env.appId)
 			throw 'Not specified the application ID at GitLab (VUE_APP_DOCHUB_APP_ID)';
 
 		config.oauth = {
-			'APP_ID': env.dochub.VUE_APP_DOCHUB_APP_ID,
-			'CLIENT_SECRET': env.dochub.VUE_APP_DOCHUB_CLIENT_SECRET,
+			'APP_ID': env.appId,
+			'CLIENT_SECRET': env.clientSecret,
 			'REQUESTED_SCOPES': 'read_repository+api'
 		};
 	}
 }
 
 
-config.root_manifest = env.dochub.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
+config.root_manifest = env.rootManifest || 'example/root.yaml';
 
 if (env.isPlugin(Plugins.idea)) {
 	if (!env.isProduction()) {
@@ -54,7 +54,7 @@ if (env.isPlugin(Plugins.idea)) {
 
 config.pumlServer =
 	window.$PAPI?.settings?.render?.server
-	|| env.dochub.VUE_APP_PLANTUML_SERVER
+	|| env.plantUmlServer
 	|| 'www.plantuml.com/plantuml/svg/';
 
 config.pumlRequestType =

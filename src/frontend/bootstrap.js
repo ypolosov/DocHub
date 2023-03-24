@@ -1,21 +1,8 @@
 import env from '@front/helpers/env';
-
-const plugins = {
-  components: [],
-  pull() {
-    this.components.forEach((el) => DocHub.documents.register(el.type, el.component));
-  },
-  push(type, component) {
-    this.components.push({type, component});
-  }
-};
-
-window.DocHub = {
-  registerPlugin: plugins.push.bind(plugins)
-};
+import {plugins} from '@front/plugins/initializer.js';
 
 const beforeInit = (processEnv) => {
-  env.dochub.processEnv = processEnv ?? {};
+  env.dochub = processEnv ?? {};
   import(/* webpackMode: "eager" */ '@front/plugins/api');
 };
 

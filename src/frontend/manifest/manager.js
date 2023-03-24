@@ -11,7 +11,7 @@ manifestParser.cache = cache;
 
 manifestParser.makeBaseManifest = () => {
   logger.log('Returned base manifest', LOG_TAG);
-  if ((env.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_METAMODEL || 'y').toLowerCase() === 'y') {
+  if (env.isAppendDocHubMetamodel) {
     const YAML = require('yaml');
     const baseYAML = require('!!raw-loader!@assets/base.yaml').default;
     return YAML.parse(baseYAML);
@@ -33,7 +33,7 @@ manifestParser.reloadManifest = async function(payload){
   } else {
     if (!env.isPlugin()) {
       let doClearManifest = true;
-      if ((env.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y') {
+      if (env.isAppendDocHubDocs) {
         await manifestParser.import(manifestParser.cache.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()));
         doClearManifest = false;
       }
@@ -49,7 +49,7 @@ manifestParser.reloadManifest = async function(payload){
     let doClearManifest = true;
     if (
       (!env.isPlugin()) &&
-      ((env.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y')
+      ((env.appendDocHubDocs || 'y').toLowerCase() === 'y')
     ) {
       await manifestParser.import(
         manifestParser.cache.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()),
