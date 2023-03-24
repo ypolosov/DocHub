@@ -165,6 +165,9 @@
       },
       query() {
         this.onExecute();
+      },
+      manifest() {
+        this.refreshOrigins(); // Обновляем список источников данных, если архитектурный манифест изменился
       }
     },
     mounted() {
@@ -204,11 +207,7 @@
         this.error = null;
         this.logItems = [];
         this.jsonata = query.expression(`(${this.query})`, null, null, true, { log: this.log});
-        this.jsonata.onError = (e) => {
-          debugger;
-          this.error = e;
-        };
-        debugger;
+        this.jsonata.onError = (e) => this.error = e;
         this.jsonata.evaluate(context).then((data) => {
           const result = JSON.stringify(data, null, 4);
           this.logItems.push({

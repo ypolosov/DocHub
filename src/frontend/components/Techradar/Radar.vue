@@ -144,6 +144,9 @@
     watch: {
       section() {
         this.refreshData();
+      },
+      manifest() {
+        this.refreshData(); // Обновляем список источников данных, если архитектурный манифест изменился
       }
     },
     mounted() {
