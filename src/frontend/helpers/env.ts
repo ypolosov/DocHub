@@ -1,7 +1,8 @@
 import logger from '@back/utils/logger.mjs';
 
 export type TCacheMethods = 'GET' | 'HEAD';
-export type TProcessEnvValues = { [key: string | symbol]: any };
+export type TEnvValue = string | undefined;
+export type TProcessEnvValues = { [key: string | symbol]: TEnvValue };
 
 export enum Plugins {
   idea = 'idea',
@@ -16,6 +17,7 @@ export enum CACHE_LEVEL {
 const ENV_ERROR_TAG = '[env.dochub]';
 
 export default {
+  dochub: <TProcessEnvValues>{},
   isPlugin(plugin?: Plugins): boolean {
     const isIdea = this.dochub.VUE_APP_DOCHUB_MODE === 'plugin';
     const isVsCode = !!window.DochubVsCodeExt;
@@ -75,38 +77,40 @@ export default {
 
     throw new Error(`Неправильно указан параметр "VUE_APP_DOCHUB_CACHE=${currentMethod}" в env!`);
   },
-  dochub: <TProcessEnvValues>{},
-  get rootManifest() {
+  get rootDocument(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_ROOT_DOCUMENT;
   },
-  get renderCore() {
+  get rootManifest(): TEnvValue {
+    return this.dochub.VUE_APP_DOCHUB_ROOT_MANIFEST;
+  },
+  get renderCore(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_RENDER_CORE;
   },
-  get gitlabUrl() {
+  get gitlabUrl(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_GITLAB_URL;
   },
-  get appendDocHubMetamodel() {
+  get appendDocHubMetamodel(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_METAMODEL;
   },
-  get appendDocHubDocs() {
+  get appendDocHubDocs(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS;
   },
-  get appId() {
+  get appId(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_APP_ID;
   },
-  get clientSecret() {
+  get clientSecret(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_CLIENT_SECRET;
   },
-  get personalToken() {
+  get personalToken(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_PERSONAL_TOKEN;
   },
-  get plantUmlServer() {
+  get plantUmlServer(): TEnvValue {
     return this.dochub.VUE_APP_PLANTUML_SERVER;
   },
-  get isAppendDocHubMetamodel() {
+  get isAppendDocHubMetamodel(): boolean {
     return (this.appendDocHubMetamodel || 'y').toLowerCase() === 'y';
   },
-  get isAppendDocHubDocs() {
+  get isAppendDocHubDocs(): boolean {
     return (this.appendDocHubDocs || 'y').toLowerCase() === 'y';
   }
 };
