@@ -49,7 +49,7 @@ datasets:                       # Источники данных
 
 ![Таблица на основании источника данных](@document/dochub.table.dataset)
 
-## Зависимости
+## Зависимость
 
 Источники данных могут зависеть друг от друга. В примере данные получаются из источника "dochub.components" 
 и дополнительно обрабатываются.
@@ -81,7 +81,40 @@ datasets:
 Это возможно сделать через структуру в origin.
 
 ```yaml
+  dochub.multi_dependencies:
+    origin:
+      integrations: dochub.integrations             # Указываем зависимость от источника "dochub.integrations"
+      criticality: dochub.components.criticality    # Указываем зависимость от источника "dochub.components.criticality"
+      manifest: "($)"                               # Указывается зависимость от результата запроса JSONata - "($)"
+    source: >
+      (
+        /* Сохраняем контекст для использования в глубине */
+        $CONTEXT := $;
+
+        /* Обрабатываем данные подготовленные источником "dochub.integrations" */
+        integrations.(
+            /* Восстанавливаем ID компонента, чтобы получить по нему данные */
+            $ID_FROM := $reverse($split($."link-from", "/"))[0];
+            $ID_TO := $reverse($split($."link-to", "/"))[0];
+
+            /* Получаем данные критичности */
+            $CRITICALLY_FROM := $lookup($CONTEXT.manifest.components, $ID_FROM).criticality;
+            $CRITICALLY_FROM := $CRITICALLY_FROM ? $CRITICALLY_FROM : 4;
+            $CRITICALLY_TO := $lookup($CONTEXT.manifest.components,$ID_TO).criticality;
+            $CRITICALLY_TO := $CRITICALLY_TO ? $CRITICALLY_TO : 4;
+            $CRITICALLY := $CRITICALLY_FROM < $CRITICALLY_TO ? $CRITICALLY_FROM : $CRITICALLY_TO;
+
+            /* Обогащаем данные DataSet "dochub.integrations" информацией о критичности связи */
+            $merge([$, {
+                "criticality": $CONTEXT.criticality[id="k" & $CRITICALLY].title
+            }])
+        );
+      )
 ```
+
+Результат:
+
+![Зависимый источник](@document/dochub.table.multi_dependencies)
 
 
 [Далее](/docs/dochub.jsonata)
