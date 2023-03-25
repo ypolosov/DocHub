@@ -34,6 +34,7 @@ export default {
                         result = (await requests.request(url)).data;
                     } else {
                         !this.expOrigin && (this.expOrigin = this.driver.expression(expression, self_, params, isTrace, funcs));
+                        this.expOrigin.onError = this.onError;
                         result = await this.expOrigin.evaluate(context || window.Vuex.state.manifest || {});
                     }
                 } catch (e) {

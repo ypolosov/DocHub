@@ -77,6 +77,7 @@ export default {
 			//  def - если возникла ошибка, будет возращено это дефолтное значение
 			async evaluate(context, def) {
 				try {
+					debugger;
 					if (!this.core) {
 						this.core = jsonata(this.expression);
 						this.core.assign('self', self_);
