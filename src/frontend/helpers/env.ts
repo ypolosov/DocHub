@@ -1,5 +1,3 @@
-import logger from '@back/utils/logger.mjs';
-
 export type TCacheMethods = 'GET' | 'HEAD';
 export type TEnvValue = string | undefined;
 export type TProcessEnvValues = { [key: string | symbol]: TEnvValue };
@@ -59,7 +57,7 @@ export default {
         return systemSetting === priority;
       }
     } else if (systemSetting) {
-      logger.error(`Неправильно указан параметр "VUE_APP_DOCHUB_CACHE_LEVEL=${systemSetting}" в env!`, ENV_ERROR_TAG);
+      console.error(`Неправильно указан параметр "VUE_APP_DOCHUB_CACHE_LEVEL=${systemSetting}" в env!`, ENV_ERROR_TAG);
     }
 
     return false;
