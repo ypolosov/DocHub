@@ -1,12 +1,25 @@
-import {Vue, router, store, vuetify, Root} from './index';
+import { beforeInit, init, afterInit } from './bootstrap';
 
-document.addEventListener('DOMContentLoaded', () => {
-	new Vue({
-		router,
-		render(createElement) {
-			return createElement(Root);
-		},
-		vuetify,
-		store
-	}).$mount('#app');
+beforeInit(process.env);
+
+document.addEventListener('DOMContentLoaded', async() => {
+  const {
+    Vue,
+    Root,
+    router,
+    vuetify,
+    store
+  } = await init();
+
+  afterInit();
+
+  new Vue({
+    router,
+    render(createElement) {
+      return createElement(Root);
+    },
+    vuetify,
+    store
+  }).$mount('#app');
+
 });
