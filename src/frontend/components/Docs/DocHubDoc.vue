@@ -151,7 +151,8 @@
         if (!expression) {
           return this.dataProvider.releaseData(this.resolvePath(), params || this.params);
         } else
-          return query.expression(expression || this.profile?.source, self_, params).evaluate(context);
+          return this.dataProvider.getData(context, { source: expression }, params);
+          // return query.expression(expression || this.profile?.source, self_, params).evaluate(context);
       }
     }
   };
