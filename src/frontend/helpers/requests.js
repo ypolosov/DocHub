@@ -15,7 +15,7 @@ const tracers = {};
 // Add a request interceptor
 
 const responseErrorInterceptor = (error) => {
-	if (error.response.status === 304) {
+	if (error.response?.status === 304) {
 		if (error.config.lastCachedResult) {
 			return {
 				...error.response,
@@ -69,6 +69,7 @@ axios.interceptors.response.use(async(response) => {
 
 if (window.$PAPI) {
 	window.$PAPI.middleware = function(response) {
+		if (!response) return response;
 		let type = response.contentType;
 		switch (type) {
 			case 'yaml': response.data = YAML.parse(response.data); break;
@@ -143,7 +144,7 @@ export default {
 		}
 
 		if (
-			env.isPlugin(Plugins.idea) && params.url.split(':')[0] === 'plugin' ||
+			env.isPlugin(Plugins.idea) && params.url.toString().startsWith('plugin:') ||
 			env.isPlugin(Plugins.vscode)
 		) {
 			this.trace(params.url);

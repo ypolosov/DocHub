@@ -43,7 +43,7 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 	plugins.push(new HtmlWebpackPlugin({
 		filename: 'plugin.html',
 		template: 'src/ide/plugin.html',
-		inlineSource: '.(woff(2)?|ttf|eot|svg|js|css)$',
+		inlineSource: '.(woff(2)?|ttf|eot|svg|js|css|map)$',
 		inject: true
 		/* ,
 		minify: {

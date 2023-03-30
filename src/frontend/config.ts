@@ -1,4 +1,3 @@
-import consts from '@front/consts';
 import env from '@front/helpers/env';
 import {Plugins} from '@front/helpers/env';
 
@@ -41,15 +40,11 @@ if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
 	}
 }
 
-
-config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
-
 if (env.isPlugin(Plugins.idea)) {
-	if (!env.isProduction()) {
-		window.$PAPI = require('@idea/apimoc').default;
-	} else  {
-		config.root_manifest = consts.plugin.ROOT_MANIFEST;
-	}
+	config.root_manifest = 'plugin:/idea/source/$root';
+	window.$PAPI = require('@idea/apimoc').default;
+} else {
+	config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
 }
 
 config.pumlServer =
