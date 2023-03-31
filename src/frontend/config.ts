@@ -42,7 +42,6 @@ if(!process.env.VUE_APP_DOCHUB_GITLAB_URL) {
 
 if (env.isPlugin(Plugins.idea)) {
 	config.root_manifest = 'plugin:/idea/source/$root';
-	window.$PAPI = require('@idea/apimoc').default;
 } else {
 	config.root_manifest = process.env.VUE_APP_DOCHUB_ROOT_MANIFEST || 'example/root.yaml';
 }

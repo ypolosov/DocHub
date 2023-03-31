@@ -13,8 +13,6 @@ const entries = {
 
 !process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE && (process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE = '@assets/libs/smartants');
 
-!process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE && (process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE = '../../../assets/libs/smartants');
-
 // Собираем встраиваемые плагины
 //if (process.env.VUE_APP_DOCHUB_MODE === 'production') {
 (pluginsConf?.inbuilt || []).map((item) => {

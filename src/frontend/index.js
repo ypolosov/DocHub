@@ -11,6 +11,7 @@ import Vue from 'vue';
 import VueCookie from 'vue-cookie';
 import Vuetify from 'vuetify';
 import Vuex from 'vuex';
+import '@idea/papi';
 import VsCode from '@vscode';
 import Root from '@front/components/Root.vue';
 import router from './router';

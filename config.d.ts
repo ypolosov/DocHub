@@ -2,11 +2,26 @@
 declare var DochubVsCodeExt: {
   rootManifest: string,
   settings: {
+    isEnterprise: boolean,    // Признак использования фронта в плагине как Enterprise портала
     render: {
       external: boolean,
       mode: string,
       request_type: string,
       server: string
+    }
+  }
+};
+
+// eslint-disable-next-line no-var
+declare var DocHubIDEACodeExt: {
+  rootManifest: string,       // Корневой манифест (с чего начинается загрузка)
+  settings: {
+    isEnterprise: boolean,    // Признак использования фронта в плагине как Enterprise портала
+    render: {
+      external: boolean,      // Признак рендера на внешнем сервере
+      mode: string,           // Режим рендера ELK / Smetana / GraphVis
+      request_type: string,   // Тип запросов к сервер рендеринга POST / GET
+      server: string          // Сервер рендеринга
     }
   }
 };

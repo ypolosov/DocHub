@@ -12,7 +12,7 @@ export enum CACHE_LEVEL {
 
 export default {
   isPlugin(plugin?: Plugins): boolean {
-    const isIdea = process.env.VUE_APP_DOCHUB_MODE === 'plugin';
+    const isIdea = !!window.DocHubIDEACodeExt;
     const isVsCode = !!window.DochubVsCodeExt;
 
     switch(plugin) {
@@ -36,7 +36,7 @@ export default {
 		return (new URL('/core/storage/', this.backendURL())).toString();
 	},
   isBackendMode() {
-    return process.env.VUE_APP_DOCHUB_BACKEND_URL || ((process.env.VUE_APP_DOCHUB_MODE || '').toLowerCase() === 'backend');
+    return !this.isPlugin() && (process.env.VUE_APP_DOCHUB_BACKEND_URL || ((process.env.VUE_APP_DOCHUB_MODE || '').toLowerCase() === 'backend'));
   },
 	isProduction(): boolean {
 		return process.env.NODE_ENV === 'production';
