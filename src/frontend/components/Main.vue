@@ -6,6 +6,8 @@
 
 <script>
 
+  import env from '@front/helpers/env';
+
   export default {
     name: 'MainPage',
     data() {
@@ -13,7 +15,7 @@
     },
     computed: {
       path() {
-        return '/docs/' + (process.env.VUE_APP_DOCHUB_ROOT_DOCUMENT || 'dochub.welcome');
+        return '/docs/' + (env.rootDocument|| 'dochub.welcome');
       }
     }
   };

@@ -13,6 +13,7 @@
   import requests from '@front/helpers/requests';
   import uri from '@front/helpers/uri';
   import copyToClipboard from '@front/helpers/clipboard';
+  import env from '@front/helpers/env';
 
   import PlantUML from './PlantUML';
 
@@ -63,7 +64,7 @@
         }
 
         const renderCore = (
-          process.env.VUE_APP_DOCHUB_RENDER_CORE ||
+          env.renderCore ||
           window.$PAPI?.settings?.render?.mode || ''
         ).toLowerCase();
 

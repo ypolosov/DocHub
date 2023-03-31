@@ -92,10 +92,12 @@ export default (store: Store<any>): void => {
       const {uri} = content;
 
       if (uri === null) {
-        config.root_manifest = null;
+        window.DochubVsCodeExt.rootManifest = null;
+        // config.root_manifest = null;
         store.commit('setNoInited', true);
       } else {
-        config.root_manifest = uri;
+        window.DochubVsCodeExt.rootManifest = uri;
+        // config.root_manifest = uri;
         store.dispatch('reloadAll');
       }
     }

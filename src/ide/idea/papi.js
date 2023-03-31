@@ -1,8 +1,7 @@
-
 const PAPI = {
 	isDebug: false,
 	// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-empty-function
-	middleware(response) {},
+	middleware: null,
 	settings: {},
 	cefQuery: null,
 	request(params) {

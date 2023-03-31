@@ -1,13 +1,14 @@
 import axios from 'axios';
 
-import config from '@front/config';
 import uri from '@front/helpers/uri';
 import { plantUmlCache } from '@front/helpers/cache';
 import env from '@front/helpers/env';
 
 export default {
   prepareRequest(uml) {
-		switch(config.pumlRequestType) {
+		switch(env.plantUmlRequestType) {
+      case 'plugin':
+        return window.$PAPI.renderPlantUML(uml);
       case 'post':
         return this.post(this.svgBaseURL(), uml, {
           headers: {
@@ -67,9 +68,9 @@ export default {
 		return this.svgBaseURL() + this.compress(uml);
 	},
 	svgBaseURL() {
-		return !uri.isURL(config.pumlServer)
-			? `${window?.location?.protocol || 'https:'}//${config.pumlServer}`
-			: config.pumlServer;
+		return !uri.isURL(env.plantUmlServer)
+			? `${window?.location?.protocol || 'https:'}//${env.plantUmlServer}`
+			: env.plantUmlServer;
 	},
 	encode64_(e) {
 		let r, i;

@@ -115,7 +115,7 @@ let config = {
 			filename: '[name].js'
 		},
 		resolve: {
-			alias: {
+      alias: {
 				'@front': path.resolve(__dirname, './src/frontend'),
 				'@assets': path.resolve(__dirname, './src/assets'),
 				'@back': path.resolve(__dirname, './src/backend'),
