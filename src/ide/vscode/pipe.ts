@@ -6,15 +6,6 @@ import config from '@front/config';
 const emit = (command: string, content: any): Promise<any> | void =>
   vscode.postMessage({command, content});
 
-const initSettings = () => {
-  config.root_manifest = window.DochubVsCodeExt.rootManifest;
-  config.pumlServer = window.$PAPI?.settings?.render?.server
-    || process.env.VUE_APP_PLANTUML_SERVER
-    || 'www.plantuml.com/plantuml/svg/';
-  config.pumlRequestType = window.$PAPI?.settings?.render?.request_type
-    || 'get';
-};
-
 export const listeners: { [key: string]: any } = {};
 
 export default (): void => {
@@ -66,6 +57,4 @@ export default (): void => {
       });
     }
   };
-
-  initSettings();
 };

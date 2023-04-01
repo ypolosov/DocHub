@@ -13,8 +13,6 @@ const entries = {
 
 !process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE && (process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE = '@assets/libs/smartants');
 
-!process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE && (process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE = '../../../assets/libs/smartants');
-
 // Собираем встраиваемые плагины
 //if (process.env.VUE_APP_DOCHUB_MODE === 'production') {
 (pluginsConf?.inbuilt || []).map((item) => {
@@ -43,7 +41,7 @@ if (process.env.VUE_APP_DOCHUB_MODE === 'plugin') {
 	plugins.push(new HtmlWebpackPlugin({
 		filename: 'plugin.html',
 		template: 'src/ide/plugin.html',
-		inlineSource: '.(woff(2)?|ttf|eot|svg|js|css)$',
+		inlineSource: '.(woff(2)?|ttf|eot|svg|js|css|map)$',
 		inject: true
 		/* ,
 		minify: {
@@ -117,7 +115,7 @@ let config = {
 			filename: '[name].js'
 		},
 		resolve: {
-			alias: {
+      alias: {
 				'@front': path.resolve(__dirname, './src/frontend'),
 				'@assets': path.resolve(__dirname, './src/assets'),
 				'@back': path.resolve(__dirname, './src/backend'),

@@ -260,9 +260,7 @@
         this.isLoading = true;
 
         this.$nextTick(() => {
-          const request = window.$PAPI?.settings?.render?.external === false
-            ? window.$PAPI.renderPlantUML(this.uml)
-            : plantUML.prepareRequest(this.uml);
+          const request = plantUML.prepareRequest(this.uml);
 
           request.then((response) => {
             this.svg = response.data.toString();

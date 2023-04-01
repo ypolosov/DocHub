@@ -37,7 +37,7 @@ const parser = {
 	// Журнал объединений
 	mergeMap: {},
 	// Итоговый манифест
-	manifest: null,
+	manifest: {},
 	// Возвращает тип значения
 	fieldValueType(value) {
 		const type = typeof value;

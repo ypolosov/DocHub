@@ -1,11 +1,11 @@
+import env from '@front/helpers/env';
 import { create } from '../core/store';
 import { get, add, put } from '../core/data';
 
 import config from './config.json';
 import { TCacheData } from '../types/idb.types';
-import { getCacheStoreName } from '../helpers/util';
 
-const storeName = getCacheStoreName();
+const storeName = env.rootManifest || 'dochub';
 
 const init = (): Promise<IDBObjectStore> => create({
   ...config,

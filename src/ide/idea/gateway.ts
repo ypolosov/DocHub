@@ -1,7 +1,7 @@
 import env, { Plugins } from '@front/helpers/env';
 const listeners = {};
 
-if (env.isPlugin(Plugins.idea) && env.isProduction()) {
+if (env.isPlugin(Plugins.idea)) {
   setInterval(() => {
     window.$PAPI.messagePull().then((message) => {
       if (message) {

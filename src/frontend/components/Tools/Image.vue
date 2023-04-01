@@ -1,5 +1,14 @@
 <template>
-  <img v-bind:src="data" style="max-width:100%">
+  <div>
+    <v-alert v-if="error" color="warning">
+      Здесь должна быть картинка, но что-то пошло не так.<br>
+      Проверьте, что ресурс доступен, а CORS политики настроены верно.<br>
+      <br>
+      Ошибка:<br>
+      {{ error }}
+    </v-alert>
+    <img v-else v-bind:src="data" style="max-width:100%">
+  </div>
 </template>
 
 <script>
@@ -13,6 +22,7 @@
     },
     data() {
       return {
+        error: null,
         data: null
       };
     },
@@ -25,7 +35,8 @@
         requests.request(url.toString(), undefined, { responseType: 'arraybuffer' })
           .then((response) => {
             this.data = URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type']}));
-          });
+          })
+          .catch((e) => this.error = e);
       }
     }
   };
