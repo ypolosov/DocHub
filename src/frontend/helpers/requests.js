@@ -3,6 +3,7 @@ import YAML from 'yaml';
 import crc16 from '@global/helpers/crc16';
 import gitlab from '@front/helpers/gitlab';
 import uriTool from '@front/helpers/uri';
+import { Buffer } from 'buffer';
 
 import env, { Plugins } from './env';
 import { responseCacheInterceptor, requestCacheInterceptor } from './cache';
