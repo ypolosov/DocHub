@@ -33,7 +33,7 @@ const PAPI = {
 					}
 				});
 			};
-
+			
 			window.$PAPI.cefQuery({
 				request: '' + data,
 				onSuccess: resolve,
@@ -76,7 +76,16 @@ const PAPI = {
 // Ищем окружение плагина
 
 // eslint-disable-next-line no-useless-escape
-const cefQuery = (Object.getOwnPropertyNames(window).filter(item => /^cefQuery\_[0-9]/.test(item)) || [])[0];
+// const cefQuery = (Object.getOwnPropertyNames(window).filter(item => /^cefQuery\_[0-9]/.test(item)) || [])[0];
+
+const params = new URLSearchParams(document.location.search);
+// Пытаемся получить название интерфейсной функции из параметров.
+// Если в параметрах ее нет, то берем '%$dochub-api-interface-func%' который
+// заботливо должен был подложить плагин заменой.
+const cefQuery = params.get('$dochub-api-interface-func') || '%$dochub-api-interface-func%';
+
+// eslint-disable-next-line no-console
+console.info('Plugin API function: ', cefQuery);
 
 if (cefQuery) {
 	PAPI.cefQuery = window[cefQuery];
