@@ -94,9 +94,20 @@ if (cefQuery) {
 	};
 
 	PAPI.getSettings().then((config) => {
+		const supportAPI = process.env.VUE_APP_DOCHUB_IDE_IDEA_API || [];
+		if (supportAPI.indexOf(config.api) < 0) {
+			const message = `Данная версия плагина имеет версию API [${config.api}]. Требуются версии: ${supportAPI.join(';')}. Возможно необходимо обновить плагин.`;
+			// eslint-disable-next-line no-console
+			console.error(message);
+			alert(message);
+		}
 		window.DocHubIDEACodeExt.settings = config;
 	// eslint-disable-next-line no-console
-	}).catch(() => console.error('Не могу получить конфигурацию плагина.'));
+	}).catch((e) => {
+		alert('Не могу получить конфигурацию плагина.');
+		// eslint-disable-next-line no-console
+		console.error(e);
+	});
 
 } else {
 	// eslint-disable-next-line no-console

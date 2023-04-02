@@ -5,13 +5,23 @@ const HtmlWebpackInlineSourcePlugin = require('@effortlessmotion/html-webpack-in
 const pluginsConf = require('./plugins.json');
 const PluginMaker = require('./src/building/plugin-maker');
 const path = require('path');
+const package = require('./package.json');
 
 const plugins = [];
 const entries = {
 	app: './src/frontend/main.js'
 };
 
+// Указывается где лежит движок SmartAnts
 !process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE && (process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE = '@assets/libs/smartants');
+
+
+// Определяем версии API плагинов, которые поддерживаются в Enterprise режиме
+const ideaAPIAvailable = process.env.VUE_APP_DOCHUB_IDE_IDEA_API || package.ide?.idea?.api || [];
+process.env.VUE_APP_DOCHUB_IDE_IDEA_API = Array.isArray(ideaAPIAvailable) ? ideaAPIAvailable : ideaAPIAvailable.toString().split(',');
+
+const vscodeAPIAvailable = process.env.VUE_APP_DOCHUB_IDE_VSCODE_API || package.ide?.vscode?.api || [];
+process.env.VUE_APP_DOCHUB_IDE_IDEA_API = Array.isArray(vscodeAPIAvailable) ? vscodeAPIAvailable : vscodeAPIAvailable.toString().split(',');
 
 // Собираем встраиваемые плагины
 //if (process.env.VUE_APP_DOCHUB_MODE === 'production') {
