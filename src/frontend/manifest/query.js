@@ -2,6 +2,7 @@ import jsonataDriver from '@global/jsonata/driver.mjs';
 import queries from '@global/jsonata/queries.mjs';
 import env from '@front/helpers/env';
 import requests from '@front/helpers/requests';
+import datasets from '@front/helpers/datasets';
 
 // Возвращает тело запроса в зависимости от платформы развертывания
 function resolveJSONataRequest(ID, params) {
@@ -14,6 +15,11 @@ function resolveJSONataRequest(ID, params) {
     }
     return result;
 }
+
+const dataSetDriver = datasets();
+jsonataDriver.release = function(path, params) {
+    return dataSetDriver.releaseData(path, params);
+};
 
 export default {
     driver: jsonataDriver,
