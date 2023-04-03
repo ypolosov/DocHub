@@ -33,7 +33,7 @@ const PAPI = {
 					}
 				});
 			};
-
+			
 			window.$PAPI.cefQuery({
 				request: '' + data,
 				onSuccess: resolve,
@@ -76,9 +76,18 @@ const PAPI = {
 // Ищем окружение плагина
 
 // eslint-disable-next-line no-useless-escape
-const cefQuery = (Object.getOwnPropertyNames(window).filter(item => /^cefQuery\_[0-9]/.test(item)) || [])[0];
+// const cefQuery = (Object.getOwnPropertyNames(window).filter(item => /^cefQuery\_[0-9]/.test(item)) || [])[0];
 
-if (cefQuery) {
+const params = new URLSearchParams(document.location.search);
+// Пытаемся получить название интерфейсной функции из параметров.
+// Если в параметрах ее нет, то берем '%$dochub-api-interface-func%' который
+// заботливо должен был подложить плагин заменой.
+const cefQuery = params.get('$dochub-api-interface-func') || '%$dochub-api-interface-func%';
+
+// eslint-disable-next-line no-console
+console.info('Plugin API function: ', cefQuery);
+
+if (cefQuery && window[cefQuery]) {
 	PAPI.cefQuery = window[cefQuery];
 	window.$PAPI = PAPI;
 	window.DocHubIDEACodeExt = {
@@ -94,9 +103,20 @@ if (cefQuery) {
 	};
 
 	PAPI.getSettings().then((config) => {
+		const supportAPI = process.env.VUE_APP_DOCHUB_IDE_IDEA_API || [];
+		if (supportAPI.indexOf(config.api) < 0) {
+			const message = `Данная версия плагина имеет версию API [${config.api}]. Требуются версии: ${supportAPI.join(';')}. Возможно необходимо обновить плагин.`;
+			// eslint-disable-next-line no-console
+			console.error(message);
+			alert(message);
+		}
 		window.DocHubIDEACodeExt.settings = config;
 	// eslint-disable-next-line no-console
-	}).catch(() => console.error('Не могу получить конфигурацию плагина.'));
+	}).catch((e) => {
+		alert('Не могу получить конфигурацию плагина.');
+		// eslint-disable-next-line no-console
+		console.error(e);
+	});
 
 } else {
 	// eslint-disable-next-line no-console

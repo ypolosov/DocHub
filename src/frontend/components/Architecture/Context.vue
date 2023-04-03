@@ -46,7 +46,6 @@
     },
     asyncComputed: {
       async schema() {
-        this.$nextTick(this.reloadCustomUML);
         // *******************************************************
         //      ТУТ ВЕРОЯТНО ОТЪЕХАЛИ ДАТАСЕТЫ В КОНТЕКСТАХ
         //  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -68,6 +67,11 @@
       },
       isCustomUML() {
         return typeof this.schema?.uml === 'string';
+      }
+    },
+    watch: {
+      schema() {
+        this.reloadCustomUML();
       }
     },
     methods : {

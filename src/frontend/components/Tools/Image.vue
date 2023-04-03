@@ -3,9 +3,8 @@
     <v-alert v-if="error" color="warning">
       Здесь должна быть картинка, но что-то пошло не так.<br>
       Проверьте, что ресурс доступен, а CORS политики настроены верно.<br>
-      <br>
-      Ошибка:<br>
-      {{ error }}
+      URL: {{ url.toString() }}<br>
+      Ошибка: {{ error }}
     </v-alert>
     <img v-else v-bind:src="data" style="max-width:100%">
   </div>
@@ -26,6 +25,11 @@
         data: null
       };
     },
+    computed: {
+      url() {
+        return new URL(this.src, this.baseURI);
+      }
+    },
     mounted() {
       this.reloadImage();
     },
@@ -36,7 +40,9 @@
           .then((response) => {
             this.data = URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type']}));
           })
-          .catch((e) => this.error = e);
+          .catch((e) => {
+            this.error = e;
+          });
       }
     }
   };
