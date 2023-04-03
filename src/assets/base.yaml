@@ -137,6 +137,12 @@ rules:
                 "description": "Предполагается, что для всех уровней аспекты определены."
             }]
         )
+    $error:
+      title: Ошибки
+    $error.net:
+      title: Сетевые
+    $error.missing_files:
+      title: Отсутствующие файлы
 
 entities:
   entities:

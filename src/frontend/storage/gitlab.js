@@ -14,7 +14,13 @@ import plugins from './plugins';
 
 import GitLab from '@front/helpers/gitlab';
 
+import validatorErrors from '@front/constants/validators';
+
 const axios = require('axios');
+
+const NET_CODES_ENUM = {
+  NOT_FOUND: 404
+};
 
 export default {
 	modules: {
@@ -127,6 +133,7 @@ export default {
 				// Регистрируем обнаруженные ошибки
 				errors.syntax && context.commit('appendProblems', errors.syntax);
 				errors.net && context.commit('appendProblems', errors.net);
+        errors.missing_files && context.commit('appendProblems', errors.missing_files);
 
 				const manifest = Object.freeze(parser.manifest);
 				// Обновляем манифест и фризим объекты
@@ -149,6 +156,8 @@ export default {
 			storageManager.onStartReload = () => {
 				errors.syntax = null;
 				errors.net = null;
+        errors.missing_files = null;
+
 				context.commit('setNoInited', null);
 				context.commit('setIsReloading', true);
 			};
@@ -160,7 +169,7 @@ export default {
 					if (!errors.syntax) {
 						errors.syntax = {
 							id: '$error.syntax',
-							title: 'Ошибка синтаксиса',
+							title: validatorErrors.title.syntax,
 							items: []
 						};
 					}
@@ -170,32 +179,51 @@ export default {
 						errors.syntax.items.push({
 							uid,
 							title: url,
-							correction: 'Исправьте ошибку в файле',
-							description: 'Допущена синтаксиеческая ошибка при описании манифеста:\n\n'
+							correction: validatorErrors.correction.in_file,
+							description: `${validatorErrors.description.manifest_syntax}:\n\n`
 								+ `${error.toString()}\n`
-								+ `Код: ${source.toString()}`
-								+ `Диапазон: ${range.start || '--'}..${range.end || '--'}`,
+								+ `${validatorErrors.parts.code}: ${source.toString()}`
+								+ `${validatorErrors.parts.range}: ${range.start || '--'}..${range.end || '--'}`,
 							location: url
 						});
 					}
 				} else if (data.uri === consts.plugin.ROOT_MANIFEST) {
 					context.commit('setNoInited', true);
 				} else {
-					if (!errors.net) {
-						errors.net = {
-							id: '$error.net',
-							title: 'Сетевые ошибки',
-							items: []
-						};
-					}
-					errors.net.items.push({
-						uid,
-						title: url,
-						correction: 'Устраните сетевую ошибку',
-						description: 'Возникла сетевая ошибка:\n\n'
-							+ `${error.toString()}\n`,
-						location: url
-					});
+          const item = {
+            uid,
+            title: url,
+            correction: '',
+            description: '',
+            location: url
+          };
+
+          if (error.response?.status === NET_CODES_ENUM.NOT_FOUND) {
+            if (!errors.missing_files) {
+              errors.missing_files = {
+                id: '$error.missing_files',
+                items: []
+              };
+            }
+
+            item.correction = validatorErrors.correction.missing_files;
+            item.description = `${validatorErrors.description.missing_files}:\n\n`
+              + `${url.split('/').splice(3).join(' -> ')}\n`;
+            errors.missing_files.items.push(item);
+          } else {
+            if (!errors.net) {
+              errors.net = {
+                id: '$error.net',
+                items: []
+              };
+            }
+
+            item.correction = validatorErrors.correction.net;
+            item.description = `${validatorErrors.description.net}:\n\n`
+              + `${error.toString()}\n`;
+            errors.net.items.push(item);
+          }
+
 					context.commit('setIsReloading', false);
 				}
 			};
@@ -258,13 +286,13 @@ export default {
 					if (OAuthCode) context.dispatch('reloadAll');
 				}).catch((e) => {
 					context.commit('appendProblems', [{
-						problem: 'Сетевые ошибки',
+						problem: validatorErrors.title.net,
 						route: OAuthURL,
 						target: '_blank',
-						title: `Ошибка авторизации GitLab OAuth [${e.toString()}]`
+						title: `${validatorErrors.title.gitlab_auth} [${e.toString()}]`
 					}]);
 					// eslint-disable-next-line no-console
-					console.error('Ошибка авторизации GitLab OAuth ', e);
+					console.error(validatorErrors.title.gitlab_auth, e);
 				}).finally(() => context.commit('setIsOAuthProcess', false));
 		},
 
