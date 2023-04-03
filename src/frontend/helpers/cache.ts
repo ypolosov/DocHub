@@ -10,7 +10,7 @@ import {
   TManifestProps
 } from '@front/storage/indexedDB/types/idb.types';
 
-import idb, { TCache } from '../storage/indexedDB';
+import idb, { TCache } from '@front/storage/indexedDB';
 import env from './env';
 
 let Cache: TCache | null;

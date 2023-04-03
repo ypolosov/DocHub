@@ -3,6 +3,7 @@ import YAML from 'yaml';
 import crc16 from '@global/helpers/crc16';
 import gitlab from '@front/helpers/gitlab';
 import uriTool from '@front/helpers/uri';
+import { Buffer } from 'buffer';
 
 import env, { Plugins } from './env';
 import { responseCacheInterceptor, requestCacheInterceptor } from './cache';
@@ -15,7 +16,7 @@ const tracers = {};
 // Add a request interceptor
 
 const responseErrorInterceptor = (error) => {
-	if (error.response.status === 304) {
+	if (error.response?.status === 304) {
 		if (error.config.lastCachedResult) {
 			return {
 				...error.response,
@@ -67,27 +68,31 @@ axios.interceptors.response.use(async(response) => {
 	return response;
 }, responseErrorInterceptor);
 
-if (window.$PAPI) {
-	window.$PAPI.middleware = function(response) {
-		let type = response.contentType;
-		switch (type) {
-			case 'yaml': response.data = YAML.parse(response.data); break;
-			case 'json': response.data = JSON.parse(response.data); break;
-			case 'jpg':
-				type = 'jpeg';
-			// eslint-disable-next-line no-fallthrough
-			case 'jpeg':
-			case 'png':
-			case 'svg':
-				if (type === 'svg') type = 'svg+xml';
-				response.data = Buffer.from(response.data, 'base64');
-				response.headers = Object.assign(response.headers || {}, {
-					'content-type': `image/${type}`
-				});
-				break;
-		}
-		return response;
-	};
+
+function injectPAPIMiddleware() {
+	if (window.$PAPI && !window.$PAPI.middleware) {
+		window.$PAPI.middleware = function(response) {
+			if (!response) return response;
+			let type = response.contentType;
+			switch (type) {
+				case 'yaml': response.data = YAML.parse(response.data); break;
+				case 'json': response.data = JSON.parse(response.data); break;
+				case 'jpg':
+					type = 'jpeg';
+				// eslint-disable-next-line no-fallthrough
+				case 'jpeg':
+				case 'png':
+				case 'svg':
+					if (type === 'svg') type = 'svg+xml';
+					response.data = Buffer.from(response.data, 'base64');
+					response.headers = Object.assign(response.headers || {}, {
+						'content-type': `image/${type}`
+					});
+					break;
+			}
+			return response;
+		};
+	}
 }
 
 export default {
@@ -143,9 +148,10 @@ export default {
 		}
 
 		if (
-			env.isPlugin(Plugins.idea) && params.url.split(':')[0] === 'plugin' ||
+			env.isPlugin(Plugins.idea) && params.url.toString().startsWith('plugin:') ||
 			env.isPlugin(Plugins.vscode)
 		) {
+			injectPAPIMiddleware();
 			this.trace(params.url);
 			return window.$PAPI.request(params);
 		} else {

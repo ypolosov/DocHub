@@ -7,7 +7,13 @@ export default Object.assign({
     getBaseURIOfPath(path) {
         if (env.isBackendMode()) {
             return `backend://${md5(path)}/`;
-        } else 
-            return window.Vuex.state.sources[path][0];
+        } else {
+            const paths = window.Vuex?.state?.sources[path];
+            if (!paths) {
+                // eslint-disable-next-line no-console
+                console.warn(`Не найден путь к свойству [${path}]`);
+            }
+            return (paths || [])[0];
+        }
     }
 }, new uriTool(config));

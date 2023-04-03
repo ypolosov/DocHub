@@ -4,68 +4,6 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <script>
-      window.$PAPI = {
-        isDebug: false,
-        middleware: function(response) {
-        },
-        settings: "SETTING_INJECTION",
-        request : function(params) {
-          const data = JSON.stringify(params);
-          window.$PAPI.isDebug && console.info('plugin request.request', data);
-          return new Promise(function(res, rej) {
-            const resolve = function(result) {
-              window.$PAPI.isDebug && console.info(`plugin request.response:`, JSON.stringify(result));
-              try {
-                res(window.$PAPI.middleware(JSON.parse(result)));
-              } catch (e) {
-                rej(e);
-              }
-            };
-            const reject = function(errCode, errInfo) {
-              console.error(`plugin request.error:`, errCode, errInfo);
-              rej({
-                response: {
-                  data: errInfo,
-                  headers: {},
-                  status: errCode
-                }
-              });
-            }
-            "API_INJECTION"
-          });
-        },
-        renderPlantUML: function(uml) {
-          return this.request({url: 'plugin:/idea/plantuml/svg', source: uml});
-        },
-        messagePull: function () {
-          return this.request({url: 'plugin:/idea/gateway/pull'});
-        },
-        initProject: function (mode) {
-          return this.request({url: 'plugin:/idea/initproject', mode});
-        },
-        reload: function () {
-          this.request({url: 'plugin:/idea/reload'});
-        },
-        showDebugger: function () {
-          this.request({url: 'plugin:/idea/debugger/show'});
-        },
-        goto: function(source, entity, id) {
-          this.request({url: `plugin:/idea/goto`, source, entity, id});
-        },
-        download: function(content, title, description, extension) {
-          this.request({url: `plugin:/idea/gateway/download`, content, title, description, extension});
-        },
-        applyEntitiesSchema: function(schema) {
-          this.request({url: `plugin:/idea/entities/applyschema`, schema});
-        },
-        copyToClipboard: function(data) {
-          this.request({url: `plugin:/idea/clipboard/copy`, data});
-        }
-      };      
-      "API_INJECTION"
-    </script>
-
     <title>DocHub</title>
     <style>
       .header {
