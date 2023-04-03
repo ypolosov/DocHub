@@ -3,14 +3,24 @@ import mustache from 'mustache';
 import datasets from '@front/helpers/datasets';
 import requests from '@front/helpers/requests';
 import uriTool from '@front/helpers/uri';
+import env, {Plugins} from '@front/helpers/env';
 
 function doUpload(content, mime) {
   const base64 = window.btoa(unescape(encodeURIComponent(content)));
-  const link = document.createElement('a');
-  document.body.appendChild(link);
-  link.href = `data:${mime};base64,${base64}`;
-  link.download = `dh_${Date.now()}.${mime.split('/').pop()}`;
-  link.click();
+  const href = `data:${mime};base64,${base64}`;
+  if (env.isPlugin(Plugins.idea)) {
+    window.$PAPI.download(
+      href,
+      'Выгрузка представления',
+      'Выберите файл для сохранения'
+    );
+  } else {
+    const link = document.createElement('a');
+    document.body.appendChild(link);
+    link.href = href;
+    link.download = `dh_${Date.now()}.${mime.split('/').pop()}`;
+    link.click();
+  }
 }
 
 // Выгружает документы типа upload

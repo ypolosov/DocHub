@@ -87,7 +87,7 @@ const cefQuery = params.get('$dochub-api-interface-func') || '%$dochub-api-inter
 // eslint-disable-next-line no-console
 console.info('Plugin API function: ', cefQuery);
 
-if (cefQuery) {
+if (cefQuery && window[cefQuery]) {
 	PAPI.cefQuery = window[cefQuery];
 	window.$PAPI = PAPI;
 	window.DocHubIDEACodeExt = {
