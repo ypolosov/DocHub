@@ -5,7 +5,7 @@ import pathTool from '../../global/manifest/tools/path.mjs';
 import md5 from 'md5';
 
 export default function(app) {
-	return Object.assign({}, datasetDriver,
+	const result = Object.assign({}, datasetDriver,
 		{
 			// Возвращаем метаданных об объекте
 			pathResolver(path) {
@@ -20,4 +20,6 @@ export default function(app) {
 			// Драйвер запросов JSONata
 			jsonataDriver
 		});
+	
+	return result;
 }
