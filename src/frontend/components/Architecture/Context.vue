@@ -46,10 +46,6 @@
     },
     asyncComputed: {
       async schema() {
-        // *******************************************************
-        //      ТУТ ВЕРОЯТНО ОТЪЕХАЛИ ДАТАСЕТЫ В КОНТЕКСТАХ
-        //  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // *******************************************************
         const result = await query.expression(query.context(this.context, this.location)).evaluate() || {};
         this.isReady = true;
         return result;

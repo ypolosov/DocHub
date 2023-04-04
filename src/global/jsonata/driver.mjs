@@ -59,14 +59,6 @@ function jsonSchema(schema) {
 }
 
 export default {
-	// Реализует профиль данных объекта (source & origin).
-	// Возвращает результат реализации.
-	//	path - путь к профилю
-	//	params - параметры передаваемые в профиль
-	// eslint-disable-next-line no-unused-vars
-	release(path, params) {
-		throw 'Method release of JSONata driver is not applied.';
-	},
 	// Создает объект запроса JSONata
 	//  expression - JSONata выражение
 	//  self    - объект, который вызывает запрос (доступен по $self в запросе)
@@ -75,7 +67,6 @@ export default {
     //          Если true, то в объекте запроса, после его выполнения, появится поле "trace"
     //  funcs - кастомные функции, регистрируемые в JSONata 
 	expression(expression, self_, params, isTrace, funcs) {
-		const release = this.release;
 		const obj = {
 			expression,
 			core: null,
@@ -93,7 +84,6 @@ export default {
 						this.core.registerFunction('wcard', wcard);
 						this.core.registerFunction('mergedeep', mergeDeep);
 						this.core.registerFunction('jsonschema', jsonSchema);
-						this.core.registerFunction('release', release);
 						this.core.registerFunction('set', (key, data) => {
 							return obj.store[key] = data;
 						});

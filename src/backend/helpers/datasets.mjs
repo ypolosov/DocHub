@@ -20,10 +20,6 @@ export default function(app) {
 			// Драйвер запросов JSONata
 			jsonataDriver
 		});
-
-	jsonataDriver.release = function(path, params) {
-		return result.releaseData(path, params);
-	};
 	
 	return result;
 }
