@@ -9,11 +9,16 @@ let appliedSchemaCRC = null;
 export default function(manifest) {
 	if (env.isPlugin(Plugins.idea)) {
 		//todo Здесь нужно рефачить, чтобы запросы в бэк ходили
-		const schema = JSON.stringify(query.expression(query.entitiesJSONChema()).evaluate(manifest || {}));
-		const crc = crc16(schema);
-		if (crc != appliedSchemaCRC) {
-			window.$PAPI.applyEntitiesSchema(schema);
-			appliedSchemaCRC = crc;
-		}
+		query.expression(query.entitiesJSONChema()).evaluate(manifest || {})
+			.then((result) => {
+				debugger;
+				const schema = JSON.stringify(result);
+				const crc = crc16(schema);
+				if (crc != appliedSchemaCRC) {
+					window.$PAPI.applyEntitiesSchema(schema);
+					appliedSchemaCRC = crc;
+				}
+			// eslint-disable-next-line no-console
+			}).catch((e) => console.error(e));
 	}
 }

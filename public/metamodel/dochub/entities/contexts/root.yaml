@@ -1,0 +1,11 @@
+entities:
+  viewpoint:
+    title: Контексты
+    description: >
+      Представлять указанные архитектурные компоненты в виде диаграмм.
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z][a-zA-Z0-9\_]*(\\.[a-zA-Z][a-zA-Z0-9\\_]*)*$":
+          type: string
+      additionalProperties: false
