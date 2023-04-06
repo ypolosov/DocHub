@@ -4,11 +4,9 @@
 
 <script>
   import SwaggerUI from 'swagger-ui';
-  import mustache from 'mustache';
 
-  import requests from '@front/helpers/requests';
-  
   import DocMixin from './DocMixin';
+  import { getAsyncApiContext } from '@front/helpers/misc';
 
   export default {
     name: 'Swagger',
@@ -33,21 +31,7 @@
     },
     methods: {
       refresh() {
-        this.sourceRefresh().then(() => {
-          const params = this.isTemplate ? {
-            responseHook: (response) => {
-              if (typeof response.data === 'string') {
-                response.data = mustache.render(response.data, this.source.dataset);
-              }
-              return response;
-            }
-          } : undefined;
-          requests.request(this.url, undefined, params)
-            .then((response) => {
-              this.data = response.data;
-              this.swaggerRender();
-            }).catch((e) => this.error = e);
-        });
+        getAsyncApiContext.call(this, true);
       },
 
       swaggerRender() {
