@@ -3,11 +3,13 @@ import {plugins} from '@front/plugins/initializer.js';
 
 const beforeInit = (processEnv) => {
   env.dochub = processEnv ?? {};
-  import(/* webpackMode: "eager" */ '@front/plugins/api');
 };
 
 const init = async() => {
   const { default: app } = await import(/* webpackMode: "eager" */ './index');
+
+  await import(/* webpackMode: "eager" */ '@front/plugins/api');
+
   return app;
 };
 
