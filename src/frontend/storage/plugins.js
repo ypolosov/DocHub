@@ -21,12 +21,10 @@ export default {
 		// Загружаем плагины
 		init(context) {
 			// Регистрируем менеджер документов для плагинов
-			window.DocHub.documents = {
-        register(type, component) {
-          component.mixins = component.mixins || [];
-          Vue.component(`plugin-doc-${type}`, component);
-          context.commit('registerDocument', { type, component });
-        }
+      window.DocHub.registerDocuments = function(type, component) {
+        component.mixins = component.mixins || [];
+        Vue.component(`plugin-doc-${type}`, component);
+        context.commit('registerDocument', { type, component });
       };
 
 			let counter = 0;
