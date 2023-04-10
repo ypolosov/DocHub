@@ -43,8 +43,9 @@ entities:
               $result := $result & (
                   $not($isAreaBegin) and $component ? (
                       /* Открываем секцию компонента */
+                      $entity := $component.entity ? $component.entity : "component";
                       $result := "$Entity(\"" 
-                          & $component.entity 
+                          & $entity 
                           & "\", \""
                           & "[[/architect/components/" & $domain & " " & $component.title & "]]"
                           & "\", " 
@@ -56,7 +57,7 @@ entities:
                           $aspect := $lookup($manifest.aspects, $);
                           $title := $aspect ? $aspect.title : $;
                           "$EntityAspect(\""
-                          & $component.entity
+                          & $entity
                           & "\",\"[[/architect/aspects/"
                           & $
                           & " " 
@@ -67,7 +68,7 @@ entities:
                       /* Если компонент является контекстом добавляем дрилдаун */
                       $context ? 
                           $result := $result & "$EntityExpand(\""
-                          & $component.entity
+                          & $entity
                           & "\", "
                           & $domain
                           & ")\n";
@@ -75,7 +76,7 @@ entities:
                       /* Закрываем секцию компонента */
                       $result := $result & 
                           "$EntityEnd(\""
-                          & $component.entity
+                          & $entity
                           & "\")\n";
                   ): "";
               );
@@ -108,6 +109,24 @@ entities:
           required:
             - id
         type: plantuml
+        constructor: >  # Переносим необходимую информацию из контекста в презентацию 
+          (
+            $id := $params.id;
+            $context := $lookup(contexts, $id);
+            $prototype := $self;
+            /* Даем возможность переопределить два поля template и source */
+            $merge(["$", "template", "source"].(
+              $field := $;
+              $field = "$" ? (
+                { $id : $prototype }
+              ) : (
+                $value := $lookup($context, $field);
+                $value ? (
+                  { $id : { $field : $value} } 
+                )
+              )
+            ))
+          )
         template: templates/template.puml
         source: >
           (

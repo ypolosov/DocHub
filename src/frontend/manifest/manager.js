@@ -23,26 +23,28 @@ manifestParser.reloadManifest = async function(payload){
   if (payload) {
     await (
       async function parserImport(next = 0) {
+        debugger;
         if (payload?.length > next) {
-          await manifestParser.import(payload[next], payload[next] !== env.rootManifest);
+          if (payload[next] === env.rootManifest) {
+            await manifestParser.clean();
+          }
+          await manifestParser.import(payload[next]);
           await parserImport(next + 1);
         }
       }
     )();
   } else {
     if (!env.isPlugin()) {
-      let doClearManifest = true;
-      if (env.isAppendDocHubDocs) {
-        await manifestParser.import(manifestParser.cache.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()));
-        doClearManifest = false;
-      }
+      await manifestParser.clean();
+      env.isAppendDocHubDocs 
+        && await manifestParser.import(manifestParser.cache.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()));
 
-      await manifestParser.import(manifestParser.cache.makeURIByBaseURI(env.rootManifest, requests.getSourceRoot()), !doClearManifest);
+      await manifestParser.import(manifestParser.cache.makeURIByBaseURI(env.rootManifest, requests.getSourceRoot()));
     } else {
       await manifestParser.import(
-        manifestParser.cache.makeURIByBaseURI(env.rootManifest, requests.getSourceRoot()),
-        true
-      );
+        manifestParser.cache.makeURIByBaseURI(env.rootManifest, requests.getSourceRoot()));
+      
+      manifestParser.loaded = {};
     }
   }
 

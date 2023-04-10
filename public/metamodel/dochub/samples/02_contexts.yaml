@@ -4,6 +4,7 @@ contexts:
     location: Проба/Тест
     title: Проба
     extra-links: false
+    source: test-source
     components:
       - dochub.front
     api:

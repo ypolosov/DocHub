@@ -26,6 +26,12 @@ entities:
             extra-links:
               title: Отображать компоненты ближайших связей
               type: boolean
+            presentation:
+              title: Принудительно определяет презентацию
+              type: string
+              enum:
+                - plantuml
+                - smartants
             uml:
               title: Кастомизация контекста
               anyOf:
@@ -64,10 +70,15 @@ entities:
             - title
             - components
       additionalProperties: false
+    # Определяет пути к объектам сущности
+    routes:
+      context: "/:id" # Путь к контексту
     menu: >
       (
         $presentation := entities.contexts.config.defaultPresentation;
         [contexts.$spread().(
+            /* Если указана явно презентация, используем ее */
+            $presentation := $.*.presentation ? *.presentation : $presentation;
             *.location ? {
                 "location": "New contexts/" & *.location,
                 "link": "entities/contexts/" & $presentation & "?id=" & $keys()[0]

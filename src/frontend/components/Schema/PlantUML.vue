@@ -1,5 +1,7 @@
 <template>
-  <div class="plantuml-place">
+  <div 
+    class="plantuml-place"
+    v-on:contextmenu="showMenu">
     <error-boundary
       v-bind:params="{error}"
       stop-propagation>
@@ -20,31 +22,30 @@
         v-on:mouseup.prevent="onMouseUp"
         v-on:mouseleave.prevent="onMouseUp"
         v-on:wheel="proxyScrollEvent"
-        v-on:contextmenu="showMenu"
         v-html="svg" />
-      <v-menu
-        v-model="menu.show"
-        v-bind:position-x="menu.x"
-        v-bind:position-y="menu.y"
-        absolute
-        offset-y>
-        <v-list>
-          <template
-            v-for="(item, index) in menuItems">
-            <v-list-item
-              v-if="item"
-              v-bind:key="item.id"
-              link>
-              <v-list-item-title
-                v-on:click="item.on(item)">
-                {{ item.title }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-divider v-else v-bind:key="index" />
-          </template>
-        </v-list>
-      </v-menu>
     </error-boundary>
+    <v-menu
+      v-model="menu.show"
+      v-bind:position-x="menu.x"
+      v-bind:position-y="menu.y"
+      absolute
+      offset-y>
+      <v-list>
+        <template
+          v-for="(item, index) in menuItems">
+          <v-list-item
+            v-if="item"
+            v-bind:key="item.id"
+            link>
+            <v-list-item-title
+              v-on:click="item.on(item)">
+              {{ item.title }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-divider v-else v-bind:key="index" />
+        </template>
+      </v-list>
+    </v-menu>
   </div>
 </template>
 
@@ -81,8 +82,6 @@
           y : 0,  // Позиция y
           items: (() => {
             const result = [
-              { id:'save-svg', title: 'Сохранить на диск SVG', on: () => download.downloadSVG(this.svg)},
-              { id: 'save-png', title: 'Сохранить на диск PNG', on: () => download.downloadSVGAsPNG(this.svg) },
               { id: 'copy-puml', title: 'Копировать PlantUML', on: () => copyToClipboard(this.uml) }
             ];
             this.sourceAvailable && result.push({ title: 'Копировать JSON', on: () => this.$emit(EVENT_COPY_SOURCE_TO_CLIPBOARD) });
@@ -110,6 +109,14 @@
       menuItems() {
         const result = [].concat(this.contextMenu);
         result.length && result.push(null);
+        if (!this.error) {
+          result.push(
+            { id:'save-svg', title: 'Сохранить на диск SVG', on: () => download.downloadSVG(this.svg)}
+          );
+          result.push(
+            { id: 'save-png', title: 'Сохранить на диск PNG', on: () => download.downloadSVGAsPNG(this.svg) }
+          );
+        }
         return result.concat(this.menu.items);
       },
       viewBox() {
