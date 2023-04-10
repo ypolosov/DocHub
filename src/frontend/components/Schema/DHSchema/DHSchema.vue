@@ -9,6 +9,7 @@
     v-bind:viewBox="viewBox"
     zoomAndPan="magnify"
     encoding="UTF-8"
+    stroke="transparent"
     v-bind:style="style"
     v-on:mousedown="onClickSpace">
     <template v-if="isFirefox">
@@ -64,6 +65,14 @@
         r="20"
         fill="none"
         stroke-width="5" />
+    </template>
+
+    <template v-if="error">
+      <text 
+        v-bind:x="landscape.viewBox.left"
+        v-bind:y="landscape.viewBox.top + 10"
+        alignment-baseline="hanging"
+        class="error">{{ error }}</text>
     </template>
 
     Тут должны была быть схема, но что-то пошло не так...
@@ -174,7 +183,8 @@
             }
           };
         }
-      }},
+      }
+    },
     data() {
       return {
         isBuilding: 0,
@@ -199,7 +209,8 @@
           layers: {},
           tracks: []
         },
-        style: {}
+        style: {},
+        error: null
       };
     },
     computed: {
@@ -378,10 +389,13 @@
         this.selected.nodes = {};
       },
       // Обработка клика на свободной области
-      onClickSpace() {
-        this.cleanSelectedTracks();
-        this.cleanSelectedNodes();
-        this.updateNodeView();
+      onClickSpace(event) {
+        event = event || window.event;
+        if (event.which === 1) {
+          this.cleanSelectedTracks();
+          this.cleanSelectedNodes();
+          this.updateNodeView();
+        } else event.preventDefault();
       },
       // Перестроить viewbox
       rebuildViewBox() {
@@ -410,6 +424,7 @@
       },
       // Перестроение презентации
       rebuildPresentation(nodes, links) {
+        this.error = null;
         this.recalcSymbols();
         const trackWidth = this.data.config?.trackWidth || this.trackWidth;
         const distance = this.data.config?.distance || this.distance;
@@ -433,6 +448,7 @@
             this.$nextTick(() => this.$el && href.elProcessing(this.$el));
           })
           .catch((e) => {
+            this.error = e.text;
             // eslint-disable-next-line no-console
             console.error(e);
           })
@@ -493,6 +509,11 @@
   stroke: rgb(52, 149, 219);
   stroke-linecap: round;
   animation: dash 1.5s ease-in-out infinite;
+}
+
+.error {
+  stroke: red;
+  fill: red;
 }
 
 @keyframes rotate {

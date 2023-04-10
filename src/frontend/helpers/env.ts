@@ -89,7 +89,11 @@ export default {
     } else return this.dochub.VUE_APP_DOCHUB_ROOT_MANIFEST;
   },
   get renderCore(): TEnvValue {
-    return this.dochub.VUE_APP_DOCHUB_RENDER_CORE;
+    const result = window.DocHubIDEACodeExt?.settings?.render?.mode || this.dochub.VUE_APP_DOCHUB_RENDER_CORE || 'graphviz';
+    console.info('>>>>>>>>> DocHubIDEACodeExt', window.DocHubIDEACodeExt);
+    console.info('>>>>>>>>> $PAPI', window.$PAPI);
+    console.info('>>>>>>>>> result', result);
+    return result;
   },
   get gitlabUrl(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_GITLAB_URL;

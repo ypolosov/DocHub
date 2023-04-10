@@ -52,7 +52,6 @@
           x : 0,
           y : 0
         },
-        selectedPres: null,
         minHeight: null
       };
     },
@@ -65,16 +64,12 @@
       isParamsInvalid() {
         return this.isInvalidParamsToPres(this.presProfile?.params);
       },
-      // Текущая презентация с учетом альтернативного выбора
-      currentPres() {
-        return this.selectedPres || this.presentation;
-      },
       // Все доступные презентации сущности для переключения
       toSwitchPres() {
         const items = this.profile?.presentations || {};
         const result = [];
         Object.keys(items).map((id) => {
-          if (id === this.currentPres) return;
+          if (id === this.presentation) return;
           const schema = items[id].params;
           if (!schema || !this.isInvalidParamsToPres(schema)) 
             result.push({
@@ -87,14 +82,14 @@
       },  
       // Получаем профиль представления
       presProfile() {
-        return this.profile?.presentations?.[this.currentPres] || {};
+        return this.profile?.presentations?.[this.presentation] || {};
       },
       // Формируем параметры для документа
       entityParams() {
         return this.params || (this.$route.params && this.$router.currentRoute.query);
       },
       presentationPath() {
-        return `${this.entityPath}/presentations/${this.currentPres}`;
+        return `${this.entityPath}/presentations/${this.presentation}`;
       },
       entityPath() {
         return `/entities/${this.entity}`;
@@ -104,7 +99,10 @@
       entityParams() {
         this.reloadProfile();
       },
-      presentationPath() {
+      entityPath() {
+        this.reloadProfile();
+      },
+      manifest() {
         this.reloadProfile();
       }
     },
@@ -119,7 +117,6 @@
       reloadProfile() {
         if (this.refresher) clearTimeout(this.refresher);
         this.refresher = setTimeout(() =>{
-          this.selectedPres = null;
           const dateLakeId = this.makeDataLakeID(this.entityPath);
           query.expression(dateLakeId).evaluate()
             .then((data) => {
@@ -166,7 +163,10 @@
           const path = `/entities/${this.entity}/presentations/${presentation}`;
           uploadDocument(presProfile, path, this.entityParams, this.manifest);
         } else { // Иначе переключаем презентацию
-          this.selectedPres = presentation;
+          this.$router.push({
+            path: `/entities/${this.entity}/${presentation}`,
+            query: this.$route.query
+          });
           this.refreshPres();
         }
       }

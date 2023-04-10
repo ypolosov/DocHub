@@ -78,6 +78,7 @@ let config = {
 			'localhost'
 		],
 		*/
+		hot: process.env.VUE_APP_DOCHUB_HOTRELOAD === 'off' ? false : true
 	},
 	transpileDependencies: ['vueitfy'],
 	configureWebpack: {
@@ -125,7 +126,7 @@ let config = {
 			filename: '[name].js'
 		},
 		resolve: {
-      alias: {
+			alias: {
 				'@front': path.resolve(__dirname, './src/frontend'),
 				'@assets': path.resolve(__dirname, './src/assets'),
 				'@back': path.resolve(__dirname, './src/backend'),

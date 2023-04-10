@@ -11,7 +11,6 @@ export default function(manifest) {
 		//todo Здесь нужно рефачить, чтобы запросы в бэк ходили
 		query.expression(query.entitiesJSONChema()).evaluate(manifest || {})
 			.then((result) => {
-				debugger;
 				const schema = JSON.stringify(result);
 				const crc = crc16(schema);
 				if (crc != appliedSchemaCRC) {
