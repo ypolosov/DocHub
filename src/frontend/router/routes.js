@@ -56,6 +56,12 @@ const routes = [
     props: middleware
   },
   {
+    name: 'root',
+    path: '/root',
+    component: ComponentsMindmap,
+    props: middleware
+  },
+  {
     name: 'aspects',
     path: '/aspects',
     component: AspectsMindmap,
