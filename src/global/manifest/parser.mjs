@@ -23,21 +23,29 @@ const parser = {
 	onStartReload: null,
 	// События по ошибкам (ошибки запросов)
 	onError: null,
-    // Возвращает базовый, предопределенный манифест
-    getBaseManifest: null,
     // Сервис управления кэшем
     cache,
-	async startLoad() {
+	// Очистка
+	clean() {
+		this.loaded = {};
+		this.mergeMap = {};
+		this.manifest = {};
+	},
+	startLoad() {
+		this.loaded = {};
 		this.onStartReload && this.onStartReload(this);
 	},
 	stopLoad() {
 		this.expandPrototype();
 		this.onReloaded && this.onReloaded(this);
+		this.loaded = {};
 	},
 	// Журнал объединений
 	mergeMap: {},
 	// Итоговый манифест
 	manifest: {},
+	// Лог загруженных файлов
+	loaded: {},
 	// Возвращает тип значения
 	fieldValueType(value) {
 		const type = typeof value;
@@ -205,20 +213,8 @@ const parser = {
 		}
 	},
 
-	// Создает базовый манифест
-	makeBaseManifest() {
-        return (this.getBaseManifest && this.getBaseManifest()) || {};
-		// По умолчанию подключаем контроль ядра метамодели
-	},
-
 	// Подключение манифеста
-	async import(uri, subimport) {
-		if (!subimport) {
-            this.mergeMap = {};
-            this.manifest = this.merge({}, this.makeBaseManifest(), uri);
-			this.onStartReload && this.onStartReload(this);
-		}
-
+	async import(uri) {
 		try {
 			const response = await parser.cache.request(uri, '/');
 			const manifest = response && (typeof response.data === 'object'
@@ -245,7 +241,14 @@ const parser = {
 							break;
 						case 'imports':
 							for (const key in node) {
-								await this.import(parser.cache.makeURIByBaseURI(node[key], uri), true);
+								const url = parser.cache.makeURIByBaseURI(node[key], uri);
+								if (this.loaded[url]) {
+									// eslint-disable-next-line no-console
+									console.warn(`Manifest [${url}] already loaded.`);
+								} else {
+									this.loaded[url] = true;
+									await this.import(url, true);
+								}
 							}
 							break;
 					}
@@ -253,8 +256,6 @@ const parser = {
 			}
 		} catch (e) {
 			this.registerError(e, uri);
-		} finally {
-			!subimport && this.stopLoad();
 		}
 	}
 };

@@ -1,5 +1,7 @@
 <template>
-  <div class="plantuml-place">
+  <div 
+    class="plantuml-place"
+    v-on:contextmenu="showMenu">
     <error-boundary
       v-bind:params="{error}"
       stop-propagation>
@@ -20,31 +22,30 @@
         v-on:mouseup.prevent="onMouseUp"
         v-on:mouseleave.prevent="onMouseUp"
         v-on:wheel="proxyScrollEvent"
-        v-on:contextmenu="showMenu"
         v-html="svg" />
-      <v-menu
-        v-model="menu.show"
-        v-bind:position-x="menu.x"
-        v-bind:position-y="menu.y"
-        absolute
-        offset-y>
-        <v-list>
-          <template
-            v-for="(item, index) in menuItems">
-            <v-list-item
-              v-if="item"
-              v-bind:key="item.id"
-              link>
-              <v-list-item-title
-                v-on:click="item.on(item)">
-                {{ item.title }}
-              </v-list-item-title>
-            </v-list-item>
-            <v-divider v-else v-bind:key="index" />
-          </template>
-        </v-list>
-      </v-menu>
     </error-boundary>
+    <v-menu
+      v-model="menu.show"
+      v-bind:position-x="menu.x"
+      v-bind:position-y="menu.y"
+      absolute
+      offset-y>
+      <v-list>
+        <template
+          v-for="(item, index) in menuItems">
+          <v-list-item
+            v-if="item"
+            v-bind:key="item.id"
+            link>
+            <v-list-item-title
+              v-on:click="item.on(item)">
+              {{ item.title }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-divider v-else v-bind:key="index" />
+        </template>
+      </v-list>
+    </v-menu>
   </div>
 </template>
 
@@ -54,7 +55,7 @@
   import plantUML from '@front/helpers/plantuml';
   import href from '@front/helpers/href';
   import copyToClipboard from '@front/helpers/clipboard';
-  import env, {Plugins} from '@front/helpers/env';
+  import download from '@front/helpers/download';
 
   const EVENT_COPY_SOURCE_TO_CLIPBOARD = 'copysource';
 
@@ -81,8 +82,6 @@
           y : 0,  // Позиция y
           items: (() => {
             const result = [
-              { id:'save-svg', title: 'Сохранить на диск SVG', on: () => this.onDownload('svg') },
-              { id: 'save-png', title: 'Сохранить на диск PNG', on: () => this.onDownload('png') },
               { id: 'copy-puml', title: 'Копировать PlantUML', on: () => copyToClipboard(this.uml) }
             ];
             this.sourceAvailable && result.push({ title: 'Копировать JSON', on: () => this.$emit(EVENT_COPY_SOURCE_TO_CLIPBOARD) });
@@ -110,6 +109,14 @@
       menuItems() {
         const result = [].concat(this.contextMenu);
         result.length && result.push(null);
+        if (!this.error) {
+          result.push(
+            { id:'save-svg', title: 'Сохранить на диск SVG', on: () => download.downloadSVG(this.svg)}
+          );
+          result.push(
+            { id: 'save-png', title: 'Сохранить на диск PNG', on: () => download.downloadSVGAsPNG(this.svg) }
+          );
+        }
         return result.concat(this.menu.items);
       },
       viewBox() {
@@ -286,73 +293,6 @@
         });
         event.preventDefault();
         event.stopPropagation();
-      },
-
-      // Генерирует изображение в формате SVG
-      getContentAsSVG() {
-        return new Promise((success) => {
-          const svgString = this.svg;
-          const svgDecoded = window.btoa(unescape(encodeURIComponent(svgString)));
-          success(`data:image/svg+xml;base64,${svgDecoded}`);
-        });
-      },
-
-      // Генерирует изображение в формате PNG
-      getContentAsPNG() {
-        return new Promise((success) => {
-          this.getContentAsSVG().then((content) => {
-            const svgImage = document.createElement('img');
-            svgImage.style.position = 'fixed';
-            svgImage.style.left = 0;
-            svgImage.style.top = 0;
-            svgImage.style.zIndex = '-999';
-            svgImage.onload = function() {
-              const canvas = document.createElement('canvas');
-              canvas.width = svgImage.clientWidth;
-              canvas.height = svgImage.clientHeight;
-              const canvasCtx = canvas.getContext('2d');
-              canvasCtx.drawImage(svgImage, 0, 0);
-              const imgData = canvas.toDataURL('image/png');
-              document.body.removeChild(svgImage);
-              success(imgData);
-            };
-            document.body.appendChild(svgImage);
-            svgImage.src = content;
-          });
-        });
-      },
-
-      // Сохранение SVG на диск
-      onDownload(mode) {
-        let promise = null;
-        let extension = null;
-        switch(mode) {
-          case 'png': 
-            promise = this.getContentAsPNG();
-            extension = 'png';
-            break;
-          default: 
-            promise = this.getContentAsSVG();
-            extension = 'svg';
-        }
-
-        promise.then((content) => {
-          if (env.isPlugin(Plugins.idea)) {
-            window.$PAPI.download(
-              content,
-              'Сохранение диаграммы',
-              'Выберите файл для сохранения диаграммы',
-              extension
-            );
-          } else {
-            const link = document.createElement('a');
-            document.body.appendChild(link);
-            link.href = content;
-            link.download = `download.${extension}`;
-            link.click();
-            this.$nextTick(() => document.body.removeChild(link));
-          }
-        });
       }
     }
   };

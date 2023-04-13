@@ -1,0 +1,27 @@
+#  Базовое описание сущности "Contexts"
+contexts:
+  test:
+    location: Проба/Тест
+    title: Проба
+    extra-links: false
+    components:
+      - dochub.front
+    api:
+      fetchComponents: >
+        (
+          {
+            "test.c1": {
+              "title": "test",
+              "entity": "component"
+            },
+            "test.c2": {
+              "title": "test",
+              "entity": "component"
+            }        
+          }
+        )
+entities:
+  contexts:
+    config:
+      defaultPresentation: smartants
+      asRowHeight: 12

@@ -23,7 +23,7 @@ export default function() {
 				return {
 					context: state.manifest,
 					subject: pathTool.get(state.manifest, path),
-					baseURI: state.sources[path][0]
+					baseURI: (state.sources[path] || ['/'])[0]
 				};
 			},
 			// Драйвер запросов к ресурсам
@@ -44,7 +44,7 @@ export default function() {
 					let url = `backend://release-data-profile/${encodeURIComponent(path)}`;
 					url += `?params=${encodeURIComponent(JSON.stringify(params || null))}`;
 					return (await requests.request(url)).data;
-				} else return this.getReleaseData(path, params);
+				} else return await this.getReleaseData(path, params);
 			}
 		});
 }

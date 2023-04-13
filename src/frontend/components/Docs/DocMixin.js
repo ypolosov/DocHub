@@ -45,10 +45,10 @@ export default {
 		doRefresh() {
 			this.error = null;
 			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
-			this.source.refreshTimer = setTimeout(() =>{
+			this.source.refreshTimer = setTimeout(() => {
 				this.profile = null;
 				const dateLakeId = this.makeDataLakeID(this.path);
-				query.expression(dateLakeId).evaluate()
+				query.expression(query.getObject(dateLakeId)).evaluate()
 					.then((data) => {
 						// Проверяем, что результат запроса не устарел
 						if (dateLakeId === this.makeDataLakeID(this.path)) {
@@ -67,7 +67,7 @@ export default {
 				this.source.status = SOURCE_PENGING;
 				this.source.dataset = null;
 				if (this.isTemplate && this.profile?.source) {
-					this.source.provider.releaseData(this.path, this.params)
+					this.source.provider.getData(null, this.profile, this.params, this.baseURI)
 						.then((dataset) => {
 							this.source.dataset = dataset;
 							this.source.status = SOURCE_READY;
@@ -79,8 +79,7 @@ export default {
 							reject(e);
 						});
 				} else {
-					this.source.dataset = null;
-					success(this.source.dataset);
+					success(this.source.dataset = null);
 				}
 			});
 		},

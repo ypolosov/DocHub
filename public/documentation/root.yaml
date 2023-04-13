@@ -1,7 +1,7 @@
 # Манифест описывающий сам DocHub
 imports:
   # Подключение базовой метамодели DocHub
-  - ../metamodel/root.yaml
+  - ../metamodel/dochub.yaml
   # Подключение манифестов
   - docs/root.yaml
   - arch/root.yaml

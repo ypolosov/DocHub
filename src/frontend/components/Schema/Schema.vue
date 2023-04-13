@@ -63,12 +63,7 @@
           notation = this.schema.uml.$notation;
         }
 
-        const renderCore = (
-          env.renderCore ||
-          window.$PAPI?.settings?.render?.mode || ''
-        ).toLowerCase();
-
-        switch (renderCore) {
+        switch ((env.renderCore || 'graphviz').toLowerCase()) {
           case 'smetana': uml += '!pragma layout smetana\n'; break;
           case 'elk': uml += '!pragma layout elk\n'; break;
           case 'graphviz': uml += '!pragma layout graphviz\n'; break;

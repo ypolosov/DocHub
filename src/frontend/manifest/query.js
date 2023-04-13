@@ -145,5 +145,10 @@ export default {
     // Сводная JSONSchema по всем кастомным сущностям
     entitiesJSONChema() {
         return resolveJSONataRequest(queries.IDS.JSONSCEMA_ENTITIES);
+    },
+
+    // Сводная JSONSchema по всем кастомным сущностям
+    getObject(id) {
+        return resolveJSONataRequest(queries.IDS.GET_OBJECT, { OBJECT_ID: id });
     }
 };
