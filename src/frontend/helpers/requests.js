@@ -126,6 +126,7 @@ export default {
 	},
 
 	encodeRelPath(path) {
+		if (!env.isBackendMode()) return path;
 		const struct = path.split('?');
 		struct[0] = struct[0].replace(/\.\./g, '%E2%86%90');
 		return struct.join('?');

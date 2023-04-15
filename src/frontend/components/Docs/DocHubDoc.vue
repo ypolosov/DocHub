@@ -13,7 +13,7 @@
         v-bind:pull-data="pullData"
         v-bind:context-menu="contextMenu" />
       <template v-else>
-        <v-alert v-if="profile" icon="warning">
+        <v-alert v-if="profile && !isReloading" icon="warning">
           Неизвестный тип документа [{{ docType }}]
         </v-alert>
         <spinner v-else />
@@ -131,6 +131,9 @@
     },
     watch: {
       '$route'() {
+        this.refresh();
+      },
+      isReloading() {
         this.refresh();
       }
     },
