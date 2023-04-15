@@ -96,8 +96,13 @@
     },
     asyncComputed: {
       async profile() {
-        const id = `("${this.currentPath.slice(1).split('/').join('"."')}")`;
-        return await query.expression(id).evaluate() || { type: 'unknown' };
+        const dateLakeId = `("${this.currentPath.slice(1).split('/').join('"."')}")`;
+        const result = await query.expression(
+          query.getObject(dateLakeId),
+          null,
+          this.currentParams
+        ).evaluate() || { type: 'unknown' };
+        return result;
       }
     },
     computed: {
@@ -120,9 +125,12 @@
       }
     },
     watch: {
-      '$route'(){
+      '$route'() {
         this.currentPath = this.resolvePath();
         this.currentParams = this.resolveParams();
+      },
+      profile(value) {
+        value.$base && (this.currentPath = this.resolvePath());
       }
     },
     methods: {
@@ -131,7 +139,8 @@
       },  
       // Определяем текущий путь к профилю документа
       resolvePath() {
-        return this.path === '$URL$' ? this.$router.history.current.path : this.path;
+        if (this.path === '$URL$') return this.$router.history.current.path;
+        return this.profile?.$base || this.path;
       },
       // Провайдер контента файлов для плагинов
       //  url - прямой или относительный URL к файлу

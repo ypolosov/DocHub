@@ -16,6 +16,9 @@ entities:
             location:
               title: Место расположения в меню
               type: string
+            icon:
+              title: Иконка в меню
+              type: string
             components:
               title: Комппоненты контекста
               type: array
@@ -34,7 +37,7 @@ entities:
                 - smartants
             uml:
               title: Кастомизация контекста
-              anyOf:
+              oneOf:
                 - type: string
                   title: Путь к файлу PlantUML
                 - type: object
@@ -76,14 +79,22 @@ entities:
     menu: >
       (
         $presentation := entities.contexts.config.defaultPresentation;
-        [contexts.$spread().(
-            /* Если указана явно презентация, используем ее */
-            $presentation := $.*.presentation ? *.presentation : $presentation;
-            *.location ? {
-                "location": "New contexts/" & *.location,
-                "link": "entities/contexts/" & $presentation & "?id=" & $keys()[0]
+        $append([
+            {
+                "title": "Контексты",
+                "location": 'Архитектура/Контексты',
+                "icon": 'location_searching'
             }
-        )]
+          ],
+          contexts.$spread().(
+              /* Если указана явно презентация, используем ее */
+              $presentation := $.*.presentation ? *.presentation : $presentation;
+              *.location ? {
+                  "location": "Архитектура/Контексты/" & *.location,
+                  "link": "entities/contexts/" & $presentation & "?id=" & $keys()[0]
+              }
+          )
+        );
       )
     # Предопределенные конфигурационные параметры для генерации контекстов
     config:

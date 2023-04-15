@@ -24,7 +24,8 @@ export default (app) => {
         return {
             query: req.params.query,
             params: req.query?.params ? JSON.parse(req.query?.params) : undefined,
-            subject: req.query?.subject ? JSON.parse(req.query?.subject) : undefined
+            subject: req.query?.subject ? JSON.parse(req.query?.subject) : undefined,
+            baseURI: req.query?.baseuri
         };
     }
 
@@ -33,12 +34,11 @@ export default (app) => {
         if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
+        const query = (request.query.length === 36) && queries.QUERIES[request.query] 
+            ? `(${queries.makeQuery(queries.QUERIES[request.query], request.params)})`
+            : request.query;
 
-        if ((request.query.length === 36) && queries.QUERIES[request.query]) {
-            makeJSONataQueryResponse(res, `(${queries.makeQuery(queries.QUERIES[request.query], request.params)})`);
-        } else {
-            makeJSONataQueryResponse(res, request.query, request.params, request.subject);
-        }
+        makeJSONataQueryResponse(res, query, request.params, request.subject);
     });
 
     // Выполняет произвольные запросы 
@@ -47,7 +47,12 @@ export default (app) => {
 
         const request = parseRequest(req);
         cache.pullFromCache(JSON.stringify({path: request.query, params: request.params}), async()=> {
-            return await datasets(app).releaseData(request.query, request.params);
+            if (request.query.startsWith('/')) 
+                return await datasets(app).releaseData(request.query, request.params);
+            else if (request.query.startsWith('{')) 
+                return await datasets(app).getData(app.storage.manifest, JSON.parse(request.query), request.params, request.baseURI);
+            else 
+                throw `Error query param [${request.query}]`;
         }, res);
     });
 

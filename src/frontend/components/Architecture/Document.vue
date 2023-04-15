@@ -1,8 +1,8 @@
 <template>
   <entity
-    entity="contexts"
-    presentation="plantuml"
-    v-bind:params="{ id: context }" />
+    entity="docs"
+    presentation="blank"
+    v-bind:params="{ id: document }" />
 </template>
 
 <script>
@@ -14,7 +14,7 @@
       Entity
     },
     props: {
-      context: { type: String, default: '' }
+      document: { type: String, default: '' }
     },
     data() {
       return {};

@@ -7,7 +7,7 @@ export default (app) => {
     // Проксирует запрос к хранилищу
     app.get('/core/storage/:hash/*', async function(req, res) {
         const hash = req.params.hash || '$unknown$';
-        const url = req.originalUrl.slice(`/core/storage/${hash}/`.length);
+        const url = req.originalUrl.slice(`/core/storage/${hash}/`.length).replace(/\%E2\%86\%90/g, '..');
         //const url = decodeURIComponent(req.params.url);
         const uri = url.split('?')[0];
         const baseURL = app.storage?.md5Map[hash];

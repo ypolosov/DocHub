@@ -1,5 +1,4 @@
 const QUERY_ID_USER_MENU = 'f3ee63af-bcd6-49bb-bc2a-a9849772e602';
-const QUERY_ID_CONTEXT = 'd426ffcb-c482-4a30-aa6f-3f86e754953a';
 const QUERY_ID_COMPONENT = '42a911e9-85ff-4c7a-a381-f8812b5b50d3';
 const QUERY_ID_CONTEXTS_FOR_COMPONENT = 'd671abec-f448-4f07-b914-252394402402';
 const QUERY_ID_SUMMARY_FOR_COMPONENT = '23e2922d-0212-4caf-af4b-1b55ebdec53f';
@@ -47,40 +46,15 @@ const queries = {
                         "icon": 'home'
                     },
                     {
-                        "title": "Контексты",
-                        "location": 'Архитектура/Контексты',
-                        "icon": 'location_searching'
-                    },
-                    {
                         "title": "Аспекты",
                         "location": 'Архитектура/Аспекты',
                         "icon": 'visibility',
                         "route": 'aspects/'
                     },
-                    {
-                        "title": 'Документы',
-                        "location": 'Документы',
-                        "expand": true,
-                        "icon": 'description'
-                    },
-                    contexts.$spread().{
-                        "title": $GET_TITLE($.*.location ? $.*.location : $keys()[0]),
-                        "route": 'architect/contexts/' & $keys()[0],
-                        "hiden": $.*.location ? false : true,
-                        "location": 'Архитектура/Контексты/' & $.*.location,
-                        "icon": $.*.icon ? $.*.icon : ''
-                    },
                     aspects.$spread().{
                         "title": $GET_TITLE($.*.location),
                         "route": 'architect/aspects/' & $keys()[0],
                         "location": 'Архитектура/Аспекты/' & $.*.location,
-                        "icon": $.*.icon ? $.*.icon : ''
-                    },
-                    docs.$spread().{
-                        "title": $GET_TITLE($.*.location),
-                        "route": 'docs/' & $keys()[0],
-                        "hiden": $.*.location ? false : true,
-                        "location": 'Документы/' & $.*.location,
                         "icon": $.*.icon ? $.*.icon : ''
                     },
                     {
@@ -128,219 +102,6 @@ const queries = {
         ])
     )
     `,
-    // Строит контекст
-    [QUERY_ID_CONTEXT]: `
-    (
-        $CONTEXT_ID := '{%CONTEXT_ID%}';
-        $MANIFEST := $;
-        $datasets := datasets;
-        $isQuery := /^(\\s|\\S)*\\(.*\\)(\\s|.)*$/;
-        $isDataSet := /^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$/;
-        $evalData := function($data, $context) {(
-            $isQuery($data) ? (
-                $eval($data, $context)
-            ) : (
-                $data = "manifest" ? $MANIFEST : (
-                    $isDataSet($data) ? $releaseData($lookup($datasets, $data), $context) : $data
-                )
-            )
-        )};
-        $releaseData := function($subject, $context) {(
-            $data := $subject.origin ? (
-                $type($subject.origin) = "object" ? (
-                    $merge($subject.origin.$spread().{
-                        $keys()[0]: $evalData($.*, $MANIFEST)
-                    })
-                ) : $evalData($subject.origin, $MANIFEST)
-            ) : $context;
-          
-            $type($subject.source) = "string" ? (
-                $evalData($subject.source, $data)
-            ) : $data;
-        )};
-        $CONTEXT := $CONTEXT_ID = 'self' ? {"title": "Собственный"} : $lookup(contexts, $CONTEXT_ID);
-        $MANIFEST := $releaseData($CONTEXT, $);
-        $ARRLEFT := function($ARR ,$COUNT) {
-            $map($ARR, function($v, $i) {
-                $i < $COUNT ? $v : undefined
-            })
-        };
-        $MKNS := function($IDS) {(
-            $map($IDS, function($v, $i) {(
-                $ID := $join($ARRLEFT($IDS, $i + 1), ".");
-                $IS_CONTEXT := $lookup($MANIFEST.contexts, $ID);
-                $IS_COMPONENT := $lookup($MANIFEST.components, $ID);
-                $TITLE := $IS_COMPONENT.title;
-                $TITLE := $TITLE ? $TITLE : $lookup($MANIFEST.namespaces, $ID).title;
-                $TITLE := $TITLE ? $TITLE : $ID;
-                {
-                    "id": $ID,
-                    "title": $TITLE,
-                    "link": ($IS_CONTEXT ? "/architect/contexts/" & $ID : ($IS_COMPONENT ? "/architect/components/" & $ID)),
-                    "type": $NAMESPACE.type
-                }
-            )})
-        )};
-        {
-            "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
-            "id": $CONTEXT_ID,
-            "uml": $CONTEXT.uml,
-            "extra": $CONTEXT."extra-links",
-            "components": [$CONTEXT.components.(
-                $WILDCARD := $;
-                $NAMESPACES_IDS := $split($, ".");
-                $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
-                    $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
-                });
-                $COMPONENT := $ ? $lookup($MANIFEST.components, $);
-                $COMPONENTS := $COMPONENT 
-                    ? [$merge([$COMPONENT, {"id": $}])]
-                    : [(
-                        $MANIFEST.components.$spread().(
-                            $wcard($keys()[0], $WILDCARD) 
-                            ? $merge([{"id" : $keys()[0]}, $.*])
-                        );
-                    )];
-                $COMPONENTS.(
-                    $COMPONENT_ID   := $.id;
-                    $COMPONENT      := $;
-                    {
-                        "order": $NAMESPACE_ID & ":" & $COMPONENT_ID,
-                        "id": $COMPONENT_ID,
-                        "title": $COMPONENT.title,
-                        "entity": $COMPONENT.entity ? $COMPONENT.entity : 'component',
-                        "type": $COMPONENT.type,
-                        "namespaces":[$MKNS($NAMESPACES_IDS)],
-                        "is_context": $COMPONENT_ID ? ($lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false),
-                        "links": [$distinct($COMPONENT.links)[id].(
-                            $ID := $.id;
-                            $COMPONENT := $ID ? $lookup($MANIFEST.components, $ID);
-                            $NAMESPACES_IDS := $split($ID, ".");
-                            $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
-                                $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
-                            });
-                            $CONTRACT := $.contract ? $lookup($MANIFEST.docs, $.contract);
-                            {
-                                "id": $ID,
-                                "title": $COMPONENT.title ? $COMPONENT.title : $ID,
-                                "direction": $.direction ? $.direction : '--',
-                                "link_title": $.title,
-                                "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
-                                "namespaces":[$MKNS($NAMESPACES_IDS)],
-                                "contract": $.contract ? {
-                                    "id": $.contract,
-                                    "location": $CONTRACT.location
-                                } : undefined
-                            }
-                        )],
-                        "aspects": [$COMPONENT.aspects.$spread().(
-                            $ASPECT := $ ? $lookup($MANIFEST.aspects, $);
-                            {
-                                "id": $,
-                                "title": $ASPECT.title ? $ASPECT.title : $
-                            }
-                        )]
-                    }                
-                )
-                
-            )]^(order)[]
-        };
-    )
-    `,
-    /*
-    [QUERY_ID_CONTEXT]: `
-    (
-        $MANIFEST := $;
-        $CONTEXT_ID := '{%CONTEXT_ID%}';
-        $CONTEXT := $CONTEXT_ID = 'self' ? {"title": "Собственный"} : $lookup($MANIFEST.contexts, $CONTEXT_ID);
-        $ARRLEFT := function($ARR ,$COUNT) {
-            $map($ARR, function($v, $i) {
-                $i < $COUNT ? $v : undefined
-            })
-        };
-        $MKNS := function($IDS) {(
-            $map($IDS, function($v, $i) {(
-                $ID := $join($ARRLEFT($IDS, $i + 1), ".");
-                $IS_CONTEXT := $lookup($MANIFEST.contexts, $ID);
-                $IS_COMPONENT := $lookup($MANIFEST.components, $ID);
-                $TITLE := $IS_COMPONENT.title;
-                $TITLE := $TITLE ? $TITLE : $lookup($MANIFEST.namespaces, $ID).title;
-                $TITLE := $TITLE ? $TITLE : $ID;
-                {
-                    "id": $ID,
-                    "title": $TITLE,
-                    "link": ($IS_CONTEXT ? "/architect/contexts/" & $ID : ($IS_COMPONENT ? "/architect/components/" & $ID)),
-                    "type": $NAMESPACE.type
-                }
-            )})
-        )};
-        {
-            "title": $CONTEXT.title ? $CONTEXT.title : $CONTEXT_ID,
-            "id": $CONTEXT_ID,
-            "uml": $CONTEXT.uml,
-            "extra": $CONTEXT."extra-links",
-            "components": [$CONTEXT.components.(
-                $WILDCARD := $;
-                $NAMESPACES_IDS := $split($, ".");
-                $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
-                    $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
-                });
-                $COMPONENT := $ ? $lookup($MANIFEST.components, $);
-                $COMPONENTS := $COMPONENT 
-                    ? [$merge([$COMPONENT, {"id": $}])]
-                    : [(
-                        $MANIFEST.components.$spread().(
-                            $wcard($keys()[0], $WILDCARD) 
-                            ? $merge([{"id" : $keys()[0]}, $.*])
-                        );
-                    )];
-                $COMPONENTS.(
-                    $COMPONENT_ID   := $.id;
-                    $COMPONENT      := $;
-                    {
-                        "order": $NAMESPACE_ID & ":" & $COMPONENT_ID,
-                        "id": $COMPONENT_ID,
-                        "title": $COMPONENT.title,
-                        "entity": $COMPONENT.entity ? $COMPONENT.entity : 'component',
-                        "type": $COMPONENT.type,
-                        "namespaces":[$MKNS($NAMESPACES_IDS)],
-                        "is_context": $COMPONENT_ID ? ($lookup($MANIFEST.contexts, $COMPONENT_ID) ? true : false),
-                        "links": [$distinct($COMPONENT.links)[id].(
-                            $ID := $.id;
-                            $COMPONENT := $ID ? $lookup($MANIFEST.components, $ID);
-                            $NAMESPACES_IDS := $split($ID, ".");
-                            $NAMESPACES_IDS := $map($NAMESPACES_IDS, function($v, $i, $a) {
-                                $i < $count($NAMESPACES_IDS) - 1 ? $v : undefined
-                            });
-                            $CONTRACT := $.contract ? $lookup($MANIFEST.docs, $.contract);
-                            {
-                                "id": $ID,
-                                "title": $COMPONENT.title ? $COMPONENT.title : $ID,
-                                "direction": $.direction ? $.direction : '--',
-                                "link_title": $.title,
-                                "entity": $COMPONENT.entity ? $COMPONENT.entity : "component",
-                                "namespaces":[$MKNS($NAMESPACES_IDS)],
-                                "contract": $.contract ? {
-                                    "id": $.contract,
-                                    "location": $CONTRACT.location
-                                } : undefined
-                            }
-                        )],
-                        "aspects": [$COMPONENT.aspects.$spread().(
-                            $ASPECT := $ ? $lookup($MANIFEST.aspects, $);
-                            {
-                                "id": $,
-                                "title": $ASPECT.title ? $ASPECT.title : $
-                            }
-                        )]
-                    }                
-                )
-                
-            )]^(order)[]
-        }
-    )
-    `,
-    */
     // Строит карточку контекста
     [QUERY_ID_COMPONENT] : `
     (
@@ -809,7 +570,7 @@ const queries = {
     [QUERY_GET_OBJECT]: `
     (
         $self := {%OBJECT_ID%};
-        $self.$constructor ? $eval($self.$constructor) : $self;
+        $self."$constructor" ? $eval($self."$constructor") : $self;
     )
     `
 };
@@ -818,7 +579,6 @@ export default {
     // Идентификаторы предопределенных запросов
     IDS: {
         USER_MENU: QUERY_ID_USER_MENU,
-        CONTEXT: QUERY_ID_CONTEXT,
 
         COMPONENT: QUERY_ID_COMPONENT,
         MINDMAP_COMPONENTS: QUERY_ID_MINDMAP_COMPONENTS,

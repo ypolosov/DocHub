@@ -23,7 +23,6 @@ manifestParser.reloadManifest = async function(payload){
   if (payload) {
     await (
       async function parserImport(next = 0) {
-        debugger;
         if (payload?.length > next) {
           if (payload[next] === env.rootManifest) {
             await manifestParser.clean();
