@@ -108,7 +108,10 @@
               this.markdown = mustache.render(data, this.source.dataset);
             } else
               this.markdown = data;
-          }).catch((e) => this.error = e);
+          }).catch((e) => {
+            debugger;
+            this.error = e;
+          });
         });
       }
     }

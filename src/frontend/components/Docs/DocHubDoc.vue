@@ -89,11 +89,15 @@
     data() {
       return {
         DocTypes,
+        refresher: null,
+        profile: null,
+        error: null,
         currentPath : this.resolvePath(),
         currentParams: this.resolveParams(),
         dataProvider: datasets()
       };
     },
+    /*
     asyncComputed: {
       async profile() {
         const dateLakeId = `("${this.currentPath.slice(1).split('/').join('"."')}")`;
@@ -105,6 +109,7 @@
         return result;
       }
     },
+    */
     computed: {
       is() {
         return inbuiltTypes[this.docType] 
@@ -126,14 +131,36 @@
     },
     watch: {
       '$route'() {
-        this.currentPath = this.resolvePath();
-        this.currentParams = this.resolveParams();
-      },
-      profile(value) {
-        value.$base && (this.currentPath = this.resolvePath());
+        this.refresh();
       }
     },
+    mounted() {
+      this.refresh();
+    },
     methods: {
+      // Обновляем контент документа
+      refresh() {
+        if (this.refresher) clearTimeout(this.refresher);
+        this.refresher = setTimeout(() => {
+          this.profile = null;
+          const dateLakeId = `("${this.resolvePath().slice(1).split('/').join('"."')}")`;
+          query.expression( query.getObject(dateLakeId), null, this.resolveParams())
+            .evaluate()
+            .then((profile) => {
+              this.profile = Object.assign({ $base: this.path }, profile);
+            })
+            .catch((e) => {
+              debugger;
+              this.error = e.message;
+            })
+            .finally(() => {
+              this.currentPath = this.resolvePath();
+              this.currentParams = this.resolveParams();
+              this.refresher = null;
+            });
+
+        }, 50);
+      },
       resolveParams() {
         return this.params || this.$router.currentRoute.query || {};
       },  

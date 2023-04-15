@@ -14,7 +14,7 @@ export default (app) => {
         logger.log(`Request to storage ${req.originalUrl}`, LOG_TAG);
         if (!baseURL || !uri) {
             res.status(403).json({
-                message: 'Access denied'
+                error: 'Access denied'
             });
         } else {
             request(uri, baseURL, res)

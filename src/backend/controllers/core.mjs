@@ -49,9 +49,22 @@ export default (app) => {
         cache.pullFromCache(JSON.stringify({path: request.query, params: request.params}), async()=> {
             if (request.query.startsWith('/')) 
                 return await datasets(app).releaseData(request.query, request.params);
-            else if (request.query.startsWith('{')) 
-                return await datasets(app).getData(app.storage.manifest, JSON.parse(request.query), request.params, request.baseURI);
-            else 
+            else if (request.query.startsWith('{')) {
+                const ds = datasets(app);
+                const profile = JSON.parse(request.query);
+                if (profile.$base) {
+                    const path = ds.pathResolver(profile.$base);
+                    if (!path) {
+                        res.status(400).json({
+                            error: `Error $base location [${profile.$base}]`
+                        });
+                        return;
+                    }
+                    return await ds.getData(path.context, profile, request.params, path.baseURI);
+                } else {
+                    return await ds.getData(app.storage.manifest, profile, request.params);
+                }
+            } else 
                 throw `Error query param [${request.query}]`;
         }, res);
     });
@@ -62,16 +75,5 @@ export default (app) => {
         res.json(app.storage.problems || []);
     });
 
-    /*
-    // Текущее полное состояние
-    app.get('/core/manifest/state', function(req, res) {
-        if (!helpers.isServiceReady(app, res)) return;
-
-        res.json({
-            manifest: app.storage.manifest,
-            mergeMap: app.storage.mergeMap
-        });
-    });
-    */
 };
 
