@@ -131,7 +131,8 @@ entities:
             $components := $eval($defFunctions.fetchComponents, {
               "manifest": $manifest,
               "contextId": $id,
-              "extra-links": $isExtraLinks
+              "extra-links": $isExtraLinks,
+              "componentId": $params.componentId
             });
 
             /* Строим из компонентов ноды */

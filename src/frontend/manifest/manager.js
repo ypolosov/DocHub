@@ -1,21 +1,9 @@
 import manifestParser from '@global/manifest/parser.mjs';
 import cache from '@front/manifest/cache';
-import logger from '@back/utils/logger.mjs';
 import requests from '@front/helpers/requests';
 import env from '@front/helpers/env';
 
-const LOG_TAG = 'storage-manager';
-
 manifestParser.cache = cache;
-
-manifestParser.makeBaseManifest = () => {
-  logger.log('Returned base manifest', LOG_TAG);
-  if (env.isAppendDocHubMetamodel) {
-    const YAML = require('yaml');
-    const baseYAML = require('!!raw-loader!@assets/base.yaml').default;
-    return YAML.parse(baseYAML);
-  } else return {};
-};
 
 manifestParser.reloadManifest = async function(payload){
   await manifestParser.startLoad();
@@ -35,8 +23,14 @@ manifestParser.reloadManifest = async function(payload){
   } else {
     if (!env.isPlugin()) {
       await manifestParser.clean();
+
+      // Если необходимо, подключаем метамодель DocHub
+      env.isAppendDocHubMetamodel
+        && await manifestParser.import(manifestParser.cache.makeURIByBaseURI('/metamodel/root.yaml', requests.getSourceRoot())); 
+
+      // Если необходимо, подключаем документацию DocHub
       env.isAppendDocHubDocs 
-        && await manifestParser.import(manifestParser.cache.makeURIByBaseURI('documentation/root.yaml', requests.getSourceRoot()));
+        && await manifestParser.import(manifestParser.cache.makeURIByBaseURI('/documentation/root.yaml', requests.getSourceRoot()));
 
       await manifestParser.import(manifestParser.cache.makeURIByBaseURI(env.rootManifest, requests.getSourceRoot()));
     } else {
