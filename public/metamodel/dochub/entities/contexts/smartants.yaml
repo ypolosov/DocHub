@@ -113,7 +113,7 @@ entities:
             id:
               title: Идентификатор контекста
               type: string
-              pattern: ^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)*$
+              pattern: ^[a-zA-Z][a-zA-Z0-9_-]*(\.[a-zA-Z][a-zA-Z0-9_-]*)*$
           required:
             - id
         type: smartants
@@ -131,7 +131,8 @@ entities:
             $components := $eval($defFunctions.fetchComponents, {
               "manifest": $manifest,
               "contextId": $id,
-              "extra-links": $isExtraLinks
+              "extra-links": $isExtraLinks,
+              "componentId": $params.componentId
             });
 
             /* Строим из компонентов ноды */

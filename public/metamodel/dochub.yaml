@@ -1,3 +1,0 @@
-imports:
-  - http://localhost:8080/documentation/root.yaml
-  - dochub/root.yaml

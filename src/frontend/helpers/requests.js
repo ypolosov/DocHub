@@ -125,6 +125,21 @@ export default {
 		}
 	},
 
+	encodeRelPath(path) {
+		if (!env.isBackendMode()) return path;
+		const struct = path.split('?');
+		struct[0] = struct[0].replace(/\.\./g, '%E2%86%90');
+		return struct.join('?');
+	},
+
+	expandResourceURI(URI) {
+		const url = new URL(URI);
+		const objectPath = url.pathname.slice(1);
+		const subPath = this.encodeRelPath(url.hash.slice(1));
+		const result = new URL(subPath, uriTool.getBaseURIOfPath(objectPath));
+		return result.toString();
+	},
+
 	// axios_params - параметры передаваемые в axios
 	// 		responseHook - содержит функцию обработки ответа перед работой interceptors
 	//		raw - если true возвращает ответ без обработки
@@ -132,19 +147,23 @@ export default {
 		let params = Object.assign({}, axios_params);
 		params.url = uri;
 		// Если ссылка ведет на backend конвертируем ее
-		const strURI = (uri || '').toString();
+		let strURI = (uri || '').toString();
+	
+		// Если URI является ссылкой на ресурс в Data Lake интерпретируем ее 
+		strURI.startsWith('res://') && (strURI = this.expandResourceURI(strURI));
+		baseURI && baseURI.toString().startsWith('res://') && (baseURI = this.expandResourceURI(baseURI));
+		
 		if (strURI.startsWith('backend://')) {
 			const structURI = strURI.split('/');
 			const origin = `${structURI[0]}//${structURI[2]}/`;
-			const path = strURI.slice(origin.length);
-			// params.url = new URL(encodeURIComponent(path), this.translateBackendURL(origin));
+			const path = this.encodeRelPath(strURI.slice(origin.length));
 			params.url = new URL(path, this.translateBackendURL(origin));
 		} else if ((baseURI || '').toString().startsWith('backend://')) {
-			params.url = new URL(uri, this.translateBackendURL(baseURI));
+			params.url = new URL(this.encodeRelPath(uri.toString()), this.translateBackendURL(baseURI));
 		} else if (baseURI) {
-			params.url = uriTool.makeURIByBaseURI(uri, baseURI);
+			params.url = uriTool.makeURIByBaseURI(strURI, baseURI);
 		} else {
-			params.url = uriTool.makeURL(uri).url;
+			params.url = uriTool.makeURL(strURI).url;
 		}
 
 		if (

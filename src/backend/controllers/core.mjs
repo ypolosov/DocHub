@@ -24,7 +24,8 @@ export default (app) => {
         return {
             query: req.params.query,
             params: req.query?.params ? JSON.parse(req.query?.params) : undefined,
-            subject: req.query?.subject ? JSON.parse(req.query?.subject) : undefined
+            subject: req.query?.subject ? JSON.parse(req.query?.subject) : undefined,
+            baseURI: req.query?.baseuri
         };
     }
 
@@ -33,12 +34,11 @@ export default (app) => {
         if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
+        const query = (request.query.length === 36) && queries.QUERIES[request.query] 
+            ? `(${queries.makeQuery(queries.QUERIES[request.query], request.params)})`
+            : request.query;
 
-        if ((request.query.length === 36) && queries.QUERIES[request.query]) {
-            makeJSONataQueryResponse(res, `(${queries.makeQuery(queries.QUERIES[request.query], request.params)})`);
-        } else {
-            makeJSONataQueryResponse(res, request.query, request.params, request.subject);
-        }
+        makeJSONataQueryResponse(res, query, request.params, request.subject);
     });
 
     // Выполняет произвольные запросы 
@@ -47,7 +47,25 @@ export default (app) => {
 
         const request = parseRequest(req);
         cache.pullFromCache(JSON.stringify({path: request.query, params: request.params}), async()=> {
-            return await datasets(app).releaseData(request.query, request.params);
+            if (request.query.startsWith('/')) 
+                return await datasets(app).releaseData(request.query, request.params);
+            else if (request.query.startsWith('{')) {
+                const ds = datasets(app);
+                const profile = JSON.parse(request.query);
+                if (profile.$base) {
+                    const path = ds.pathResolver(profile.$base);
+                    if (!path) {
+                        res.status(400).json({
+                            error: `Error $base location [${profile.$base}]`
+                        });
+                        return;
+                    }
+                    return await ds.getData(path.context, profile, request.params, path.baseURI);
+                } else {
+                    return await ds.getData(app.storage.manifest, profile, request.params);
+                }
+            } else 
+                throw `Error query param [${request.query}]`;
         }, res);
     });
 
@@ -57,16 +75,5 @@ export default (app) => {
         res.json(app.storage.problems || []);
     });
 
-    /*
-    // Текущее полное состояние
-    app.get('/core/manifest/state', function(req, res) {
-        if (!helpers.isServiceReady(app, res)) return;
-
-        res.json({
-            manifest: app.storage.manifest,
-            mergeMap: app.storage.mergeMap
-        });
-    });
-    */
 };
 

@@ -113,6 +113,11 @@ export default Object.assign(prototype, {
             if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y') {
                 content.imports.push('/documentation/root.yaml');
             }
+            // Подключаем метамодель DocHub, если нужно
+            if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_METAMODEL || 'y').toLowerCase() === 'y') {
+                content.imports.push('/metamodel/root.yaml');
+            }
+
             // Подключаем корневой манифест, если есть
             if (process.env.VUE_APP_DOCHUB_ROOT_MANIFEST) {
                 content.imports.push(process.env.VUE_APP_DOCHUB_ROOT_MANIFEST);

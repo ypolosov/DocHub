@@ -48,9 +48,10 @@ export default {
 				} break;
 				case 'jsonata-file': {
 					this.request(data, baseURI).then((response) => {
-						const exp = this.jsonataDriver.expression(typeof response.data === 'string'
+						const query = typeof response.data === 'string'
 							? response.data
-							: JSON.stringify(response.data), params);
+							: JSON.stringify(response.data);
+						const exp = this.jsonataDriver.expression(`(${query})`, params);
 						exp.onError = reject;
 						exp.evaluate(context)
 							.then((result) => resolve(result))
