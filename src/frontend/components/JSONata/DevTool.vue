@@ -30,7 +30,7 @@
                   v-on:click:close="clearOrigin()">
                   {{ data.item.id }}
                 </v-chip>
-              </template>              
+              </template>
               <template #item="data">
                 <v-list-item-content>
                   <v-list-item-title>
@@ -55,9 +55,10 @@
                   <v-list-item-title>Автовыполнение</v-list-item-title>
                 </v-list-item>
               </v-list>
-            </v-menu>            
-          </v-toolbar>          
+            </v-menu>
+          </v-toolbar>
           <editor
+            ref="editor"
             v-model="query"
             class="input" />
         </div>
@@ -77,7 +78,7 @@
                 <tr v-bind:class="item.id === selectedLog ?'selected-log':''" v-on:click="logOnClick(item)">
                   <td>{{ item.moment }}</td>
                   <td>{{ item.tag }}</td>
-                </tr>              
+                </tr>
               </template>
             </v-data-table>
           </div>
@@ -97,7 +98,7 @@
 
   import query from '@front/manifest/query';
   import datasets from '@front/helpers/datasets';
-  
+
   import editor from './JSONataEditor.vue';
   import result from './JSONResult.vue';
 
@@ -109,6 +110,12 @@
     components: {
       editor,
       result
+    },
+    props: {
+      jsonataSource: {
+        type: String,
+        default: null
+      }
     },
     data() {
       return {
@@ -168,11 +175,16 @@
       },
       manifest() {
         this.refreshOrigins(); // Обновляем список источников данных, если архитектурный манифест изменился
+        this.loadJsonataQuery(); // Переподтягиваем при необходимости jsonata запрос из источника
+      },
+      jsonataSource(value) {
+        this.loadJsonataQuery(value);
       }
     },
     mounted() {
       this.doAutoExecute();
       this.refreshOrigins();
+      this.loadJsonataQuery();
     },
     methods: {
       clearOrigin() {
@@ -189,6 +201,24 @@
       doAutoExecute() {
         if (!this.isLoading && this.autoExec) this.onExecute();
       },
+      loadJsonataQuery(param_id) {
+        // global.console.log(`Loading query with param=${param_id}`);
+        const id = (param_id || this.source.slice(1).split('/')[1]).slice(6);
+        // global.console.log(`Loading query with id=${id}`);
+        query.expression(id).evaluate().then((data) => {
+          // global.console.log(`Loading query with data=${data}`);
+          if (data?.source) {
+            // global.console.log(`Setting source=${data.source}`);
+            // this.query = data.source;
+            this.query =
+            // global.console.log(`Setting origin=${data.origin}`);
+            this.origin = data.origin;
+          } else {
+            this.query = cookie.get(COOKIE_NAME_QUERY) || '"Здесь введите JSONata запрос."';
+          }
+          this.$refs.editor.model.setValue(this.query);
+        });
+      },
       logOnClick(item) {
         this.selectedLog = item.id;
       },
@@ -196,7 +226,7 @@
         this.logItems.push({
           id: this.logItems.length,
           moment: (((new Date()).getTime() - this.jsonata.trace?.start || 0) * 0.001).toFixed(5),
-          value: value ? JSON.parse(JSON.stringify(value)) : value, 
+          value: value ? JSON.parse(JSON.stringify(value)) : value,
           tag
         });
         return value;
