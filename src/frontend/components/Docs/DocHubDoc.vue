@@ -133,6 +133,9 @@
       '$route'() {
         this.refresh();
       },
+      params() {
+        this.refresh();
+      },
       isReloading() {
         this.refresh();
       }
@@ -153,7 +156,6 @@
               this.profile = Object.assign({ $base: this.path }, profile);
             })
             .catch((e) => {
-              debugger;
               this.error = e.message;
             })
             .finally(() => {

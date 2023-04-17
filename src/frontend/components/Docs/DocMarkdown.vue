@@ -109,7 +109,6 @@
             } else
               this.markdown = data;
           }).catch((e) => {
-            debugger;
             this.error = e;
           });
         });

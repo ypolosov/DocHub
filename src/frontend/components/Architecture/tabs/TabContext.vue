@@ -29,21 +29,19 @@
         right: 0;
         overflow: auto;
       ">
-      <schema v-bind:schema="schema" style="min-height:calc(100% - 24px)" v-bind:base-u-r-i="baseURI" />
+      <entity entity="contexts" presentation="plantuml" v-bind:params="params" style="min-height:calc(100% - 24px)" />
     </v-card-text>
   </v-card>
 </template>
 
 <script>
 
-  import Schema from '@front/components/Schema/Schema.vue';
-  import query from '@front/manifest/query';
-  import uriTool from '@front/helpers/uri';
+  import Entity from '@front/components/Entities/Entity.vue';
 
   export default {
     name: 'TabContexts',
     components: {
-      Schema
+      Entity
     },
     props: {
       defaultContext: { type: Object, default: null },
@@ -55,25 +53,16 @@
         currentContext: 0
       };
     },
-    asyncComputed: {
-      async schema() {
-        if (!this.context) return null;
-
-        const expression = query.expression(
-          this.context.type === 'component' ?
-            query.component(this.context.id) :
-            query.context(this.context.id)
-        );
-
-        return await expression.evaluate();
-      }
-    },
     computed: {
-      baseURI() {
-        const path = this.context.type === 'component' 
-          ?`/components/${this.context.id}`
-          :`/contexts/${this.context.id}`;
-        return uriTool.getBaseURIOfPath(path);
+      params() {
+        if (this.context.type === 'component') 
+          return {
+            id: 'SELF',
+            componentId: this.context.id
+          };
+        else return {
+          id: this.context.id
+        };
       },
       context: {
         get() {

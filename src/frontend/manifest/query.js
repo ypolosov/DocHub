@@ -62,6 +62,13 @@ export default {
         return resolveJSONataRequest(queries.IDS.USER_MENU);
     },
 
+    // ********** КОНТЕКСТЫ *************
+
+    // Запрос по контексту
+    context(context) {
+        return resolveJSONataRequest(queries.IDS.CONTEXT, { CONTEXT_ID: context });
+    },    
+
     // ********** КОМПОНЕНТЫ *************
 
     // MindMap по архитектурным компонентам

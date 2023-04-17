@@ -169,7 +169,8 @@ entities:
             $components := $eval($defFunctions.fetchComponents, {
               "manifest": $manifest,
               "contextId": $params.id,
-              "extra-links": $isExtraLinks
+              "extra-links": $isExtraLinks,
+              "componentId": $params.componentId
             });
 
             /* Генерируем области */
