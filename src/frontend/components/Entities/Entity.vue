@@ -163,7 +163,6 @@
       },
       // Выбор альтернативной презентации
       onSelectedPres(presentation) {
-        debugger;
         const presProfile = this.profile?.presentations?.[presentation] || {};
         // Если презентация направлена на выгрузку данных, генерируем их без переключения презентации
         if (presProfile.type.toLowerCase() === 'upload') {
