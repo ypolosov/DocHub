@@ -210,7 +210,7 @@
           if (data?.source) {
             // global.console.log(`Setting source=${data.source}`);
             // this.query = data.source;
-            this.query =
+            this.query = `$eval(${id}.source)`;
             // global.console.log(`Setting origin=${data.origin}`);
             this.origin = data.origin;
           } else {
