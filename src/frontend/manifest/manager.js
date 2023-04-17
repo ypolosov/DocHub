@@ -32,7 +32,9 @@ manifestParser.reloadManifest = async function(payload){
       env.isAppendDocHubDocs 
         && await manifestParser.import(manifestParser.cache.makeURIByBaseURI('/documentation/root.yaml', requests.getSourceRoot()));
 
-      await manifestParser.import(manifestParser.cache.makeURIByBaseURI(env.rootManifest, requests.getSourceRoot()));
+      // Если корневой манифест указан загружаем
+      env.rootManifest
+        && await manifestParser.import(manifestParser.cache.makeURIByBaseURI(env.rootManifest, requests.getSourceRoot()));
     } else {
       await manifestParser.import(
         manifestParser.cache.makeURIByBaseURI(env.rootManifest, requests.getSourceRoot()));
