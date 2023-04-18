@@ -8,14 +8,7 @@ export default function(manifest, success, reject) {
 	if (env.isBackendMode()) {
 		requests.request('backend://problems/')
 			.then((response) => {
-				for (const id in response.data || {}) {
-					const node = response.data[id];
-					success({
-						id,
-						title: node.title || id,
-						items: node.items
-					});
-				}
+				(response.data || []).map((item) => success(item));
 			})
 			.catch((error) => {
 				reject(

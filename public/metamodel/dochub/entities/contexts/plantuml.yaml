@@ -82,7 +82,10 @@ entities:
               );
         
               /* Определяем, что область нужно закрыть*/
-              $result & ($count($split($domain, ".")) > $count($split($areas[$index + 1], ".")) ? "}\n" : "");
+              $result & (
+                $count($split($domain, ".")) > 1 
+                and ($count($split($domain, ".")) > $count($split($areas[$index + 1], "."))
+              ) ? "}\n" : "");
           )}));
         )
       # Генерирует PlantUML код связей для диаграммы компонентов
