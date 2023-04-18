@@ -12,11 +12,6 @@ manifestParser.onError = (error) => {
 	logger.error(`Error of loading manifest ${error}`, LOG_TAG);
 };
 
-manifestParser.getBaseManifest = () => {
-	logger.log('Returned base manifest', LOG_TAG);
-	return {};
-};
-
 // eslint-disable-next-line no-unused-vars
 manifestParser.onStartReload = (parser) => {
 	logger.log('Manifest start reloading', LOG_TAG);
@@ -32,7 +27,11 @@ export default {
 		logger.log('Run full reload manifest', LOG_TAG);
 		// Загрузку начинаем с виртуального манифеста
 		cache.errorClear();
+		await manifestParser.clean();
+		await manifestParser.startLoad();
 		await manifestParser.import('file:///$root$');
+		await manifestParser.stopLoad();
+		
 		logger.log('Full reload is done', LOG_TAG);
 		const result = {
 			manifest: manifestParser.manifest,	// Сформированный манифест

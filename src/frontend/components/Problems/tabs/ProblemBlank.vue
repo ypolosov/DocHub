@@ -117,7 +117,7 @@
         return {
           content,
           validator,
-          exception: this.exceptions[this.subject]
+          exception: content?.exception
         };
       }
     },
@@ -131,5 +131,9 @@
   .card-item {
     width: 100%;
     margin-top: 12px;
+  }
+
+  pre {
+    white-space: pre-wrap;
   }
 </style>

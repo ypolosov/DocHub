@@ -93,7 +93,7 @@ async function request(url, baseURI, response) {
                 logger.error(`Error of request [${url}] with error [${e.message}]`, REQUEST_TAG);
                 response.status(e?.response?.status || 500);
                 response.json({
-                        message: 'Error of request to original source.'
+                    error: 'Error of request to original source.'
                 });
             }
             return result;

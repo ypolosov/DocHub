@@ -1,3 +1,5 @@
+import source from "./source.mjs";
+
 export default {
 	// Метод получения объекта данных по пути в структуре
 	// Путь имеет вид "/foo/foo/0/foo"
@@ -32,6 +34,54 @@ export default {
 	//  baseURI		- URI от которого будут строиться относительные пути
 	parseSource(context, data, subject, params, baseURI) {
 		return new Promise((resolve, reject) => {
+			const sourceType = source.type(data);
+			switch(sourceType) {
+				case 'data-object':
+					resolve(JSON.parse(JSON.stringify(data)));
+					break;
+				case 'jsonata-query': {
+					const exp = this.jsonataDriver.expression(data, subject, params);
+					exp.onError = reject;
+					exp.evaluate(context)
+						.then((result) => resolve(result))
+						.catch(reject);
+				} break;
+				case 'jsonata-file': {
+					this.request(data, baseURI).then((response) => {
+						const query = typeof response.data === 'string'
+							? response.data
+							: JSON.stringify(response.data);
+						const exp = this.jsonataDriver.expression(`(${query})`, params);
+						exp.onError = reject;
+						exp.evaluate(context)
+							.then((result) => resolve(result))
+							.catch(reject);
+					}).catch(reject);
+				} break;
+				case 'data-file': {
+					this.request(data, baseURI)
+					.then((response) => {
+						this.parseSource(context, response.data)
+							.then((result) => resolve(result))
+							.catch((e) => reject(e));
+					}).catch(reject);
+				} break;
+				case 'resource': {
+					reject(`Тип данных 'resource' не реализован  [${data}]`);
+				} break;
+				case 'id': {
+					const dataSet = this.pathResolver(`/datasets/${data}`);
+					if (dataSet && dataSet.subject) {
+						this.getData(context, dataSet.subject, params, dataSet.baseURI)
+							.then((data) => resolve(data))
+							.catch(reject);
+					} else reject(`Не найден источник данных [${data}]`);
+				} break;
+				default:
+					reject(`Ошибка источника данных [${sourceType}: ${data}]`);
+			}
+			
+			/*
 			// Константные данные
 			if (typeof data === 'object') {
 				resolve(JSON.parse(JSON.stringify(data)));
@@ -72,6 +122,7 @@ export default {
 					} else reject(`Не найден источник данных [${data}]`);
 				}
 			} else reject(`Ошибка источника данных [${data}]`);
+			*/
 		});
 	},
 

@@ -1,6 +1,6 @@
-import { beforeInit, init, afterInit } from './bootstrap';
+import { init } from './bootstrap';
 
-beforeInit(process.env);
+const app = init(process.env);
 
 document.addEventListener('DOMContentLoaded', async() => {
   const {
@@ -9,9 +9,7 @@ document.addEventListener('DOMContentLoaded', async() => {
     router,
     vuetify,
     store
-  } = await init();
-
-  afterInit();
+  } = await app;
 
   new Vue({
     router,

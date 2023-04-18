@@ -1,7 +1,6 @@
 import datasets from '@front/helpers/datasets';
 import gateway from '@idea/gateway';
 import docs from '@front/helpers/docs';
-import query from '@front/manifest/query';
 import uriTool from '@front/helpers/uri';
 
 const SOURCE_PENGING = 'pending';
@@ -13,19 +12,30 @@ export default {
 		Box: {
 			template: `
 			<div v-on:contextmenu="onContextMenu">
-				<v-alert v-for="error in errors" v-bind:key="error.key" type="error" style="white-space: pre-wrap;">
-					{{error.message}}
+				<v-alert v-for="error in errors" v-bind:key="error.key" type="error" style="line-height: 18px; overflow-x: auto;">
+					Источник: {{$parent.path}}<br><br>
+					Ошибка:
+					<div style="background-color:#FDD835; white-space: pre-wrap; padding: 8px; color: #000;" v-html="error.message">
+					</div>
 				</v-alert>
 				<slot v-if="!errors.length"></slot>
 			</div>`,
 
 			created: function() {
-				this.$parent.$on('appendError', (error) => this.errors.push(
-					{
-						key: Date.now(),
-						message: (error?.message || error).slice(0, 1024).toString()
+				this.$parent.$on('appendError', (error) => {
+					let message = (error?.message || error);
+					if (error.config) {
+						const link = error.config.url.toString();
+						const description = error.response?.data?.error || JSON.stringify(error.response?.data);
+						message = (description ? `<pre>${description}</pre>` : '') + `${message}<br><br>URL:<a href="${link}" target="_blank">${link}</a><br><br>`;
 					}
-				));
+					this.errors.push(
+						{
+							key: Date.now(),
+							message: message.slice(0, 1024).toString()
+						}
+					);
+				});
 				this.$parent.$on('clearErrors', () => this.errors = []);
 			},
 			methods: {
@@ -45,19 +55,7 @@ export default {
 		doRefresh() {
 			this.error = null;
 			if (this.source.refreshTimer) clearTimeout(this.source.refreshTimer);
-			this.source.refreshTimer = setTimeout(() =>{
-				this.profile = null;
-				const dateLakeId = this.makeDataLakeID(this.path);
-				query.expression(dateLakeId).evaluate()
-					.then((data) => {
-						// Проверяем, что результат запроса не устарел
-						if (dateLakeId === this.makeDataLakeID(this.path)) {
-							this.profile = data;
-							this.refresh();
-						}
-					})
-					.catch((e) => this.error = e);
-			}, 100);
+			this.source.refreshTimer = setTimeout(() => this.refresh(), 100);
 		},
 		refresh() {
 			this.sourceRefresh();
@@ -67,7 +65,7 @@ export default {
 				this.source.status = SOURCE_PENGING;
 				this.source.dataset = null;
 				if (this.isTemplate && this.profile?.source) {
-					this.source.provider.releaseData(this.path, this.params)
+					this.source.provider.getData(null, this.profile, this.params, this.baseURI)
 						.then((dataset) => {
 							this.source.dataset = dataset;
 							this.source.status = SOURCE_READY;
@@ -79,8 +77,7 @@ export default {
 							reject(e);
 						});
 				} else {
-					this.source.dataset = null;
-					success(this.source.dataset);
+					success(this.source.dataset = null);
 				}
 			});
 		},
@@ -152,13 +149,19 @@ export default {
 			default() {
 				return [];
 			}
+		},
+		// Профиль документа
+		profile: {
+			type: Object,
+			default() {
+				return {};
+			}
 		}
 	},
 	data() {
 		const provider = datasets();
 		return {
 			error: null,
-			profile: null,
 			menu: {
 				show: false,
 				x: 0,
@@ -175,6 +178,7 @@ export default {
 	watch: {
 		path() { this.doRefresh(); },
 		params() { this.doRefresh(); },
+		profile() { this.doRefresh(); },
 		error(error) {
 			if (error) {
 				// eslint-disable-next-line no-console

@@ -79,6 +79,12 @@
         // console.info('For GOTO ', window.location.hash);
         const struct = window.location.hash.split('/');
         switch (struct[1]) {
+          case 'entities': {
+            const entity = struct[2];
+            const url = new URL(window.location.hash.slice(1), window.location);
+            const id = url.searchParams.get('id');
+            window.$PAPI.goto(null, entity, id);
+          } break;
           case 'architect': {
             switch (struct[2]) {
               case 'contexts':

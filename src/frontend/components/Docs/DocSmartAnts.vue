@@ -65,7 +65,30 @@
         v-on:playstop="onPlayStop"
         v-on:playstart="onPlayStart"
         v-on:selected-nodes="onSelectedNodes"
-        v-on:on-click-link="onClickLink" />
+        v-on:on-click-link="onClickLink"
+        v-on:contextmenu="showMenu" />
+      <v-menu
+        v-model="menu.show"
+        v-bind:position-x="menu.x"
+        v-bind:position-y="menu.y"
+        absolute
+        offset-y>
+        <v-list>
+          <template
+            v-for="(item, index) in menuItems">
+            <v-list-item
+              v-if="item"
+              v-bind:key="item.id"
+              link>
+              <v-list-item-title
+                v-on:click="item.on(item)">
+                {{ item.title }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-divider v-else v-bind:key="index" />
+          </template>
+        </v-list>
+      </v-menu>        
     </v-card>
   </box>
 </template>
@@ -74,6 +97,7 @@
 
   import Schema from '@front/components/Schema/DHSchema/DHSchema.vue';
   import href from '@front/helpers/href';
+  import download from '@front/helpers/download';
 
   import DocMixin from './DocMixin';
 
@@ -88,6 +112,18 @@
     },
     data() {
       return {
+        menu: { // Контекстное меню
+          show: false,  // Признак отображения
+          x : 0,  // Позиция x
+          y : 0,  // Позиция y
+          items: (() => {
+            const result = [
+              { id:'save-svg', title: 'Сохранить на диск SVG', on: () => download.downloadSVG(this.getSvg())},
+              { id: 'save-png', title: 'Сохранить на диск PNG', on: () => download.downloadSVGAsPNG(this.getSvg()) }
+            ];
+            return result;
+          }).call()
+        },
         status: {},             // Текущий статус схемы
         selectedScenario: null, // Выбранный сценарий
         isPaying: false,        // Признак проигрывания
@@ -97,6 +133,12 @@
       };
     },
     computed: {
+      // Пункты контекстного меню
+      menuItems() {
+        const result = [].concat(this.contextMenu);
+        result.length && result.push(null);
+        return result.concat(this.menu.items);
+      },
       // Выбранный сценарий анимации
       scenario: {
         set(value) {
@@ -148,6 +190,72 @@
       }
     },
     methods: {
+      // Возвращает SVG код диаграммы
+      getSvg() {
+        const addStyle = function(children) {
+          for (let i = 0; i < children.length; i++) {
+            let child = children[i];
+            if (child instanceof Element) {
+              let cssText = '';
+              let computedStyle = window.getComputedStyle(child, null);
+              for (let i = 0; i < computedStyle.length; i++) {
+                let prop = computedStyle[i];
+                cssText += prop + ':' + computedStyle.getPropertyValue(prop) + ';';
+              }
+              child.setAttribute('style', cssText);
+              addStyle(child.childNodes);
+            }
+          }
+        };
+        
+        
+        /*
+        const createStyleElementFromCSS = () => {
+          // assume index.html loads only one CSS file in <header></header>
+          const sheet = document.styleSheets[0];
+
+          const styleRules = [];
+          for (let i = 0; i < sheet.cssRules.length; i++)
+            styleRules.push(sheet.cssRules.item(i).cssText);
+
+          const style = document.createElement('style');
+          style.type = 'text/css';
+          style.appendChild(document.createTextNode(styleRules.join(' ')));
+
+          return style;
+        };        
+        const style = createStyleElementFromCSS();
+        svgElement.insertBefore(style, svgElement.firstChild);
+        */
+
+        const svgElement = this.$refs.schema.$el;
+        addStyle(svgElement.childNodes);
+
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(svgElement);
+
+        // eslint-disable-next-line no-useless-escape
+        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+          source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+        }
+        // eslint-disable-next-line no-useless-escape
+        if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+          source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+        }
+
+        return `<?xml version="1.0" standalone="no"?>\r\n${source}`;
+      },
+      // Выводим контекстное меню
+      showMenu(event) {
+        this.menu.show = false;
+        this.menu.x = event.clientX;
+        this.menu.y = event.clientY;
+        this.$nextTick(() => {
+          this.menu.show = true;
+        });
+        event.preventDefault();
+        event.stopPropagation();
+      },      
       //Очистка состояния
       clean() {
         this.status = {};
@@ -212,7 +320,9 @@
       },
       // Экспорт в Excalidraw
       exportToExcalidraw() {
-        this.$refs.schema.$emit('exportToExcalidraw', this.scenario);
+        this.$refs.schema.$emit('exportToExcalidraw', {
+          handler: (content) => download.downloadExcalidraw(content)
+        });
       },
       // Событие остановки проигрывания сценария
       onPlayStop() {

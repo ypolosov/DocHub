@@ -15,7 +15,7 @@
     },
     computed: {
       path() {
-        return '/docs/' + (env.rootDocument|| 'dochub.welcome');
+        return '/docs/' + (env.rootDocument || 'dochub.welcome');
       }
     }
   };

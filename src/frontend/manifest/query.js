@@ -26,7 +26,17 @@ export default {
                 let result = null;
                 try {
                     if (expression.startsWith('backend://')) {
-                        result = (await requests.request(expression)).data;
+                        const url = new URL(expression);
+                        [
+                            { field: 'params', value: params},
+                            { field: 'subject', value: self_}
+                        ].map((param) => {
+                            if (!param.value) return;
+                            const oldValue = JSON.parse(url.searchParams.get(param.field));
+                            const newValue = Object.assign({}, params, oldValue);
+                            url.searchParams.set(param.field, JSON.stringify(newValue));
+                        });
+                        result = (await requests.request(url)).data;
                     } else if (!context && env.isBackendMode()) {
                         let url = `backend://jsonata/${encodeURIComponent(expression)}`;
                         url += `?params=${encodeURIComponent(JSON.stringify(params || null))}`;
@@ -57,7 +67,7 @@ export default {
     // Запрос по контексту
     context(context) {
         return resolveJSONataRequest(queries.IDS.CONTEXT, { CONTEXT_ID: context });
-    },
+    },    
 
     // ********** КОМПОНЕНТЫ *************
 
@@ -145,5 +155,10 @@ export default {
     // Сводная JSONSchema по всем кастомным сущностям
     entitiesJSONChema() {
         return resolveJSONataRequest(queries.IDS.JSONSCEMA_ENTITIES);
+    },
+
+    // Сводная JSONSchema по всем кастомным сущностям
+    getObject(id) {
+        return resolveJSONataRequest(queries.IDS.GET_OBJECT, { OBJECT_ID: id });
     }
 };

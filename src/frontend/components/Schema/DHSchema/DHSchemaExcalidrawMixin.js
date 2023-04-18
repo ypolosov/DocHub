@@ -245,16 +245,21 @@ export default {
             context.files = files;
         },
         // Скачиваем результат работы
-        exdDownload(context) {
-            const link = document.createElement('a');
-            document.body.appendChild(link);
-            link.href = this.exdMakeJSONDataURL(JSON.stringify(context, null, 2));
-            link.download = `${Date.now()}.excalidraw`;
-            link.click();
-            this.$nextTick(() => document.body.removeChild(link));
+        exdDownload(context, params) {
+            const content = JSON.stringify(context, null, 2);
+            if (params?.handler) {
+                params?.handler(content);
+            } else {
+                const link = document.createElement('a');
+                document.body.appendChild(link);
+                link.href = this.exdMakeJSONDataURL(content);
+                link.download = `${Date.now()}.excalidraw`;
+                link.click();
+                this.$nextTick(() => document.body.removeChild(link));
+            }
         },
         // Генерируем файл
-        exdExportToExcalidraw() {
+        exdExportToExcalidraw(params) {
             const context = {
                 type: 'excalidraw',
                 version: 2,
@@ -264,7 +269,7 @@ export default {
             this.exdExportSymbols(context);
             this.exdExportNodes(context);
             this.exdAppendLinks(context);
-            this.exdDownload(context);
+            this.exdDownload(context, params);
         }
     },
     computed: {
@@ -276,6 +281,6 @@ export default {
         };
     },
     mounted() {
-        this.$on('exportToExcalidraw', () => this.exdExportToExcalidraw());
+        this.$on('exportToExcalidraw', (params) => this.exdExportToExcalidraw(params));
     }
 };

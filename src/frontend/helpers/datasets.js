@@ -18,7 +18,7 @@ export default function() {
 			},
 			pathResolver(path) {
 				if (env.isBackendMode())
-					throw 'pathResolver backend mode is not released yet...';
+					throw `pathResolver is not correct call for backend mode ... [${path}]`;
 				const state = window.Vuex.state;
 				return {
 					context: state.manifest,
@@ -34,9 +34,14 @@ export default function() {
 			jsonataDriver: query,
 			// Переопределяем метод получения данных для работы с бэком
 			getDataOriginal: datasetDriver.getData,
-			getData(context, subject, params, baseURI) {
-				// Пока ничего не делаем
-				return this.getDataOriginal(context, subject, params, baseURI);
+			async getData(context, subject, params, baseURI) {
+				if (env.isBackendMode()) {
+					const query = encodeURIComponent(JSON.stringify(subject));
+					const url = new URL(`backend://release-data-profile/${query}`);
+					url.searchParams.set('params', JSON.stringify(params || null));
+					url.searchParams.set('baseuri', baseURI);
+					return (await requests.request(url)).data;
+				} else return await this.getDataOriginal(context, subject, params, baseURI);
 			},
 			getReleaseData: datasetDriver.releaseData,
 			async releaseData(path, params) {
