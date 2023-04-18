@@ -117,7 +117,7 @@
         return {
           content,
           validator,
-          exception: this.exceptions[this.subject]
+          exception: content?.exception
         };
       }
     },

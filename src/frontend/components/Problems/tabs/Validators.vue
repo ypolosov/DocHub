@@ -87,7 +87,7 @@
               selected: this.subject === item.uid
             };
 
-            if(this.exceptions[item.uid]) {
+            if(item.exception) {
               problem.icon = 'warning';
               problem.iconStyle = 'color:#FF6F00';
               countExceptions++;
