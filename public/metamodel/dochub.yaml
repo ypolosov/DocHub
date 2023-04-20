@@ -5,5 +5,34 @@ imports:
 
 components:
   test:
-    title: test
+    title: lkskjhsdkhj
     entity: component
+    technologies:
+      - ssds
+
+contexts:
+  test:
+    location: test/test
+    title: test
+    extra-links: false
+    components:
+      - dochub.front.spa.*
+    api:
+      fetchComponents: >
+        (
+          {
+            "test.subtest1": {
+              "title": "test.subtest1",
+              "entity": "component"
+            },
+            "test.subtest2": {
+              "title": "test.subtest2",
+              "entity": "component",
+              "links": [
+                {
+                  "id": "test.subtest1"
+                }
+              ]
+            }
+          }
+        )
