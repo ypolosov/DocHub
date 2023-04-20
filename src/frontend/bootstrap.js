@@ -1,5 +1,4 @@
 import env from '@front/helpers/env';
-import { plugins } from '@front/plugins/initializer';
 
 /**
  * Очень Важно соблюдать порядок!
@@ -19,8 +18,6 @@ const init = async(processEnv) => {
   const { default: app } = await import(/* webpackMode: "eager" */ './index');
 
   await import(/* webpackMode: "eager" */ '@front/plugins/api');
-
-  plugins.pull();
 
   return app;
 };

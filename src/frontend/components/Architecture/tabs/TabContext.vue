@@ -57,11 +57,11 @@
       params() {
         if (this.context.type === 'component') 
           return {
-            id: 'SELF',
+            'dh-context-id': 'SELF',
             componentId: this.context.id
           };
         else return {
-          id: this.context.id
+          'dh-context-id': this.context.id
         };
       },
       context: {

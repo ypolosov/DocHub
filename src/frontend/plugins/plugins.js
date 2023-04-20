@@ -3,6 +3,23 @@ import Vue from 'vue';
 import requests from '@front/helpers/requests';
 import env from '@front/helpers/env';
 
+const plugins = {
+	documents: [],
+	// Все ранее зарегистрированные плагины переносим в основной менеджер
+	pull() {
+		this.documents.forEach((el) => DocHub.registerDocuments(el.type, el.component));
+	}
+};
+
+// Регистрируем временный менеджер регистрации плагинов
+window.DocHub = {
+	documents: {
+		register(type, component) {
+			plugins.documents.push({ type, component });
+		}
+	}
+};
+
 export default {
 	namespaced: true,
 	state: {
@@ -21,11 +38,12 @@ export default {
 		// Загружаем плагины
 		init(context) {
 			// Регистрируем менеджер документов для плагинов
-      window.DocHub.registerDocuments = function(type, component) {
-        component.mixins = component.mixins || [];
-        Vue.component(`plugin-doc-${type}`, component);
-        context.commit('registerDocument', { type, component });
-      };
+			window.DocHub.documents.register = function(type, component) {
+				component.mixins = component.mixins || [];
+				Vue.component(`plugin-doc-${type}`, component);
+				context.commit('registerDocument', { type, component });
+			};
+			plugins.pull();
 
 			let counter = 0;
 
