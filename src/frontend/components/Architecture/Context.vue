@@ -2,7 +2,7 @@
   <entity
     entity="contexts"
     presentation="plantuml"
-    v-bind:params="{ id: context }" />
+    v-bind:params="{ 'dh-context-id': context }" />
 </template>
 
 <script>
