@@ -91,7 +91,7 @@ entities:
               $presentation := $.*.presentation ? *.presentation : $presentation;
               *.location ? {
                   "location": "Архитектура/Контексты/" & *.location,
-                  "link": "entities/contexts/" & $presentation & "?id=" & $keys()[0]
+                  "link": "entities/contexts/" & $presentation & "?dh-context-id=" & $keys()[0]
               }
           )
         );
