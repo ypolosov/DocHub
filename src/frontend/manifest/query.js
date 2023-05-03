@@ -44,13 +44,12 @@ export default {
                         result = (await requests.request(url)).data;
                     } else {
                         !this.expOrigin && (this.expOrigin = this.driver.expression(expression, self_, params, isTrace || env.isTraceJSONata, funcs));
-                        this.expOrigin.onError = this.onError;
                         result = await this.expOrigin.evaluate(context || window.Vuex.state.manifest || {});
                     }
                 } catch (e) {
-                    this.onError && this.onError(e);
                     // eslint-disable-next-line no-console
                     console.error(e);
+                    throw e;
                 }
                 return result || def;
             }

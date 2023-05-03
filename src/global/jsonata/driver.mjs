@@ -137,8 +137,7 @@ export default {
 					console.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red');
 					// eslint-disable-next-line no-console
 					console.error(e);
-					this.onError && this.onError(e);
-					return def;
+					throw e;
 				}
 			}
 		};

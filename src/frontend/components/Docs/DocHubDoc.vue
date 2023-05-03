@@ -1,6 +1,11 @@
 <template>
   <div>
-    <template v-if="!isReloading">
+    <v-alert v-if="!isReloading && error" icon="error" type="error">
+      <h2>Ошибка!</h2>
+      <div>Расположение: {{ path }}</div>
+      <div>{{ error }}</div>
+    </v-alert>
+    <template v-if="!isReloading && !error">
       <component 
         v-bind:is="is"
         v-if="is"
