@@ -1,0 +1,29 @@
+#  Базовое описание сущности "Contexts"
+entities:
+  components:
+    title: Компоненты
+    description: >
+      Архитектурные компоненты.
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            title:
+              title: Название компонента
+              type: string
+            entity:
+              title: Представление компонента
+              type: string
+          required:
+            - title
+            - entity
+      additionalProperties: false
+    # Определяет пути к объектам сущности
+    routes:
+      component: "/:id" # Путь к контексту
+    menu: >
+      (
+        []
+      )
