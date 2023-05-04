@@ -78,6 +78,7 @@ let config = {
 			'localhost'
 		],
 		*/
+		client: { overlay: false },
 		hot: process.env.VUE_APP_DOCHUB_HOTRELOAD === 'off' ? false : true
 	},
 	transpileDependencies: ['vueitfy'],
