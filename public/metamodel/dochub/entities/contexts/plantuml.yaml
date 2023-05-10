@@ -22,13 +22,14 @@ entities:
           $join($map($areas, function($domain, $index) {(
               $result := "";
               $component := $lookup($components, $domain);
+              $originComponent := $lookup($manifest.components, $domain);
               $context := $lookup($manifest.contexts, $domain);
         
               /* Определяем является ли элемент областью */
               $isAreaBegin := $areas[$index + 1].$substring(0, $domain.$length() + 1) = $domain & ".";
         
               $result := $result & ($isAreaBegin ? (
-                  $title := $component.title ? $component.title : (
+                  $title := $originComponent.title ? $originComponent.title : (
                       $context.title ? $context.title : $domain
                   );
                       "$Region("
