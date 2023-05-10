@@ -36,7 +36,7 @@
     "axios": "0.21.4",
     "core-js": "3.26.1",
     "dateformat": "3.0.3",
-    "jsonata": "1.8.6",
+    "jsonata": "2.0.3",
     "mermaid": "9.3.0",
     "monaco-editor": "0.34.1",
     "mustache": "4.2.0",
