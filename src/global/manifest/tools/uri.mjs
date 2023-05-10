@@ -10,6 +10,7 @@ export default function(config) {
 		return (uri.slice(0, window.origin.length) !== window.origin) && this.isURL(uri);
 	};
 	this.makeURIByBaseURI = (uri, baseURI) => {
+		// if (('' + uri).startsWith('gitlab:')) debugger;
 		let result;
 		// Анализируем URI
 		try {
@@ -36,8 +37,6 @@ export default function(config) {
 				}
 			} else {
 				result = new URL(uri, baseURI);
-				// const slices = baseURI.toString().split('/');
-				// result = this.makeURL(slices.slice(0, slices.length - 1).join('/') + '/' + uri).url;
 			}
 		}
 		return result.toString();
