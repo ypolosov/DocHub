@@ -20,11 +20,6 @@ contexts:   # Контексты представления архитектур
     dochub.front.spa:
         title: Компонентная архитектура DocHub
         location: DocHub/Компонентная архитектура
-        uml:
-            $notation: plantuml  # sber C4Model plantuml
-            $autor: Frog
-            $version: '0.0.1'
-            $moment: 20.11.2022        
         components:
             - dochub.front.spa.*
     dochub.custom:
