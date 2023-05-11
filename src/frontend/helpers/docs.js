@@ -11,8 +11,7 @@ export default {
 		} else if (transport === 'http') {
 			result = profile.source;
 		} else {
-			const source = uri.makeURL(profile.template || profile.source, baseURI || (window.origin + '/'));
-			result = source.url;
+			result = uri.makeURIByBaseURI(profile.template || profile.source, baseURI);
 		}
 		return result ? result.toString() : '';
 	}
