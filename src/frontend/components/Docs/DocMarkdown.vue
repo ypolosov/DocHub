@@ -1,5 +1,6 @@
 <template>
   <box class="space">
+    [[{{ baseURI }}]]
     <context-menu v-model="menu.show" v-bind:x="menu.x" v-bind:y="menu.y" v-bind:items="contextMenu" />
     <dochub-anchor id="" />
     <div v-if="toc" class="toc" v-html="toc" />
@@ -72,7 +73,7 @@
     },
     methods: {
       rendered(outHtml) {
-        const result = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" :inline="true" ')
+        const result = outHtml.replace(/<img /g, '[- {{ baseURI }} -]<dochub-object :baseURI="baseURI" :inline="true" ')
           .replace(/\{\{/g, '<span v-pre>{{</span>')
           .replace(/\}\}/g, '<span v-pre>}}</span>');
         if (this.outHTML != result) {
