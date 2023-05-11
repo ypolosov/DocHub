@@ -9,7 +9,7 @@ contexts:   # Контексты представления архитектур
             - dochub.gitlab
             - dochub.web
     dochub.front:
-        # title: Контейнерная архитектура DocHub
+        title: Контейнерная архитектура DocHub
         location: DocHub/Контейнерная архитектура
         components:
             - dochub.browser.*
