@@ -144,7 +144,6 @@ export default {
 	// 		responseHook - содержит функцию обработки ответа перед работой interceptors
 	//		raw - если true возвращает ответ без обработки
 	request(uri, baseURI, axios_params) {
-		if (uri.includes('cat.jpg')) debugger;
 		let params = Object.assign({}, axios_params);
 		params.url = uri;
 		// Если ссылка ведет на backend конвертируем ее

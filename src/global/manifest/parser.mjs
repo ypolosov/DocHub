@@ -216,7 +216,7 @@ const parser = {
 	// Подключение манифеста
 	async import(uri) {
 		try {
-			const response = await parser.cache.request(uri, uri);
+			const response = await parser.cache.request(uri, '/');
 			const manifest = response && (typeof response.data === 'object'
 				? response.data
 				: JSON.parse(response.data));

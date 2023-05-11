@@ -29,12 +29,9 @@ export default function(config) {
 					// Не указаны идентификатор проекта и бранч GitLab
 					throw `Error in URI ${baseURI}! Not found divider '@'`;
 				}
-				const base = segments[1].split('/');
-				if (uri.substring(0, 1) === '/') {
-					result = `${segments[0]}@${uri.substring(1)}`;
-				} else {
-					result = `${segments[0]}@${base.slice(0, base.length - 1).join('/')}${base.length > 1 ? '/' : ''}${uri}`;
-				}
+				const basePathURL = new URL(`/${segments[1]}`, 'http://nop.none');
+				const targetURL = new URL(uri, basePathURL);
+				result = `${segments[0]}@${targetURL.pathname.slice(1)}${targetURL.search}${targetURL.hash}`;
 			} else {
 				result = new URL(uri, baseURI);
 			}

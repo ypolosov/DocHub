@@ -1,6 +1,5 @@
 <template>
   <div class="dochub-object" v-bind:style="{float:srcStruct.float}">
-    [[{{ baseURI }}]]
     <dochub-doc v-if="isDocument" v-bind:path="documentPath" v-bind:document="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" v-bind:params="srcStruct.params" />
     <dochub-context v-else-if="isContext" v-bind:context="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
     <dochub-aspect v-else-if="isAspect" v-bind:aspect="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />

@@ -111,7 +111,6 @@ export default {
 			return uriTool.getBaseURIOfPath(this.path);
 		},
 		url() {
-			debugger;
 			let result = this.profile ? docs.urlFromProfile(this.profile, this.baseURI).toString() : null;
 			if (!result) return null;
 			result += result.indexOf('?') > 0 ? '&' : '?';

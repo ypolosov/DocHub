@@ -11,7 +11,6 @@ export default {
 		} else if (transport === 'http') {
 			result = profile.source;
 		} else {
-			debugger;
 			result = uri.makeURIByBaseURI(profile.template || profile.source, baseURI);
 		}
 		return result ? result.toString() : '';
