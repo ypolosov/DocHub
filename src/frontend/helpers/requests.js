@@ -136,7 +136,7 @@ export default {
 		const url = new URL(URI);
 		const objectPath = url.pathname.slice(1);
 		const subPath = this.encodeRelPath(url.hash.slice(1));
-		const result = new URL(subPath, uriTool.getBaseURIOfPath(objectPath));
+		const result = uriTool.makeURL(uriTool.makeURIByBaseURI(subPath, uriTool.getBaseURIOfPath(objectPath))).url;
 		return result.toString();
 	},
 
@@ -161,7 +161,7 @@ export default {
 		} else if ((baseURI || '').toString().startsWith('backend://')) {
 			params.url = new URL(this.encodeRelPath(uri.toString()), this.translateBackendURL(baseURI));
 		} else if (baseURI) {
-			params.url = uriTool.makeURIByBaseURI(strURI, baseURI);
+			params.url = uriTool.makeURL(uriTool.makeURIByBaseURI(strURI, baseURI)).url;
 		} else {
 			params.url = uriTool.makeURL(strURI).url;
 		}

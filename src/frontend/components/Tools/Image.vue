@@ -12,6 +12,7 @@
 
 <script>
   import requests from '@front/helpers/requests';
+  import uriTool from '@front/helpers/uri';
 
   export default {
     name: 'DHImage',
@@ -27,7 +28,7 @@
     },
     computed: {
       url() {
-        return new URL(this.src, this.baseURI);
+        return uriTool.makeURL(this.src, this.baseURI).url;
       }
     },
     mounted() {
@@ -35,8 +36,7 @@
     },
     methods: {
       reloadImage() {
-        const url = new URL(this.src, this.baseURI);
-        requests.request(url.toString(), undefined, { responseType: 'arraybuffer' })
+        requests.request(this.src, this.baseURI, { responseType: 'arraybuffer' })
           .then((response) => {
             this.data = URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type']}));
           })
