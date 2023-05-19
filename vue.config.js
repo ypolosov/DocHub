@@ -82,6 +82,9 @@ let config = {
 		hot: process.env.VUE_APP_DOCHUB_HOTRELOAD === 'off' ? false : true
 	},
 	transpileDependencies: ['vueitfy'],
+	chainWebpack: (config) => {
+		config.module.rules.delete("svg");
+	},
 	configureWebpack: {
 		cache: (process.env.VUE_APP_DOCHUB_BUILDING_CACHE || 'memory').toLowerCase() === 'filesystem'
 			? {
@@ -103,6 +106,10 @@ let config = {
 		plugins,
 		module: {
 			rules: [
+				{
+					test: /\.svg$/,
+					loader: 'vue-svg-loader',
+				},
 				{
 					test: /\.mjs$/,
 					include: /node_modules/,
