@@ -109,18 +109,20 @@ export default Object.assign(prototype, {
             // Подключаем базовую метамодель
             const content = loadBaseMatamodel();
             if (!content.imports) content.imports = [];
+            
+            // Подключаем метамодель DocHub или собственную
+            content.imports.push(process.env.VUE_APP_DOCHUB_METAMODEL || '/metamodel/root.yaml');
+
             // Подключаем документацию, если нужно
             if ((process.env.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS || 'y').toLowerCase() === 'y') {
                 content.imports.push('/documentation/root.yaml');
             }
-            
-            // Подключаем метамодель DocHub или собственную
-            content.imports.push(process.env.VUE_APP_DOCHUB_METAMODEL || '/metamodel/root.yaml');
 
             // Подключаем корневой манифест, если есть
             if (process.env.VUE_APP_DOCHUB_ROOT_MANIFEST) {
                 content.imports.push(process.env.VUE_APP_DOCHUB_ROOT_MANIFEST);
             }
+            
             logger.log(`Root manifest is [${content.imports.join('], [')}].`, LOG_TAG);
             result = {
                 data: content
