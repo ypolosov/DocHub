@@ -150,10 +150,10 @@ components:
       pattern: '^\/[a-zA-Z][a-zA-Z\_0-9]*(\/[a-zA-Z][a-zA-Z\_0-9]*)*$'
     EntityID: 
       type: string
-      pattern: '^[a-zA-Z\_0-9]$'
+      pattern: '^[a-zA-Z][a-zA-Z\_0-9]*$'
     PresentationID: 
       type: string
-      pattern: '^[a-zA-Z\_0-9]$'
+      pattern: '^[a-zA-Z][a-zA-Z\_0-9]*$'
     EntityParam:
       type: string
     ProblemsResult:
