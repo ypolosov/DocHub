@@ -16,6 +16,10 @@ export enum CACHE_LEVEL {
 
 const ENV_ERROR_TAG = '[env.dochub]';
 
+const DEF_METAMODEL_URI_PORTAL = '/metamodel/root.yaml';
+const DEF_METAMODEL_URI_IDEA = 'plugin:/idea/metamodel/root.yaml';
+const DEF_METAMODEL_URI_VSCODE = 'https://dochub.info/metamodel/root.yaml';
+
 export default {
   dochub: <TProcessEnvValues>{},
   isPlugin(plugin?: Plugins): boolean {
@@ -94,9 +98,6 @@ export default {
   get gitlabUrl(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_GITLAB_URL;
   },
-  get appendDocHubMetamodel(): TEnvValue {
-    return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_METAMODEL;
-  },
   get appendDocHubDocs(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS;
   },
@@ -128,10 +129,20 @@ export default {
       return settings?.render?.request_type || 'get';
     } else return 'get';
   },
-  get isAppendDocHubMetamodel(): boolean {
-    return (this.appendDocHubMetamodel || 'y').toLowerCase() === 'y';
-  },
   get isAppendDocHubDocs(): boolean {
     return (this.appendDocHubDocs || 'y').toLowerCase() === 'y';
+  },
+  get uriMetamodel(): string {
+    const settings = (window.DocHubIDEACodeExt || window.DochubVsCodeExt)?.settings;
+    let result = this.dochub.VUE_APP_DOCHUB_METAMODEL || DEF_METAMODEL_URI_PORTAL;
+    if (this.isPlugin(Plugins.idea)) {
+      result = settings?.isEnterprise ? result : DEF_METAMODEL_URI_IDEA;
+    } else if (this.isPlugin(Plugins.vscode)) {
+      result = settings?.isEnterprise ? result : DEF_METAMODEL_URI_VSCODE;
+    } 
+    result = (new URL(result, window.location.toString())).toString();
+    // eslint-disable-next-line no-console
+    console.info('Source of metamodel is ', result);
+    return result;
   }
 };

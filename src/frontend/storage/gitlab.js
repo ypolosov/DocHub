@@ -10,7 +10,7 @@ import rules from '@front/helpers/rules';
 import crc16 from '@global/helpers/crc16';
 import entities from '@front/helpers/entities';
 import env, { Plugins } from '@front/helpers/env';
-import plugins from './plugins';
+import plugins from '../plugins/plugins';
 
 import GitLab from '@front/helpers/gitlab';
 

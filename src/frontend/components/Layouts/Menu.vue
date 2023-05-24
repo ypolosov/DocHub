@@ -108,7 +108,7 @@
         let result = 0;
         this.problems.map((validator) => {
           (validator.items || []).map((problem) =>
-            !((this.manifest.rules || {}).exceptions || {})[problem.uid] && result ++
+            !problem.exception && result ++
           );
         });
         return result;

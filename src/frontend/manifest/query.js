@@ -26,21 +26,30 @@ export default {
                 let result = null;
                 try {
                     if (expression.startsWith('backend://')) {
-                        result = (await requests.request(expression)).data;
+                        const url = new URL(expression);
+                        [
+                            { field: 'params', value: params},
+                            { field: 'subject', value: self_}
+                        ].map((param) => {
+                            if (!param.value) return;
+                            const oldValue = JSON.parse(url.searchParams.get(param.field));
+                            const newValue = Object.assign({}, params, oldValue);
+                            url.searchParams.set(param.field, JSON.stringify(newValue));
+                        });
+                        result = (await requests.request(url)).data;
                     } else if (!context && env.isBackendMode()) {
                         let url = `backend://jsonata/${encodeURIComponent(expression)}`;
                         url += `?params=${encodeURIComponent(JSON.stringify(params || null))}`;
                         url += `&subject=${encodeURIComponent(JSON.stringify(self_ || null))}`;
                         result = (await requests.request(url)).data;
                     } else {
-                        !this.expOrigin && (this.expOrigin = this.driver.expression(expression, self_, params, isTrace, funcs));
-                        this.expOrigin.onError = this.onError;
+                        !this.expOrigin && (this.expOrigin = this.driver.expression(expression, self_, params, isTrace || env.isTraceJSONata, funcs));
                         result = await this.expOrigin.evaluate(context || window.Vuex.state.manifest || {});
                     }
                 } catch (e) {
-                    this.onError && this.onError(e);
                     // eslint-disable-next-line no-console
                     console.error(e);
+                    throw e;
                 }
                 return result || def;
             }
@@ -57,7 +66,7 @@ export default {
     // Запрос по контексту
     context(context) {
         return resolveJSONataRequest(queries.IDS.CONTEXT, { CONTEXT_ID: context });
-    },
+    },    
 
     // ********** КОМПОНЕНТЫ *************
 

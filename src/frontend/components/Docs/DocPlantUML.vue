@@ -28,16 +28,13 @@
         let result = '';
         if (this.isTemplate) {
           this.source.dataset && (result = mustache.render(this.content, this.source.dataset));
-        } else result= this.content;
+        } else result = this.content;
         return result;
       }
     },
     methods: {
       refresh() {
-        if (!this.url) {
-          this.uml = '';
-          return;
-        }
+        this.content = '';
         requests.request(this.url).then((response) => {
           this.content = response.data.toString();
         }).catch((e) => this.error = e);

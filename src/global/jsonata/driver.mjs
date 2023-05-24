@@ -1,5 +1,6 @@
 import jsonata from 'jsonata';
 import ajv from 'ajv';
+import source from '../datasets/source.mjs';
 // import ajv_localize from 'ajv-i18n/localize/ru';
 // const ajv_localize = require('ajv-i18n/localize/ru');
 
@@ -58,6 +59,15 @@ function jsonSchema(schema) {
 	};
 }
 
+function sourceType(content) {
+	return source.type(content);
+}
+
+function log(content, tag) {
+	// eslint-disable-next-line no-console
+	console.info(`${tag}: ${JSON.stringify(content, null, 2)}`);
+}
+
 export default {
 	// Создает объект запроса JSONata
 	//  expression - JSONata выражение
@@ -84,6 +94,10 @@ export default {
 						this.core.registerFunction('wcard', wcard);
 						this.core.registerFunction('mergedeep', mergeDeep);
 						this.core.registerFunction('jsonschema', jsonSchema);
+						this.core.registerFunction('sourcetype', sourceType);
+						if (!funcs?.log) {
+							this.core.registerFunction('log', log);
+						}
 						this.core.registerFunction('set', (key, data) => {
 							return obj.store[key] = data;
 						});
@@ -123,8 +137,7 @@ export default {
 					console.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red');
 					// eslint-disable-next-line no-console
 					console.error(e);
-					this.onError && this.onError(e);
-					return def;
+					throw e;
 				}
 			}
 		};

@@ -44,6 +44,7 @@
     },
     data() {
       return {
+        switchedPresentation: null,
         refresh: false,
         profile: null,
         refresher: null,
@@ -56,6 +57,10 @@
       };
     },
     computed: {
+      // Возвращает презентацию с учетом выбора пользователя
+      currentPresentation() {
+        return this.switchedPresentation || this.presentation;
+      },
       // Стиль на время перестройки документа
       placeHolderStyle() {
         return this.minHeight ? { 'min-height': `${this.minHeight}px` } : undefined; 
@@ -69,7 +74,7 @@
         const items = this.profile?.presentations || {};
         const result = [];
         Object.keys(items).map((id) => {
-          if (id === this.presentation) return;
+          if (id === this.currentPresentation) return;
           const schema = items[id].params;
           if (!schema || !this.isInvalidParamsToPres(schema)) 
             result.push({
@@ -89,7 +94,7 @@
         return this.params || (this.$route.params && this.$router.currentRoute.query);
       },
       presentationPath() {
-        return `${this.entityPath}/presentations/${this.presentation}`;
+        return `${this.entityPath}/presentations/${this.currentPresentation}`;
       },
       entityPath() {
         return `/entities/${this.entity}`;
@@ -117,6 +122,7 @@
       reloadProfile() {
         if (this.refresher) clearTimeout(this.refresher);
         this.refresher = setTimeout(() =>{
+          this.switchedPresentation = null;
           const dateLakeId = this.makeDataLakeID(this.entityPath);
           query.expression(dateLakeId).evaluate()
             .then((data) => {
@@ -163,10 +169,13 @@
           const path = `/entities/${this.entity}/presentations/${presentation}`;
           uploadDocument(presProfile, path, this.entityParams, this.manifest);
         } else { // Иначе переключаем презентацию
+          this.switchedPresentation = presentation;
+          /* 
           this.$router.push({
             path: `/entities/${this.entity}/${presentation}`,
             query: this.$route.query
           });
+          */
           this.refreshPres();
         }
       }

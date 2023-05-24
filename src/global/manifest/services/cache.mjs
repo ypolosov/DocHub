@@ -3,6 +3,7 @@
 // По умолчанию является MOC
 export default {
     // Резолвит URL
+    // eslint-disable-next-line no-unused-vars
     makeURIByBaseURI(URL, BaseURL) {
         // eslint-disable-next-line no-console
         console.warn('makeURIByBaseURI method of cache service is not realized.');

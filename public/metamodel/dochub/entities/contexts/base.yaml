@@ -7,7 +7,7 @@ entities:
     schema:
       type: object
       patternProperties:
-        "^[a-zA-Z][a-zA-Z0-9_]*(\\.[a-zA-Z][a-zA-Z0-9_]*)*$":
+        "^[0-9a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
           type: object
           properties:
             title:
@@ -16,13 +16,16 @@ entities:
             location:
               title: Место расположения в меню
               type: string
+            icon:
+              title: Иконка в меню
+              type: string
             components:
               title: Комппоненты контекста
               type: array
               items:
                 type: string
                 title: Идентификатор компонента или маска
-                pattern: "^[a-zA-Z][a-zA-Z0-9\\_]*(\\.([a-zA-Z][a-zA-Z0-9\\_]*|\\*))*$"
+                pattern: "^[0-9a-zA-Z][a-zA-Z0-9\\_]*(\\.([a-zA-Z][a-zA-Z0-9\\_]*|\\*))*$"
             extra-links:
               title: Отображать компоненты ближайших связей
               type: boolean
@@ -34,7 +37,7 @@ entities:
                 - smartants
             uml:
               title: Кастомизация контекста
-              anyOf:
+              oneOf:
                 - type: string
                   title: Путь к файлу PlantUML
                 - type: object
@@ -62,7 +65,7 @@ entities:
               anyOf:
                 - type: string
                   title: Идентификатор dataset
-                  pattern: "^[a-zA-Z][a-zA-Z0-9\_]*(\\.[a-zA-Z][a-zA-Z0-9\\_]*)*$"
+                  pattern: "^[0-9a-zA-Z][a-zA-Z0-9\_]*(\\.[a-zA-Z][a-zA-Z0-9\\_]*)*$"
                 - type: string
                   title: JSONata запрос
                   pattern: "\\s*\\((.|\\s)*\\)\\s*"
@@ -76,14 +79,22 @@ entities:
     menu: >
       (
         $presentation := entities.contexts.config.defaultPresentation;
-        [contexts.$spread().(
-            /* Если указана явно презентация, используем ее */
-            $presentation := $.*.presentation ? *.presentation : $presentation;
-            *.location ? {
-                "location": "New contexts/" & *.location,
-                "link": "entities/contexts/" & $presentation & "?id=" & $keys()[0]
+        $append([
+            {
+                "title": "Контексты",
+                "location": 'Архитектура/Контексты',
+                "icon": 'location_searching'
             }
-        )]
+          ],
+          contexts.$spread().(
+              /* Если указана явно презентация, используем ее */
+              $presentation := $.*.presentation ? *.presentation : $presentation;
+              *.location ? {
+                  "location": "Архитектура/Контексты/" & *.location,
+                  "link": "entities/contexts/" & $presentation & "?dh-context-id=" & $keys()[0]
+              }
+          )
+        );
       )
     # Предопределенные конфигурационные параметры для генерации контекстов
     config:
@@ -96,24 +107,37 @@ entities:
       #   manifest      - данные архитектуры
       #   contextId     - идентификатор контекста
       #   extra-links   - признак необходимости отразить окружение
+      #   componentId   - идентификатор компонента для контекста SELF
       fetchComponents: >
         (
           /* Обрабатываем параметры */
           $params := $;
           $manifest := $params.manifest;
+          /* Признак SELF контекста */
+          $isSelf := $params.componentId ? true : false;
+          /* Получаем объект контекста */
           $context := $lookup($params.manifest.contexts, contextId);
-          $isExtraLinks := $params."extra-links";
+
+          /* Определяем необходимость показывать ближайшие связи */
+          $isExtraLinks := $params.componentId ? true : $params."extra-links";
+
+          /* Определяем, какие компоненты покажем в контексте */
+          $showComponents := $params.componentId
+            /* Если контекст под определенный компонент, ограничиваемся им. */
+            ? [$params.componentId]
+            /* Если нет берем все компоненты указанные в контексте */
+            : $context.components; 
   
           /* Если в контексте переопределена функция получения компонентов, используем ее*/
           $context.api.fetchComponents ? (
             $eval($context.api.fetchComponents, $params)
           ) : (
             /* Получаем все компоненты входящие в контекст */
-            $components := $merge($context.components.(
+            $components := $merge($showComponents.(
                 $mask := $;
                 $manifest.components.$spread().(
                     $componentId := $keys()[0];
-                    $wcard($componentId, $mask) ? $
+                    $result := $wcard($componentId, $mask) ? $
                 )
             ));
           
@@ -121,7 +145,9 @@ entities:
             $merge([$components, $isExtraLinks ? (
                 $components.*.links.(
                     {
-                        id: $lookup($manifest.components, id)
+                        id: $isSelf 
+                          ? $merge([$lookup($manifest.components, id), { "links": [] }])
+                          : $lookup($manifest.components, id)
                     }
                 );
             ) : {}]);

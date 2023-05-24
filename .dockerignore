@@ -2,7 +2,6 @@
 .gitlab-ci.yml
 Dockerfile
 docker-compose*.yaml
-**/*.md
 node_modules
 dist
 .github

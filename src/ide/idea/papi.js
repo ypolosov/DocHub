@@ -93,7 +93,8 @@ if (cefQuery && window[cefQuery]) {
 	window.DocHubIDEACodeExt = {
 		rootManifest: 'plugin:/idea/source/$root',
 		settings: {
-			isEnterprise: false,
+			// Тут нужно определиться или признаком Enerprise является запуск под протоколом http/https или настройка в плагине
+			isEnterprise: ['http:', 'https:'].indexOf(window.location.protocol) >= 0,
 			render: {
 				external: false,
 				mode: 'ELK',
@@ -110,6 +111,7 @@ if (cefQuery && window[cefQuery]) {
 			console.error(message);
 			alert(message);
 		}
+		// Тут нужно определиться или признаком Enerprise является запуск под протоколом http/https или настройка в плагине
 		window.DocHubIDEACodeExt.settings = config;
 	// eslint-disable-next-line no-console
 	}).catch((e) => {

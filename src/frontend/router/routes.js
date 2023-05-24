@@ -1,6 +1,6 @@
 import cookie from 'vue-cookie';
 
-import Doc from '@front/components/Docs/DocHubDoc';
+import Doc from '@front/components/Architecture/Document.vue';
 import Main from '@front/components/Main';
 import config from '@front/config';
 import consts from '@front/consts';

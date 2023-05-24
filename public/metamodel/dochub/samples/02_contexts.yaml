@@ -4,6 +4,7 @@ contexts:
     location: Проба/Тест
     title: Проба
     extra-links: false
+    template: test/test.puml
     components:
       - dochub.front
     api:
@@ -20,8 +21,3 @@ contexts:
             }        
           }
         )
-entities:
-  contexts:
-    config:
-      defaultPresentation: smartants
-      asRowHeight: 12

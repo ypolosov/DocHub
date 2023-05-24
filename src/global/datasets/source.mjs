@@ -7,15 +7,13 @@ export default {
                 return 'jsonata-file';
             } else if (source.endsWith('.yaml') || source.endsWith('.json')) {
                 return 'data-file';
-            } else if (source.startsWith('res:')) {
-                return 'resource';
             } else {
                 return 'id';
             }
         } else if (typeof source === 'object') {
             return 'data-object';
         } else {
-            return null;
+            return undefined;
         }
     }
 };

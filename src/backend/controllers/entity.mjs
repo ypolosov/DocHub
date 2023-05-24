@@ -50,10 +50,11 @@ export default function(app) {
 
         //Проверяем, что есть поле template
         const templateSource = presentation.template;
-        if (!templateSource) {
-            res.status(500).json({ message: `Not found required field [template]. Location [${path}]`});
-            return;
-        }
+        // Необязательно
+        //if (!templateSource) {
+        //    res.status(500).json({ message: `Not found required field [template]. Location [${path}]`});
+        //    return;
+        //}
 
         // Проверяем параметры
         if (presentation.params) {
@@ -84,12 +85,17 @@ export default function(app) {
                 return await datasets(app).releaseData(path, entityParams);
             });
 
-            const baseURL = app.storage?.md5Map[md5(path)];
+            // Если шаблон есть, рендерим его
+            if (templateSource) {
+                const baseURL = app.storage?.md5Map[md5(path)];
 
-            const template = (await request(templateSource, baseURL)).data;
-            const content = mustache.render(template, data);
+                const template = (await request(templateSource, baseURL)).data;
+                const content = mustache.render(template, data);
 
-            res.setHeader('Content-Type', presentation.mimetype || 'text/plain').send(content);
+                res.setHeader('Content-Type', presentation.mimetype || 'text/plain').send(content);
+            } else {
+                res.json(data);
+            }
         } catch(e) {
             res.json({
                 message: e.message,

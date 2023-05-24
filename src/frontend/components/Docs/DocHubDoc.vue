@@ -1,6 +1,11 @@
 <template>
   <div>
-    <template v-if="!isReloading">
+    <v-alert v-if="!isReloading && error" icon="error" type="error">
+      <h2>Ошибка!</h2>
+      <div>Расположение: {{ path }}</div>
+      <div>{{ error }}</div>
+    </v-alert>
+    <template v-if="!isReloading && !error">
       <component 
         v-bind:is="is"
         v-if="is"
@@ -13,7 +18,7 @@
         v-bind:pull-data="pullData"
         v-bind:context-menu="contextMenu" />
       <template v-else>
-        <v-alert v-if="profile" icon="warning">
+        <v-alert v-if="profile && !isReloading" icon="warning">
           Неизвестный тип документа [{{ docType }}]
         </v-alert>
         <spinner v-else />
@@ -89,16 +94,13 @@
     data() {
       return {
         DocTypes,
+        refresher: null,
+        profile: null,
+        error: null,
         currentPath : this.resolvePath(),
         currentParams: this.resolveParams(),
         dataProvider: datasets()
       };
-    },
-    asyncComputed: {
-      async profile() {
-        const id = `("${this.currentPath.slice(1).split('/').join('"."')}")`;
-        return await query.expression(id).evaluate() || { type: 'unknown' };
-      }
     },
     computed: {
       is() {
@@ -120,18 +122,49 @@
       }
     },
     watch: {
-      '$route'(){
-        this.currentPath = this.resolvePath();
-        this.currentParams = this.resolveParams();
+      '$route'() {
+        this.refresh();
+      },
+      params() {
+        this.refresh();
+      },
+      isReloading() {
+        this.refresh();
       }
     },
+    mounted() {
+      this.refresh();
+    },
     methods: {
+      // Обновляем контент документа
+      refresh() {
+        if (this.refresher) clearTimeout(this.refresher);
+        this.refresher = setTimeout(() => {
+          this.profile = null;
+          const dateLakeId = `("${this.resolvePath().slice(1).split('/').join('"."')}")`;
+          query.expression( query.getObject(dateLakeId), null, this.resolveParams())
+            .evaluate()
+            .then((profile) => {
+              this.profile = Object.assign({ $base: this.path }, profile);
+            })
+            .catch((e) => {
+              this.error = e.message;
+            })
+            .finally(() => {
+              this.currentPath = this.resolvePath();
+              this.currentParams = this.resolveParams();
+              this.refresher = null;
+            });
+
+        }, 50);
+      },
       resolveParams() {
         return this.params || this.$router.currentRoute.query || {};
       },  
       // Определяем текущий путь к профилю документа
       resolvePath() {
-        return this.path === '$URL$' ? this.$router.history.current.path : this.path;
+        if (this.path === '$URL$') return this.$router.history.current.path;
+        return this.profile?.$base || this.path;
       },
       // Провайдер контента файлов для плагинов
       //  url - прямой или относительный URL к файлу
