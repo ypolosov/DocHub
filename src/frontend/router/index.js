@@ -83,7 +83,7 @@ gateway.appendListener('navigate/context', (data) => {
 
 gateway.appendListener('navigate/devtool', (data) => {
   global.console.log(Object.keys(data)[0]);
-	router.push({ path: `/devtool/${Math.random().toString().substring(0, 5)}_${Object.keys(data)[0]}`});
+	router.push({ path: `/devtool/${Object.keys(data)[0]}`});
 });
 
 export default router;

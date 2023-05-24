@@ -202,8 +202,8 @@
         if (!this.isLoading && this.autoExec) this.onExecute();
       },
       loadJsonataQuery(param_id) {
-        // global.console.log(`Loading query with param=${param_id}`);
-        const id = (param_id || this.source.slice(1).split('/')[1]).slice(6);
+        //global.console.log(`Loading query with param=${param_id}`);
+        const id = param_id || this.jsonataSource;
         // global.console.log(`Loading query with id=${id}`);
         query.expression(id).evaluate().then((data) => {
           // global.console.log(`Loading query with data=${data}`);
