@@ -32,7 +32,7 @@
               <v-list-item-content>
                 <v-list-item-subtitle>Как исправить</v-list-item-subtitle>
                 <v-list-item-title>
-                  {{ problem.content.correction }}
+                  <pre>{{ problem.content.correction }}</pre>
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
@@ -94,7 +94,7 @@
 <script>
 
   import uri from '@front/helpers/uri';
-  
+
   import Mixin from '../mixin';
 
   export default {
