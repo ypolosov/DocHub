@@ -101,6 +101,7 @@
 
   import editor from './JSONataEditor.vue';
   import result from './JSONResult.vue';
+  import {Base64ToUTF8} from '@front/helpers/strings';
 
   const COOKIE_NAME_QUERY = 'json-dev-tool-query';
   const COOKIE_NAME_AUTOEXEC = 'json-dev-tool-autoexec';
@@ -202,22 +203,26 @@
         if (!this.isLoading && this.autoExec) this.onExecute();
       },
       loadJsonataQuery(param_id) {
-        //global.console.log(`Loading query with param=${param_id}`);
-        const id = param_id || this.jsonataSource;
-        // global.console.log(`Loading query with id=${id}`);
-        query.expression(id).evaluate().then((data) => {
-          // global.console.log(`Loading query with data=${data}`);
-          if (data?.source) {
-            // global.console.log(`Setting source=${data.source}`);
-            // this.query = data.source;
-            this.query = `$eval(${id}.source)`;
-            // global.console.log(`Setting origin=${data.origin}`);
-            this.origin = data.origin;
-          } else {
-            this.query = cookie.get(COOKIE_NAME_QUERY) || '"Здесь введите JSONata запрос."';
-          }
+        const src = param_id || this.jsonataSource;
+        const srcSplitPos = src.search(':');
+        const jType = src.substring(0, srcSplitPos);
+        const jSource = src.substring(srcSplitPos + 1);
+
+        if (jType === 'file' || jType === 'selection' || jType === 'element') {
+          this.query = Base64ToUTF8(jSource);
+          this.origin = null;
           this.$refs.editor.model.setValue(this.query);
-        });
+        } else if (jType === 'source') {
+          query.expression(jSource).evaluate().then((data) => {
+            if (data?.source) {
+              this.query = `$eval(${jSource}.source)`;
+              this.origin = data.origin;
+            } else {
+              this.query = cookie.get(COOKIE_NAME_QUERY) || '"Здесь введите JSONata запрос."';
+            }
+            this.$refs.editor.model.setValue(this.query);
+          });
+        }
       },
       logOnClick(item) {
         this.selectedLog = item.id;
