@@ -135,12 +135,19 @@ const parser = {
 			this.pushToMergeMap(path, result, location);
 		} else if (Array.isArray(source)) {
 			if (Array.isArray(destination)) {
-				result = destination.reduce((acc, currEl) =>
-					Array.isArray(acc) && (typeof acc[0] === 'object')
-						? source
-						: acc.filter(deepEl => deepEl !== currEl).concat(currEl),
-					source
-				);
+				debugger;
+				const temp = [];
+				result = [];
+				destination.map((distItem) => {
+					const distContent = JSON.stringify(distItem);
+					if (!source.find((srcItem, index) => {
+						!temp[index] && (temp[index] = JSON.stringify(srcItem));
+						return distContent === temp[index];
+					})) {
+						result.push(distItem);	
+					}
+				});
+				result = source.concat(result);
 			} else {
 				result = source;
 			}
