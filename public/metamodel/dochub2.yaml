@@ -1,5 +1,5 @@
 imports:
-#  - http://localhost:8080/metamodel/root.yaml
+  #  - http://localhost:8080/metamodel/root.yaml
   - https://dochub.info/documentation/root.yaml
 #  - root.yaml
 
@@ -8,7 +8,6 @@ entities:
     title: Классификатор
     schema:
       $defs:
-        # Идентификатор
         # Базовые типы Технологических компонентов
         tech_components_types:
           title: Тип технологического компонента
@@ -36,6 +35,8 @@ entities:
             test:
               title: test
               type: string
+          required:
+            - test
 
   tech_components_server_metal:
     title: Servers Physical
@@ -119,8 +120,7 @@ entities:
             os_name:
               title: Операционная система
               type: string
-            as_id:
-              # todo здесь описать связь с АС
+            as_name:
               title: Автоматизированная система
               type: string
             as_component_name:
@@ -150,15 +150,5 @@ entities:
             dc_name:
               title: Имя  ЦОД/Серверной комнаты
               type: string
-            metall:
-              title: Идентификатор металлического сервера
-              type: strimng
-              pattern: "^[a-zA-Z0-9_\\.]*$"
-
-
-
-
-
-
 
 
