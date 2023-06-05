@@ -415,7 +415,7 @@ text.hover {
 }
 
 path.link-path {
-  stroke: rgb(52, 149, 219) !important;
+  /* stroke: rgb(52, 149, 219) !important; */
   stroke-width: 2 !important;
 }
 

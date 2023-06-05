@@ -1,6 +1,11 @@
 <template>
   <div>
-    <template v-if="!isReloading">
+    <v-alert v-if="!isReloading && error" icon="error" type="error">
+      <h2>Ошибка!</h2>
+      <div>Расположение: {{ path }}</div>
+      <div>{{ error }}</div>
+    </v-alert>
+    <template v-if="!isReloading && !error">
       <component 
         v-bind:is="is"
         v-if="is"
@@ -97,19 +102,6 @@
         dataProvider: datasets()
       };
     },
-    /*
-    asyncComputed: {
-      async profile() {
-        const dateLakeId = `("${this.currentPath.slice(1).split('/').join('"."')}")`;
-        const result = await query.expression(
-          query.getObject(dateLakeId),
-          null,
-          this.currentParams
-        ).evaluate() || { type: 'unknown' };
-        return result;
-      }
-    },
-    */
     computed: {
       is() {
         return inbuiltTypes[this.docType] 

@@ -2,7 +2,7 @@
   <entity
     entity="docs"
     presentation="blank"
-    v-bind:params="{ id: document }" />
+    v-bind:params="{ 'dh-doc-id': document }" />
 </template>
 
 <script>
