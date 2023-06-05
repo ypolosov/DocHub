@@ -23,26 +23,31 @@ entities:
     # Определяет пути к объектам сущности
     objects:
       component: 
-        route: "/:id"           # Путь к компоненту
+        route: "/"              # Путь к объектам компонента
         title: Арх. компонент   # Название объекта 
         # JSONata генератор символа в svg для представления в диаграммах. 
-        #  $params.subject - передается объект рендеринга. Может быть не определен. В этом случае, необходимо вернуть неспецифичный (общий) символ объекта.
+        #  $params.subject - передается объект рендеринга. Может быть неопределен. В этом случае, необходимо вернуть неспецифичный (общий) символ объекта.
         #  $               - Data Lake архитектуры. Может быть не определен, если Data Lake недоступен.
         symbol: >     
           (
             /* Обрабатываем входящие параметры */
             $manifest := $;
-            $component := $params.subject;
+            $component := $params.subject.$spread()[0].*;
             $defConfig := $manifest.entities.contexts.config;
           
             /* Высота строки аспекта */
             $rowHeight := 14;
             /* Отступы */
             $padding := 8;
+            /* Отступы */
+            $headerOffset := 12;
             /* Ширину символа */
             $fontWidth := 7;
             /* Высота символа */
             $fontHeight := 12;
+
+            /* Определяем заголовок */
+            $header := $component.title;
           
             /* Определяем количество аспектов для вычисления высоты символа */
             $aspectCount := $count($component.aspects);
@@ -57,25 +62,27 @@ entities:
             );
           
             /* Определяем максимальную длину текста для вычисления ширины символа */
-            $maxTitle := $max($aspects.($length(title)));
+            $maxTitle := $max([$max($aspects.($length(title))), $length($header)]);
           
             /* Вычисляем размеры символа */
             $width := $maxTitle ? $maxTitle * $fontWidth + $padding * 2 : 64; /* Умножаем на ширину символа */   
-            $height := ($aspectCount + 1) * $rowHeight + $padding * 2; /* Умножаем на высоту строки */
+            $height := ($aspectCount + 1) * $rowHeight + $padding * 2 + $headerOffset; /* Умножаем на высоту строки */
           
             /* Генерируем символ */
             '<svg fill="#000000" width="' & $width & 'px" height="' & $height & 'px" viewBox="0 0 ' & $width & ' ' & $height & '" version="1.1" xmlns="http://www.w3.org/2000/svg">' 
                   & '<g>'
                       /* Создаем контейнер */
                       & '<rect width="' & $width & 'px" height="' & $height & 'px" fill=\"#eee\" stroke=\"#222\" rx="3" />'
+                      /* Создаем заголовок */
+                      & '<text x="50%" y="12" style="font-size:' & $fontHeight & '" fill="green" text-anchor="middle" dominant-baseline="middle" >' & $header & '</text>'
                       /* Заполняем аспектами */
                       & $join($map($aspects, function($v, $i) {(
                           '<a href=\"/architect/aspects/' & $v.id & '\" >'
-                          & '<text x="6" y="' & ($i * $rowHeight + $padding + $rowHeight) & '" style="font-size:' & $fontHeight & '" fill="blue">' & $v.title & '</text>'
+                          & '<text x="6" y="' & ($i * $rowHeight + $padding + $rowHeight + $headerOffset) & '" style="font-size:' & $fontHeight & '" fill="blue">' & $v.title & '</text>'
                           & '</a>'
                       )}))
                   & '</g>'
-            & '</svg>'
+            & '</svg>';
           )
     menu: >
       (
