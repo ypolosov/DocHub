@@ -101,6 +101,10 @@ const config = defineConfig({
    execSync('chmod -R 777 ./dist');
    execSync('mv ./dist/dochubcore.umd.min.js ./dist/dochub.js');
    execSync('rm -rf ./dist/*umd* ./dist/*common* ./dist/*html*');
+   execSync('mkdir ./dist/backend');
+   execSync('cp -r ./src/backend ./dist/backend/src');
+   execSync('cp -r ./src/global ./dist/backend/global');
+   execSync('cp -r ./src/assets ./dist/backend/assets');
  }
 })();
 
