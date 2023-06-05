@@ -32,7 +32,7 @@
       ]
     }
   });
-  
+
   monaco.editor.defineTheme('jsonata-theme', {
     base: 'vs',
     rules: [
@@ -45,11 +45,11 @@
     ],
     colors: {
       'editor.foreground': '#000000'
-    }    
+    }
   });
 
   monaco.editor.setTheme('jsonata-theme');
-  
+
   // https://ohdarling88.medium.com/4-steps-to-add-custom-language-support-to-monaco-editor-5075eafa156d
   // https://blog.expo.dev/building-a-code-editor-with-monaco-f84b3a06deaf
 
