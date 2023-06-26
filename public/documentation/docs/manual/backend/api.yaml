@@ -57,6 +57,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JSONataResult'
+  /core/storage/reload/{reloadSecret}:
+    get:
+      tags:
+      - DataLake
+      summary: Выполняет запрос перезагрузки данным архитектуры
+      parameters:
+        - in: path
+          name: reloadSecret
+          description: secret для доступа к запросу
+          required: true
+          schema:
+            $ref: '#/components/schemas/JSONataQuery'
+          example: >
+            "12345"
+      responses:
+        "200":
+          description: "Результат выполнения запроса"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JSONataResult'
   /core/storage/release-data-profile/{path}:
     get:
       tags:

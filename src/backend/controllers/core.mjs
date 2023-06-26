@@ -1,4 +1,6 @@
 import datasets from '../helpers/datasets.mjs';
+import storeManager from '../storage/manager.mjs';
+import validators from '../helpers/validators.mjs';
 import cache from '../storage/cache.mjs';
 import queries from '../../global/jsonata/queries.mjs';
 import helpers from './helpers.mjs';
@@ -39,6 +41,26 @@ export default (app) => {
             : request.query;
 
         makeJSONataQueryResponse(res, query, request.params, request.subject);
+    });
+
+    // Запрос на обновление манифеста
+    app.get('/core/storage/reload/:query', function(req, res) {
+      const request = parseRequest(req);
+      const reloadSecret = JSON.parse(request.query);
+      if(reloadSecret !== process.env.VUE_APP_DOCHUB_RELOAD_SECRET) {
+        res.status(403).json({
+          error: `Error reload secret is not valid [${reloadSecret}]`
+        });
+        return;
+      } else {
+        storeManager.reloadManifest()
+          .then((storage) =>{
+            app.storage = storage;
+            validators(app); 
+            Object.freeze(app.storage);
+          })
+          .then(() => res.json({ message: 'success' }));
+      }
     });
 
     // Выполняет произвольные запросы 
