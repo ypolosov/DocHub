@@ -53,10 +53,13 @@
     },  
     computed: {
       strokeWidth() {
-        return ((this.track.link.contains || []).length || 1) + 1;
+        return ((this.isUnwisp || []).length || 1) + 1;
+      },
+      isUnwisp() {
+        return this.track.link.contains;
       },
       trackColor() {
-        return this.track.link.style
+        return this.isUnwisp ? '' : this.track.link.style
           .match(/#(([a-fA-F0-9]{6}|[a-fA-F0-9]{3})|[a-z]+)/gi)
           ?.map(color => /#(([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))/i.test(color) ? color : color.replace('#', ''))
           .at(-1);
