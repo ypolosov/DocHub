@@ -125,12 +125,12 @@ docs:
         - from: user            # Откуда будет прокладываться маршрут
           to: system            # Куда
           title: Логин и пароль # Описание маршрута
-          style: "->"           # Направление маршрута <- / -> / <->
+          style: "-[#red, trickness=1, #fba]->"           # Направление маршрута <- / -> / <->
           link: "/docs/dochub.plantuml" # Ссылка перехода при клике на надпись
         - from: system
           to: user
           title: JWT токен
-          style: "->"
+          style: "-[#green, trickness=1, #yellow]->"
           link: "/docs/dochub.swagger"
   dochub.smartants.examples.domains:
     location: DocHub/Руководство/Документы/SmartAnts/02 Домены
