@@ -297,7 +297,7 @@
 
 /* Стили треков */
 .track-highlight {
-  stroke: #ff0000 !important;
+  stroke: #ff0000;
   z-index: 10000;
 }
 
