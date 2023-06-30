@@ -65,7 +65,7 @@ paths:
       parameters:
         - in: path
           name: reloadSecret
-          description: secret для доступа к запросу
+          description: secret для доступа к запросу. Указывается в .env переменной VUE_APP_DOCHUB_RELOAD_SECRET
           required: true
           schema:
             $ref: '#/components/schemas/JSONataQuery'
