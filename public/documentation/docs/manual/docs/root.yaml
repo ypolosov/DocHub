@@ -125,12 +125,38 @@ docs:
         - from: user            # Откуда будет прокладываться маршрут
           to: system            # Куда
           title: Логин и пароль # Описание маршрута
-          style: "-[#red, trickness=1, #fba]->"           # Направление маршрута <- / -> / <->
+          style: "->"           # Направление маршрута <- / -> / <->
           link: "/docs/dochub.plantuml" # Ссылка перехода при клике на надпись
         - from: system
           to: user
           title: JWT токен
-          style: "-[#green, trickness=1, #yellow]->"
+          style: "->"
+          link: "/docs/dochub.swagger"
+  dochub.smartants.examples.colors:
+    description: Пример раскрашивания линий
+    autor: R.Piontik
+    type: smartants           
+    source:                   
+      config:                 
+        distance: 120         
+        trackWidth: 24        
+      nodes:                  
+        system:               
+          title: Система      
+          symbol: system      
+        user:
+          title: Пользователь
+          symbol: user
+      links:                    
+        - from: user            
+          to: system            
+          title: Логин и пароль 
+          style: "-[#ff0000]->"         # Указывается цвет линии через RGB
+          link: "/docs/dochub.plantuml" 
+        - from: system
+          to: user
+          title: JWT токен
+          style: "-[#green]->"         # Указывается цвет линии через alias
           link: "/docs/dochub.swagger"
   dochub.smartants.examples.domains:
     location: DocHub/Руководство/Документы/SmartAnts/02 Домены
