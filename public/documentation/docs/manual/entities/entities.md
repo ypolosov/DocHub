@@ -270,8 +270,8 @@ entities:
       menu: >
         (
           {
-            "location": "Взаимодействия/Пример"
-            "link": "/entities/interactions/blank?id=dochub.user",
+            "location": "Взаимодействия/Пример",
+            "link": "/entities/interactions/blank?id=dochub.user"
           }
         )
       ...

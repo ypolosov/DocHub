@@ -135,7 +135,6 @@ const parser = {
 			this.pushToMergeMap(path, result, location);
 		} else if (Array.isArray(source)) {
 			if (Array.isArray(destination)) {
-				debugger;
 				const temp = [];
 				result = [];
 				destination.map((distItem) => {
