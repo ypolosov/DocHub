@@ -8,7 +8,6 @@ import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import controllerEntity from './controllers/entity.mjs';
 import middlewareAccess from './middlewares/access.mjs';
-import validators from './helpers/validators.mjs';
 
 const LOG_TAG = 'server';
 
@@ -45,11 +44,7 @@ const mainLoop = async function() {
     });
 
     storeManager.reloadManifest()
-        .then((storage) =>{
-            app.storage = storage;  // Инициализируем данные хранилища
-            validators(app);        // Выполняет валидаторы
-            Object.freeze(app.storage);
-        });
+        .then((storage) => storeManager.applyManifest(app, storage));
 
 };
 

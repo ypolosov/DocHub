@@ -3,7 +3,7 @@
     <path 
       v-bind:class="classesArrow"
       v-bind:d="arrows" 
-      v-bind:style="{ opacity: track.opacity }"
+      v-bind:style="{ opacity: track.opacity, stroke: trackColor }"
       v-on:mouseover="onTrackOver"
       v-on:mouseleave="onTrackLeave"
       v-on:mousedown.stop.prevent="onTrackClick" />
@@ -11,7 +11,7 @@
       v-bind:id="id" 
       v-bind:class="classesLine"
       v-bind:d="line" 
-      v-bind:style="{ opacity: track.opacity, 'stroke-width':strokeWidth }"
+      v-bind:style="{ opacity: track.opacity, 'stroke-width':strokeWidth, stroke: trackColor }"
       v-bind:stroke-width="strokeWidth"
       v-on:mouseover="onTrackOver"
       v-on:mouseleave="onTrackLeave"
@@ -20,7 +20,7 @@
       v-if="title"
       v-bind:x="title.point.x"
       v-bind:y="title.point.y"
-      v-bind:style="{ opacity: track.opacity }"
+      v-bind:style="{ opacity: track.opacity, stroke: trackColor }"
       v-bind:transform="`rotate(${title.rotate}, ${title.point.x}, ${title.point.y})`"
       text-anchor="middle"
       v-bind:class="classesTitle"
@@ -53,7 +53,16 @@
     },  
     computed: {
       strokeWidth() {
-        return ((this.track.link.contains || []).length || 1) + 1;
+        return ((this.isUnwisp || []).length || 1) + 1;
+      },
+      isUnwisp() {
+        return this.track.link.contains;
+      },
+      trackColor() {
+        return this.isUnwisp ? '' : this.track.link.style
+          .match(/#(([a-fA-F0-9]{6}|[a-fA-F0-9]{3})|[a-z]+)/gi)
+          ?.map(color => /#(([a-fA-F0-9]{6}|[a-fA-F0-9]{3}))/i.test(color) ? color : color.replace('#', ''))
+          .at(-1);
       },
       // Определяем как и где будет выводиться надпись на линке
       title() {
