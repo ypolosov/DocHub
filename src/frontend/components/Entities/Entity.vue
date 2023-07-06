@@ -141,13 +141,28 @@
         this.minHeight = this.$el.clientHeight;
         this.$nextTick(() => this.refresh = false);
       },
+      // Каст входных параметров к типам схемы 
+      typeCasts(schema, entity) {
+        const propTypes = schema.properties;
+        return Object.entries(entity)
+          .map(([key, value]) => {
+            switch(propTypes[key].type) {
+              case 'number': return [key, Number(value)];
+              case 'string': return [key, String(value)];
+              case 'boolean': return [key, value === 'true'];
+              default: return [key, value];
+            }
+          })
+          .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {} );
+      },
       // Проверка схемы презентации на параметры
       isInvalidParamsToPres(schema) {
         if (schema) {
           try {
             const rules = new ajv({ allErrors: true });
             const validator = rules.compile(schema);
-            if (validator(this.entityParams)) return false;
+            const typedParams = this.typeCasts(schema, this.entityParams);
+            if (validator(typedParams)) return false;
             ajv_localize(validator.errors);
             return {
               name: 'Ошибка валидации параметров',
