@@ -1,4 +1,5 @@
 import source from "./source.mjs";
+import typeCasts from "./typeCasts.mjs";
 
 export default {
 	// Метод получения объекта данных по пути в структуре
@@ -26,19 +27,6 @@ export default {
 	request(url, baseURI) {
 		throw 'request driver is not implemented in the dataset module :(';
 	},
-  typeCasts(schema, entity) {
-    const propTypes = schema.properties;
-    return Object.entries(entity)
-      .map(([key, value]) => {
-        switch(propTypes[key].type) {
-          case 'number': return [key, Number(value)];
-          case 'string': return [key, String(value)];
-          case 'boolean': return [key, value === 'true'];
-          default: return [key, value];
-        }
-      })
-      .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {} );
-  },
 	// Парсит поле данных в любом объекте
 	//  context 	- Контекст данных для выполнения запросов
 	//  data 		- данные требующие парсинга (запрос / структура / идентификатор dataset)
@@ -53,8 +41,8 @@ export default {
 					resolve(JSON.parse(JSON.stringify(data)));
 					break;
 				case 'jsonata-query': {
-          if(subject.params && params)
-            params = this.typeCasts(subject.params, params);
+          if(subject?.params && params)
+            params = typeCasts(params, subject.params.properties);
 					const exp = this.jsonataDriver.expression(data, subject, params);
 					exp.onError = reject;
 					exp.evaluate(context)

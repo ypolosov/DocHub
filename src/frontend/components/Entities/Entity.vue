@@ -22,6 +22,7 @@
   import query from '@front/manifest/query';
    
   import { uploadDocument } from './EntityUpload';
+  import typeCasts from '@global/datasets/typeCasts.mjs';
 
   export default {
     name: 'Entity',    
@@ -141,27 +142,13 @@
         this.minHeight = this.$el.clientHeight;
         this.$nextTick(() => this.refresh = false);
       },
-      // Каст входных параметров к типам схемы 
-      typeCasts(schema, entity) {
-        const propTypes = schema.properties;
-        return Object.entries(entity)
-          .map(([key, value]) => {
-            switch(propTypes[key].type) {
-              case 'number': return [key, Number(value)];
-              case 'string': return [key, String(value)];
-              case 'boolean': return [key, value === 'true'];
-              default: return [key, value];
-            }
-          })
-          .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {} );
-      },
       // Проверка схемы презентации на параметры
       isInvalidParamsToPres(schema) {
         if (schema) {
           try {
             const rules = new ajv({ allErrors: true });
             const validator = rules.compile(schema);
-            const typedParams = this.typeCasts(schema, this.entityParams);
+            const typedParams = typeCasts(this.entityParams, schema.properties);
             if (validator(typedParams)) return false;
             ajv_localize(validator.errors);
             return {
