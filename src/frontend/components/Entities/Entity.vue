@@ -22,6 +22,7 @@
   import query from '@front/manifest/query';
    
   import { uploadDocument } from './EntityUpload';
+  import typeCasts from '@global/datasets/typeCasts.mjs';
 
   export default {
     name: 'Entity',    
@@ -147,7 +148,8 @@
           try {
             const rules = new ajv({ allErrors: true });
             const validator = rules.compile(schema);
-            if (validator(this.entityParams)) return false;
+            const typedParams = typeCasts(this.entityParams, schema.properties);
+            if (validator(typedParams)) return false;
             ajv_localize(validator.errors);
             return {
               name: 'Ошибка валидации параметров',

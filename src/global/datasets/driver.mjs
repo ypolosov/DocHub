@@ -1,4 +1,5 @@
 import source from "./source.mjs";
+import typeCasts from "./typeCasts.mjs";
 
 export default {
 	// Метод получения объекта данных по пути в структуре
@@ -40,6 +41,8 @@ export default {
 					resolve(JSON.parse(JSON.stringify(data)));
 					break;
 				case 'jsonata-query': {
+          if(subject?.params && params)
+            params = typeCasts(params, subject.params.properties);
 					const exp = this.jsonataDriver.expression(data, subject, params);
 					exp.onError = reject;
 					exp.evaluate(context)
