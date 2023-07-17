@@ -53,6 +53,7 @@ export default (app) => {
       } else {
         storeManager.reloadManifest()
           .then((storage) => storeManager.applyManifest(app, storage))
+          .then(cache.clearCache)
           .then(() => res.json({ message: 'success' }));
       }
     });

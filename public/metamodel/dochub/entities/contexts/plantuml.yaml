@@ -52,8 +52,10 @@ entities:
                           & "\", \""
                           & "[[/architect/components/" & $domain & " " & $component.title & "]]"
                           & "\", " 
-                          & $domain
-                          & ", )\n";
+                          & $domain                          
+                          & ", \""
+                          & $component.type
+                          & "\" )\n";
         
                       /* Добавляем аспекты */
                       $result := $result & $join($component.aspects.(
