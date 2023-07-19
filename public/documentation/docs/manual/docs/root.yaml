@@ -193,20 +193,26 @@ docs:
     autor: R.Piontik
     type: smartants           
     source: examples/sa-complex.yaml
+  dochub.smartants.examples.group-links:
+    location: DocHub/Руководство/Документы/SmartAnts/04 Cвязи объединенных объектов
+    description: Диаграмма взаимодействий объединенных объектов SmartAnts
+    autor: R.Piontik
+    type: smartants           
+    source: examples/sa-group.yaml
   dochub.smartants.examples.anim:
-    location: DocHub/Руководство/Документы/SmartAnts/04 Анимация
+    location: DocHub/Руководство/Документы/SmartAnts/05 Анимация
     description: Анимированная диаграмма SmartAnts
     autor: R.Piontik
     type: smartants           
     source: examples/sa-anim.yaml
   dochub.smartants.examples.custom-symbol:
-    location: DocHub/Руководство/Документы/SmartAnts/05 Собственные символы
+    location: DocHub/Руководство/Документы/SmartAnts/06 Собственные символы
     description: Кастомные символы SmartAnts
     autor: R.Piontik
     type: smartants           
     source: examples/sa-symbol.yaml
   dochub.smartants.examples.simple-query:
-    location: DocHub/Руководство/Документы/SmartAnts/06 Простой запрос к данным
+    location: DocHub/Руководство/Документы/SmartAnts/07 Простой запрос к данным
     description: Простой запрос к данным в SmartAnts
     autor: R.Piontik
     type: smartants           
@@ -234,7 +240,7 @@ docs:
         }
       )
   dochub.smartants.examples.complex-query:
-    location: DocHub/Руководство/Документы/SmartAnts/07 Сложный запрос к данным
+    location: DocHub/Руководство/Документы/SmartAnts/08 Сложный запрос к данным
     description: Сложный запрос к данным в SmartAnts
     autor: R.Piontik
     type: smartants           
