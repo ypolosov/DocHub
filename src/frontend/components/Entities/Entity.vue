@@ -5,7 +5,7 @@
       v-bind:path="presentationPath"
       v-bind:params="entityParams"
       v-bind:context-menu="toSwitchPres" />
-    <v-alert v-if="isParamsInvalid" type="error" v-bind:value="true" style="white-space: pre-wrap;">
+    <v-alert v-if="isParamsInvalid && profileLoaded" type="error" v-bind:value="true" style="white-space: pre-wrap;">
       Сущность: {{ entity }}<br>
       Представление: {{ presentation }}<br>
       {{ isParamsInvalid.name }}:<br>
@@ -48,6 +48,7 @@
         refresh: false,
         profile: null,
         refresher: null,
+        profileLoaded: false,
         menu: {
           show: false,
           x : 0,
@@ -121,6 +122,7 @@
       // Перезагружает профиль сущности
       reloadProfile() {
         if (this.refresher) clearTimeout(this.refresher);
+        this.profileLoaded = false;
         this.refresher = setTimeout(() =>{
           this.switchedPresentation = null;
           const dateLakeId = this.makeDataLakeID(this.entityPath);
@@ -129,6 +131,7 @@
               // Проверяем, что результат запроса не устарел
               if (dateLakeId === this.makeDataLakeID(this.entityPath)) {
                 this.profile = data;
+                this.profileLoaded = true;
               }
             })
             .catch((e) => this.error = e)
