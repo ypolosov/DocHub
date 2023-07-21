@@ -71,7 +71,7 @@ entities:
                       ));
         
                       /* Если компонент является контекстом добавляем дрилдаун */
-                      /* $context or true ? */ 
+                      $context ? 
                           $result := $result & "$EntityExpand(\""
                           & $entity
                           & "\", "
