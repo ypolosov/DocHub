@@ -66,12 +66,12 @@ entities:
                           & "\",\"[[/architect/aspects/"
                           & $
                           & " " 
-                          & $title 
+                          & $title
                           & "]]\")\n"
                       ));
         
                       /* Если компонент является контекстом добавляем дрилдаун */
-                      $context ? 
+                      /* $context or true ? */ 
                           $result := $result & "$EntityExpand(\""
                           & $entity
                           & "\", "
