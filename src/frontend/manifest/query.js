@@ -152,7 +152,7 @@ export default {
     },
 
     // Сводная JSONSchema по всем кастомным сущностям
-    entitiesJSONChema() {
+    entitiesJSONSchema() {
         return resolveJSONataRequest(queries.IDS.JSONSCEMA_ENTITIES);
     },
 

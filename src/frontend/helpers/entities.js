@@ -9,7 +9,7 @@ let appliedSchemaCRC = null;
 export default function(manifest) {
 	if (env.isPlugin(Plugins.idea)) {
 		//todo Здесь нужно рефачить, чтобы запросы в бэк ходили
-		query.expression(query.entitiesJSONChema()).evaluate(manifest || {})
+		query.expression(query.entitiesJSONSchema()).evaluate(manifest || {})
 			.then((result) => {
 				const schema = JSON.stringify(result);
 				const crc = crc16(schema);
