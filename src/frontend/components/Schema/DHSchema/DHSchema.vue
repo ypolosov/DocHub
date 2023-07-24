@@ -428,11 +428,17 @@
         this.recalcSymbols();
         const trackWidth = this.data.config?.trackWidth || this.trackWidth;
         const distance = this.data.config?.distance || this.distance;
+        const hideTitles = this.data.config?.hideTitles;
+        nodes = nodes || this.data.nodes || {};
+        for(let node in nodes) {
+          if(hideTitles || !nodes[node] || !nodes[node]?.title) 
+            nodes[node] = ({...nodes[node], title: ' ' });
+        }
         let availableWidth = this.$el?.clientWidth || 0;
         if (availableWidth < 600) availableWidth = 600;
         this.isBuilding++;
         Graph.make(
-          nodes || this.data.nodes || {},
+          nodes,
           links || this.data.links || [],
           trackWidth,
           distance,
