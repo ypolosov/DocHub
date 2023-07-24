@@ -1,4 +1,32 @@
 imports:
 #  - http://localhost:8080/metamodel/root.yaml
-#  - https://dochub.info/documentation/root.yaml
-  - root.yaml
+  - https://dochub.info/documentation/root.yaml
+#  - http://localhost:8080/documentation/root.yaml
+#  - root.yaml
+
+entities:
+  examples:
+    title: Пример сущности
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            title: Название примера
+            type: string
+          component:
+            title: Пример какого компонента
+            type: components.component
+
+        required:
+          - title
+          - component
+components:
+  test:
+    title: test
+    entity: component
+
+examples:
+  - component: test
+    title: jwhhjgehj
