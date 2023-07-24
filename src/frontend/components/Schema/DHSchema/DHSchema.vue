@@ -31,6 +31,7 @@
       v-for="track in presentation.tracks"
       v-bind:key="track.id"
       v-bind:track="track" 
+      v-bind:line-width-limit="lineWidthLimit"
       v-on:track-over="onTrackOver(track)"
       v-on:track-click="onTrackClick(track)"
       v-on:track-leave="onTrackLeave(track)" />
@@ -217,6 +218,9 @@
       // Проверяем что в Firefox
       isFirefox() {
         return navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+      },
+      lineWidthLimit() {
+        return +this.data.config?.lineWidthLimit;
       },
       // Возвращает определения (defs) примитивов диаграммы
       symbols() {
