@@ -1,6 +1,6 @@
 <template>
   <box>
-    <v-card flat class="container">
+    <v-card flat class="container" style="padding: 0; margin: 12px">
       <v-system-bar
         v-if="!isPrintVersion"
         class="toolbar"
@@ -57,6 +57,12 @@
           </v-btn>
         </template>
       </v-system-bar>      
+      <h4
+        v-if="source.dataset.header?.title"
+        style="position: absolute; top: 0px; line-height: 1; width: 100%;"
+        v-bind:style="source.dataset.header?.style">
+        {{ source.dataset.header.title }}
+      </h4>
       <schema 
         ref="schema"
         v-model="status"
