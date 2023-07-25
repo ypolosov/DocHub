@@ -101,7 +101,7 @@
 
   import editor from './JSONataEditor.vue';
   import result from './JSONResult.vue';
-  import {Base64ToUTF8} from '@front/helpers/strings';
+  import {Base64URLToUTF8} from '@front/helpers/strings';
 
   const COOKIE_NAME_QUERY = 'json-dev-tool-query';
   const COOKIE_NAME_AUTOEXEC = 'json-dev-tool-autoexec';
@@ -209,19 +209,15 @@
         const jSource = src.substring(srcSplitPos + 1);
 
         if (jType === 'file' || jType === 'selection' || jType === 'element') {
-          this.query = Base64ToUTF8(jSource);
+          this.query = Base64URLToUTF8(jSource);
           this.origin = null;
           this.$refs.editor.model.setValue(this.query);
         } else if (jType === 'source') {
+          this.query = `$eval(${jSource}.source)`;
           query.expression(jSource).evaluate().then((data) => {
-            if (data?.source) {
-              this.query = `$eval(${jSource}.source)`;
-              this.origin = data.origin;
-            } else {
-              this.query = cookie.get(COOKIE_NAME_QUERY) || '"Здесь введите JSONata запрос."';
-            }
-            this.$refs.editor.model.setValue(this.query);
+            this.origin = data.origin;
           });
+          this.$refs.editor.model.setValue(this.query);
         }
       },
       logOnClick(item) {
