@@ -111,6 +111,12 @@ docs:
     autor: R.Piontik
     type: smartants           # Тип документа
     source:                   # Задаем константные данные для генерации диаграммы
+      header:                 # Заголовок диаграммы
+        title: Авторизация    # Текст заголовка
+        style:                # Стили заголовка
+          color: "#fbaaaa"
+          font-size: 22px
+          font-weight: 800
       config:                 # Конфигурируем расположение элементов на диаграмме 
         distance: 120         # Дистанция между элементами
         trackWidth: 24        # Ширина дорожек (треков)
@@ -133,17 +139,10 @@ docs:
           style: "->"
           link: "/docs/dochub.swagger"
   dochub.smartants.examples.colors:
-    location: DocHub/Руководство/Документы/SmartAnts/[test] Кастомизация
     description: Пример раскрашивания линий
     autor: R.Piontik
     type: smartants           
     source:                   
-      header:
-        title: Title
-        style: 
-          color: "#fbaaaa"
-          font-size: 22px
-          font-weight: 800
       config:                 
         distance: 120         
         trackWidth: 24        
