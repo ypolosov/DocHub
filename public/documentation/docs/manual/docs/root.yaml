@@ -133,10 +133,17 @@ docs:
           style: "->"
           link: "/docs/dochub.swagger"
   dochub.smartants.examples.colors:
+    location: DocHub/Руководство/Документы/SmartAnts/[test] Кастомизация
     description: Пример раскрашивания линий
     autor: R.Piontik
     type: smartants           
     source:                   
+      header:
+        title: Title
+        style: 
+          color: "#fbaaaa"
+          font-size: 22px
+          font-weight: 800
       config:                 
         distance: 120         
         trackWidth: 24        

@@ -56,13 +56,7 @@
             <v-icon>mdi-skip-next</v-icon>
           </v-btn>
         </template>
-      </v-system-bar>      
-      <h4
-        v-if="source.dataset.header?.title"
-        style="position: absolute; top: 0px; line-height: 1; width: 100%;"
-        v-bind:style="source.dataset.header?.style">
-        {{ source.dataset.header.title }}
-      </h4>
+      </v-system-bar>       
       <schema 
         ref="schema"
         v-model="status"
@@ -364,8 +358,6 @@
 <style scoped>
 .schema {
   /* border: solid 2px #ff0000; */
-  margin-top: 14px;
-
   aspect-ratio : 1 / 0.6;
   width: 100%;
   min-width: 100%;
