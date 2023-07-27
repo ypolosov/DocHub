@@ -220,7 +220,7 @@
         return navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
       },
       lineWidthLimit() {
-        return +this.data.config?.lineWidthLimit;
+        return +this.data.config?.lineWidthLimit || 20;
       },
       // Возвращает определения (defs) примитивов диаграммы
       symbols() {
