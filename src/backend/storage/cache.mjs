@@ -23,7 +23,7 @@ function loadBaseMatamodel() {
 }
 
 // Кэш в памяти
-const memoryCache = {};
+let memoryCache = {};
 
 const errorType = {
     system: 'Внутрисистемная ошибка',
@@ -39,6 +39,22 @@ export default Object.assign(prototype, {
     // Очищает регистр ошибок
     errorClear() {
         this.errors = {};
+    },
+    clearCache() {
+      const cacheMode = process.env.VUE_APP_DOCHUB_DATALAKE_CACHE || 'none';
+      switch (cacheMode.toLocaleLowerCase()) {
+        case 'none': return; 
+        case 'memory': memoryCache = {}; break;
+        default: {
+          const cacheDir = path.resolve(__dirname, '../../../', cacheMode);
+          fs.readdir(cacheDir, (err, files) => {
+            if (err) throw err;
+            for (const file of files) {
+              fs.unlink(`${cacheDir}/${file}`, err => logger.error(err, LOG_TAG));
+            }
+          });
+        }
+      }
     },
     // Регистрирует ошибку
     // type         - Секция ошибки (system/syntax/net)

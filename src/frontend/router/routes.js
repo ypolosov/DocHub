@@ -116,6 +116,12 @@ const routes = [
     props: middleware
   },
   {
+    name: 'devtool_source',
+    path: '/devtool/:jsonataSource(.*)',
+    component: DevTool,
+    props: middleware
+  },
+  {
     name: 'devtool',
     path: '/devtool',
     component: DevTool,

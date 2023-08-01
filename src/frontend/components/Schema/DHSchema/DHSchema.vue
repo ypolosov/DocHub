@@ -22,6 +22,14 @@
         <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
       </defs>
     </template>
+    <text 
+      v-if="data.header"
+      id="title"
+      v-bind:x="landscape.viewBox.titleX"
+      v-bind:y="landscape.viewBox.top"
+      alignment-baseline="hanging"
+      v-bind:style="titleStyle">{{ data.header.title }}
+    </text>
     <schema-node 
       v-bind:offset-x="0"
       v-bind:offset-y="0"
@@ -222,6 +230,13 @@
       lineWidthLimit() {
         return +this.data.config?.lineWidthLimit || 20;
       },
+      titleStyle() {
+        return ({ 
+          'fill': this.data?.header.style['color'], 
+          'font-weight': this.data?.header.style['font-weight'],
+          'font-size': this.data?.header.style['font-size']
+        });
+      },
       // Возвращает определения (defs) примитивов диаграммы
       symbols() {
         const result = [
@@ -406,24 +421,28 @@
         const width = this.presentation.valueBox.dx - this.presentation.valueBox.x;
         let height = Math.max(this.presentation.valueBox.dy - this.presentation.valueBox.y, 100);
         const clientWidth = this.$el?.clientWidth || 0;
-        this.landscape.viewBox.top = this.presentation.valueBox.y - 24;
+        const titleWidth = this.$el?.querySelector('#title')?.clientWidth;
+
+        this.landscape.viewBox.titleX = this.presentation.valueBox.x + (this.presentation.valueBox.dx - this.presentation.valueBox.x)/2 - titleWidth/2;
+
+        this.landscape.viewBox.top = this.presentation.valueBox.y - 48;
 
         if (this.animation.information) {
           this.landscape.viewBox.top -= 64;
           height += 64;
         }
 
-        this.landscape.viewBox.height = height + 48;
+        this.landscape.viewBox.height = height + 60;
 
         if (width < clientWidth) {
           const delta = (clientWidth - width) * 0.5;
           this.landscape.viewBox.left = - delta + this.presentation.valueBox.x;
           this.landscape.viewBox.width = width + delta * 2;
-          this.$el.style.height = `${height + 48}px`;
+          this.$el.style.height = `${height + 60}px`;
         } else {
           this.landscape.viewBox.left = this.presentation.valueBox.x - 24;
           this.landscape.viewBox.width = width + 48;
-          this.$el.style.height = `${height * (clientWidth / width) + 48}px`;
+          this.$el.style.height = `${height * (clientWidth / width) + 60}px`;
         }
       },
       // Перестроение презентации

@@ -1,6 +1,6 @@
 <template>
   <box>
-    <v-card flat class="container">
+    <v-card flat class="container" style="padding: 0; margin: 12px">
       <v-system-bar
         v-if="!isPrintVersion"
         class="toolbar"
@@ -56,7 +56,7 @@
             <v-icon>mdi-skip-next</v-icon>
           </v-btn>
         </template>
-      </v-system-bar>      
+      </v-system-bar>       
       <schema 
         ref="schema"
         v-model="status"
@@ -358,8 +358,6 @@
 <style scoped>
 .schema {
   /* border: solid 2px #ff0000; */
-  margin-top: 14px;
-
   aspect-ratio : 1 / 0.6;
   width: 100%;
   min-width: 100%;
