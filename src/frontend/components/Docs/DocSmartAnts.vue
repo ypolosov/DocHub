@@ -1,6 +1,6 @@
 <template>
   <box>
-    <v-card flat class="container" style="padding: 0; margin: 12px">
+    <v-card flat class="container" style="padding: 0; margin-top: 12px">
       <v-system-bar
         v-if="!isPrintVersion"
         class="toolbar"
