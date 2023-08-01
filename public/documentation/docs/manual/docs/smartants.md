@@ -404,7 +404,7 @@ nodes:
         "config": {
             "distance": 130,
             "trackWidth": 24,
-            "lineWidthLimit": 1     # Лимит толщиный жгута
+            "lineWidthLimit": 2     # Лимит толщиный жгута
         },
         "symbols": $symbols,
         "nodes": $nodes,
