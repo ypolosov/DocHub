@@ -1,32 +1,47 @@
 imports:
 #  - http://localhost:8080/metamodel/root.yaml
-  - https://dochub.info/documentation/root.yaml
-#  - http://localhost:8080/documentation/root.yaml
+#  - https://dochub.info/documentation/root.yaml
+  - http://localhost:8080/documentation/root.yaml
 #  - root.yaml
 
 entities:
+  nodes:
+    title: Пример сущности декларирующей свои объекты
+    schema:
+      type: object
+      patternProperties:
+        "^[0-9a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            title:
+              title: Название объекта
+              type: string
+    objects: # Декларируемые объекты
+      node:
+        route: "/"  # Размещение массива объектов от корня "entities"
+        title: Нода
+
   examples:
-    title: Пример сущности
+    title: Пример ссылок на объекты сущности node
     schema:
       type: array
       items:
         type: object
         properties:
-          title:
-            title: Название примера
-            type: string
-          component:
-            title: Пример какого компонента
-            type: components.component
-
+          node:
+            title: Здесь указывается ID ноды
+            $ref: "#/$rels/components.component"  # Ссылка на объект сущности nodes
         required:
           - title
           - component
-components:
+
+nodes:
   test:
-    title: test
-    entity: component
+    title: sdjsjhgd
+  test2:
+    title: ksjkjhdkhjsdkjhsd
 
 examples:
-  - component: test
-    title: jwhhjgehj
+  - title: ssdsd
+    node: dochub.front.spa.blank.radar
+
