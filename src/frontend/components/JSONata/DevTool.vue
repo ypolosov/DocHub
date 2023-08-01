@@ -204,6 +204,8 @@
       },
       loadJsonataQuery(param_id) {
         const src = param_id || this.jsonataSource;
+        if (!src) return;
+        
         const srcSplitPos = src.search(':');
         const jType = src.substring(0, srcSplitPos);
         const jSource = src.substring(srcSplitPos + 1);
