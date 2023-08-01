@@ -64,7 +64,8 @@
     {
         "config": {
             "distance": 300,
-            "trackWidth": 24
+            "trackWidth": 24,
+            "lineWidthLimit": 1
         },
         "symbols": $symbols,
         "nodes": $nodes,
