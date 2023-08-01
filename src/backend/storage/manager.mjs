@@ -3,6 +3,7 @@ import manifestParser from '../../global/manifest/parser.mjs';
 import cache from './cache.mjs';
 import md5 from 'md5';
 import events from '../helpers/events.mjs';
+import validators from '../helpers/validators.mjs';
 
 const LOG_TAG = 'storage-manager';
 
@@ -54,6 +55,11 @@ export default {
 			});
 		}
 		return result;
-	}
+	},
+  applyManifest: async function(app, storage) {
+    app.storage = storage;  // Инициализируем данные хранилища
+    validators(app);        // Выполняет валидаторы
+    Object.freeze(app.storage);
+  }
 };
 
