@@ -68,6 +68,12 @@ function log(content, tag) {
 	console.info(`${tag}: ${JSON.stringify(content, null, 2)}`);
 }
 
+function test(param) {
+	return new Promise((sucess) => {
+		setTimeout(() => sucess(`${param}!!!`) , 5000);
+	});
+}
+
 export default {
 	// Создает объект запроса JSONata
 	//  expression - JSONata выражение
@@ -95,6 +101,7 @@ export default {
 						this.core.registerFunction('mergedeep', mergeDeep);
 						this.core.registerFunction('jsonschema', jsonSchema);
 						this.core.registerFunction('sourcetype', sourceType);
+						this.core.registerFunction('test', test);
 						if (!funcs?.log) {
 							this.core.registerFunction('log', log);
 						}

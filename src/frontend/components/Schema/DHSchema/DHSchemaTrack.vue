@@ -45,6 +45,10 @@
       track: {
         type: Object,
         required: true
+      },
+      lineWidthLimit: {
+        type: Number,
+        default: 20
       }
     },
     data() {
@@ -53,7 +57,9 @@
     },  
     computed: {
       strokeWidth() {
-        return ((this.isUnwisp || []).length || 1) + 1;
+        let width = ((this.isUnwisp || []).length || 1);
+        width = width < this.lineWidthLimit ? width : this.lineWidthLimit;
+        return width + 1;
       },
       isUnwisp() {
         return this.track.link.contains;

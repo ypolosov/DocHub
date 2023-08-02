@@ -81,4 +81,8 @@ gateway.appendListener('navigate/context', (data) => {
 	router.push({ path: `/architect/contexts/${Object.keys(data)[0]}`});
 });
 
+gateway.appendListener('navigate/devtool', (data) => {
+	router.push({ path: `/devtool/${Object.keys(data)[0]}`});
+});
+
 export default router;

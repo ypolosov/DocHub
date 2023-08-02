@@ -16,6 +16,12 @@
     autor: R.Piontik
     type: smartants           # Тип документа
     source:                   # Задаем константные данные для генерации диаграммы
+      header:                 # Заголовок диаграммы
+        title: вторизация    # Текст заголовка
+        style:                # Стили заголовка
+          color: "#fbaaaa"
+          font-size: 22px
+          font-weight: 800
       config:                 # Конфигурируем расположение элементов на диаграмме 
         distance: 120         # Дистанция между элементами
         trackWidth: 24        # Ширина дорожек (треков)
@@ -397,7 +403,8 @@ nodes:
     {
         "config": {
             "distance": 130,
-            "trackWidth": 24
+            "trackWidth": 24,
+            "lineWidthLimit": 2     # Лимит толщиный жгута
         },
         "symbols": $symbols,
         "nodes": $nodes,

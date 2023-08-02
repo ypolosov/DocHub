@@ -332,7 +332,7 @@ const queries = {
         [$distinct([contexts.$spread().(
             $CONTEXT := $;
             $ID := $keys()[0];
-            *.components[$wcard('{%COMPONENT%}', $)].{
+            *.components[$wcard('{%COMPONENT_ID%}', $)].{
                 "id": $ID,
                 "title": $CONTEXT.*.title
             }

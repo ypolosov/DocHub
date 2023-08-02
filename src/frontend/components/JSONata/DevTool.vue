@@ -30,7 +30,7 @@
                   v-on:click:close="clearOrigin()">
                   {{ data.item.id }}
                 </v-chip>
-              </template>              
+              </template>
               <template #item="data">
                 <v-list-item-content>
                   <v-list-item-title>
@@ -55,9 +55,10 @@
                   <v-list-item-title>Автовыполнение</v-list-item-title>
                 </v-list-item>
               </v-list>
-            </v-menu>            
-          </v-toolbar>          
+            </v-menu>
+          </v-toolbar>
           <editor
+            ref="editor"
             v-model="query"
             class="input" />
         </div>
@@ -77,7 +78,7 @@
                 <tr v-bind:class="item.id === selectedLog ?'selected-log':''" v-on:click="logOnClick(item)">
                   <td>{{ item.moment }}</td>
                   <td>{{ item.tag }}</td>
-                </tr>              
+                </tr>
               </template>
             </v-data-table>
           </div>
@@ -97,9 +98,10 @@
 
   import query from '@front/manifest/query';
   import datasets from '@front/helpers/datasets';
-  
+
   import editor from './JSONataEditor.vue';
   import result from './JSONResult.vue';
+  import {Base64URLToUTF8} from '@front/helpers/strings';
 
   const COOKIE_NAME_QUERY = 'json-dev-tool-query';
   const COOKIE_NAME_AUTOEXEC = 'json-dev-tool-autoexec';
@@ -109,6 +111,12 @@
     components: {
       editor,
       result
+    },
+    props: {
+      jsonataSource: {
+        type: String,
+        default: null
+      }
     },
     data() {
       return {
@@ -168,11 +176,16 @@
       },
       manifest() {
         this.refreshOrigins(); // Обновляем список источников данных, если архитектурный манифест изменился
+        this.loadJsonataQuery(); // Переподтягиваем при необходимости jsonata запрос из источника
+      },
+      jsonataSource(value) {
+        this.loadJsonataQuery(value);
       }
     },
     mounted() {
       this.doAutoExecute();
       this.refreshOrigins();
+      this.loadJsonataQuery();
     },
     methods: {
       clearOrigin() {
@@ -189,6 +202,26 @@
       doAutoExecute() {
         if (!this.isLoading && this.autoExec) this.onExecute();
       },
+      loadJsonataQuery(param_id) {
+        const src = param_id || this.jsonataSource;
+        if (!src) return;
+        
+        const srcSplitPos = src.search(':');
+        const jType = src.substring(0, srcSplitPos);
+        const jSource = src.substring(srcSplitPos + 1);
+
+        if (jType === 'file' || jType === 'selection' || jType === 'element') {
+          this.query = Base64URLToUTF8(jSource);
+          this.origin = null;
+          this.$refs.editor.model.setValue(this.query);
+        } else if (jType === 'source') {
+          this.query = `$eval(${jSource}.source)`;
+          query.expression(jSource).evaluate().then((data) => {
+            this.origin = data.origin;
+          });
+          this.$refs.editor.model.setValue(this.query);
+        }
+      },
       logOnClick(item) {
         this.selectedLog = item.id;
       },
@@ -196,7 +229,7 @@
         this.logItems.push({
           id: this.logItems.length,
           moment: (((new Date()).getTime() - this.jsonata.trace?.start || 0) * 0.001).toFixed(5),
-          value: value ? JSON.parse(JSON.stringify(value)) : value, 
+          value: value ? JSON.parse(JSON.stringify(value)) : value,
           tag
         });
         return value;
