@@ -82,12 +82,12 @@ entities: # Сущности расширенной матемодели
                     type: string
                 required:
                   - id
-              source: >       # Источник данных для рендера шаблона. Возвращает объект "interactions" по идентификатору переданному в параметрах.
+              source: >                   # Источник данных для рендера шаблона. Возвращает объект "interactions" по идентификатору переданному в параметрах.
                   (
                       $lookup(interactions, $params.id)
                   )
-            export:              # Экспорт взаимодействия в BPMN диаграмму
-              type: upload     # Специальный тип документа, который выгружает результат генерации документа
+            export:                       # Экспорт взаимодействия в BPMN диаграмму
+              type: upload                # Специальный тип документа, который выгружает результат генерации документа
               mimetype: "application/xml" # Тип выгружаемого контента. По умолчанию text/plain. Подробнее https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
               title: Экспорт в BPMN
               template: templates/bpmn.xml
@@ -197,6 +197,9 @@ entities: # Сущности расширенной матемодели
                                         title: Что
                                         type: string
                                         minLength: 1
+                                    sub-interactions: # Ссылку на вложенное взаимодействие
+                                      title: Вложенное взаимодействие
+                                      $ref: "#/$rels/interactions.interaction"
                                 required:
                                     - from
                                     - to
@@ -242,7 +245,7 @@ interactions:
   dochub:
     title: DocHub 
   dochub.user:
-    title: Взаимодействия с пользователем
+    title: Пользовательский путь
     triggers:
       - Просмотр архитектуры
     steps:
@@ -255,7 +258,7 @@ interactions:
     results:
       - Информация о существующей архитектуре
   dochub.user.check:
-    title: Прверка отклонений выявленных валидаторами
+    title: Проверка отклонений выявленных валидаторами
     triggers:
       - Просмотр архитектуры
     steps:
@@ -285,4 +288,48 @@ interactions:
         to: User
         value: Представление
     results:
-      - Актуальная информация из документов    
+      - Актуальная информация из документов
+
+  # Пример ссылок на объекты сущности
+  dochub.customer:
+    title: Клиентский путь
+  dochub.customer.promotion:
+    title: Продвижение
+  dochub.customer.promotion.article:
+    title: Статья на Хабре
+    triggers:
+      - Выдача в поиске
+    results:
+      - Переход в репозиторий
+    steps:
+      - from: Хабр
+        to: Клиент
+        value: Анализ новых статей
+      - from: Клиент
+        to: Хабр
+        value: Чтение статьи о DocHub
+      - from: Клиент
+        to: Репозиторий
+        value: Переход в репозиторий
+
+  dochub.customer.deployment:
+    title: Разворачивание DocHub
+    triggers:
+      - Первое знакомство с DocHub
+    results:
+      - Потенциальный клиент (лид)
+    steps:
+      - from: Клиент
+        to: Статьи
+        value: Получение информации о DocHub
+        sub-interactions: dochub.customer.promotion.article # Здесь ссылка на взаимодействие пользователя со статьями
+      - from: Клиент
+        to: Репозиторий
+        value: Изучение инструкции
+      - from: Клиент
+        to: Репозиторий
+        value: Развертывание
+      - from: Клиент
+        to: DocHub
+        value: Первый опыт
+    

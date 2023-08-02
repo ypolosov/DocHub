@@ -1,7 +1,7 @@
 imports:
 #  - http://localhost:8080/metamodel/root.yaml
-#  - http://localhost:8080/documentation/root.yaml
-  - https://dochub.info/documentation/root.yaml
+  - http://localhost:8080/documentation/root.yaml
+#  - https://dochub.info/documentation/root.yaml
 #  - root.yaml
 
 entities:
@@ -32,8 +32,7 @@ entities:
             title: Здесь указывается ID ноды
             $ref: "#/$rels/components.component"  # Ссылка на объект сущности nodes
         required:
-          - title
-          - component
+          - node
 
 nodes:
   test:
@@ -41,7 +40,48 @@ nodes:
   test2:
     title: ksjkjhdkhjsdkjhsd
 
-examples:
-  - title: ssdsd
-    node: dochub.front.spa.blank.radar
+interactions:
+  dochub.customer:
+    title: Пользователь
+  dochub.customer.promotion:
+    title: Продвижение
+  customer.promotion.article:
+    title: Статья на Хабре
+    triggers:
+      - Выдача в поиске
+    results:
+      - Переход в репозиторий
+    steps:
+      - from: Хабр
+        to: Клиент
+        value: Анализ новых статей
+      - from: Клиент
+        to: Хабр
+        value: Чтение статьи о DocHub
+      - from: Клиент
+        to: Репозиторий
+        value: Переход в репозиторий
 
+  customer.deployment:
+    title: Разворачивание DocHub
+    triggers:
+      - Первое знакомство с DocHub
+    results:
+      - Потенциальный клиент (лид)
+    steps:
+      - from: Клиент
+        to: Статьи
+        value: Получение информации о DocHub
+        sub-interactions: customer.promotion.article # Здесь ссылка на взаимодействие пользователя со статьями
+      - from: Клиент
+        to: Репозиторий
+        value: Изучение инструкции
+      - from: Клиент
+        to: Репозиторий
+        value: Развертывание
+      - from: Клиент
+        to: DocHub
+        value: Первый опыт
+
+examples:
+  - node: dochub.front.spa.blank.radar
