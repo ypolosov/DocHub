@@ -542,7 +542,7 @@ entities:
 Формат подключения схемы:
 
 ```
-  #/$rels/<Идентификатор сущности>/<Тип поставляемого объекта>
+  #/$rels/<Идентификатор сущности>.<Тип поставляемого объекта>
 ```
 
 Допустим, необходимо, чтобы поля "from" и "to" заполнялись идентификаторами компонентов.
@@ -553,10 +553,10 @@ entities:
   properties:
     from: 
       title: От кого
-      $ref: "#/$rels/components/component"
+      $ref: "#/$rels/components.component"
     to:     
       title: Кому
-      $ref: "#/$rels/components/component"
+      $ref: "#/$rels/components.component"
 ...
 ```
 
@@ -632,7 +632,7 @@ IDE будет подсвечивать неверные.
           minLength: 1
         sub-interactions: # Добавляем поле, в котором можно указать ссылку на вложенное взаимодействие
           title: Вложенное взаимодействие
-          $ref: "#/$rels/interactions/interaction"
+          $ref: "#/$rels/interactions.interaction"
     required:
       - from
       - to
