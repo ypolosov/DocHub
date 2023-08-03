@@ -1,7 +1,7 @@
 imports:
 #  - http://localhost:8080/metamodel/root.yaml
-  - http://localhost:8080/documentation/root.yaml
-#  - https://dochub.info/documentation/root.yaml
+#  - http://localhost:8080/documentation/root.yaml
+  - https://dochub.info/documentation/root.yaml
 #  - root.yaml
 
 entities:
@@ -9,16 +9,21 @@ entities:
     title: Пример сущности декларирующей свои объекты
     schema:
       type: object
-      patternProperties:
-        "^[0-9a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
+      properties:
+        section1:
           type: object
-          properties:
-            title:
-              title: Название объекта
-              type: string
+          patternProperties:
+            "^[0-9a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
+              type: object
+              properties:
+                title:
+                  title: Название объекта
+                  type: string
+        section2:
+          type: string
     objects: # Декларируемые объекты
       node:
-        route: "/"  # Размещение массива объектов от корня "entities"
+        route: "/section1/"  # Размещение массива объектов от корня "entities"
         title: Нода
 
   examples:
@@ -30,15 +35,17 @@ entities:
         properties:
           node:
             title: Здесь указывается ID ноды
-            $ref: "#/$rels/components.component"  # Ссылка на объект сущности nodes
+            $ref: "#/$rels/nodes.node"  # Ссылка на объект сущности nodes
         required:
           - node
 
 nodes:
-  test:
-    title: sdjsjhgd
-  test2:
-    title: ksjkjhdkhjsdkjhsd
+  section2: jkhlkkljsdfhf
+  section3: jkhlkkljsdfhf
+  section4: jkhlkkljsdfhf
+  section1:
+    test:
+      title: Test node 1
 
 interactions:
   dochub.customer:
@@ -72,16 +79,16 @@ interactions:
       - from: Клиент
         to: Статьи
         value: Получение информации о DocHub
-        sub-interactions: customer.promotion.article # Здесь ссылка на взаимодействие пользователя со статьями
+        sub-interactions: dochub.user.research # Здесь ссылка на взаимодействие пользователя со статьями
       - from: Клиент
         to: Репозиторий
         value: Изучение инструкции
+        sub-interactions: dochub.user.check
       - from: Клиент
         to: Репозиторий
         value: Развертывание
+        sub-interactions: dochub.customer.promotion.article
       - from: Клиент
         to: DocHub
         value: Первый опыт
 
-examples:
-  - node: dochub.front.spa.blank.radar
