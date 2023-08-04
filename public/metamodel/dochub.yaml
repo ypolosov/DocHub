@@ -23,7 +23,7 @@ entities:
           type: string
     objects: # Декларируемые объекты
       node:
-        route: "/section1/"  # Размещение массива объектов от корня "entities"
+        route: "/section1"  # Размещение массива объектов от корня "entities"
         title: Нода
 
   examples:
@@ -40,18 +40,28 @@ entities:
           - node
 
 nodes:
-  section2: jkhlkkljsdfhf
-  section3: jkhlkkljsdfhf
-  section4: jkhlkkljsdfhf
   section1:
     test:
-      title: Test node 1
+      title: klklkd
+
+examples:
+  - node: 
 
 interactions:
   dochub.customer:
     title: Пользователь
   dochub.customer.promotion:
     title: Продвижение
+  customer.promotion.article2:
+    title: ssdsd
+    triggers:
+      - sdsdsd
+    results:
+      - sddss
+    steps:
+      - to: ssd
+        from: sdssd
+        value: ssd
   customer.promotion.article:
     title: Статья на Хабре
     triggers:
@@ -83,7 +93,7 @@ interactions:
       - from: Клиент
         to: Репозиторий
         value: Изучение инструкции
-        sub-interactions: dochub.user.check
+        sub-interactions: dochub.customer.promotion
       - from: Клиент
         to: Репозиторий
         value: Развертывание
@@ -91,4 +101,5 @@ interactions:
       - from: Клиент
         to: DocHub
         value: Первый опыт
+        sub-interactions: customer.promotion.article2
 
