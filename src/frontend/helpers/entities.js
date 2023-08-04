@@ -17,7 +17,8 @@ function makeSubjectsRelationsSchema(manifest) {
 			const route = (objects[subjectId].route || '/').split('/');
 			let location = manifest[entityId] || {};
 			for (let i = 1; i < route.length; i++) {
-				location?.length && (location = location[route[i]] || {});
+				const pice = route[i];
+				pice?.length && (location = location[route[i]] || {});
 			}
 			rels[`${entityId}.${subjectId}`] = {
 				type: 'string',
