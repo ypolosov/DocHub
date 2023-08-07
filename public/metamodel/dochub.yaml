@@ -4,7 +4,20 @@ imports:
   - https://dochub.info/documentation/root.yaml
 #  - root.yaml
 
+
 entities:
+  test:
+    title: Пробная сущность
+    description: Описание сущности
+    menu: >  
+      ( ddd  
+          ssdds 
+      )
+    schema:
+      type: array
+
+
+entities2:
   nodes:
     title: Пример сущности декларирующей свои объекты
     schema:
@@ -45,7 +58,7 @@ nodes:
       title: klklkd
 
 examples:
-  - node: 
+  - node:
 
 interactions:
   dochub.customer:

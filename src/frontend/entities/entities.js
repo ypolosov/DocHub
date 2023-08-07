@@ -2,8 +2,15 @@
 import query from '@front/manifest/query';
 import crc16 from '@global/helpers/crc16';
 import env, {Plugins} from '@front/helpers/env';
+import yaml from 'yaml';
+import masterSchema from '!!raw-loader!@assets/master-schema.yaml';
 
 let appliedSchemaCRC = null;
+
+// Подключает мастер-схему для подсказок и валидации метамодели
+function getMasterSchema() {
+    return yaml.parse(masterSchema);
+}
 
 // Генерируем схемы 
 function makeSubjectsRelationsSchema(manifest) {
@@ -36,17 +43,27 @@ export default function(manifest) {
 		//todo Здесь нужно рефачить, чтобы запросы в бэк ходили
 		query.expression(query.entitiesJSONSchema()).evaluate(manifest || {})
 			.then((result) => {
+				const master = getMasterSchema();
 				// Превращаем схему в строку для передачи в плагин
-				const schema = JSON.stringify({
+				const schema = {
 					...result,
+					properties: {
+						...master.$entities,
+						...result.properties
+					},
+					$defs: {
+						...master.$defs,
+						...result.$defs
+					},
 					// Добавляем схемы связей с субъектами сущностей
 					$rels: makeSubjectsRelationsSchema(manifest || {})
-				});
+				};
+				const schemaString = JSON.stringify(schema);
 				// Считаем контрольную сумму
-				const crc = crc16(schema);
+				const crc = crc16(schemaString);
 				// Отправляем в плагин только если схема изменилась
 				if (crc != appliedSchemaCRC) {
-					window.$PAPI.applyEntitiesSchema(schema);
+					window.$PAPI.applyEntitiesSchema(schemaString);
 					appliedSchemaCRC = crc;
 				}
 			// eslint-disable-next-line no-console
