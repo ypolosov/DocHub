@@ -206,7 +206,7 @@
         this.cacheViewBox = null;
       },
       proxyScrollEvent(event) {
-        if (!event.shiftKey) return;
+        if (!event.ctrlKey) return;
         let e = window.event || event;
         switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
           case 1:
