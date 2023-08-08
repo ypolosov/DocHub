@@ -66,7 +66,8 @@
         v-on:playstart="onPlayStart"
         v-on:selected-nodes="onSelectedNodes"
         v-on:on-click-link="onClickLink"
-        v-on:contextmenu="showMenu" />
+        v-on:contextmenu="showMenu" 
+        v-on:wheel="proxyScrollEvent" /> 
       <v-menu
         v-model="menu.show"
         v-bind:position-x="menu.x"
@@ -124,6 +125,11 @@
             return result;
           }).call()
         },
+        cacheViewBox: null,
+        zoom: {
+          value: 1,   // Текущий зум
+          step: 0.1  // Шаг зума
+        },
         status: {},             // Текущий статус схемы
         selectedScenario: null, // Выбранный сценарий
         isPaying: false,        // Признак проигрывания
@@ -133,6 +139,23 @@
       };
     },
     computed: {
+      viewBox() {
+        if (!this.svgEl) {
+          return {
+            x: 0,
+            y : 0,
+            width : 0,
+            height : 0
+          };
+        } else
+          return this.cacheViewBox ?
+            this.cacheViewBox
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+            : this.cacheViewBox = this.svgEl.viewBox.baseVal;
+      },
+      svgEl() {
+        return this.$refs.schema.$el;
+      },
       // Пункты контекстного меню
       menuItems() {
         const result = [].concat(this.contextMenu);
@@ -190,6 +213,30 @@
       }
     },
     methods: {
+      doZoom(value, x, y) {
+        const kX = x / (this.svgEl.clientWidth || x);
+        const kY = y / (this.svgEl.clientHeight || y);
+        let resizeWidth = value * this.viewBox.width;
+        let resizeHeight = value * this.viewBox.height;
+        this.viewBox.x -= resizeWidth * kX;
+        this.viewBox.width += resizeWidth;
+        this.viewBox.y -= resizeHeight * kY;
+        this.viewBox.height += resizeHeight;
+        this.cacheViewBox = null;
+      },
+      proxyScrollEvent(event) {
+        if (!event.ctrlKey) return;
+        let e = window.event || event;
+        switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
+          case 1:
+            this.doZoom(this.zoom.step, event.offsetX, event.offsetY);
+            break;
+          case -1:
+            this.doZoom(-this.zoom.step, event.offsetX, event.offsetY);
+            break;
+        }
+        event.stopPropagation();
+      },
       // Возвращает SVG код диаграммы
       getSvg() {
         const addStyle = function(children) {
