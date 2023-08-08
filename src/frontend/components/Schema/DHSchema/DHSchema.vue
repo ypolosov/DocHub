@@ -10,7 +10,7 @@
     encoding="UTF-8"
     stroke="transparent"
     v-bind:style="style"
-    v-on:mousedown="(e) => $emit('mousedown', e) && onClickSpace()"
+    v-on:mousedown="(e) => $emit('mousedown', e) && onClickSpace(e)"
     v-on:wheel="e => $emit('wheel', e)"
     v-on:mousemove="e => $emit('mousemove', e)"
     v-on:mouseup="e => $emit('mouseup', e)"
@@ -412,6 +412,7 @@
       },
       // Обработка клика на свободной области
       onClickSpace(event) {
+        if(event.shiftKey) return;
         event = event || window.event;
         if (event.which === 1) {
           this.cleanSelectedTracks();
