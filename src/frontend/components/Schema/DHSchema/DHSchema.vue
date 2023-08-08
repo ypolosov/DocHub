@@ -7,11 +7,11 @@
     preserveAspectRatio="none"
     version="1.1"
     v-bind:viewBox="viewBox"
-    zoomAndPan="magnify"
     encoding="UTF-8"
     stroke="transparent"
     v-bind:style="style"
-    v-on:mousedown="onClickSpace">
+    v-on:mousedown="onClickSpace"
+    v-on:wheel="e => $emit('wheel', e)">
     <template v-if="isFirefox">
       <g class="symbols">
         <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
