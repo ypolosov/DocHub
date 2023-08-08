@@ -21,7 +21,7 @@
         v-on:mousemove.prevent="onMouseMove"
         v-on:mouseup.prevent="onMouseUp"
         v-on:mouseleave.prevent="onMouseUp"
-        v-on:wheel="proxyScrollEvent"
+        v-on:wheel="zoomAndPanWheelHandler"
         v-html="svg" />
     </error-boundary>
     <v-menu
@@ -57,6 +57,8 @@
   import copyToClipboard from '@front/helpers/clipboard';
   import download from '@front/helpers/download';
 
+  import ZoomAndPan from '@front/mixins/zoomAndPan';
+
   const EVENT_COPY_SOURCE_TO_CLIPBOARD = 'copysource';
 
   export default {
@@ -64,6 +66,7 @@
     components: {
       ErrorBoundary
     },
+    mixins: [ZoomAndPan],
     props: {
       uml: { type: String, default: '' },         // PlantUML диаграмма
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -97,15 +100,13 @@
         isShiftSens: false, // Признак, что пользователь нажал шифт
         isMove: false, // Признак перемещения схемы
         moveX: 0,
-        moveY: 0,
-        zoom: {
-          value: 1,   // Текущий зум
-          step: 0.1  // Шаг зума
-        },
-        cacheViewBox: null
+        moveY: 0
       };
     },
     computed: {
+      zoomAndPanElement() {
+        return this.svgEl;
+      },
       menuItems() {
         const result = [].concat(this.contextMenu);
         result.length && result.push(null);
@@ -118,20 +119,6 @@
           );
         }
         return result.concat(this.menu.items);
-      },
-      viewBox() {
-        if (!this.svgEl) {
-          return {
-            x: 0,
-            y : 0,
-            width : 0,
-            height : 0
-          };
-        } else
-          return this.cacheViewBox ?
-            this.cacheViewBox
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-            : this.cacheViewBox = this.svgEl.viewBox.baseVal;
       },
       // Коэффициент преобразования реальных точек во внутренние по ширине
       koofScreenX() {
@@ -193,30 +180,6 @@
       },
       onMouseUp() {
         this.isMove = false;
-      },
-      doZoom(value, x, y) {
-        const kX = x / (this.svgEl.clientWidth || x);
-        const kY = y / (this.svgEl.clientHeight || y);
-        let resizeWidth = value * this.viewBox.width;
-        let resizeHeight = value * this.viewBox.height;
-        this.viewBox.x -= resizeWidth * kX;
-        this.viewBox.width += resizeWidth;
-        this.viewBox.y -= resizeHeight * kY;
-        this.viewBox.height += resizeHeight;
-        this.cacheViewBox = null;
-      },
-      proxyScrollEvent(event) {
-        if (!event.ctrlKey) return;
-        let e = window.event || event;
-        switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
-          case 1:
-            this.doZoom(this.zoom.step, event.offsetX, event.offsetY);
-            break;
-          case -1:
-            this.doZoom(-this.zoom.step, event.offsetX, event.offsetY);
-            break;
-        }
-        event.stopPropagation();
       },
       doResize() {
         if (!this.svgEl || !this.svgEl.clientWidth || !this.svgEl.clientHeight) return;
