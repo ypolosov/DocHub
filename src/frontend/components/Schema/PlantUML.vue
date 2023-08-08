@@ -17,10 +17,10 @@
         v-else-if="render"
         class="plantuml-schema"
         v-bind:style="{cursor: cursor}"
-        v-on:mousedown.prevent="onMouseDown"
-        v-on:mousemove.prevent="onMouseMove"
-        v-on:mouseup.prevent="onMouseUp"
-        v-on:mouseleave.prevent="onMouseUp"
+        v-on:mousedown.prevent="zoomAndPanMouseDown"
+        v-on:mousemove.prevent="zoomAndPanMouseMove"
+        v-on:mouseup.prevent="zoomAndPanMouseUp"
+        v-on:mouseleave.prevent="zoomAndPanMouseUp"
         v-on:wheel="zoomAndPanWheelHandler"
         v-html="svg" />
     </error-boundary>
@@ -96,11 +96,7 @@
         rerenderTimer: null,
         svg: '',
         isLoading: true,
-        svgEl: null,
-        isShiftSens: false, // Признак, что пользователь нажал шифт
-        isMove: false, // Признак перемещения схемы
-        moveX: 0,
-        moveY: 0
+        svgEl: null
       };
     },
     computed: {
@@ -119,14 +115,6 @@
           );
         }
         return result.concat(this.menu.items);
-      },
-      // Коэффициент преобразования реальных точек во внутренние по ширине
-      koofScreenX() {
-        return this.svgEl ? this.viewBox.width / this.svgEl.clientWidth : 1;
-      },
-      // Коэффициент преобразования реальных точек во внутренние по высоте
-      koofScreenY() {
-        return this.svgEl ? this.viewBox.height / this.svgEl.clientHeight : 1;
       },
       cursor() {
         return this.isShiftSens ? 'move' : undefined;
@@ -163,23 +151,6 @@
             this.$nextTick(() => this.prepareSVG());
           });
         }, 300);
-      },
-      onMouseDown(event) {
-        if (!event.shiftKey) return;
-        this.isMove = true;
-        this.moveX = event.clientX;
-        this.moveY = event.clientY;
-      },
-      onMouseMove(event) {
-        this.isShiftSens = event.shiftKey;
-        if (!this.isMove) return;
-        this.viewBox.x += (this.moveX - event.clientX) * (this.koofScreenX || 0);
-        this.viewBox.y += (this.moveY - event.clientY) * (this.koofScreenY || 0);
-        this.moveX = event.clientX;
-        this.moveY = event.clientY;
-      },
-      onMouseUp() {
-        this.isMove = false;
       },
       doResize() {
         if (!this.svgEl || !this.svgEl.clientWidth || !this.svgEl.clientHeight) return;

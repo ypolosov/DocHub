@@ -1,13 +1,25 @@
 export default {
 	data: () => ({
 		zoomKey: 'ctrlKey',  // Кнопка для зума
+		panKey: 'shiftKey',
+		isMove: false, 			 // Признак перемещения схемы
+		isShiftSens: false,  // Признак, что пользователь нажал шифт
 		cacheViewBox: null,
+		moveX: 0,
+		moveY: 0,
 		zoom: {
 			value: 1,   // Текущий зум
 			step: 0.1  	// Шаг зума
 		}
 	}),
 	computed: {
+		koofScreenX() {
+			return this.zoomAndPanElement ? this.viewBox.width / this.zoomAndPanElement.clientWidth : 1;
+		},
+		// Коэффициент преобразования реальных точек во внутренние по высоте
+		koofScreenY() {
+			return this.zoomAndPanElement ? this.viewBox.height / this.zoomAndPanElement.clientHeight : 1;
+		},
 		viewBox() {
 			if (!this.zoomAndPanElement) {
 				return {
@@ -50,6 +62,23 @@ export default {
 					break;
 			}
 			event.stopPropagation();
+		},
+		zoomAndPanMouseDown(event) {
+			if (!event[this.panKey]) return;
+			this.isMove = true;
+			this.moveX = event.clientX;
+			this.moveY = event.clientY;
+		},
+		zoomAndPanMouseMove(event) {
+			this.isShiftSens = event[this.panKey];
+			if (!this.isMove) return;
+			this.viewBox.x += (this.moveX - event.clientX) * (this.koofScreenX || 0);
+			this.viewBox.y += (this.moveY - event.clientY) * (this.koofScreenY || 0);
+			this.moveX = event.clientX;
+			this.moveY = event.clientY;
+		},
+		zoomAndPanMouseUp() {
+			this.isMove = false;
 		}
 	}
 };

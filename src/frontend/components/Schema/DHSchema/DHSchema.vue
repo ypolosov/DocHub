@@ -10,8 +10,11 @@
     encoding="UTF-8"
     stroke="transparent"
     v-bind:style="style"
-    v-on:mousedown="onClickSpace"
-    v-on:wheel="e => $emit('wheel', e)">
+    v-on:mousedown="(e) => $emit('mousedown', e) && onClickSpace()"
+    v-on:wheel="e => $emit('wheel', e)"
+    v-on:mousemove="e => $emit('mousemove', e)"
+    v-on:mouseup="e => $emit('mouseup', e)"
+    v-on:mouseleave="e => $emit('mouseleave', e)">
     <template v-if="isFirefox">
       <g class="symbols">
         <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />

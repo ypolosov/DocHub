@@ -67,7 +67,11 @@
         v-on:selected-nodes="onSelectedNodes"
         v-on:on-click-link="onClickLink"
         v-on:contextmenu="showMenu" 
-        v-on:wheel="zoomAndPanWheelHandler" /> 
+        v-on:wheel="zoomAndPanWheelHandler"
+        v-on:mousedown.prevent="zoomAndPanMouseDown"
+        v-on:mousemove.prevent="zoomAndPanMouseMove"
+        v-on:mouseup.prevent="zoomAndPanMouseUp"
+        v-on:mouseleave.prevent="zoomAndPanMouseUp" /> 
       <v-menu
         v-model="menu.show"
         v-bind:position-x="menu.x"
