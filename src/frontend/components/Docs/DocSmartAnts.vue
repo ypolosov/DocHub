@@ -66,12 +66,7 @@
         v-on:playstart="onPlayStart"
         v-on:selected-nodes="onSelectedNodes"
         v-on:on-click-link="onClickLink"
-        v-on:contextmenu="showMenu" 
-        v-on:wheel="zoomAndPanWheelHandler"
-        v-on:mousedown.prevent="zoomAndPanMouseDown"
-        v-on:mousemove.prevent="zoomAndPanMouseMove"
-        v-on:mouseup.prevent="zoomAndPanMouseUp"
-        v-on:mouseleave.prevent="zoomAndPanMouseUp" /> 
+        v-on:contextmenu="showMenu" />
       <v-menu
         v-model="menu.show"
         v-bind:position-x="menu.x"
@@ -105,14 +100,13 @@
   import download from '@front/helpers/download';
 
   import DocMixin from './DocMixin';
-  import ZoomAndPan from '@front/mixins/zoomAndPan'; 
 
   export default {
     name: 'DocHubViewpoint',
     components: { 
       Schema 
     },
-    mixins: [DocMixin, ZoomAndPan],
+    mixins: [DocMixin],
     props: {
       document: { type: String, default: '' }
     },
@@ -139,9 +133,6 @@
       };
     },
     computed: {
-      zoomAndPanElement() {
-        return this.$refs.schema.$el;
-      },
       // Пункты контекстного меню
       menuItems() {
         const result = [].concat(this.contextMenu);

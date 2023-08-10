@@ -1,5 +1,6 @@
 <template>
-  <svg
+  <svg 
+    ref="zoomAndPan"
     class="dochub-schema"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -10,11 +11,11 @@
     encoding="UTF-8"
     stroke="transparent"
     v-bind:style="style"
-    v-on:mousedown="(e) => $emit('mousedown', e) && onClickSpace(e)"
-    v-on:wheel="e => $emit('wheel', e)"
-    v-on:mousemove="e => $emit('mousemove', e)"
-    v-on:mouseup="e => $emit('mouseup', e)"
-    v-on:mouseleave="e => $emit('mouseleave', e)">
+    v-on:wheel="zoomAndPanWheelHandler"
+    v-on:mousedown.prevent="(e) => zoomAndPanMouseDown(e) && onClickSpace(e)"
+    v-on:mousemove.prevent="zoomAndPanMouseMove"
+    v-on:mouseup.prevent="zoomAndPanMouseUp"
+    v-on:mouseleave.prevent="zoomAndPanMouseUp"> 
     <template v-if="isFirefox">
       <g class="symbols">
         <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
@@ -100,6 +101,8 @@
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
 
+  import ZoomAndPan from '@front/mixins/zoomAndPan';
+
   //  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
   
   
@@ -160,7 +163,7 @@
       SchemaInfo,
       SchemaDebugNode
     },
-    mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin],
+    mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin, ZoomAndPan],
     props: {
       // Дистанция между объектами на диаграмме
       distance: {

@@ -1,26 +1,28 @@
 export default {
 	data: () => ({
-		zoomKey: 'ctrlKey',  // Кнопка для зума
-		panKey: 'shiftKey',
-		isMove: false, 			 // Признак перемещения схемы
-		isShiftSens: false,  // Признак, что пользователь нажал шифт
-		cacheViewBox: null,
-		moveX: 0,
-		moveY: 0,
-		zoom: {
-			value: 1,   // Текущий зум
-			step: 0.1  	// Шаг зума
+		zoomAndPan: {
+			zoomKey: 'ctrlKey',  // Кнопка для зума
+			panKey: 'shiftKey',
+			isMove: false, 			 // Признак перемещения схемы
+			isShiftSens: false,  // Признак, что пользователь нажал шифт
+			cacheViewBox: null,
+			moveX: 0,
+			moveY: 0,
+			zoom: {
+				value: 1,   // Текущий зум
+				step: 0.1  	// Шаг зума
+			}
 		}
 	}),
 	computed: {
 		koofScreenX() {
-			return this.zoomAndPanElement ? this.viewBox.width / this.zoomAndPanElement.clientWidth : 1;
+			return this.zoomAndPanElement ? this.ZoomAndPanViewBox.width / this.zoomAndPanElement.clientWidth : 1;
 		},
 		// Коэффициент преобразования реальных точек во внутренние по высоте
 		koofScreenY() {
-			return this.zoomAndPanElement ? this.viewBox.height / this.zoomAndPanElement.clientHeight : 1;
+			return this.zoomAndPanElement ? this.ZoomAndPanViewBox.height / this.zoomAndPanElement.clientHeight : 1;
 		},
-		viewBox() {
+		ZoomAndPanViewBox() {
 			if (!this.zoomAndPanElement) {
 				return {
 					x: 0,
@@ -29,56 +31,56 @@ export default {
 					height : 0
 				};
 			} else
-				return this.cacheViewBox ?
-					this.cacheViewBox
+				return this.zoomAndPan.cacheViewBox ?
+					this.zoomAndPan.cacheViewBox
 					// eslint-disable-next-line vue/no-side-effects-in-computed-properties
-					: this.cacheViewBox = this.zoomAndPanElement.viewBox.baseVal; 
+					: this.zoomAndPan.cacheViewBox = this.zoomAndPanElement.viewBox.baseVal; 
 		},
 		zoomAndPanElement() {
-			return this.$refs.zoomAndPan.$el;
+			return this.$refs.zoomAndPan;
 		}
 	},
 	methods: {
 		doZoom(value, x, y) {
 			const kX = x / (this.zoomAndPanElement.clientWidth || x);
 			const kY = y / (this.zoomAndPanElement.clientHeight || y);
-			let resizeWidth = value * this.viewBox.width;
-			let resizeHeight = value * this.viewBox.height;
-			this.viewBox.x -= resizeWidth * kX;
-			this.viewBox.width += resizeWidth;
-			this.viewBox.y -= resizeHeight * kY;
-			this.viewBox.height += resizeHeight;
-			this.cacheViewBox = null;
+			let resizeWidth = value * this.ZoomAndPanViewBox.width;
+			let resizeHeight = value * this.ZoomAndPanViewBox.height;
+			this.ZoomAndPanViewBox.x -= resizeWidth * kX;
+			this.ZoomAndPanViewBox.width += resizeWidth;
+			this.ZoomAndPanViewBox.y -= resizeHeight * kY;
+			this.ZoomAndPanViewBox.height += resizeHeight;
+			this.zoomAndPan.cacheViewBox = null;
 		},
 		zoomAndPanWheelHandler(event) {
-			if (!event[this.zoomKey]) return;
+			if (!event[this.zoomAndPan.zoomKey]) return;
 			let e = window.event || event;
 			switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
 				case 1:
-					this.doZoom(this.zoom.step, event.offsetX, event.offsetY);
+					this.doZoom(this.zoomAndPan.zoom.step, event.offsetX, event.offsetY);
 					break;
 				case -1:
-					this.doZoom(-this.zoom.step, event.offsetX, event.offsetY);
+					this.doZoom(-this.zoomAndPan.zoom.step, event.offsetX, event.offsetY);
 					break;
 			}
 			event.stopPropagation();
 		},
 		zoomAndPanMouseDown(event) {
-			if (!event[this.panKey]) return;
-			this.isMove = true;
-			this.moveX = event.clientX;
-			this.moveY = event.clientY;
+			if (!event[this.zoomAndPan.panKey]) return;
+			this.zoomAndPan.isMove = true;
+			this.zoomAndPan.moveX = event.clientX;
+			this.zoomAndPan.moveY = event.clientY;
 		},
 		zoomAndPanMouseMove(event) {
-			this.isShiftSens = event[this.panKey];
-			if (!this.isMove) return;
-			this.viewBox.x += (this.moveX - event.clientX) * (this.koofScreenX || 0);
-			this.viewBox.y += (this.moveY - event.clientY) * (this.koofScreenY || 0);
-			this.moveX = event.clientX;
-			this.moveY = event.clientY;
+			this.zoomAndPan.isShiftSens = event[this.zoomAndPan.panKey];
+			if (!this.zoomAndPan.isMove) return;
+			this.ZoomAndPanViewBox.x += (this.zoomAndPan.moveX - event.clientX) * (this.koofScreenX || 0);
+			this.ZoomAndPanViewBox.y += (this.zoomAndPan.moveY - event.clientY) * (this.koofScreenY || 0);
+			this.zoomAndPan.moveX = event.clientX;
+			this.zoomAndPan.moveY = event.clientY;
 		},
 		zoomAndPanMouseUp() {
-			this.isMove = false;
+			this.zoomAndPan.isMove = false;
 		}
 	}
 };

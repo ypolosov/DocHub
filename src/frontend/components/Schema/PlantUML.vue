@@ -103,6 +103,20 @@
       zoomAndPanElement() {
         return this.svgEl;
       },
+      viewBox() {
+        if (!this.svgEl) {
+          return {
+            x: 0,
+            y : 0,
+            width : 0,
+            height : 0
+          };
+        } else
+          return this.cacheViewBox ?
+            this.cacheViewBox
+            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+            : this.cacheViewBox = this.svgEl.viewBox.baseVal;
+      },
       menuItems() {
         const result = [].concat(this.contextMenu);
         result.length && result.push(null);
@@ -187,7 +201,6 @@
       },
       reloadSVG() {
         // Сбрасываем параметры зума
-        this.zoom.value = 1;
 
         if (!this.uml) {
           this.svg = '';
