@@ -1,10 +1,9 @@
 export default {
 	data: () => ({
 		zoomAndPan: {
-			zoomKey: 'ctrlKey',  // Кнопка для зума
-			panKey: 'shiftKey',
+			zoomKeys: ['ctrlKey', 'shiftKey'],  // Кнопка для зума
+			panKeys: ['ctrlKey', 'shiftKey'],
 			isMove: false, 			 // Признак перемещения схемы
-			isShiftSens: false,  // Признак, что пользователь нажал шифт
 			cacheViewBox: null,
 			moveX: 0,
 			moveY: 0,
@@ -52,8 +51,14 @@ export default {
 			this.ZoomAndPanViewBox.height += resizeHeight;
 			this.zoomAndPan.cacheViewBox = null;
 		},
+		isPushKey(event, keys) {
+			for (let i = 0; i < keys.length; i++) {
+				if (event[keys[i]]) return true;
+			}
+			return false;
+		},
 		zoomAndPanWheelHandler(event) {
-			if (!event[this.zoomAndPan.zoomKey]) return;
+			if (!this.isPushKey(event, this.zoomAndPan.zoomKeys)) return;
 			let e = window.event || event;
 			switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
 				case 1:
@@ -66,13 +71,12 @@ export default {
 			event.stopPropagation();
 		},
 		zoomAndPanMouseDown(event) {
-			if (!event[this.zoomAndPan.panKey]) return;
+			if (!this.isPushKey(event, this.zoomAndPan.panKeys)) return;
 			this.zoomAndPan.isMove = true;
 			this.zoomAndPan.moveX = event.clientX;
 			this.zoomAndPan.moveY = event.clientY;
 		},
 		zoomAndPanMouseMove(event) {
-			this.zoomAndPan.isShiftSens = event[this.zoomAndPan.panKey];
 			if (!this.zoomAndPan.isMove) return;
 			this.ZoomAndPanViewBox.x += (this.zoomAndPan.moveX - event.clientX) * (this.koofScreenX || 0);
 			this.ZoomAndPanViewBox.y += (this.zoomAndPan.moveY - event.clientY) * (this.koofScreenY || 0);
