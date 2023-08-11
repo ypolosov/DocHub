@@ -101,10 +101,7 @@
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
 
-  import ZoomAndPan from '@front/mixins/zoomAndPan';
-
-  //  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
-  
+  import ZoomAndPan from '../zoomAndPan';
   
   const Graph = new function() {
     const codeWorker = require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default;

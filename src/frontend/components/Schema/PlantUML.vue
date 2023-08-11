@@ -16,7 +16,6 @@
       <div
         v-else-if="render"
         class="plantuml-schema"
-        v-bind:style="{cursor: cursor}"
         v-on:mousedown.prevent="zoomAndPanMouseDown"
         v-on:mousemove.prevent="zoomAndPanMouseMove"
         v-on:mouseup.prevent="zoomAndPanMouseUp"
@@ -57,7 +56,7 @@
   import copyToClipboard from '@front/helpers/clipboard';
   import download from '@front/helpers/download';
 
-  import ZoomAndPan from '@front/mixins/zoomAndPan';
+  import ZoomAndPan from './zoomAndPan';
 
   const EVENT_COPY_SOURCE_TO_CLIPBOARD = 'copysource';
 
@@ -129,9 +128,6 @@
           );
         }
         return result.concat(this.menu.items);
-      },
-      cursor() {
-        return this.isShiftSens ? 'move' : undefined;
       }
     },
     watch: {
