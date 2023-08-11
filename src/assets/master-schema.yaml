@@ -40,8 +40,10 @@ $defs:
         type: string
         format: uri
       "$ref":
-        type: string
-        format: uri-reference
+        oneOf:
+          - type: string
+            format: uri-reference
+          - $ref: "#/$defs/$defs"
       "$comment":
         type: string
       title:
@@ -186,23 +188,48 @@ $defs:
     items:
       $ref: "#/$defs/$menu-item"
     minLength: 1
-  $doc-types:
+  $res-url:
+    title: URL ресурса
     type: string
-    enum: 
-      - markdown
-      - plantuml
-      - smartants
-  $file-name:
-    type: string
+    format: URL
   $data-source:
+    title: Источник данных
     anyOf:
-      - "#/$defs/$jsonata"
-      - "#/$defs/file-name"
-      - type:
+      - $ref: "#/$defs/$jsonata"
+      - $ref: "#/$defs/res-url"
+      - title: Структура данных
+        type:
           - object
-          - string
-          - boolean
           - array
+      - $ref: "#/$defs/$dataset"
+  $params:
+    $ref: "#/$defs/$jsonschema"
+  $source-profile:
+    type: object
+    properties:
+      source:
+        title: Источник данных / ресурс
+        type: string
+        $ref: "#/$defs/$data-source"
+      origin:
+        title: Базовый источник данных
+        allOf:
+          - $ref: "#/$defs/$data-source"
+            default: true
+          - type: object
+            patternProperties:
+              ".*":
+                $ref: "#/$defs/$data-source"
+  $doc-profile:
+    type: object
+    $ref: "#/$defs/$source-profile"
+    properties:
+      type:
+        title: Тип документа
+        $ref: "#/$defs/$doc-types"
+      template:
+        title: Шаблон документа
+        $ref: "#/$defs/$res-url"
 # Схема базовых сущностей
 $entities:
   entities:
@@ -227,26 +254,18 @@ $entities:
             type: object
             patternProperties:
               "^[0-9a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
-                type: object
+                $ref: "#/$defs/$doc-profile"
                 properties:
                   title:
                     title: Название
                     type: string
                   params:
                     title: Схема параметров
-                    $ref: "#/$defs/$jsonschema"
-                  type:
-                    title: Тип документа
-                    $ref: "#/$defs/$doc-types"
+                    $ref: "#/$defs/$params"
                   $constructor:
                     title: Конструктор презентации
                     $ref: "#/$defs/$jsonata"
-                  template:
-                    title: Шаблон документа
-                    $ref: "#/$defs/$file-name"
-                  source:
-                    title: Источник данных
-                    $ref: "#/$defs/$data-source"
+                 
 
 
 
