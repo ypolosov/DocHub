@@ -8,7 +8,7 @@ import gateway from '@idea/gateway';
 import consts from '@front/consts';
 import rules from '@front/helpers/rules';
 import crc16 from '@global/helpers/crc16';
-import entities from '@front/helpers/entities';
+import entities from '@front/entities/entities';
 import env, { Plugins } from '@front/helpers/env';
 import plugins from '../plugins/plugins';
 
@@ -133,7 +133,7 @@ export default {
 				// Регистрируем обнаруженные ошибки
 				errors.syntax && context.commit('appendProblems', errors.syntax);
 				errors.net && context.commit('appendProblems', errors.net);
-        errors.missing_files && context.commit('appendProblems', errors.missing_files);
+				errors.missing_files && context.commit('appendProblems', errors.missing_files);
 
 				const manifest = Object.freeze(parser.manifest);
 				// Обновляем манифест и фризим объекты

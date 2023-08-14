@@ -16,6 +16,9 @@ window.DocHub = {
 	documents: {
 		register(type, component) {
 			plugins.documents.push({ type, component });
+		},
+		fetch() {
+			return JSON.parse(JSON.stringify(plugins.documents));
 		}
 	}
 };
@@ -42,6 +45,10 @@ export default {
 				component.mixins = component.mixins || [];
 				Vue.component(`plugin-doc-${type}`, component);
 				context.commit('registerDocument', { type, component });
+			};
+			// Регистрируем функцию получения доступных типов документов
+			window.DocHub.documents.fetch = () => {
+				return JSON.parse(JSON.stringify(Object.keys(context.state.documents || {})));
 			};
 			plugins.pull();
 

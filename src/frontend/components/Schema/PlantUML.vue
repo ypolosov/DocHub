@@ -16,12 +16,11 @@
       <div
         v-else-if="render"
         class="plantuml-schema"
-        v-bind:style="{cursor: cursor}"
-        v-on:mousedown.prevent="onMouseDown"
-        v-on:mousemove.prevent="onMouseMove"
-        v-on:mouseup.prevent="onMouseUp"
-        v-on:mouseleave.prevent="onMouseUp"
-        v-on:wheel="proxyScrollEvent"
+        v-on:mousedown.prevent="zoomAndPanMouseDown"
+        v-on:mousemove.prevent="zoomAndPanMouseMove"
+        v-on:mouseup.prevent="zoomAndPanMouseUp"
+        v-on:mouseleave.prevent="zoomAndPanMouseUp"
+        v-on:wheel="zoomAndPanWheelHandler"
         v-html="svg" />
     </error-boundary>
     <v-menu
@@ -57,6 +56,8 @@
   import copyToClipboard from '@front/helpers/clipboard';
   import download from '@front/helpers/download';
 
+  import ZoomAndPan from './zoomAndPan';
+
   const EVENT_COPY_SOURCE_TO_CLIPBOARD = 'copysource';
 
   export default {
@@ -64,6 +65,7 @@
     components: {
       ErrorBoundary
     },
+    mixins: [ZoomAndPan],
     props: {
       uml: { type: String, default: '' },         // PlantUML диаграмма
       // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -93,31 +95,12 @@
         rerenderTimer: null,
         svg: '',
         isLoading: true,
-        svgEl: null,
-        isShiftSens: false, // Признак, что пользователь нажал шифт
-        isMove: false, // Признак перемещения схемы
-        moveX: 0,
-        moveY: 0,
-        zoom: {
-          value: 1,   // Текущий зум
-          step: 0.1  // Шаг зума
-        },
-        cacheViewBox: null
+        svgEl: null
       };
     },
     computed: {
-      menuItems() {
-        const result = [].concat(this.contextMenu);
-        result.length && result.push(null);
-        if (!this.error) {
-          result.push(
-            { id:'save-svg', title: 'Сохранить на диск SVG', on: () => download.downloadSVG(this.svg)}
-          );
-          result.push(
-            { id: 'save-png', title: 'Сохранить на диск PNG', on: () => download.downloadSVGAsPNG(this.svg) }
-          );
-        }
-        return result.concat(this.menu.items);
+      zoomAndPanElement() {
+        return this.svgEl;
       },
       viewBox() {
         if (!this.svgEl) {
@@ -133,16 +116,18 @@
             // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             : this.cacheViewBox = this.svgEl.viewBox.baseVal;
       },
-      // Коэффициент преобразования реальных точек во внутренние по ширине
-      koofScreenX() {
-        return this.svgEl ? this.viewBox.width / this.svgEl.clientWidth : 1;
-      },
-      // Коэффициент преобразования реальных точек во внутренние по высоте
-      koofScreenY() {
-        return this.svgEl ? this.viewBox.height / this.svgEl.clientHeight : 1;
-      },
-      cursor() {
-        return this.isShiftSens ? 'move' : undefined;
+      menuItems() {
+        const result = [].concat(this.contextMenu);
+        result.length && result.push(null);
+        if (!this.error) {
+          result.push(
+            { id:'save-svg', title: 'Сохранить на диск SVG', on: () => download.downloadSVG(this.svg)}
+          );
+          result.push(
+            { id: 'save-png', title: 'Сохранить на диск PNG', on: () => download.downloadSVGAsPNG(this.svg) }
+          );
+        }
+        return result.concat(this.menu.items);
       }
     },
     watch: {
@@ -176,47 +161,6 @@
             this.$nextTick(() => this.prepareSVG());
           });
         }, 300);
-      },
-      onMouseDown(event) {
-        if (!event.shiftKey) return;
-        this.isMove = true;
-        this.moveX = event.clientX;
-        this.moveY = event.clientY;
-      },
-      onMouseMove(event) {
-        this.isShiftSens = event.shiftKey;
-        if (!this.isMove) return;
-        this.viewBox.x += (this.moveX - event.clientX) * (this.koofScreenX || 0);
-        this.viewBox.y += (this.moveY - event.clientY) * (this.koofScreenY || 0);
-        this.moveX = event.clientX;
-        this.moveY = event.clientY;
-      },
-      onMouseUp() {
-        this.isMove = false;
-      },
-      doZoom(value, x, y) {
-        const kX = x / (this.svgEl.clientWidth || x);
-        const kY = y / (this.svgEl.clientHeight || y);
-        let resizeWidth = value * this.viewBox.width;
-        let resizeHeight = value * this.viewBox.height;
-        this.viewBox.x -= resizeWidth * kX;
-        this.viewBox.width += resizeWidth;
-        this.viewBox.y -= resizeHeight * kY;
-        this.viewBox.height += resizeHeight;
-        this.cacheViewBox = null;
-      },
-      proxyScrollEvent(event) {
-        if (!event.shiftKey) return;
-        let e = window.event || event;
-        switch (Math.max(-1, Math.min(1, (e.deltaY || -e.detail)))) {
-          case 1:
-            this.doZoom(this.zoom.step, event.offsetX, event.offsetY);
-            break;
-          case -1:
-            this.doZoom(-this.zoom.step, event.offsetX, event.offsetY);
-            break;
-        }
-        event.stopPropagation();
       },
       doResize() {
         if (!this.svgEl || !this.svgEl.clientWidth || !this.svgEl.clientHeight) return;
@@ -253,7 +197,6 @@
       },
       reloadSVG() {
         // Сбрасываем параметры зума
-        this.zoom.value = 1;
 
         if (!this.uml) {
           this.svg = '';

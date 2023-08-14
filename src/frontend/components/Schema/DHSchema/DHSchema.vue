@@ -1,5 +1,6 @@
 <template>
-  <svg
+  <svg 
+    ref="zoomAndPan"
     class="dochub-schema"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -7,11 +8,14 @@
     preserveAspectRatio="none"
     version="1.1"
     v-bind:viewBox="viewBox"
-    zoomAndPan="magnify"
     encoding="UTF-8"
     stroke="transparent"
     v-bind:style="style"
-    v-on:mousedown="onClickSpace">
+    v-on:wheel="zoomAndPanWheelHandler"
+    v-on:mousedown.prevent="(e) => zoomAndPanMouseDown(e) && onClickSpace(e)"
+    v-on:mousemove.prevent="zoomAndPanMouseMove"
+    v-on:mouseup.prevent="zoomAndPanMouseUp"
+    v-on:mouseleave.prevent="zoomAndPanMouseUp"> 
     <template v-if="isFirefox">
       <g class="symbols">
         <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
@@ -97,8 +101,7 @@
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
 
-  //  require(process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE);
-  
+  import ZoomAndPan from '../zoomAndPan';
   
   const Graph = new function() {
     const codeWorker = require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default;
@@ -157,7 +160,7 @@
       SchemaInfo,
       SchemaDebugNode
     },
-    mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin],
+    mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin, ZoomAndPan],
     props: {
       // Дистанция между объектами на диаграмме
       distance: {
@@ -409,6 +412,7 @@
       },
       // Обработка клика на свободной области
       onClickSpace(event) {
+        if(event.shiftKey) return;
         event = event || window.event;
         if (event.which === 1) {
           this.cleanSelectedTracks();
