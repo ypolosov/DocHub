@@ -30,6 +30,7 @@ const queries = {
     (
         $isURL := $matcher := /^[a-zA-Z]*\\:.*$/i;
         $isRoot := $matcher := /^\\/.*$/i;
+        $defOrder := 10000;
     
         $append((
             $GET_TITLE := function($LOCATION) {(
@@ -40,40 +41,24 @@ const queries = {
             $MANIFEST := $;
             $append([
                     {
-                        "title": 'Архитектура',
-                        "location": 'Архитектура',
-                        "route": 'architect/',
-                        "expand": true,
-                        "icon": 'home'
-                    },
-                    {
-                        "title": "Аспекты",
-                        "location": 'Архитектура/Аспекты',
-                        "icon": 'visibility',
-                        "route": 'aspects/'
-                    },
-                    aspects.$spread().{
-                        "title": $GET_TITLE($.*.location),
-                        "route": 'architect/aspects/' & $keys()[0],
-                        "location": 'Архитектура/Аспекты/' & $.*.location,
-                        "icon": $.*.icon ? $.*.icon : ''
-                    },
-                    {
                         "title": 'Техрадар',
                         "location": 'Техрадар',
                         "route": 'techradar',
-                        "icon": 'track_changes'
+                        "icon": 'track_changes',
+                        "order": $defOrder
                     },
                     technologies.sections.$spread().{
                         "title": $.*.title,
                         "route": 'techradar/' & $keys()[0],
-                        "location": 'Техрадар/' & $.*.title
+                        "location": 'Техрадар/' & $.*.title,
+                        "order": $defOrder
                     },
                     {
                         "title": 'Проблемы',
                         "location": 'Проблемы',
                         "route": 'problems',
-                        "icon": 'report_problem'
+                        "icon": 'report_problem',
+                        "order": $defOrder
                     }
                 ][($exists(hiden) and $not(hiden)) or $not($exists(hiden))],
                 entities.*.(
@@ -81,7 +66,8 @@ const queries = {
                         "route": link,
                         "location": location,
                         "icon": icon,
-                        "title": $GET_TITLE(location)
+                        "title": $GET_TITLE(location),
+                        "order": order ? order : $defOrder
                     }
                 )
             )
@@ -92,13 +78,15 @@ const queries = {
                 : ($isRoot(route) ? route : '/' & route)
             ) : undefined,
             "icon": icon,
-            "location": "" & (location ? location : route)
-        }^(location), [
+            "location": "" & (location ? location : route),
+            "order": order
+        }^(order, location), [
             {
                 "title": 'JSONata',
                 "route": '/devtool',
                 "icon": 'chrome_reader_mode',
-                "location": "devtool"
+                "location": "devtool",
+                "order": $defOrder
             }
         ])
     )
