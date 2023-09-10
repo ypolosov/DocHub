@@ -5,7 +5,6 @@
     <div v-if="toc" class="toc" v-html="toc" />
     <markdown
       v-if="(markdown !== null)"
-      class="pa-3"
       toc
       v-bind:breaks="false"
       v-bind:html="false"
@@ -13,7 +12,7 @@
       v-on:toc-rendered="tocRendered">
       {{ markdown }}
     </markdown>
-    <final-markdown 
+    <final-markdown
       v-if="showDocument"
       v-bind:template="outHTML"
       v-bind:base-u-r-i="url" />
@@ -27,7 +26,7 @@
 
   import requests from '@front/helpers/requests';
   import href from '@front/helpers/href';
-  
+
   import DocMarkdownObject from './DocHubObject';
   import DocMixin from './DocMixin';
   import ContextMenu from './DocContextMenu.vue';
@@ -90,7 +89,7 @@
       tocRendered(tocHTML) {
         // Не выводим оглавление, если в нем всего три раздела или меньше
         // eslint-disable-next-line no-useless-escape
-        if (this.tocShow && ((tocHTML.match(/\<li\>.*\<\/li\>/g) || []).length > 3)) 
+        if (this.tocShow && ((tocHTML.match(/\<li\>.*\<\/li\>/g) || []).length > 3))
           this.toc = tocHTML;
       },
       refresh() {
@@ -124,7 +123,7 @@
 }
 
 .dochub-object {
-  margin-top: 24px;
+  margin-top: 12px 24px;
   margin-bottom: 24px;
 }
 .space {
@@ -225,7 +224,8 @@
   clear:both;
 }
 
-.markdown-document:not(:first-child) h2 {
+.markdown-document h1:not(:first-child),
+.markdown-document h2:not(:first-child) {
   margin-top: 56px;
 }
 
@@ -237,9 +237,9 @@
   clear:both;
 }
 
-.markdown-document:not(:first-child) h3,
-.markdown-document:not(:first-child) h4,
-.markdown-document:not(:first-child) h5 {
+.markdown-document h3:not(:first-child),
+.markdown-document h4:not(:first-child),
+.markdown-document h5:not(:first-child) {
   margin-top: 32px;
 }
 
