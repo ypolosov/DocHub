@@ -1,8 +1,8 @@
-import env, {Plugins} from '@front/helpers/env';
+import env from '@front/helpers/env';
 
 export default {
     download(encodeURIContent, filename) {
-        if (env.isPlugin(Plugins.idea)) {
+        if (env.isPlugin()) {
             window.$PAPI.download(
               encodeURIContent,
               'Сохранение файла',
