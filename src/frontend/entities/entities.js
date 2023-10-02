@@ -1,12 +1,66 @@
 // Обрабатывает кастомные сущности
 import query from '@front/manifest/query';
 import crc16 from '@global/helpers/crc16';
-import env, {Plugins} from '@front/helpers/env';
+import env from '@front/helpers/env';
 import yaml from 'yaml';
 import masterSchema from '!!raw-loader!@assets/master-schema.yaml';
 import { DocTypes } from '@front/components/Docs/enums/doc-types.enum';
 
+let appliedSchema = null;
+let lastKnownManifest = null;
 let appliedSchemaCRC = null;
+
+async function loadSchema() {
+
+  //todo Здесь нужно рефачить, чтобы запросы в бэк ходили
+  const queryResult = await query
+    .expression(query.entitiesJSONSchema())
+    .evaluate(lastKnownManifest || {});
+
+  const master = getMasterSchema();
+
+  const $defs = {
+    ...master.$defs,
+    ...queryResult.$defs,
+    ...makeDataSetSchema(lastKnownManifest)
+  };
+
+  const $rels = makeSubjectsRelationsSchema(lastKnownManifest || {});
+
+  // Превращаем схему в строку для передачи в плагин
+  const schema = {
+    ...queryResult,
+    properties: {
+      ...master.$entities,
+      ...queryResult.properties
+    },
+    $defs: {
+      ...$defs,
+      ...makeDefsEnum($defs, $rels),
+      ...makeDocTypesEnum()
+    },
+    // Добавляем схемы связей с субъектами сущностей
+    $rels
+  };
+
+  // eslint-disable-next-line no-console
+  console.log('schema created');
+
+  return schema;
+}
+
+async function reloadSchema() {
+  if (appliedSchema !== null && lastKnownManifest !== null) {
+    appliedSchema = await loadSchema();
+  }
+}
+
+export async function getSchema() {
+  if (appliedSchema === null && lastKnownManifest !== null) {
+    appliedSchema = await loadSchema();
+  }
+  return appliedSchema;
+}
 
 // Подключает мастер-схему для подсказок и валидации метамодели
 function getMasterSchema() {
@@ -68,8 +122,8 @@ function makeDefsEnum($defs, $rels) {
 		// eslint-disable-next-line no-console
 		console.error('Error of building of definitions enumeration!');
 		// eslint-disable-next-line no-console
-		console.error(e);		
-		
+		console.error(e);
+
 	}
 	return {
 		'$defs': {
@@ -103,41 +157,27 @@ function makeDocTypesEnum() {
 
 // Регистрирует кастомные сущности
 export default function(manifest) {
-	if (env.isPlugin(Plugins.idea)) {
-		//todo Здесь нужно рефачить, чтобы запросы в бэк ходили
-		query.expression(query.entitiesJSONSchema()).evaluate(manifest || {})
-			.then((result) => {
-				const master = getMasterSchema();
-				const $defs = {
-					...master.$defs,
-					...result.$defs,
-					...makeDataSetSchema(manifest)
-				};
-				const $rels = makeSubjectsRelationsSchema(manifest || {});
-				// Превращаем схему в строку для передачи в плагин
-				const schema = {
-					...result,
-					properties: {
-						...master.$entities,
-						...result.properties
-					},
-					$defs: {
-						...$defs,
-						...makeDefsEnum($defs, $rels),
-						...makeDocTypesEnum()
-					},
-					// Добавляем схемы связей с субъектами сущностей
-					$rels
-				};
-				const schemaString = JSON.stringify(schema);
-				// Считаем контрольную сумму
-				const crc = crc16(schemaString);
-				// Отправляем в плагин только если схема изменилась
-				if (crc != appliedSchemaCRC) {
-					window.$PAPI.applyEntitiesSchema(schemaString);
-					appliedSchemaCRC = crc;
-				}
-			// eslint-disable-next-line no-console
-			}).catch((e) => console.error(e));
-	}
+  lastKnownManifest = manifest;
+
+  if (env.isPlugin()) {
+    loadSchema().then((schema) => {
+
+      const schemaString = JSON.stringify(schema);
+      // Считаем контрольную сумму
+      const crc = crc16(schemaString);
+      // Отправляем в плагин только если схема изменилась
+      if (crc !== appliedSchemaCRC) {
+        window.$PAPI.applyEntitiesSchema(schemaString);
+        appliedSchemaCRC = crc;
+      }
+      // Отправляем в плагин только если схема изменилась
+      if (schema !== appliedSchema) {
+        window.$PAPI.applyEntitiesSchema(JSON.stringify(schema));
+        appliedSchema = schema;
+      }
+      // eslint-disable-next-line no-console
+    }).catch((e) => console.error(e));
+	} else {
+    void reloadSchema();
+  }
 }
