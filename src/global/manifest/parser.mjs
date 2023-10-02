@@ -1,5 +1,14 @@
+import * as semver from 'semver';
 import cache from './services/cache.mjs';
 import prototype from './prototype.mjs';
+
+class PackageError extends Error {
+  constructor(uri, message) {
+    super(message)
+    this.name = 'Package'
+    this.uri = uri
+  }
+}
 
 // Определяет глубину лога источника для секции
 const sectionDeepLog = {
@@ -46,6 +55,10 @@ const parser = {
 	manifest: {},
 	// Лог загруженных файлов
 	loaded: {},
+  // Загруженные пакеты
+  packages: {},
+  // Ожидающие пакеты
+  awaitedPackages: {},
 	// Возвращает тип значения
 	fieldValueType(value) {
 		const type = typeof value;
@@ -100,7 +113,9 @@ const parser = {
 				case 'YAMLSemanticError':
 					return 'syntax';
         case 'EntryIsADirectory (FileSystemError)':
-          return 'file-system'
+          return 'file-system';
+        case 'Package':
+          return 'package';
 				default:
 					return 'net';
 			}
@@ -222,6 +237,101 @@ const parser = {
 		}
 	},
 
+  async parseManifest(manifest, uri) {
+    this.manifest = this.merge(this.manifest, manifest, uri);
+
+    for (const section in manifest) {
+      const node = manifest[section];
+      switch (section) {
+        case 'forms':
+        case 'namespaces':
+        case 'aspects':
+        case 'docs':
+        case 'contexts':
+        case 'components':
+        case 'rules':
+        case 'datasets':
+          await this.parseEntity(node, `/${section}`, uri);
+          break;
+        case 'imports':
+          for (const key in node) {
+            const url = parser.cache.makeURIByBaseURI(node[key], uri);
+            if (this.loaded[url]) {
+              // eslint-disable-next-line no-console
+              console.warn(`Manifest [${url}] already loaded.`);
+            } else {
+              this.loaded[url] = true;
+              await this.import(url, true);
+            }
+          }
+          break;
+      }
+    }
+  },
+
+  async checkAwaitedPackages() {
+    // пройтись по ожидающим пакетам и проверить зарезолвелнены ли их зависимости.
+    // Если да - то распарсить их и убрать из ждунов
+    const resolved = {};
+    const awaitedTuples = Object.entries(this.awaitedPackages);
+    if(!awaitedTuples?.length) return;
+
+    this.awaitedPackages = Object.fromEntries(
+      awaitedTuples.filter(([url, pkg]) => {
+        if(this.isDepsResolved(url, pkg.$package)) {
+          resolved[url] = pkg;
+          return false;
+        } else return true;
+      })
+    )
+    
+    const parsingPackages = Object.entries(resolved)
+      .map(([uri, pkg]) => this.parseManifest(pkg, uri));
+
+    // maybe register reject here
+    return await Promise.all(parsingPackages);
+  },
+
+  isDepsResolved(uri, pkg) {
+    // если у пакета нет зависимостей то и нечего решать
+    if(!pkg?.dependencies) return true;
+
+    // если нет установленых пакетов то зависимости не решены
+    const packageTuples = Object.entries(this.packages);
+    if(!packageTuples?.length) return false
+
+    // проверяем все ли зависимости установлены
+    return pkg.dependencies.every(dep => {
+      const [id, version] = Object.entries(dep)[0];
+
+      // Зависимость установлена (есть в packages)?
+      return packageTuples.find(( [i, v] ) => {
+        if(id !== i) return false
+
+        if(!semver.satisfies(v, version)) {
+          throw new PackageError(
+            uri,
+            `Не подходящая версия пакета "${id}". Требуется "${version}" но найдена "${v}"`
+          );
+        }
+        return (id === i && semver.satisfies(v, version))
+      });
+
+    })
+  },
+
+  checkCycleDeps($package) {
+    Object.entries(this.awaitedPackages).find(([uri, pkg]) => {
+      const deps = pkg.$package.dependencies.map((pkg) => Object.keys(pkg)[0]);
+      if(deps.includes($package.id)) {
+        throw new PackageError(
+          uri,
+          `Циклическая зависимость у пакета ${$package.id}`
+        );
+      }
+    });
+  },
+
 	// Подключение манифеста
 	async import(uri) {
 		try {
@@ -230,41 +340,28 @@ const parser = {
 				? response.data
 				: JSON.parse(response.data));
 
-			if (manifest) {
-				// Определяем режим манифеста
-				// eslint-disable-next-line no-unused-vars
-                this.manifest = this.merge(this.manifest, manifest, uri);
+      // если манифест - пакет
+      if(manifest?.$package) {
+        const $package = manifest.$package;
+        
+        // если у пакета решены его зависимости
+        // - парсим и складываем версию в установленные пакеты
+        if(parser.isDepsResolved(uri, $package)) {
+          await this.parseManifest(manifest, uri);
+          // TODO если пакет уже установлен с другой версией то что?
+          this.packages[$package.id] = $package.version
+          await this.checkAwaitedPackages();
+        }
+        // иначе складываем пакет в ждуны
+        else {
+          this.checkCycleDeps(manifest.$package);
+          this.awaitedPackages[uri] = manifest;
+          return;
+        }
+      } else await this.parseManifest(manifest, uri);
 
-				for (const section in manifest) {
-					const node = manifest[section];
-					switch (section) {
-						case 'forms':
-						case 'namespaces':
-						case 'aspects':
-						case 'docs':
-						case 'contexts':
-						case 'components':
-						case 'rules':
-						case 'datasets':
-							await this.parseEntity(node, `/${section}`, uri);
-							break;
-						case 'imports':
-							for (const key in node) {
-								const url = parser.cache.makeURIByBaseURI(node[key], uri);
-								if (this.loaded[url]) {
-									// eslint-disable-next-line no-console
-									console.warn(`Manifest [${url}] already loaded.`);
-								} else {
-									this.loaded[url] = true;
-									await this.import(url, true);
-								}
-							}
-							break;
-					}
-				}
-			}
 		} catch (e) {
-			this.registerError(e, uri);
+			this.registerError(e, e.uri || uri);
 		}
 	}
 };

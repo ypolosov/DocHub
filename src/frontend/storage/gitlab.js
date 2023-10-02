@@ -117,7 +117,8 @@ export default {
 
 			const errors = {
 				syntax: null,
-				net: null
+				net: null,
+        package: null
 			};
 
 			context.commit('setRenderCore',
@@ -134,6 +135,7 @@ export default {
 				errors.syntax && context.commit('appendProblems', errors.syntax);
 				errors.net && context.commit('appendProblems', errors.net);
 				errors.missing_files && context.commit('appendProblems', errors.missing_files);
+				errors.package && context.commit('appendProblems', errors.package);
 
 				const manifest = Object.freeze(parser.manifest);
 				// Обновляем манифест и фризим объекты
@@ -157,6 +159,7 @@ export default {
 				errors.syntax = null;
 				errors.net = null;
         errors.missing_files = null;
+        errors.package = null;
 
 				context.commit('setNoInited', null);
 				context.commit('setIsReloading', true);
@@ -189,7 +192,25 @@ export default {
 					}
 				} else if (data.uri === consts.plugin.ROOT_MANIFEST || action === 'file-system') {
 					context.commit('setNoInited', true);
-				} else {
+				} else if (action === 'package') {
+          if(errors.package?.items.find(({ description }) => description === `${error.toString()}\n`)) return;
+          if (!errors.package) {
+            errors.package = {
+              id: '$error.package',
+              items: []
+            };
+          }
+          const item = {
+            uid,
+            title: url,
+            correction: 'Проверь зависимости',
+            description: '',
+            location: url
+          };
+
+          item.description = `${error.toString()}\n`;
+          errors.package.items.push(item);
+        } else {
           const item = {
             uid,
             title: url,
@@ -346,6 +367,9 @@ export default {
 			// Если работаем в режиме backend, берем все оттуда
 			if (env.isBackendMode()) {
 				storageManager.onStartReload();
+        await fetch('/core/storage/reload?' +new URLSearchParams({
+          secret: process.env.VUE_APP_DOCHUB_RELOAD_SECRET
+        }), { method: 'PUT' });
 				storageManager.onReloaded({
 					manifest: Object.freeze({}),
 					mergeMap: Object.freeze({})
