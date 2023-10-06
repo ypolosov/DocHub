@@ -4,9 +4,9 @@ import prototype from './prototype.mjs';
 
 class PackageError extends Error {
   constructor(uri, message) {
-    super(message)
-    this.name = 'Package'
-    this.uri = uri
+    super(message);
+    this.name = 'Package';
+    this.uri = uri;
   }
 }
 
@@ -283,7 +283,7 @@ const parser = {
           return false;
         } else return true;
       })
-    )
+    );
     
     const parsingPackages = Object.entries(resolved)
       .map(([uri, pkg]) => this.parseManifest(pkg, uri));
@@ -298,15 +298,13 @@ const parser = {
 
     // если нет установленых пакетов то зависимости не решены
     const packageTuples = Object.entries(this.packages);
-    if(!packageTuples?.length) return false
+    if(!packageTuples?.length) return false;
 
     // проверяем все ли зависимости установлены
-    return pkg.dependencies.every(dep => {
-      const [id, version] = Object.entries(dep)[0];
-
+    return Object.entries(pkg.dependencies).every(([id, version]) => {
       // Зависимость установлена (есть в packages)?
       return packageTuples.find(( [i, v] ) => {
-        if(id !== i) return false
+        if(id !== i) return false;
 
         if(!semver.satisfies(v, version)) {
           throw new PackageError(
@@ -314,19 +312,22 @@ const parser = {
             `Не подходящая версия пакета "${id}". Требуется "${version}" но найдена "${v}"`
           );
         }
-        return (id === i && semver.satisfies(v, version))
+        return (id === i && semver.satisfies(v, version));
       });
 
-    })
+    });
   },
 
   checkCycleDeps($package) {
-    Object.entries(this.awaitedPackages).find(([uri, pkg]) => {
-      const deps = pkg.$package.dependencies.map((pkg) => Object.keys(pkg)[0]);
-      if(deps.includes($package.id)) {
+    Object.entries(this.awaitedPackages).forEach(([uri, pkg]) => {
+      const aDeps = Object.keys(pkg.$package.dependencies);
+      const bDeps = Object.keys($package.dependencies);
+      const aDepID = aDeps.find(id => $package.id === id);
+      const bDepID = bDeps.find(id => pkg.$package.id === id);
+      if(aDepID && bDepID) {
         throw new PackageError(
           uri,
-          `Циклическая зависимость у пакета ${$package.id}`
+          `Циклическая зависимость между пакетами ${aDepID} и ${bDepID}`
         );
       }
     });
@@ -349,7 +350,7 @@ const parser = {
         if(parser.isDepsResolved(uri, $package)) {
           await this.parseManifest(manifest, uri);
           // TODO если пакет уже установлен с другой версией то что?
-          this.packages[$package.id] = $package.version
+          this.packages[$package.id] = $package.version;
           await this.checkAwaitedPackages();
         }
         // иначе складываем пакет в ждуны
