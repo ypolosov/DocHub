@@ -15,7 +15,8 @@
     <final-markdown
       v-if="showDocument"
       v-bind:template="outHTML"
-      v-bind:base-u-r-i="url" />
+      v-bind:base-u-r-i="currentURL"
+      v-on:go-markdown="onGoMarkdown" />
     <spinner v-else />
   </box>
 </template>
@@ -26,7 +27,9 @@
 
   import requests from '@front/helpers/requests';
   import href from '@front/helpers/href';
+  import uri from '@front/helpers/uri';
 
+  import { DocTypes } from '@front/components/Docs/enums/doc-types.enum';
   import DocMarkdownObject from './DocHubObject';
   import DocMixin from './DocMixin';
   import ContextMenu from './DocContextMenu.vue';
@@ -49,8 +52,24 @@
         created() {
           this.$options.template = `<div class="markdown-document">${this.template}</div>`;
         },
+        methods: {
+          // Ищем ссылки на markdown документы для переходов по ним
+          sniffMarkdownLinks(el) {
+            const refs = el?.querySelectorAll && el.querySelectorAll('[href]') || [];
+            for (let i = 0; i < refs.length; i++) {
+              const refItem = refs[i];
+              if (refItem.href.slice(-3) === '.md') {
+                refItem.onclick = (event) => {
+                  this.$emit('go-markdown', event);
+                  return false;
+                };
+              }
+            }
+          }
+        },
         mounted() {
           href.elProcessing(this.$el);
+          this.sniffMarkdownLinks(this.$el);
         }
       }
     },
@@ -66,11 +85,40 @@
         showDocument: false,
         toc: '',
         markdown: null,
-        outHTML: null
+        outHTML: null,
+        redirectURL: null
       };
     },
+    computed: {
+      // Возвращает URL документа с учетом истории переходов
+      currentURL() {
+        return this.redirectURL ? this.redirectURL : this.url;
+      },
+      // Доступные типы документов
+      availableDocTypes() {
+        const result = [];
+        for (const key in DocTypes) result.push(DocTypes[key].toLowerCase());
+        const extended = this.$store.state.plugins.documents;
+        for (const key in extended) result.push(key.toLowerCase());
+        return result;
+      }
+    },
     methods: {
+      onGoMarkdown(event) {
+        const ref = event.target.attributes.href.nodeValue;
+        const route = Object.assign({}, this.$router.currentRoute);
+        const query = Object.assign({}, this.$router.currentRoute.query);
+        query.redirect =  uri.makeURIByBaseURI(ref, this.currentURL);
+        // eslint-disable-next-line no-console
+        console.info(route.query);
+        this.$router.push({
+          params: route.query,
+          query 
+        });
+        return false;
+      },
       rendered(outHtml) {
+        // Парсим ссылки на объекты DocHub
         const result = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" :inline="true" ')
           .replace(/\{\{/g, '<span v-pre>{{</span>')
           .replace(/\}\}/g, '<span v-pre>}}</span>');
@@ -92,21 +140,36 @@
         if (this.tocShow && ((tocHTML.match(/\<li\>.*\<\/li\>/g) || []).length > 3))
           this.toc = tocHTML;
       },
+      prepareMarkdown(content) {
+        // Преобразуем встроенный код в объекты документов 
+        return content.replace(/```(\w\w*)(\n|\r)((.|\n|\r)*)```/g, (segment, language, br, content) => {
+          if (this.availableDocTypes.indexOf(language.toLowerCase()) < 0 ) return segment;
+          // eslint-disable-next-line no-debugger
+          const urlObject = URL.createObjectURL(new Blob([content], { type: `text/${language};charset=UTF-8` }));
+          return `![](@document/${urlObject})`;
+        });
+      },
       refresh() {
+        // Если есть параметр перенаправления, используем его
+        this.redirectURL = this.$router.currentRoute?.query?.redirect;
+
+        // Обновляем документ
         this.markdown = null;
-        if (!this.url) return;
+        if (!this.currentURL) return;
         this.outHTML = null;
         this.showDocument = false;
         this.toc = '';
         this.sourceRefresh().then(() => {
-          requests.request(this.url).then(({ data }) => {
+          requests.request(this.currentURL).then(({ data }) => {
+            let content = null;
             this.error = null;
             if (!data)
-              this.markdown = 'Здесь пусто :(';
+              content = 'Здесь пусто :(';
             else if (this.isTemplate) {
-              this.markdown = mustache.render(data, this.source.dataset);
+              content = mustache.render(data, this.source.dataset);
             } else
-              this.markdown = data;
+              content = data;
+            this.markdown = this.prepareMarkdown(content);
           }).catch((e) => {
             this.error = e;
           });
