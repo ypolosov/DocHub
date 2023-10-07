@@ -25,10 +25,10 @@ manifestParser.reloadManifest = async function(payload){
     await manifestParser.clean();
     if (!env.isPlugin()) {
       // Подключаем метамодель
-      await manifestParser.import(manifestParser.cache.makeURIByBaseURI(env.uriMetamodel, requests.getSourceRoot())); 
+      await manifestParser.import(manifestParser.cache.makeURIByBaseURI(env.uriMetamodel, requests.getSourceRoot()));
 
       // Если необходимо, подключаем документацию DocHub
-      env.isAppendDocHubDocs 
+      env.isAppendDocHubDocs
         && await manifestParser.import(manifestParser.cache.makeURIByBaseURI('/documentation/root.yaml', requests.getSourceRoot()));
 
       // Если корневой манифест указан загружаем
@@ -40,10 +40,12 @@ manifestParser.reloadManifest = async function(payload){
 
       await manifestParser.import(
         manifestParser.cache.makeURIByBaseURI(env.rootManifest, requests.getSourceRoot()));
-      
+
       manifestParser.loaded = {};
     }
   }
+  await manifestParser.checkAwaitedPackages();
+  manifestParser.checkLoaded();
 
   manifestParser.stopLoad();
 };
