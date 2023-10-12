@@ -80,8 +80,8 @@ export class BaseEntities {
 	makeDefsEnum($defs, $rels) {
 		let items = [];
 		try {
-			items = Object.keys($defs).map((item) => `#/$defs/${item}`);
-			Object.keys($rels).map((item) => items.push(`#/$rels/${item}`));
+			items = Object.keys($defs).map((item) => `"#/$defs/${item}"`);
+			Object.keys($rels).map((item) => items.push(`"#/$rels/${item}"`));
 		} catch (e) {
 			// eslint-disable-next-line no-console
 			console.error('Error of building of definitions enumeration!');
