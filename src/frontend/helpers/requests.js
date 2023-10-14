@@ -105,14 +105,24 @@ export default {
 		}
 	},
 
-	// Фиксируются все обращения для построения карты задействованных русурсов
+	// Возвращает "чистый" URL пригодный для индексирования
+	getIndexURL(url) {
+		return url.toString().split('?')[0].split('#')[0];
+	},
+
+	// Возвращает CRC ссылки
+	crcOfURL(url) {
+		return crc16(this.getIndexURL(url));
+	},
+
+	// Фиксируются все обращения для построения карты задействованных ресурсов
 	trace(url) {
-		tracers[crc16(url)] = Date.now();
+		env.isPlugin() && (tracers[this.crcOfURL(url)] = Date.now());
 	},
 
 	// Возвращает время последнего обращения к ресурсу
 	isUsedURL(url) {
-		return tracers[crc16(url)];
+		return tracers[this.crcOfURL(url)];
 	},
 
 	// Транслирует ссылки на backend в прямые URL

@@ -253,6 +253,12 @@ export default {
 				}
 			};
 
+			if (env.isPlugin()) {
+				storageManager.onPullSource = (url, path, parser) => {
+					return parser.cache.request(url, path);
+				};
+			}
+
 			context.dispatch('reloadAll');
 
 			let changes = {};
@@ -263,17 +269,25 @@ export default {
 					changes = Object.assign(changes, data);
 					if (refreshTimer) clearTimeout(refreshTimer);
 					refreshTimer = setTimeout(() => {
+						const sources = context.state.sources[''] || [];
 						for (const source in changes) {
-							if (
-								(source === consts.plugin.ROOT_MANIFEST)
-								|| requests.isUsedURL(source)
-							) {
+							if (source === consts.plugin.ROOT_MANIFEST) {
 								// eslint-disable-next-line no-console
-								console.info('>>>>>> GO RELOAD <<<<<<<<<<');
-								// eslint-disable-next-line no-console
-								console.info('Objects: ', Object.keys(data));
-								context.dispatch('reloadAll', Object.keys(data));
-								break;
+								console.info('>>>>>> GO RELOAD BY ROOT MANIFEST <<<<<<<<<<');
+								context.dispatch('reloadAll');
+								return;
+							} else if (requests.isUsedURL(source)) {
+								if (sources.indexOf(requests.getIndexURL(source)) >= 0) {
+									// eslint-disable-next-line no-console
+									console.info('>>>>>> GO RELOAD BY SOURCE <<<<<<<<<<', source);
+									context.dispatch('reloadAll');
+									return;
+								} else {
+									// eslint-disable-next-line no-console
+									console.info('>>>>>> ON CHANGED SOURCE <<<<<<<<<<', source);
+									// Уведомляем об изменениях всех подписчиков
+									window.EventBus.$emit(consts.events.CHANGED_SOURCE, source);
+								}
 							}
 						}
 					}, 350);
@@ -343,6 +357,7 @@ export default {
 
 		// Reload root manifest
 		reloadAll(context, payload) {
+
 			context.dispatch('reloadRootManifest', payload);
 		},
 

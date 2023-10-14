@@ -26,16 +26,16 @@ export default {
     const isIdea = !!window.DocHubIDEACodeExt;
     const isVsCode = !!window.DochubVsCodeExt;
 
-    switch(plugin) {
-    case Plugins.idea: {
-      return isIdea;
-    }
-    case Plugins.vscode: {
-      return isVsCode;
-    }
-    default: {
-      return isIdea || isVsCode;
-    }
+    switch (plugin) {
+      case Plugins.idea: {
+        return isIdea;
+      }
+      case Plugins.vscode: {
+        return isVsCode;
+      }
+      default: {
+        return isIdea || isVsCode;
+      }
     }
   },
   // Адрес backend сервере
