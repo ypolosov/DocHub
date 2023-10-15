@@ -4,6 +4,7 @@
 components:
   dochub.examples:
     title: Примеры
+    entity: component
 imports:
   - order.yaml
   - payment.yaml
