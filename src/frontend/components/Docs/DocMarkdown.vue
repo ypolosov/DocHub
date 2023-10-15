@@ -127,7 +127,10 @@
           this.outHTML = result;
           this.$nextTick(() => {
             this.showDocument = true;
-            window.location.hash && setTimeout(() => window.location.href = window.location.hash, 50);
+            setTimeout(() => {
+              this.loadState();
+              window.location.hash && (window.location.href = window.location.hash);
+            }, 50);
           });
         }
         // eslint-disable-next-line no-undef

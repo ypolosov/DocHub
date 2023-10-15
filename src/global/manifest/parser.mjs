@@ -244,6 +244,7 @@ const parser = {
 	},
 
 	async parseManifest(manifest, uri) {
+		this.pushToMergeMap('/', null, uri);
 		this.manifest = this.merge(this.manifest, manifest, uri);
 
 		for (const section in manifest) {

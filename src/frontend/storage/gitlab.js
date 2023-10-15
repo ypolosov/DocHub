@@ -269,7 +269,7 @@ export default {
 					changes = Object.assign(changes, data);
 					if (refreshTimer) clearTimeout(refreshTimer);
 					refreshTimer = setTimeout(() => {
-						const sources = context.state.sources[''] || [];
+						const sources = context.state.sources['/'] || [];
 						for (const source in changes) {
 							if (source === consts.plugin.ROOT_MANIFEST) {
 								// eslint-disable-next-line no-console
