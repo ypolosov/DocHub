@@ -107,6 +107,8 @@
           stack[0].expand = true; 
           // Обходим дерево до корня
           stack.forEach((item) => { 
+            // Если ошибка критическая, раскрываем все дерево
+            expitem.critical && (item.expand = true);
             // Индексируем счетчики проблем
             item.countProblems += countProblems; 
             item.countExceptions += countExceptions;
