@@ -10,6 +10,8 @@
           <rect
             v-if="isArea(box)"
             class="box"
+            v-bind:fill="`${box.node.background || '#fff'}`"
+            v-bind:fill-opacity="`${ box.node.background ? (box.node.opacity || 1) : 0}`"
             v-bind:x="box.absoluteX"
             v-bind:y="box.absoluteY"
             v-bind:width="box.width"
@@ -146,7 +148,6 @@
 <style scoped>
 .box {
   stroke: rgba(0,0,0,.6);
-  fill-opacity: 0;
   font-size: 12px;
 }
 
