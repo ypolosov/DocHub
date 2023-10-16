@@ -101,7 +101,9 @@
         trackWidth: 24        
       nodes:
         inside:                      # Определим домены 
-          title: Внутренняя среда    
+          title: Внутренняя среда
+          background: lightgreen     # добавим фон области
+          opacity: 0.3               # и прозрачность фона
         outside:
           title: Внешняя среда
         inside.system:               # Добавим в идентификатор принадлежность к домену "inside"
