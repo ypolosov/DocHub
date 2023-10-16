@@ -39,6 +39,7 @@
       v-bind:offset-y="0"
       mode="area"
       v-bind:layer="presentation.layers"
+      v-bind:hide-boundary-titles="data.config?.hideBoundaryTitles"
       v-on:node-dblclick="onNodeClick" />
 
     <template v-for="track in presentation.tracks">
@@ -57,6 +58,7 @@
       v-bind:offset-y="0"
       mode="node"
       v-bind:layer="presentation.layers"
+      v-bind:hide-leaf-titles="data.config?.hideLeafTitles"
       v-on:node-click="onNodeClick" />
 
     <schema-info
@@ -470,7 +472,7 @@
         const width = this.presentation.valueBox?.dx - this.presentation.valueBox.x;
         let height = Math.max(this.presentation.valueBox.dy - this.presentation.valueBox.y, 100);
         const clientWidth = this.$el?.clientWidth || 0;
-        const titleWidth = this.$el?.querySelector('#title')?.clientWidth;
+        const titleWidth = this.$el?.querySelector('#title')?.clientWidth || 0;
 
         this.landscape.viewBox.titleX = this.presentation.valueBox.x + (this.presentation.valueBox?.dx - this.presentation.valueBox.x)/2 - titleWidth/2;
 
@@ -500,18 +502,12 @@
         this.recalcSymbols();
         const trackWidth = this.data.config?.trackWidth || this.trackWidth;
         const distance = this.data.config?.distance || this.distance;
-        const hideTitles = this.data.config?.hideTitles;
-        nodes = nodes || this.data.nodes || {};
-        for(let node in nodes) {
-          if(hideTitles || !nodes[node] || !nodes[node]?.title)
-            nodes[node] = ({...nodes[node], title: ' ' });
-        }
         let availableWidth = this.$el?.clientWidth || 0;
         if (availableWidth < 600) availableWidth = 600;
         this.isBuilding++;
         Graph.make(
           this.data.config?.grid || {},
-          nodes,
+          nodes || this.data.nodes || {},
           links || this.data.links || [],
           trackWidth,
           distance,
