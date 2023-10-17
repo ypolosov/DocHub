@@ -12,6 +12,9 @@ export default {
 	transports: {
 		HTTP: 'http',
 		GITLAB: 'gitlab'
+	},
+	events: {
+		CHANGED_SOURCE: 'on-changed-source'
 	}
 };
 

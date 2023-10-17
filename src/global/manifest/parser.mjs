@@ -32,6 +32,9 @@ const parser = {
 	onStartReload: null,
 	// События по ошибкам (ошибки запросов)
 	onError: null,
+	// Если обработчик определен, он вызывается при запросе ресурса
+	// По умолчанию используется request модуль
+	onPullSource: null,
 	// Сервис управления кэшем
 	cache,
 	// Очистка
@@ -220,7 +223,9 @@ const parser = {
 			const URI = parser.cache.makeURIByBaseURI(data, baseURI);
 
 			try {
-				const response = await parser.cache.request(URI, path);
+				const response = this.onPullSource 
+					? await this.onPullSource(URI, path, this)
+					: await parser.cache.request(URI, path);
 				if (response) {
 					const context = this.getManifestContext(path);
 					context.node[context.property] = this.merge(context.node[context.property], response.data, URI, path);
@@ -239,6 +244,7 @@ const parser = {
 	},
 
 	async parseManifest(manifest, uri) {
+		this.pushToMergeMap('/', null, uri);
 		this.manifest = this.merge(this.manifest, manifest, uri);
 
 		for (const section in manifest) {
@@ -365,7 +371,9 @@ const parser = {
 	// Подключение манифеста
 	async import(uri) {
 		try {
-			const response = await parser.cache.request(uri, '/');
+			const response = this.onPullSource 
+				? await this.onPullSource(uri, '/', this)
+				: await parser.cache.request(uri, '/');
 			const manifest = response && (typeof response.data === 'object'
 				? response.data
 				: JSON.parse(response.data));

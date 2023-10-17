@@ -19,7 +19,13 @@
         v-bind:context-menu="contextMenu" />
       <template v-else>
         <v-alert v-if="profile && !isReloading" icon="warning">
-          Неизвестный тип документа [{{ docType }}]
+          Неизвестный тип документа [{{ docType }}]<br>
+          Path: {{ currentPath }}<br>
+          Params: {{ currentParams }}<br>
+          Profile: <br>
+          <pre>
+            {{ JSON.stringify(profile, null, 2) }}
+          </pre>
         </v-alert>
         <spinner v-else />
       </template>
@@ -167,7 +173,7 @@
         this.refresher = setTimeout(() => {
           this.profile = null;
           const path = this.resolvePath().slice(1).split('/');
-          if (path[1].slice(-1) === ':') {
+          if (path[1].startsWith('blob:') || (path[1].slice(-1) === ':')) {
             this.pullProfileFromResource(path.slice(1).join('/'));
           } else {
             this.pullProfileFromDataLake(`"${path.join('"."')}"`);

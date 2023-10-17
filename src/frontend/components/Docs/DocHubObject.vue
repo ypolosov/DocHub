@@ -1,6 +1,12 @@
 <template>
   <div class="dochub-object" v-bind:style="{float:srcStruct?.float}">
-    <dochub-doc v-if="isDocument" v-bind:path="documentPath" v-bind:document="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" v-bind:params="srcStruct.params" />
+    <dochub-doc 
+      v-if="isDocument"
+      v-bind:path="documentPath"
+      v-bind:document="srcStruct.subject"
+      v-bind:alt="srcStruct.alt"
+      v-bind:inline="inline"
+      v-bind:params="srcStruct.params" />
     <dochub-context v-else-if="isContext" v-bind:context="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
     <dochub-aspect v-else-if="isAspect" v-bind:aspect="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
     <dochub-component v-else-if="isComponent" v-bind:component="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
@@ -52,7 +58,7 @@
             result.type = path[1];
             result.subject = path[2];
             result.params = Object.fromEntries(url.searchParams);
-            if ((result.type === 'document') && (result.subject.slice(-1) === ':')) {
+            if ((result.type === 'document') && (result.subject.startsWith('blob:') || result.subject.slice(-1) === ':')) {
               // Если в субъекте http ссылка на объект, то разбираем ее отдельно
               result.subject = path.slice(2).join('/');
             } else {

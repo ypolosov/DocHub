@@ -14,6 +14,9 @@
     </v-app-bar-nav-icon>
     <v-toolbar-title style="cursor: pointer" v-on:click="onLogoClick">DocHub</v-toolbar-title>
     <v-spacer />
+    <v-btn v-if="isCriticalError" icon title="Есть критические ошибки!" v-on:click="gotoProblems">
+      <v-icon class="material-icons blink" style="display: inline">error</v-icon>
+    </v-btn>
     <v-btn v-if="isSearchInCode" icon title="Найти в коде" v-on:click="gotoCode">
       <v-icon class="material-icons" style="display: inline">search</v-icon>
     </v-btn>
@@ -53,6 +56,9 @@
       };
     },
     computed: {
+      isCriticalError() {
+        return !!(this.$store.state.problems || []).find((item) => item.critical);
+      },
       isPrintVersion: {
         set(value) {
           this.handleDrawer(!value);
@@ -73,12 +79,11 @@
       back() {
         this.$router.back();
       },
+      gotoProblems() {
+        this.$router.push({name: 'problems'}).catch(() => null);
+      },
       onLogoClick() {
-        if (this.isPlugin) {
-          window.open('https://dochub.info', '_blank');
-        } else {
-          this.$router.push({name: 'main'}).catch(() => null);
-        }
+        this.$router.push({name: 'main'}).catch(() => null);
       },
       gotoCode() {
         // eslint-disable-next-line no-console
@@ -118,6 +123,16 @@
 
 header.print-version {
   position: absolute;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.0;
+  }
+}
+.blink {
+  color: #A00 !important;
+  animation: blink 1s step-start 0s infinite;
 }
 
 </style>

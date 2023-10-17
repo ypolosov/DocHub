@@ -5,7 +5,7 @@ import env from '@front/helpers/env';
 
 manifestParser.cache = cache;
 
-manifestParser.reloadManifest = async function(payload){
+manifestParser.reloadManifest = async function(payload) {
   await manifestParser.startLoad();
   if (payload) {
     await (
