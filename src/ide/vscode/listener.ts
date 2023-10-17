@@ -21,6 +21,7 @@ type TEvent = {
   data?: {
     command?: string,
     content?: {
+      url?: string,
       uri?: string,
       stringifedUri?: string,
       type?: TFiles,
@@ -72,7 +73,10 @@ export default (store: Store<any>): void => {
       router.go(-1);
       setTimeout(() => router.go(1), 1);
     }
-
+    if (command === 'navigate') {
+      (window as any).Router.push('/');
+      (window as any).Router.push(content.url);
+    }
     if (command === 'response') {
       const {value, type, uuid} = content;
 
