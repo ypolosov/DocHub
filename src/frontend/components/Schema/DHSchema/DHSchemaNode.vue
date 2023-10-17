@@ -28,7 +28,7 @@
           v-bind:key="box.node.id"
           v-bind:style="{ opacity: box.opacity }"
           v-bind:x="box.absoluteX"
-          v-bind:y="box.absoluteY - 16"
+          v-bind:y="box.absoluteY"
           v-bind:xlink:href="`#${box.node.symbol}`"
           v-on:mousedown.stop.prevent="onNodeClick(box, false)"
           v-on:dblclick.stop.prevent="onNodeDblClick(box, false)" />
@@ -40,7 +40,7 @@
             v-for="(line, index) in textLines(box)"
             v-bind:key="index"
             v-bind:x="box.width * 0.5"
-            v-bind:y="index * 12"
+            v-bind:y="index * 12 + 16"
             text-anchor="middle">
             {{ line }}
           </tspan>
