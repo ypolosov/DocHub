@@ -129,7 +129,7 @@
       const queryID = message.data.queryID;
       listeners[queryID] && listeners[queryID](message.data);
     };
-    this.make = (nodes, links, trackWidth, distance, symbols, availableWidth, isDebug) => {
+    this.make = (grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug) => {
       return new Promise((success, reject) => {
         const queryID = uuidv4();
         listeners[queryID] = (message) => {
@@ -144,7 +144,7 @@
         worker.postMessage({
           queryID,
           params: {
-            nodes, links, trackWidth, distance, symbols, availableWidth, isDebug
+            grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug
           }
         });
       });

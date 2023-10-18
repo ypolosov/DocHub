@@ -20,7 +20,7 @@
       v-if="title"
       v-bind:x="title.point.x"
       v-bind:y="title.point.y"
-      v-bind:style="{ opacity: track.opacity, stroke: trackColor }"
+      v-bind:style="{ opacity: track.opacity, fill: trackColor }"
       v-bind:transform="`rotate(${title.rotate}, ${title.point.x}, ${title.point.y})`"
       text-anchor="middle"
       v-bind:class="classesTitle"
