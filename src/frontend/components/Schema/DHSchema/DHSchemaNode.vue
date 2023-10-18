@@ -10,11 +10,13 @@
           <rect
             v-if="isArea(box)"
             class="box"
+            v-bind:fill="`${box.node.background || '#fff'}`"
+            v-bind:fill-opacity="`${ box.node.background ? (box.node.opacity || 1) : 0}`"
             v-bind:x="box.absoluteX"
             v-bind:y="box.absoluteY"
             v-bind:width="box.width"
             v-bind:height="box.height"
-            rx="6" />
+            rx="8" />
           <text
             class="box-text"
             v-bind:x="box.absoluteX + 4"
@@ -23,7 +25,7 @@
           </text>
         </template>
       </g>
-      <g v-else-if="isShowNode">
+      <g v-if="(!isArea(box) && isShowNode) || !box.node?.symbol?.startsWith('$')">
         <use
           v-bind:key="box.node.id"
           v-bind:style="{ opacity: box.opacity }"
@@ -33,7 +35,8 @@
           v-on:mousedown.stop.prevent="onNodeClick(box, false)"
           v-on:dblclick.stop.prevent="onNodeDblClick(box, false)" />
         <text
-          v-bind:transform="`translate(${box.absoluteX},${box.absoluteY + box.height})`" 
+          v-if="!isArea(box)"
+          v-bind:transform="`translate(${box.absoluteX},${box.absoluteY + box.height})`"
           class="node-text"
           v-bind:style="{ opacity: box.opacity }">
           <tspan 
@@ -146,7 +149,6 @@
 <style scoped>
 .box {
   stroke: rgba(0,0,0,.6);
-  fill-opacity: 0;
   font-size: 12px;
 }
 
