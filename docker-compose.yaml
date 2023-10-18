@@ -17,7 +17,7 @@ services:
       - "8080:8080"
 
   plantuml:
-    image: ghcr.io/rabotaru/dochub/plantuml:v0.0.2
+    image: seaf/plantuml-server:jetty
     container_name: plantuml
     ports:
       - "8079:8080"
