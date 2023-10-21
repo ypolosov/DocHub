@@ -201,6 +201,18 @@ docs:
     autor: R.Piontik
     type: smartants           
     source: examples/sa-complex.yaml
+  dochub.smartants.examples.complex.hideboundaries:
+    description: Сложная диаграмма SmartAnts. Скрыты заголовки областей
+    type: smartants
+    source: examples/sa-complex-hide-boundary.yaml
+  dochub.smartants.examples.complex.hideleaves:
+    description: Сложная диаграмма SmartAnts. Скрыты заголовки элементов
+    type: smartants
+    source: examples/sa-complex-hide-leaves.yaml
+  dochub.smartants.examples.complex.hidetitles:
+    description: Сложная диаграмма SmartAnts. Скрыты точечно заголовки элемента и области
+    type: smartants
+    source: examples/sa-complex-hide-title.yaml
   dochub.smartants.examples.group-links:
     location: DocHub/Руководство/Документы/SmartAnts/04 Cвязи объединенных объектов
     description: Диаграмма взаимодействий объединенных объектов SmartAnts
