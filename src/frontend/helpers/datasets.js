@@ -3,6 +3,7 @@ import query from '../manifest/query';
 import datasetDriver from '@global/datasets/driver.mjs';
 import pathTool from '@global/manifest/tools/path.mjs';
 import env from '@front/helpers/env';
+import md5 from 'md5';
 
 export default function() {
 	return Object.assign({}, datasetDriver,
@@ -36,6 +37,7 @@ export default function() {
 			getDataOriginal: datasetDriver.getData,
 			async getData(context, subject, params, baseURI) {
 				if (env.isBackendMode()) {
+					subject.source = `$backend/${md5(subject.source)}`;
 					const query = encodeURIComponent(JSON.stringify(subject));
 					const url = new URL(`backend://release-data-profile/${query}`);
 					url.searchParams.set('params', JSON.stringify(params || null));
