@@ -82,6 +82,12 @@ export default (store: Store<any>): void => {
       (window as any).Router.push('/');
       (window as any).Router.push(content.url);
     }
+    if(command === 'refresh') {
+      // Костыль. router.go(0) не работает
+      router.go(-1);
+      setTimeout(() => router.go(1), 1);
+    }
+
     if (command === 'response') {
       const {value, type, uuid} = content;
 
