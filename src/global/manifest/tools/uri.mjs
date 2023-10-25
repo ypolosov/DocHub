@@ -22,8 +22,8 @@ export default function(config) {
 			if (!baseURI) {
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
-
-			if ((new URL(baseURI)).protocol === 'gitlab:') {
+			const protocol = (new URL(baseURI)).protocol;
+			if (protocol === 'gitlab:') {
 				const segments = baseURI.split('@');
 				if (segments.length !== 2) {
 					// Не указаны идентификатор проекта и бранч GitLab
@@ -32,6 +32,8 @@ export default function(config) {
 				const basePathURL = new URL(`/${segments[1]}`, 'http://nop.none');
 				const targetURL = new URL(uri, basePathURL);
 				result = `${segments[0]}@${targetURL.pathname.slice(1)}${targetURL.search}${targetURL.hash}`;
+			} else if (protocol === 'backend:') {
+				result = new URL(uri.replace(/\.\./g, '%E2%86%90'), baseURI);
 			} else {
 				result = new URL(uri, baseURI);
 			}
