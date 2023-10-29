@@ -3,6 +3,7 @@ import YAML from 'yaml';
 import { listeners } from './pipe';
 import config from '@front/config';
 import { Buffer } from 'buffer';
+import router from '@front/router';
 
 enum Files {
   'jpg',
@@ -65,6 +66,12 @@ const normalizeResponse = (type: TFiles, content: string): any => {
 export default (store: Store<any>): void => {
   window.addEventListener('message', (event: TEvent) => {
     const {command, content, error} = event?.data;
+
+    if(command === 'refresh') {
+      // Костыль. router.go(0) не работает
+      router.go(-1);
+      setTimeout(() => router.go(1), 1);
+    }
 
     if (command === 'response') {
       const {value, type, uuid} = content;
