@@ -3,6 +3,8 @@ import storeManager from '../storage/manager.mjs';
 import cache from '../storage/cache.mjs';
 import queries from '../../global/jsonata/queries.mjs';
 import helpers from './helpers.mjs';
+import pathTool from '../../global/manifest/tools/path.mjs';
+import md5 from 'md5';
 
 // const LOG_TAG = 'controller-core';
 
@@ -76,6 +78,14 @@ export default (app) => {
                             error: `Error $base location [${profile.$base}]`
                         });
                         return;
+                    }
+                    //todo: Нужно разобраться с первопричиной, почему передаётся объект целиком
+                    if (profile.source?.startsWith('$backend/')) {
+                        const hash = profile.source.slice(9);
+                        profile.source = pathTool.get(app.storage.manifest, profile.$base).source;
+                        if (hash !== md5(profile.source)) {
+                            throw `Error: wrong source hash for release-data-profile: ${profile.$base}`;
+                        }
                     }
                     return await ds.getData(path.context, profile, request.params, path.baseURI);
                 } else {
