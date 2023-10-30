@@ -79,6 +79,7 @@ export default (app) => {
                         });
                         return;
                     }
+                    //todo: Нужно разобраться с первопричиной, почему передаётся объект целиком
                     if (profile.source?.startsWith('$backend/')) {
                         const hash = profile.source.slice(9);
                         profile.source = pathTool.get(app.storage.manifest, profile.$base).source;

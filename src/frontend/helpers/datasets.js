@@ -37,6 +37,7 @@ export default function() {
 			getDataOriginal: datasetDriver.getData,
 			async getData(context, subject, params, baseURI) {
 				if (env.isBackendMode()) {
+          //todo: Нужно разобраться с первопричиной, почему передаётся объект целиком
 					subject.source = `$backend/${md5(subject.source)}`;
 					const query = encodeURIComponent(JSON.stringify(subject));
 					const url = new URL(`backend://release-data-profile/${query}`);
