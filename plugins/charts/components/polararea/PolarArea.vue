@@ -1,5 +1,5 @@
 <template>
-  <bar
+  <polar-area
     v-bind:chart-options="chartOptions"
     v-bind:chart-data="chartData"
     v-bind:chart-id="chartId"
@@ -12,38 +12,44 @@
 </template>
 
 <script>
-  import { Bar } from 'vue-chartjs/legacy';
+  import { PolarArea } from 'vue-chartjs/legacy';
 
   import {
     Chart as ChartJS,
     Title,
     Tooltip,
     Legend,
-    BarElement,
-    CategoryScale,
-    LinearScale
+    ArcElement,
+    RadialLinearScale
   } from 'chart.js';
   import chartMixin from '../ChartMixin';
+  import Color from 'chartjs-color';
 
-  ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+  ChartJS.register(Title, Tooltip, Legend, ArcElement, RadialLinearScale);
 
   export default {
-    name: 'BarChart',
+    name: 'PolarAreaChart',
     components: {
-      Bar
+      PolarArea
     },
     mixins: [chartMixin],
     props: {
       chartId: {
         type: String,
-        default: 'bar-chart'
+        default: 'polar-chart'
       }
     },
     methods: {
       dataSetWithDefaultOptions(dataset) {
+        const color = new Color(dataset.color);
         return {
           label: dataset.label,
-          backgroundColor: dataset.color,
+          backgroundColor: color.clone().alpha(0.2).rgbString(),
+          borderColor: dataset.color,
+          pointBackgroundColor: dataset.color,
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: dataset.color,
           data: dataset.data
         };
       }

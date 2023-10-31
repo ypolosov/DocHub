@@ -1,5 +1,5 @@
 <template>
-  <bar
+  <line-chart-generator
     v-bind:chart-options="chartOptions"
     v-bind:chart-data="chartData"
     v-bind:chart-id="chartId"
@@ -12,37 +12,47 @@
 </template>
 
 <script>
-  import { Bar } from 'vue-chartjs/legacy';
+  import { Line as LineChartGenerator } from 'vue-chartjs/legacy';
 
   import {
     Chart as ChartJS,
     Title,
     Tooltip,
     Legend,
-    BarElement,
+    LineElement,
+    LinearScale,
     CategoryScale,
-    LinearScale
+    PointElement
   } from 'chart.js';
   import chartMixin from '../ChartMixin';
 
-  ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+  ChartJS.register(
+    Title,
+    Tooltip,
+    Legend,
+    LineElement,
+    LinearScale,
+    CategoryScale,
+    PointElement
+  );
 
   export default {
-    name: 'BarChart',
+    name: 'LineChart',
     components: {
-      Bar
+      LineChartGenerator
     },
     mixins: [chartMixin],
     props: {
       chartId: {
         type: String,
-        default: 'bar-chart'
+        default: 'line-chart'
       }
     },
     methods: {
       dataSetWithDefaultOptions(dataset) {
         return {
           label: dataset.label,
+          borderColor: dataset.color,
           backgroundColor: dataset.color,
           data: dataset.data
         };

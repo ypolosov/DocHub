@@ -1,5 +1,5 @@
 <template>
-  <bar
+  <pie
     v-bind:chart-options="chartOptions"
     v-bind:chart-data="chartData"
     v-bind:chart-id="chartId"
@@ -12,37 +12,35 @@
 </template>
 
 <script>
-  import { Bar } from 'vue-chartjs/legacy';
+  import { Pie } from 'vue-chartjs/legacy';
 
   import {
     Chart as ChartJS,
     Title,
     Tooltip,
     Legend,
-    BarElement,
-    CategoryScale,
-    LinearScale
+    ArcElement,
+    CategoryScale
   } from 'chart.js';
   import chartMixin from '../ChartMixin';
 
-  ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+  ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale);
 
   export default {
-    name: 'BarChart',
+    name: 'PieChart',
     components: {
-      Bar
+      Pie
     },
     mixins: [chartMixin],
     props: {
       chartId: {
         type: String,
-        default: 'bar-chart'
+        default: 'pie-chart'
       }
     },
     methods: {
       dataSetWithDefaultOptions(dataset) {
         return {
-          label: dataset.label,
           backgroundColor: dataset.color,
           data: dataset.data
         };

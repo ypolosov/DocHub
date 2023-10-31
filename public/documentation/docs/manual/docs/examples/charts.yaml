@@ -1,6 +1,12 @@
 imports:
   - charts-radar.yaml
   - charts-bar.yaml
+  - charts-bubble.yaml
+  - charts-doughnut.yaml
+  - charts-line.yaml
+  - charts-pie.yaml
+  - charts-polararea.yaml
+  - charts-scatter.yaml
 
 docs:
   dochub.charts.examples.common:

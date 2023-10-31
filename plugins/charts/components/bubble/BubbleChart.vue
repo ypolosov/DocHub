@@ -1,5 +1,5 @@
 <template>
-  <bar
+  <bubble
     v-bind:chart-options="chartOptions"
     v-bind:chart-data="chartData"
     v-bind:chart-id="chartId"
@@ -12,31 +12,31 @@
 </template>
 
 <script>
-  import { Bar } from 'vue-chartjs/legacy';
+  import { Bubble } from 'vue-chartjs/legacy';
 
   import {
     Chart as ChartJS,
     Title,
     Tooltip,
     Legend,
-    BarElement,
-    CategoryScale,
+    PointElement,
     LinearScale
   } from 'chart.js';
   import chartMixin from '../ChartMixin';
 
-  ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+
+  ChartJS.register(Title, Tooltip, Legend, PointElement, LinearScale);
 
   export default {
-    name: 'BarChart',
+    name: 'BubbleChart',
     components: {
-      Bar
+      Bubble
     },
     mixins: [chartMixin],
     props: {
       chartId: {
         type: String,
-        default: 'bar-chart'
+        default: 'bubble-chart'
       }
     },
     methods: {

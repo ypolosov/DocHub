@@ -1,5 +1,5 @@
 <template>
-  <bar
+  <scatter
     v-bind:chart-options="chartOptions"
     v-bind:chart-data="chartData"
     v-bind:chart-id="chartId"
@@ -12,37 +12,48 @@
 </template>
 
 <script>
-  import { Bar } from 'vue-chartjs/legacy';
+  import { Scatter } from 'vue-chartjs/legacy';
 
   import {
     Chart as ChartJS,
     Title,
     Tooltip,
     Legend,
-    BarElement,
+    LineElement,
     CategoryScale,
+    PointElement,
     LinearScale
   } from 'chart.js';
   import chartMixin from '../ChartMixin';
 
-  ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+  ChartJS.register(
+    Title,
+    Tooltip,
+    Legend,
+    LineElement,
+    CategoryScale,
+    PointElement,
+    LinearScale
+  );
 
   export default {
-    name: 'BarChart',
+    name: 'ScatterChart',
     components: {
-      Bar
+      Scatter
     },
     mixins: [chartMixin],
     props: {
       chartId: {
         type: String,
-        default: 'bar-chart'
+        default: 'scatter-chart'
       }
     },
     methods: {
       dataSetWithDefaultOptions(dataset) {
         return {
           label: dataset.label,
+          fill: false,
+          borderColor: dataset.color,
           backgroundColor: dataset.color,
           data: dataset.data
         };
