@@ -1,5 +1,6 @@
 imports:
   - examples/table.yaml
+  - examples/charts.yaml
 docs:
   # *****************************************  
   #        Руководство по документам 
@@ -102,6 +103,17 @@ docs:
       - dochub.front.spa.blank
       - dochub.front.spa.blank.doc
     source: smartants.md
+  dochub.charts:
+    location: DocHub/Руководство/Документы/Диаграммы
+    description: Диаграммы
+    author: V.Markin
+    type: markdown
+    subjects:
+      - dochub.front
+      - dochub.front.spa
+      - dochub.front.spa.blank
+      - dochub.front.spa.blank.doc
+    source: charts.md
   # *****************************************  
   #            Примеры документов
   # *****************************************  
