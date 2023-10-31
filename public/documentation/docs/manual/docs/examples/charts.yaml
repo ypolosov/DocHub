@@ -1,5 +1,6 @@
 imports:
   - charts-radar.yaml
+  - charts-bar.yaml
 
 docs:
   dochub.charts.examples.common:

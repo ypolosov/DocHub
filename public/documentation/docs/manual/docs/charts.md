@@ -124,3 +124,51 @@ datasets:
 ```
 
 ![Радар](@document/dochub.charts.examples.radar)
+
+## Столбиковая диаграмма
+```yaml
+  ...
+  dochub.charts.examples.bar:
+    description: Пример использования Столбиковой диаграммы
+    author: V.Markin
+    type: chart-bar
+    labels:
+      - январь
+      - февраль
+      - март
+      - апрель
+      - май
+      - июнь
+      - июль
+      - август
+      - сентябрь
+      - октябрь
+      - ноябрь
+      - декабрь
+    height: 800
+    origin: dochub.charts.examples.bar
+    source: ($)
+  ...
+datasets:
+  dochub.charts.examples.bar:
+    source: >
+      (
+        [
+          {
+            "label": "2022",
+            "backgroundColor": "lightblue",
+            "data": [30, 10, 2, 29, 50, 30, 29, 70, 30, 20, 42, 11]
+          },
+          {
+            "label": "2023",
+            "color": "green",
+            "data": [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11]
+          }
+        ]
+      )
+
+...
+```
+
+![Столбиковая диаграмма](@document/dochub.charts.examples.bar)
+
