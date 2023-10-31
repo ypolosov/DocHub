@@ -299,13 +299,13 @@ interactions:
     results:
       - Переход в репозиторий
     steps:
-      - from: habr
-        to: dochub.customer
+      - from: interactions.example.habr
+        to: interactions.example.dochub.customer
         value: Анализ новых статей
-      - from: dochub.customer
-        to: habr
+      - from: interactions.example.dochub.customer
+        to: interactions.example.habr
         value: Чтение статьи о DocHub
-      - from: dochub.customer
+      - from: interactions.example.dochub.customer
         to: dochub.gitlab.repository
         value: Переход в репозиторий
 
@@ -316,27 +316,27 @@ interactions:
     results:
       - Потенциальный клиент (лид)
     steps:
-      - from: dochub.customer
-        to: habr.articles
+      - from: interactions.example.dochub.customer
+        to: interactions.example.habr.articles
         value: Получение информации о DocHub
         sub-interactions: dochub.customer.promotion.article # Здесь ссылка на взаимодействие пользователя со статьями
-      - from: dochub.customer
+      - from: interactions.example.dochub.customer
         to: dochub.gitlab.repository
         value: Изучение инструкции
-      - from: dochub.customer
+      - from: interactions.example.dochub.customer
         to: dochub.gitlab.repository
         value: Развертывание
-      - from: dochub.customer
+      - from: interactions.example.dochub.customer
         to: dochub
         value: Первый опыт
 
 components:
-  dochub.customer:
+  interactions.example.dochub.customer:
     title: Клиент
     entity: actor
-  habr:
+  interactions.example.habr:
     title: Хабр
     entity: component
-  habr.articles:
+  interactions.example.habr.articles:
     title: Статьи
     entity: component
