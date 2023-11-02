@@ -25,8 +25,9 @@ type TEvent = {
       uri?: string,
       stringifedUri?: string,
       type?: TFiles,
-      uuid?: string
-      value?: string
+      uuid?: string,
+      value?: string,
+      node?: any
     },
     error?: any
   }
@@ -72,6 +73,10 @@ export default (store: Store<any>): void => {
       // Костыль. router.go(0) не работает
       router.go(-1);
       setTimeout(() => router.go(1), 1);
+    }
+    if(command === 'checkIsEntity') {
+      if(store.state.manifest.entities[content.node.name])
+        window.$PAPI.addLinks(content.node);
     }
     if (command === 'navigate') {
       (window as any).Router.push('/');
