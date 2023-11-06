@@ -1,4 +1,4 @@
-const COMPRESS_METHOD = 'deflate';
+const COMPRESS_METHOD = 'gzip'; //deflate
 
 export default function(driver) {
 
@@ -23,8 +23,10 @@ export default function(driver) {
         // Упаковывает строку в COMPRESS_METHOD и кодирует в base64
         encodeBase64: async function(str) {
             const bin = new Uint8Array(await this.encodeBin(str));
-            const base64 = String.fromCodePoint(...bin);
-            return btoa(base64);
+            const strOut = String.fromCodePoint(...bin);
+            const base64 = btoa(strOut);
+            console.info(`>>>>> InSize=${str.length} outSize=${encodeURIComponent(base64).length}`);
+            return base64;
         },
 
         // Распаковывает byteArray из COMPRESS_METHOD в строку
