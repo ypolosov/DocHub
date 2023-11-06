@@ -19,7 +19,7 @@
     },
     computed: {
       getClass() {
-        return this.inline ? 'inline' : 'not-inline';
+        return this.inline ? 'sgr-inline' : 'sgr-not-inline';
       }
     },
     watch: {
@@ -51,10 +51,14 @@
   };
 </script>
 
-<style scoped>
-.not-inline {
+<style>
+.sgr-not-inline {
   padding: 16px;
   width: 100%;
+}
+
+.swagger-ui .opblock .opblock-summary-path {
+    min-width: 100px;
 }
 
 </style>
