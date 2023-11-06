@@ -17,6 +17,7 @@
         v-bind:multi-sort="true"
         v-bind:hide-default-footer="isPrintVersion"
         v-bind:disable-pagination="isPrintVersion"
+        v-bind:footer-props="footerProps"
         class="elevation-1">
         <!-- eslint-disable vue/valid-v-slot -->
         <template #footer.prepend>
@@ -88,6 +89,13 @@
           Math.round(
             (Math.max(window.document.body?.scrollHeight || 0, window.document.body?.offsetHeight || 0) - 240)
               / 48), 5);
+      },
+      footerProps() {
+        let itemsPerPageOptions = [5, 10, 15];
+        let newOption = this.itemsPerPage;
+        if (itemsPerPageOptions.indexOf(newOption) === -1) itemsPerPageOptions.push(newOption);
+        itemsPerPageOptions.sort((a, b) => a - b).push(-1);
+        return {'items-per-page-options': itemsPerPageOptions};
       }
     },
     methods: {

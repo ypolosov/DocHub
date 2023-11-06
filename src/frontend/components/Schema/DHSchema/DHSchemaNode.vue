@@ -10,12 +10,15 @@
           <rect
             v-if="isArea(box)"
             class="box"
+            v-bind:fill="`${box.node.background || '#fff'}`"
+            v-bind:fill-opacity="`${ box.node.background ? (box.node.opacity || 1) : 0}`"
             v-bind:x="box.absoluteX"
             v-bind:y="box.absoluteY"
             v-bind:width="box.width"
             v-bind:height="box.height"
-            rx="6" />
+            rx="8" />
           <text
+            v-if="!hideBoundaryTitles && !box.node.hideTitle"
             class="box-text"
             v-bind:x="box.absoluteX + 4"
             v-bind:y="box.absoluteY + 16">
@@ -23,24 +26,25 @@
           </text>
         </template>
       </g>
-      <g v-else-if="isShowNode">
+      <g v-if="(!isArea(box) && isShowNode) || !box.node?.symbol?.startsWith('$')">
         <use
           v-bind:key="box.node.id"
           v-bind:style="{ opacity: box.opacity }"
           v-bind:x="box.absoluteX"
-          v-bind:y="box.absoluteY - 16"
+          v-bind:y="box.absoluteY"
           v-bind:xlink:href="`#${box.node.symbol}`"
           v-on:mousedown.stop.prevent="onNodeClick(box, false)"
           v-on:dblclick.stop.prevent="onNodeDblClick(box, false)" />
         <text
-          v-bind:transform="`translate(${box.absoluteX},${box.absoluteY + box.height})`" 
+          v-if="!isArea(box) && !hideLeafTitles && !box.node.hideTitle"
+          v-bind:transform="`translate(${box.absoluteX},${box.absoluteY + box.height})`"
           class="node-text"
           v-bind:style="{ opacity: box.opacity }">
           <tspan 
             v-for="(line, index) in textLines(box)"
             v-bind:key="index"
             v-bind:x="box.width * 0.5"
-            v-bind:y="index * 12"
+            v-bind:y="index * 12 + 16"
             text-anchor="middle">
             {{ line }}
           </tspan>
@@ -51,6 +55,8 @@
         v-bind:offset-y="box.y"
         v-bind:layer="box.node"
         v-bind:mode="mode"
+        v-bind:hide-boundary-titles="hideBoundaryTitles"
+        v-bind:hide-leaf-titles="hideLeafTitles"
         v-on:node-dblclick="onNodeDblClick"
         v-on:node-click="onNodeClick" />
     </g>
@@ -80,6 +86,16 @@
         type: String,
         required: true,
         validator: (val) => ['area', 'node', 'all'].includes(val)
+      },
+      hideBoundaryTitles: {
+        type: Boolean,
+        required: false,
+        default: false
+      },
+      hideLeafTitles: {
+        type: Boolean,
+        required: false,
+        default: false
       }
     },
     data() {
@@ -146,7 +162,6 @@
 <style scoped>
 .box {
   stroke: rgba(0,0,0,.6);
-  fill-opacity: 0;
   font-size: 12px;
 }
 
