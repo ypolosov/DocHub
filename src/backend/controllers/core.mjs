@@ -3,8 +3,6 @@ import storeManager from '../storage/manager.mjs';
 import cache from '../storage/cache.mjs';
 import queries from '../../global/jsonata/queries.mjs';
 import helpers from './helpers.mjs';
-import pathTool from '../../global/manifest/tools/path.mjs';
-import md5 from 'md5';
 import compression from '../../global/compress/compress.mjs';
 
 const compressor = compression();
@@ -97,7 +95,7 @@ export default (app) => {
     });
 
     // Возвращает результат работы валидаторов
-    app.get('/core/storage/problems/', function (req, res) {
+    app.get('/core/storage/problems/', function(req, res) {
         if (!helpers.isServiceReady(app, res)) return;
         res.json(app.storage.problems || []);
     });

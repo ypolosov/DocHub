@@ -330,13 +330,22 @@ interactions:
         to: dochub
         value: Первый опыт
 
-components:
-  interactions.example.dochub.customer:
-    title: Клиент
-    entity: actor
-  interactions.example.habr:
-    title: Хабр
-    entity: component
-  interactions.example.habr.articles:
-    title: Статьи
-    entity: component
+#components:
+#  interactions:
+#    title: Взаимодействия
+#    entity: component
+#  interactions.example:
+#    title: Примеры взаимодействий
+#    entity: component
+#  interactions.example.dochub:
+#    title: Примеры взаимодействий DocHub
+#    entity: component
+#  interactions.example.dochub.customer:
+#    title: Клиент
+#    entity: actor
+#  interactions.example.habr:
+#    title: Хабр
+#    entity: component
+#  interactions.example.habr.articles:
+#    title: Статьи
+#    entity: component
