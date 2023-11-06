@@ -107,7 +107,7 @@ docker-compose up --build
 
 **Requirements:**
 
-* nodejs >= 12
+* nodejs >= 20
 * plantuml with shade plugin
 
 

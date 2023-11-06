@@ -3,7 +3,14 @@ import query from '../manifest/query';
 import datasetDriver from '@global/datasets/driver.mjs';
 import pathTool from '@global/manifest/tools/path.mjs';
 import env from '@front/helpers/env';
-import md5 from 'md5';
+import compress from '@global/compress/compress.mjs';
+
+const compressor = compress({
+	// eslint-disable-next-line no-undef
+	DecompressionStream,
+	// eslint-disable-next-line no-undef
+	CompressionStream
+});
 
 export default function() {
 	return Object.assign({}, datasetDriver,
@@ -37,9 +44,10 @@ export default function() {
 			getDataOriginal: datasetDriver.getData,
 			async getData(context, subject, params, baseURI) {
 				if (env.isBackendMode()) {
-          //todo: Нужно разобраться с первопричиной, почему передаётся объект целиком
-					subject.source = `$backend/${md5(subject.source)}`;
-					const query = encodeURIComponent(JSON.stringify(subject));
+					//todo: Нужно разобраться с первопричиной, почему передаётся объект целиком
+					// subject.source = `$backend/${md5(subject.source)}`;
+					// const query = encodeURIComponent(JSON.stringify(subject));
+					const query = encodeURIComponent(await compressor.encodeBase64(JSON.stringify(subject)));
 					const url = new URL(`backend://release-data-profile/${query}`);
 					url.searchParams.set('params', JSON.stringify(params || null));
 					url.searchParams.set('baseuri', baseURI);

@@ -331,6 +331,15 @@ interactions:
         value: Первый опыт
 
 components:
+  interactions:
+    title: Взаимодействия
+    entity: component
+  interactions.example:
+    title: Примеры взаимодействий
+    entity: component
+  interactions.example.dochub:
+    title: Примеры взаимодействий DocHub
+    entity: component
   interactions.example.dochub.customer:
     title: Клиент
     entity: actor
@@ -340,3 +349,10 @@ components:
   interactions.example.habr.articles:
     title: Статьи
     entity: component
+
+contexts:
+  interactions:
+    title: Контекст для отображения объектов вовлеченных во взаимодействие
+    components:
+      - interactions
+      - interactions.**
