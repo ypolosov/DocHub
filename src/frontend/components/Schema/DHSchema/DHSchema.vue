@@ -117,6 +117,8 @@
 
   import ZoomAndPan from '../zoomAndPan';
 
+  const CACHE_VERSION = 1; //Версия кеша, для контроля совместимости в новых версиях
+
   const Graph = new function() {
     const codeWorker = require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default;
     const scriptBase64 = btoa(unescape(encodeURIComponent(codeWorker)));
@@ -133,10 +135,10 @@
     this.make = (grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug) => {
       return new Promise((success, reject) => {
         const params = {
-          grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug
+          grid, nodes, links, trackWidth, distance, symbols, isDebug
         };
         const hash = window.localStorage ? md5(JSON.stringify(params)) : null;
-        const cacheKey = `SmartAnts.cache_${hash}`;
+        const cacheKey = `SmartAnts.cache.v${CACHE_VERSION}.${hash}`;
 
         // Пытаемся достать результат из кэша
         let cacheData = null;
@@ -150,6 +152,7 @@
         } else {
           // Иначе запускаем построение диаграммы
           const queryID = uuidv4();
+          params.availableWidth = availableWidth;
           listeners[queryID] = (message) => {
             try {
               if (message.result === 'OK') {
