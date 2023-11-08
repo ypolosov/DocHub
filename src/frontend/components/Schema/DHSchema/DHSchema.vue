@@ -113,6 +113,7 @@
   import SchemaNode from './DHSchemaNode.vue';
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
+  import md5 from 'md5';
 
   import ZoomAndPan from '../zoomAndPan';
 
@@ -131,22 +132,41 @@
     };
     this.make = (grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug) => {
       return new Promise((success, reject) => {
-        const queryID = uuidv4();
-        listeners[queryID] = (message) => {
-          try {
-            if (message.result === 'OK')
-              success(message.graph);
-            else reject(message.error);
-          } finally {
-            delete listeners[queryID];
-          }
+        const params = {
+          grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug
         };
-        worker.postMessage({
-          queryID,
-          params: {
-            grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug
-          }
-        });
+        const hash = window.localStorage ? md5(JSON.stringify(params)) : null;
+        const cacheKey = `SmartAnts.cache_${hash}`;
+
+        // Пытаемся достать результат из кэша
+        let cacheData = null;
+        if (cacheKey) {
+          cacheData = localStorage.getItem(cacheKey);
+          cacheData = cacheData ? JSON.parse(cacheData): null;
+        }
+        // Если кэш есть, отдаем результат из него
+        if (cacheData) {
+          success(cacheData);
+        } else {
+          // Иначе запускаем построение диаграммы
+          const queryID = uuidv4();
+          listeners[queryID] = (message) => {
+            try {
+              if (message.result === 'OK') {
+                // Кэшируем успешный результат 
+                md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
+                success(message.graph);
+              }
+              else reject(message.error);
+            } finally {
+              delete listeners[queryID];
+            }
+          };
+          worker.postMessage({
+            queryID,
+            params
+          });
+        }
       });
     };
   };
