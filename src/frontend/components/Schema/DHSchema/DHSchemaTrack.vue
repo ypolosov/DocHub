@@ -49,6 +49,10 @@
       lineWidthLimit: {
         type: Number,
         default: 20
+      },
+      thin: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -59,7 +63,7 @@
       strokeWidth() {
         let width = ((this.isUnwisp || []).length || 1);
         width = width < this.lineWidthLimit ? width : this.lineWidthLimit;
-        return width + 1;
+        return this.thin ? width : width + 1;
       },
       isUnwisp() {
         return this.track.link.contains;

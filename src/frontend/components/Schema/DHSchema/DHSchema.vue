@@ -48,6 +48,7 @@
         v-bind:key="track.id"
         v-bind:track="track"
         v-bind:line-width-limit="lineWidthLimit"
+        v-bind:thin="lineThin"
         v-on:track-over="onTrackOver(track)"
         v-on:track-click="onTrackClick(track)"
         v-on:track-leave="onTrackLeave(track)" />
@@ -274,6 +275,12 @@
       lineWidthLimit() {
         return +this.data.config?.lineWidthLimit || 20;
       },
+      lineThin() {
+        return this.data.config?.lineThin || false;
+      },
+      lineOpacity() {
+        return this.data.config?.lineOpacity || 1.0;
+      },
       titleStyle() {
         const style = this.data?.header?.style || {};
         const result = {};
@@ -427,11 +434,11 @@
         this.presentation.tracks = this.presentation.tracks.map((track) => {
           if (unselected) {
             this.$set(track, 'animate', false);
-            this.$set(track, 'opacity', 1);
+            this.$set(track, 'opacity', this.lineOpacity);
           } else {
             this.$set(track, 'highlight', !!this.selected.links[track.id]);
             this.$set(track, 'animate', track.highlight);
-            this.$set(track, 'opacity', track.animate ? 1 : OPACITY);
+            this.$set(track, 'opacity', track.animate ? this.lineOpacity : OPACITY * this.lineOpacity);
           }
           return track;
         }).sort((track1, track2) => {
@@ -472,7 +479,7 @@
         this.selected.links = {};
         this.presentation.tracks.map((track) => {
           this.$set(track, 'animate', false);
-          this.$set(track, 'opacity', 1);
+          this.$set(track, 'opacity', this.lineOpacity);
           this.$set(track, 'highlight', false);
         });
       },
