@@ -51,6 +51,7 @@
         v-bind:thin="lineThin"
         v-on:track-over="onTrackOver(track)"
         v-on:track-click="onTrackClick(track)"
+        v-on:track-title-click="onTrackTitleClick(track)"
         v-on:track-leave="onTrackLeave(track)" />
     </template>
       
@@ -449,19 +450,24 @@
       },
       // Фиксируем выбор линка
       onTrackClick(track) {
+        if (!this.isIgnoreClick()) {
+          this.cleanSelectedTracks();
+          this.cleanSelectedNodes();
+        }
+        this.selected.links[track.id] = track;
+        this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
+        this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
+        this.selected.nodes = {...this.selected.nodes};
+        this.updateNodeView();
+        this.updateTracksView();
+      },
+      // Клик по заголовку линка. Если есть переход, переходим,
+      // если нет - стандартное действие для клика по треку
+      onTrackTitleClick(track) {
         if(track.link.link) {
           this.$emit('on-click-link', track.link);
         } else {
-          if (!this.isIgnoreClick()) {
-            this.cleanSelectedTracks();
-            this.cleanSelectedNodes();
-          }
-          this.selected.links[track.id] = track;
-          this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
-          this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
-          this.selected.nodes = {...this.selected.nodes};
-          this.updateNodeView();
-          this.updateTracksView();
+          this.$emit('track-click', track.link);
         }
       },
       // Обработка событий прохода мышки над связями

@@ -26,7 +26,7 @@
       v-bind:class="classesTitle"
       v-on:mouseover="onTrackOver"
       v-on:mouseleave="onTrackLeave"
-      v-on:mousedown.stop.prevent="onTrackClick">
+      v-on:mousedown.stop.prevent="onTrackTitleClick">
       {{ title.text }}
     </text>
   </g>
@@ -189,6 +189,9 @@
       // 
       onTrackClick() {
         this.$emit('track-click', this.track);
+      },
+      onTrackTitleClick() {
+        this.$emit('track-title-click', this.track);
       },
       // Прокидываем события в диаграмму
       onTrackOver() {
