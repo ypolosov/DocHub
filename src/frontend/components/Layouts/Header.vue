@@ -88,6 +88,7 @@
       },
       gotoProblems() {
         this.$router.push({name: 'problems'}).catch(() => null);
+      },
       debug() {
         window.$PAPI.debug();
       },
