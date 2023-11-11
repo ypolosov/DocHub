@@ -48,8 +48,10 @@
         v-bind:key="track.id"
         v-bind:track="track"
         v-bind:line-width-limit="lineWidthLimit"
+        v-bind:thin="lineThin"
         v-on:track-over="onTrackOver(track)"
         v-on:track-click="onTrackClick(track)"
+        v-on:track-title-click="onTrackTitleClick(track)"
         v-on:track-leave="onTrackLeave(track)" />
     </template>
       
@@ -274,6 +276,12 @@
       lineWidthLimit() {
         return +this.data.config?.lineWidthLimit || 20;
       },
+      lineThin() {
+        return this.data.config?.lineThin || false;
+      },
+      lineOpacity() {
+        return this.data.config?.lineOpacity || 1.0;
+      },
       titleStyle() {
         const style = this.data?.header?.style || {};
         const result = {};
@@ -427,11 +435,11 @@
         this.presentation.tracks = this.presentation.tracks.map((track) => {
           if (unselected) {
             this.$set(track, 'animate', false);
-            this.$set(track, 'opacity', 1);
+            this.$set(track, 'opacity', this.lineOpacity);
           } else {
             this.$set(track, 'highlight', !!this.selected.links[track.id]);
             this.$set(track, 'animate', track.highlight);
-            this.$set(track, 'opacity', track.animate ? 1 : OPACITY);
+            this.$set(track, 'opacity', track.animate ? this.lineOpacity : OPACITY * this.lineOpacity);
           }
           return track;
         }).sort((track1, track2) => {
@@ -442,19 +450,24 @@
       },
       // Фиксируем выбор линка
       onTrackClick(track) {
+        if (!this.isIgnoreClick()) {
+          this.cleanSelectedTracks();
+          this.cleanSelectedNodes();
+        }
+        this.selected.links[track.id] = track;
+        this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
+        this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
+        this.selected.nodes = {...this.selected.nodes};
+        this.updateNodeView();
+        this.updateTracksView();
+      },
+      // Клик по заголовку линка. Если есть переход, переходим,
+      // если нет - стандартное действие для клика по треку
+      onTrackTitleClick(track) {
         if(track.link.link) {
           this.$emit('on-click-link', track.link);
         } else {
-          if (!this.isIgnoreClick()) {
-            this.cleanSelectedTracks();
-            this.cleanSelectedNodes();
-          }
-          this.selected.links[track.id] = track;
-          this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
-          this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
-          this.selected.nodes = {...this.selected.nodes};
-          this.updateNodeView();
-          this.updateTracksView();
+          this.$emit('track-click', track.link);
         }
       },
       // Обработка событий прохода мышки над связями
@@ -472,7 +485,7 @@
         this.selected.links = {};
         this.presentation.tracks.map((track) => {
           this.$set(track, 'animate', false);
-          this.$set(track, 'opacity', 1);
+          this.$set(track, 'opacity', this.lineOpacity);
           this.$set(track, 'highlight', false);
         });
       },
