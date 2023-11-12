@@ -5,6 +5,7 @@ import md5 from 'md5';
 import events from '../helpers/events.mjs';
 import validators from '../helpers/validators.mjs';
 import entities from '../entities/entities.mjs';
+import objectHash from 'object-hash';
 
 const LOG_TAG = 'storage-manager';
 
@@ -25,6 +26,8 @@ manifestParser.onReloaded = (parser) => {
 };
 
 export default {
+	// Стек обработчиков события на обновление манифеста
+	onApplyManifest: [],
 	reloadManifest: async function() {
 		logger.log('Run full reload manifest', LOG_TAG);
 		// Загрузку начинаем с виртуального манифеста
@@ -32,21 +35,25 @@ export default {
 		await manifestParser.clean();
 		await manifestParser.startLoad();
 		await manifestParser.import('file:///$root$');
-    	await manifestParser.checkAwaitedPackages();
-    	await manifestParser.checkLoaded();
+		await manifestParser.checkAwaitedPackages();
+		await manifestParser.checkLoaded();
 		await manifestParser.stopLoad();
 
 		entities(manifestParser.manifest);
 
 		logger.log('Full reload is done', LOG_TAG);
 		const result = {
-			manifest: manifestParser.manifest,	// Сформированный манифест
-			mergeMap: {},						// Карта склейки объектов
-			md5Map: {},							// Карта путей к ресурсам по md5 пути
+			manifest: manifestParser.manifest,			// Сформированный манифест
+			hash: objectHash(manifestParser.manifest),	// HASH состояния для контроля в кластере
+			mergeMap: {},								// Карта склейки объектов
+			md5Map: {},									// Карта путей к ресурсам по md5 пути
 			// Ошибки, которые возникли при загрузке манифестов
 			// по умолчанию заполняем ошибками, которые возникли при загрузке
 			problems: Object.keys(cache.errors || {}).map((key) => cache.errors[key]) || []
 		};
+
+		// Выводим информацию о текущем hash состояния
+		logger.log(`Hash of manifest is ${result.hash}`, LOG_TAG);
 
 		// Если есть ошибки загрузки, то дергаем callback 
 		result.problems.length && events.onFoundLoadingError();
@@ -61,10 +68,14 @@ export default {
 		}
 		return result;
 	},
-  applyManifest: async function(app, storage) {
-    app.storage = storage;  // Инициализируем данные хранилища
-    validators(app);        // Выполняет валидаторы
-    Object.freeze(app.storage);
-  }
+	applyManifest: async function(app, storage) {
+		app.storage = storage;  // Инициализируем данные хранилища
+		validators(app);        // Выполняет валидаторы
+		Object.freeze(app.storage);
+		this.onApplyManifest.map((listener) => listener(app));
+	},
+	cleanStorage(app) {
+		app.storage = undefined;
+	}
 };
 

@@ -13,7 +13,7 @@ export default (app) => {
 
     // Создает ответ на JSONata запрос и при необходимости кэширует ответ
     function makeJSONataQueryResponse(res, query, params, subject) {
-        cache.pullFromCache(JSON.stringify({ query, params, subject }), async() => {
+        cache.pullFromCache(app.storage.hash, JSON.stringify({ query, params, subject }), async() => {
             return await datasets(app).parseSource(
                 app.storage.manifest,
                 query,
@@ -54,9 +54,10 @@ export default (app) => {
             });
             return;
         } else {
+            const oldHash = app.storage.hash;
             storeManager.reloadManifest()
                 .then((storage) => storeManager.applyManifest(app, storage))
-                .then(cache.clearCache)
+                .then(() => cache.clearCache(oldHash))
                 .then(() => res.json({ message: 'success' }));
         }
     });
@@ -66,7 +67,7 @@ export default (app) => {
         if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
-        cache.pullFromCache(JSON.stringify({ path: request.query, params: request.params }), async () => {
+        cache.pullFromCache(app.storage.hash, JSON.stringify({ path: request.query, params: request.params }), async () => {
             if (request.query.startsWith('/'))
                 return await datasets(app).releaseData(request.query, request.params);
             else {
