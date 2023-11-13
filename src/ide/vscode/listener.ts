@@ -4,6 +4,7 @@ import { listeners } from './pipe';
 import config from '@front/config';
 import { Buffer } from 'buffer';
 import router from '@front/router';
+import { Route } from 'vue-router';
 
 enum Files {
   'jpg',
@@ -27,7 +28,8 @@ type TEvent = {
       type?: TFiles,
       uuid?: string,
       value?: string,
-      node?: any
+      node?: any,
+      route: Route
     },
     error?: any
   }
@@ -69,6 +71,9 @@ export default (store: Store<any>): void => {
   window.addEventListener('message', (event: TEvent) => {
     const {command, content, error} = event?.data;
 
+    if(command === 'goToRoute') {
+      (window as any).Router.push(content.route);
+    }
     if(command === 'refresh') {
       // Костыль. router.go(0) не работает
       router.go(-1);

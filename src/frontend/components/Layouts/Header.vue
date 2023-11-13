@@ -92,11 +92,9 @@
       debug() {
         window.$PAPI.debug();
       },
-      refresh() {
+      async refresh() {
         const currentRoute = { path: this.$route.path, query: this.$route.query };
-        this.$router.push({ path: '/' }).then(() => {
-          this.$router.push(currentRoute);
-        });
+        await window.$PAPI.reload(currentRoute);
       },
       onLogoClick() {
         this.$router.push({name: 'main'}).catch(() => null);
