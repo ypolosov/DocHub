@@ -71,6 +71,11 @@ export default (store: Store<any>): void => {
   window.addEventListener('message', (event: TEvent) => {
     const {command, content, error} = event?.data;
 
+    if(command === 'fetchPlugins') {
+      const plugins = require('../../../plugins.json');
+      window.$PAPI.pluginList({ plugins: plugins.inbuilt });
+    }
+
     if(command === 'goToRoute') {
       (window as any).Router.push(content.route);
     }

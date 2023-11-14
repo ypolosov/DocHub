@@ -14,6 +14,9 @@ export default (): void => {
     checkIsRootManifest(): void {
       emit('check-is-root-manifest', '');
     },
+    pluginList(plugins) {
+      emit('pluginList', plugins);
+    },
     loaded() {
       emit('loaded', '');
     },
