@@ -48,8 +48,10 @@
         v-bind:key="track.id"
         v-bind:track="track"
         v-bind:line-width-limit="lineWidthLimit"
+        v-bind:thin="lineThin"
         v-on:track-over="onTrackOver(track)"
         v-on:track-click="onTrackClick(track)"
+        v-on:track-title-click="onTrackTitleClick(track)"
         v-on:track-leave="onTrackLeave(track)" />
     </template>
       
@@ -113,8 +115,11 @@
   import SchemaNode from './DHSchemaNode.vue';
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
+  import md5 from 'md5';
 
   import ZoomAndPan from '../zoomAndPan';
+
+  const CACHE_VERSION = 1; //Версия кеша, для контроля совместимости в новых версиях
 
   const Graph = new function() {
     const codeWorker = require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default;
@@ -131,22 +136,42 @@
     };
     this.make = (grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug) => {
       return new Promise((success, reject) => {
-        const queryID = uuidv4();
-        listeners[queryID] = (message) => {
-          try {
-            if (message.result === 'OK')
-              success(message.graph);
-            else reject(message.error);
-          } finally {
-            delete listeners[queryID];
-          }
+        const params = {
+          grid, nodes, links, trackWidth, distance, symbols, isDebug
         };
-        worker.postMessage({
-          queryID,
-          params: {
-            grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug
-          }
-        });
+        const hash = window.localStorage ? md5(JSON.stringify(params)) : null;
+        const cacheKey = `SmartAnts.cache.v${CACHE_VERSION}.${hash}`;
+
+        // Пытаемся достать результат из кэша
+        let cacheData = null;
+        if (cacheKey) {
+          cacheData = localStorage.getItem(cacheKey);
+          cacheData = cacheData ? JSON.parse(cacheData): null;
+        }
+        // Если кэш есть, отдаем результат из него
+        if (cacheData) {
+          success(cacheData);
+        } else {
+          // Иначе запускаем построение диаграммы
+          const queryID = uuidv4();
+          params.availableWidth = availableWidth;
+          listeners[queryID] = (message) => {
+            try {
+              if (message.result === 'OK') {
+                // Кэшируем успешный результат 
+                md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
+                success(message.graph);
+              }
+              else reject(message.error);
+            } finally {
+              delete listeners[queryID];
+            }
+          };
+          worker.postMessage({
+            queryID,
+            params
+          });
+        }
       });
     };
   };
@@ -250,6 +275,12 @@
       },
       lineWidthLimit() {
         return +this.data.config?.lineWidthLimit || 20;
+      },
+      lineThin() {
+        return this.data.config?.lineThin || false;
+      },
+      lineOpacity() {
+        return this.data.config?.lineOpacity || 1.0;
       },
       titleStyle() {
         const style = this.data?.header?.style || {};
@@ -404,11 +435,11 @@
         this.presentation.tracks = this.presentation.tracks.map((track) => {
           if (unselected) {
             this.$set(track, 'animate', false);
-            this.$set(track, 'opacity', 1);
+            this.$set(track, 'opacity', this.lineOpacity);
           } else {
             this.$set(track, 'highlight', !!this.selected.links[track.id]);
             this.$set(track, 'animate', track.highlight);
-            this.$set(track, 'opacity', track.animate ? 1 : OPACITY);
+            this.$set(track, 'opacity', track.animate ? this.lineOpacity : OPACITY * this.lineOpacity);
           }
           return track;
         }).sort((track1, track2) => {
@@ -419,19 +450,24 @@
       },
       // Фиксируем выбор линка
       onTrackClick(track) {
+        if (!this.isIgnoreClick()) {
+          this.cleanSelectedTracks();
+          this.cleanSelectedNodes();
+        }
+        this.selected.links[track.id] = track;
+        this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
+        this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
+        this.selected.nodes = {...this.selected.nodes};
+        this.updateNodeView();
+        this.updateTracksView();
+      },
+      // Клик по заголовку линка. Если есть переход, переходим,
+      // если нет - стандартное действие для клика по треку
+      onTrackTitleClick(track) {
         if(track.link.link) {
           this.$emit('on-click-link', track.link);
         } else {
-          if (!this.isIgnoreClick()) {
-            this.cleanSelectedTracks();
-            this.cleanSelectedNodes();
-          }
-          this.selected.links[track.id] = track;
-          this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
-          this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
-          this.selected.nodes = {...this.selected.nodes};
-          this.updateNodeView();
-          this.updateTracksView();
+          this.$emit('track-click', track.link);
         }
       },
       // Обработка событий прохода мышки над связями
@@ -449,7 +485,7 @@
         this.selected.links = {};
         this.presentation.tracks.map((track) => {
           this.$set(track, 'animate', false);
-          this.$set(track, 'opacity', 1);
+          this.$set(track, 'opacity', this.lineOpacity);
           this.$set(track, 'highlight', false);
         });
       },
