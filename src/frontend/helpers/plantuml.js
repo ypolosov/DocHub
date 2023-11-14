@@ -16,7 +16,7 @@ export default {
           }
         });
       case 'post_compressed':
-        return this.post(this.svgBaseURL() + 'compressed', this.compress(uml));
+        return this.post(this.svgBaseURL() + 'zopfli', this.compress(uml, false));
       default:
         return this.get(this.svgURL(uml));
     }
@@ -94,7 +94,7 @@ export default {
 	encode6bit(e) {
 		return e < 10 ? String.fromCharCode(48 + e) : (e -= 10) < 26 ? String.fromCharCode(65 + e) : (e -= 26) < 26 ? String.fromCharCode(97 + e) : 0 == (e -= 26) ? '-' : 1 == e ? '_' : '?';
 	},
-	compress(s) {
+	compress(s, toEncode = true) {
 		s = unescape(encodeURIComponent(s));
 		let arr = [];
 		for (var i = 0; i < s.length; i++) {
@@ -104,6 +104,6 @@ export default {
 		let compressor = new Zopfli.RawDeflate(arr);
 		let compressed = compressor.compress();
 
-		return this.encode64_(compressed);
+		return toEncode ? this.encode64_(compressed) : compressed;
 	}
 };
