@@ -8,6 +8,7 @@ import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import controllerEntity from './controllers/entity.mjs';
 import middlewareAccess from './middlewares/access.mjs';
+import middlewareCluster from './middlewares/cluster.mjs';
 
 const LOG_TAG = 'server';
 
@@ -21,21 +22,6 @@ app.storage = null;
 // Подключаем контроль доступа
 middlewareAccess(app);
 
-// Подключаем сжатие контента
-middlewareCompression(app);
-
-// API ядра
-controllerCore(app);
-
-// API сущностей 
-controllerEntity(app);
-
-// Контроллер доступа к файлам в хранилище
-controllerStorage(app);
-
-// Статические ресурсы
-controllerStatic(app);
-
 // Основной цикл приложения
 const mainLoop = async function() {
     // Загружаем манифест
@@ -44,8 +30,26 @@ const mainLoop = async function() {
     });
 
     storeManager.reloadManifest()
-        .then((storage) => storeManager.applyManifest(app, storage));
+        .then(async(storage) => {
+            await storeManager.applyManifest(app, storage);
+            // Подключаем драйвер кластера
+            await middlewareCluster(app, storeManager);
 
+            // Подключаем сжатие контента
+            middlewareCompression(app);
+
+            // API ядра
+            controllerCore(app);
+
+            // API сущностей 
+            controllerEntity(app);
+
+            // Контроллер доступа к файлам в хранилище
+            controllerStorage(app);
+
+            // Статические ресурсы
+            controllerStatic(app);
+        });
 };
 
 mainLoop();

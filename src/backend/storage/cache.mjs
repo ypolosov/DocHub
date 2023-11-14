@@ -7,20 +7,22 @@ import yaml from 'yaml';
 import path from 'path';
 import fs from 'fs';
 import md5 from 'md5';
+import createRedisClient from '../drivers/redis.mjs';
 
 const LOG_TAG = 'manifest-cache';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const cacheMode = (process.env.VUE_APP_DOCHUB_DATALAKE_CACHE || 'none').toLocaleLowerCase();
+
+const redisClient = cacheMode === 'redis' ? await createRedisClient() : null;
 
 export function loadFromAssets(filename) {
     const source = path.resolve(__dirname, '../../assets/' + filename);
 
     logger.log(`Import base metamodel from  [${source}].`, LOG_TAG);
     return fs.readFileSync(source, { encoding: 'utf8', flag: 'r' });
-
-
 }
 
 // Подключает базовую метамодель
@@ -46,11 +48,17 @@ export default Object.assign(prototype, {
     errorClear() {
         this.errors = {};
     },
-    clearCache() {
-      const cacheMode = process.env.VUE_APP_DOCHUB_DATALAKE_CACHE || 'none';
-      switch (cacheMode.toLocaleLowerCase()) {
+    // Очистка кэша
+    //  prefix - Префикс, который будет использован перед ключом
+    async clearCache(prefix) {
+      switch (cacheMode) {
         case 'none': return; 
         case 'memory': memoryCache = {}; break;
+        case 'redis': 
+            // eslint-disable-next-line no-case-declarations
+            const keys = await redisClient.keys(`DocHub.cache.${prefix || ''}.*`);
+            keys.map((key) => redisClient.del(key));
+            break;
         default: {
           const cacheDir = path.resolve(__dirname, '../../../', cacheMode);
           fs.readdir(cacheDir, (err, files) => {
@@ -81,17 +89,30 @@ export default Object.assign(prototype, {
         });
     },
     // Получает данные из кэша 
+    //  prefix - Префикс, который будет использован перед ключом
     //  key - ключ
     //  resolve - если в кэше данные не будут найдены, будет вызвана функция для генерации данных
     //  res - response объект express. Если указано, то ответ сразу отправляется клиенту
-    async pullFromCache(key, resolve, res) {
+    async pullFromCache(prefix, key, resolve, res) {
         let fileName = null;
         try {
             let result = null;
-            const cacheMode = process.env.VUE_APP_DOCHUB_DATALAKE_CACHE || 'none';
-            switch (cacheMode.toLocaleLowerCase()) {
+            const md5Key = `DocHub.cache.${prefix || 'unknown'}.${md5(key)}`;
+            
+            switch (cacheMode) {
                 case 'none': result = resolve && await resolve() || undefined; break;
-                case 'memory': result = memoryCache[md5(key)] || (resolve && (memoryCache[md5(key)] = await resolve())); break;
+                case 'memory': result = memoryCache[md5Key] 
+                    || (resolve && (memoryCache[md5Key] = await resolve()));
+                    break;
+                case 'redis': 
+                    result = await redisClient.get(md5Key);
+                    if (result) {
+                        result = JSON.parse(result);
+                    } else {
+                        result = await resolve();
+                        await redisClient.set(md5Key, JSON.stringify(result));
+                    }
+                    break;
                 default: {
                     const hash = md5(key);
                     fileName = path.resolve(__dirname, '../../../', cacheMode, `${hash}.cache`);
@@ -112,7 +133,7 @@ export default Object.assign(prototype, {
 
             return res ? true : result;
         } catch (e) {
-            this.registerError('system', md5(key), 'Cache error', fileName || 'memory', 'See error log at backed server', e.message);
+            this.registerError('system', md5(key), 'Cache error', fileName || cacheMode, 'See error log at backed server', e.message);
             if (res) {
                 res.status(500);
                 res.json({
