@@ -25,7 +25,6 @@ export default function(driver) {
             const bin = new Uint8Array(await this.encodeBin(str));
             const strOut = String.fromCodePoint(...bin);
             const base64 = btoa(strOut);
-            console.info(`>>>>> InSize=${str.length} outSize=${encodeURIComponent(base64).length}`);
             return base64;
         },
 
