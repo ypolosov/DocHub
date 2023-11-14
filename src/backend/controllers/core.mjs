@@ -34,7 +34,7 @@ export default (app) => {
     }
 
     // Выполняет произвольные запросы 
-    app.get('/core/storage/jsonata/:query', function (req, res) {
+    app.get('/core/storage/jsonata/:query', function(req, res) {
         if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
@@ -67,7 +67,7 @@ export default (app) => {
         if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
-        cache.pullFromCache(app.storage.hash, JSON.stringify({ path: request.query, params: request.params }), async () => {
+        cache.pullFromCache(app.storage.hash, JSON.stringify({ path: request.query, params: request.params }), async() => {
             if (request.query.startsWith('/'))
                 return await datasets(app).releaseData(request.query, request.params);
             else {
