@@ -1,0 +1,23 @@
+# Пользовательские функции
+functions:
+  dh_object_to_text:
+    title: Конвертирует объект в текст для создания поисковых индексов
+    # Схема входящих параметров
+    params:
+      type: object
+      properties:
+        object:
+          title: Объект конвертации в текст
+      required:
+        - object
+    # Схема результата
+    result:
+      type: string
+    # Код функции
+    code: >
+      (
+        "test"
+      )
+
+
+    
