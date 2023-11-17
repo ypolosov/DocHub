@@ -1,6 +1,7 @@
 <template>
   <div class="json-viewer-box">
-    <json-viewer v-bind:value="data" v-bind:expand-depth="expandDepth" />
+    <!-- TODO: разное поведение для preview-mode и expand-depth с большим числом. preview-mode учеличивает производительность -->
+    <json-viewer v-if="data" v-bind:value="data" v-bind:expand-depth="expandDepth" v-bind:show-double-quotes="true" v-bind:preview-mode="autoExpand" v-bind:copyable="copyable" v-bind:show-array-index="false" />
   </div>
 </template>
 
@@ -20,6 +21,15 @@
         type: Boolean,
         required: true
       }
+    },
+    data() {
+      return {
+        copyable: {
+          copyText: 'Копировать',
+          copiedText: 'Скопировано',
+          timeout: 2000
+        }
+      };
     },
     computed: {
       expandDepth() {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="crutch">
     <codemirror v-model="cmCode" v-bind:options="cmOptions" />
   </div>
 </template>
@@ -33,7 +33,6 @@
 
     data() {
       return {
-        // extensions: [customCodeTheme],
         cmOptions: {
           tabSize: 4,
           mode: 'jsonata',
@@ -57,10 +56,13 @@
   };
 </script>
 
-
-
 <style>
   .CodeMirror {
     height: auto;
+  }
+  .crutch {
+    background-color: #282a36 !important;
+    color: #f8f8f2 !important;
+    height: 100%;
   }
 </style>

@@ -1,10 +1,11 @@
 <template>
   <v-container class="desk" grid-list-xl fluid>
-    <v-toolbar dense flat dark>
+    <v-toolbar dense flat>
       <v-spacer />
       <v-btn v-show="!autoExec" icon title="Выполнить" v-on:click="manualExec(true)">
         <v-icon>mdi-arrow-right-drop-circle</v-icon>
       </v-btn>
+      <!-- TODO: кнопка "Дублировать панель" (чтобы отлаживать части запроса). А Ещё если часть текста выделить и в отдельную вкладку... -->
       <v-btn icon title="Добавить панель" v-on:click="addTab()">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
@@ -18,12 +19,12 @@
           <v-list-item>
             <v-checkbox
               v-model="autoExec" />
-            <v-list-item-title>Автоматически выполнять запросы</v-list-item-title>
+            <v-list-item-title>Автовыполнение</v-list-item-title>
           </v-list-item>
           <v-list-item>
             <v-checkbox
               v-model="autoExpand" />
-            <v-list-item-title>Автоматически разворачивать ответ</v-list-item-title>
+            <v-list-item-title>Не сворачивать ответ</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -41,10 +42,11 @@
     <split v-if="tabs.length" v-bind:direction="'vertical'">
       <split-area v-bind:size="40" class="area-space">
         <!-- TODO: минимальная высота на всю split-area -->
+        <!-- TODO: theme selector -->
         <code-component v-if="tabs[selectedTab]" v-model="tabs[selectedTab].code" v-bind:change="onChange" />
       </split-area>
       <split-area v-bind:size="60" class="area-space">
-        <div class="responsePane">
+        <div class="response">
           <!-- TODO: loader здорового человека -->
           <div v-if="tabs[selectedTab].loading">Идет загрузка</div>
           <div v-else>
@@ -55,11 +57,11 @@
               {{ tabs[selectedTab].unexpectedError }}
             </div>
             <div v-else-if="tabs[selectedTab].error">
-              <response-component v-bind:data="tabs[selectedTab].error" v-bind:auto-expand="autoExpand" />
+              <response-component v-if="tabs[selectedTab].error" v-bind:data="tabs[selectedTab].error" v-bind:auto-expand="autoExpand" />
             </div>
             <div v-else>
               <!-- TODO: низкая производительность при большом объёме данных -->
-              <response-component v-bind:data="tabs[selectedTab].response" v-bind:auto-expand="autoExpand" />
+              <response-component v-if="tabs[selectedTab].response" v-bind:data="tabs[selectedTab].response" v-bind:auto-expand="autoExpand" />
             </div>
           </div>
         </div>
@@ -124,21 +126,27 @@
       }
     },
     mounted() {
-      if (localStorage.getItem(LOCALSTORAGE_NAME_TABS)) {
-        try {
-          this.tabs = JSON.parse(localStorage.getItem(LOCALSTORAGE_NAME_TABS));
-          console.log(typeof this.tabs);
-          this.tabsCounter = this.tabs.length;
-          console.log(this.tabs);
-          return;
-        } catch(e) {
-          localStorage.removeItem(LOCALSTORAGE_NAME_TABS);
-        }
-      }
-      this.addTab();
-      console.log(this.tabs);
+
+      this.onRefresh();
     },
     methods: {
+      doRefresh() {
+        if (localStorage.getItem(LOCALSTORAGE_NAME_TABS)) {
+          try {
+            this.tabs = JSON.parse(localStorage.getItem(LOCALSTORAGE_NAME_TABS));
+            this.tabsCounter = this.tabs.length;
+            this.exec();
+            return;
+          } catch(e) {
+            localStorage.removeItem(LOCALSTORAGE_NAME_TABS);
+          }
+        }
+        this.addTab();
+      },
+      onRefresh() {
+        if (this.refresher) clearTimeout(this.refresher);
+        this.refresher = setTimeout(this.doRefresh, 50);
+      },
       // TODO: метод чтобы класть в localStorage табы, но удалять лишнее
       addTab() {
         const id = uuidv4();
@@ -151,32 +159,48 @@
         this.tabs.splice(id, 1);
         localStorage.setItem(LOCALSTORAGE_NAME_TABS, JSON.stringify(this.tabs));
       },
+      showEmpty(tab, data) {
+        tab.emptyData = data || 'Пустой ответ от сервера';
+      },
+      showSuccess(tab, data) {
+        tab.response = data;
+      },
+      showError(tab, data) {
+        tab.error = data;
+      },
       manualExec(){
         this.exec();
       },
-      async exec(){
+      exec(){
         const currentTab = this.tabs[this.selectedTab];
 
         currentTab.error = null;
         currentTab.unexpectedError = null;
         currentTab.emptyData = null;
+        currentTab.response = null;
 
         localStorage.setItem(LOCALSTORAGE_NAME_TABS, JSON.stringify(this.tabs));
 
-        const showEmpty = (data) => {
-          currentTab.emptyData = data;
-        };
-
+        if (env.isBackendMode()){
+          this.backendExec(currentTab);
+        }else{
+          this.baseExec(currentTab);
+        }
+      },
+      baseExec(currentTab){
+        this.pullData(`(${currentTab.code})`).then(response => {
+          if (response){
+            this.showSuccess(currentTab, response);
+          }else{
+            this.showEmpty(currentTab);
+          }
+        }).catch(response => {
+          this.showError(currentTab, response);
+        });
+      },
+      async backendExec(currentTab){
         const showUnexpectedError = (data) => {
           currentTab.unexpectedError = data;
-        };
-
-        const showError = (data) => {
-          currentTab.error = data;
-        };
-
-        const showSuccess = (data) => {
-          currentTab.response = data;
         };
 
         if (currentTab.controller) {
@@ -187,10 +211,12 @@
         currentTab.controller = new AbortController();
 
         currentTab.loading = true;
+
         try {
           request = await fetch(`${backendFileStorageURL}jsonata/(${encodeURIComponent(currentTab.code)})?params=null&subject=null`, {
             signal: currentTab.controller.signal
           });
+
         } catch (e) {
           if(e.name === 'AbortError') {
             return;
@@ -207,16 +233,15 @@
         try {
           jsonData = await request.json();
         } catch (e) {
-          return showEmpty('Пустой ответ от сервера');
+          return this.showEmpty(currentTab);
         }
 
         if (request.status === 500) {
-          return showError(jsonData);
+          return this.showError(currentTab, jsonData);
         }
 
-        return showSuccess(jsonData);
+        return this.showSuccess(currentTab, jsonData);
       },
-
       onChange(code) {
         const currentTab = this.tabs[this.selectedTab];
 
@@ -237,5 +262,8 @@
   .split:not(.area-space){
     height: calc(100% - 96px);
     border: solid 1px #eee;
+  }
+  .response {
+    padding: 1em;
   }
 </style>

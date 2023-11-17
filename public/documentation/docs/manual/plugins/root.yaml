@@ -19,3 +19,7 @@ docs:
       head1:
         type: test
     source: examples/example.html
+  dochub.plugins.devtool_new:
+    location: DocHub/Руководство/Плагины/DevTool New
+    type: devtool
+ 
