@@ -158,8 +158,12 @@
           listeners[queryID] = (message) => {
             try {
               if (message.result === 'OK') {
-                // Кэшируем успешный результат 
-                md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
+                // Кэшируем успешный результат
+                try {
+                  md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
+                } catch (e) {
+                  console.log(`Can't cache SA result: ${e}`);
+                }
                 success(message.graph);
               }
               else reject(message.error);
