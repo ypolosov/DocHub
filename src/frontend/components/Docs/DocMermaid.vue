@@ -55,7 +55,12 @@
 
               this.$nextTick(() => href.elProcessing(this.$el));
             };
-            mermaid.renderAsync(`buffer${id}`, source, cb);
+            const drawDiagram = async function() {
+              const { svg } = await mermaid.render(`buffer${id}`, source);
+              cb(svg);
+            };
+
+            drawDiagram();
           }).catch((e) => this.error = e);
         });
       }
