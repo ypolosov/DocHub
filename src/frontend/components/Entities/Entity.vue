@@ -110,6 +110,9 @@
       },
       manifest() {
         this.reloadProfile();
+      },
+      currentPresentation() {
+        this.reloadProfile();
       }
     },
     mounted() {
