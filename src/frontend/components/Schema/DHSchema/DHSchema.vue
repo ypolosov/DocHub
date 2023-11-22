@@ -158,13 +158,15 @@
           listeners[queryID] = (message) => {
             try {
               if (message.result === 'OK') {
-                // Кэшируем успешный результат
-                try {
-                  md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
-                } catch (e) {
-                  //todo:разобраться с переполнением кэша
-                  // eslint-disable-next-line no-console
-                  console.warn(`Can't cache SA result: ${e}`);
+                if (message.graph?.warnings?.length === 0) {
+                  // Кэшируем успешный результат
+                  try {
+                    // md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
+                  } catch (e) {
+                    //todo:разобраться с переполнением кэша
+                    // eslint-disable-next-line no-console
+                    console.warn(`Can't cache SA result: ${e}`);
+                  }
                 }
                 success(message.graph);
               }
