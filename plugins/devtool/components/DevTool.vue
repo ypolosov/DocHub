@@ -93,6 +93,7 @@
   const COOKIE_NAME_AUTOEXPAND = 'json-dev-tool-new-autoexpand';
   const LOCALSTORAGE_NAME_TABS = 'json-dev-tool-new-tabs';
   const COOKIE_NAME_SELECTEDTAB = 'json-dev-tool-new-selectedtab';
+  const TAB_DEFAULT = { 'response': {}, 'loading': false, 'error': null, 'unexpectedError': null, 'controller': null, 'emptyData': null};
 
 
   export default {
@@ -137,7 +138,11 @@
       doRefresh() {
         if (localStorage.getItem(LOCALSTORAGE_NAME_TABS)) {
           try {
-            this.tabs = JSON.parse(localStorage.getItem(LOCALSTORAGE_NAME_TABS));
+            const tabs = JSON.parse(localStorage.getItem(LOCALSTORAGE_NAME_TABS));
+            console.log(tabs);
+            this.tabs = tabs.map(tab => ({
+              ...tab, ...TAB_DEFAULT
+            }));
             this.tabsCounter = this.tabs.length;
             this.exec();
             return;
@@ -151,11 +156,17 @@
         if (this.refresher) clearTimeout(this.refresher);
         this.refresher = setTimeout(this.doRefresh, 50);
       },
+      saveTabsToLocalStorage(){
+        const tabs = this.tabs.map(tab => ({
+          'id': tab.id, 'name': tab.name, 'code': tab.code
+        }));
+        localStorage.setItem(LOCALSTORAGE_NAME_TABS, JSON.stringify(tabs));
+      },
       addTab() {
         const id = uuidv4();
         this.tabsCounter += 1;  // кол-во ключей в объекте tabs не получится использовать, т.к. при удалении-создании начнётся каша с нумерацией
-        this.tabs.push({'id': id, 'name': `Панель #${this.tabsCounter}`, 'code': '', 'response': {}, 'loading': false, 'error': null, 'unexpectedError': null, 'controller': null, 'emptyData': null});
-        localStorage.setItem(LOCALSTORAGE_NAME_TABS, JSON.stringify(this.tabs));
+        this.tabs.push({'id': id, 'name': `Панель #${this.tabsCounter}`, 'code': '', ...TAB_DEFAULT});
+        this.saveTabsToLocalStorage();
       },
       cloneTab(id) {
         const oldTab = this.tabs[id];
@@ -164,7 +175,7 @@
       },
       delTab(id) {
         this.tabs.splice(id, 1);
-        localStorage.setItem(LOCALSTORAGE_NAME_TABS, JSON.stringify(this.tabs));
+        this.saveTabsToLocalStorage();
       },
       showEmpty(tab, data) {
         tab.emptyData = data || 'Пустой ответ от сервера';
@@ -186,7 +197,12 @@
         currentTab.emptyData = null;
         currentTab.response = null;
 
-        localStorage.setItem(LOCALSTORAGE_NAME_TABS, JSON.stringify(this.tabs));
+        this.saveTabsToLocalStorage();
+
+        if (!currentTab.code){
+          this.showSuccess(currentTab, '');
+          return;
+        }
 
         if (env.isBackendMode()){
           this.backendExec(currentTab);
@@ -210,7 +226,8 @@
           currentTab.unexpectedError = data;
         };
 
-        if (currentTab.controller) {
+        if (currentTab.controller && currentTab.controller.abort) {
+          console.log(currentTab.controller);
           currentTab.controller.abort();
         }
 
