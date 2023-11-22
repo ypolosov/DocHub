@@ -43,8 +43,8 @@
     </v-toolbar>
     <split v-if="tabs.length" v-bind:direction="'vertical'">
       <split-area v-bind:size="40" class="area-space">
-        <!-- TODO: минимальная высота на всю split-area -->
-        <!-- TODO: theme selector -->
+        <!-- TODO: минимальная высота на всю split-area или передача клика в input-->
+        <!-- TODO: theme selector, но лучше просто light/dark-->
         <code-component v-if="tabs[selectedTab]" v-model="tabs[selectedTab].code" v-bind:change="onChange" />
       </split-area>
       <split-area v-bind:size="60" class="area-space">
@@ -62,7 +62,6 @@
               <response-component v-if="tabs[selectedTab].error" v-bind:data="tabs[selectedTab].error" v-bind:auto-expand="autoExpand" />
             </div>
             <div v-else>
-              <!-- TODO: низкая производительность при большом объёме данных -->
               <response-component v-if="tabs[selectedTab].response" v-bind:data="tabs[selectedTab].response" v-bind:auto-expand="autoExpand" />
             </div>
           </div>
@@ -120,7 +119,7 @@
         cookie.set(COOKIE_NAME_AUTOEXEC, value, 365);
       },
       autoExpand(value) {
-        value && this.exec(); // FIXME: тут не нужен перезапрос, но без него не работает
+        value && this.exec(); // TODO: тут не нужен перезапрос, но без него не работает
         cookie.set(COOKIE_NAME_AUTOEXPAND, value, 365);
       },
       selectedTab(value) {
@@ -152,7 +151,6 @@
         if (this.refresher) clearTimeout(this.refresher);
         this.refresher = setTimeout(this.doRefresh, 50);
       },
-      // TODO: метод чтобы класть в localStorage табы, но удалять лишнее
       addTab() {
         const id = uuidv4();
         this.tabsCounter += 1;  // кол-во ключей в объекте tabs не получится использовать, т.к. при удалении-создании начнётся каша с нумерацией

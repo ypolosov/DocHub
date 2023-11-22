@@ -1,6 +1,6 @@
 <template>
   <div class="json-viewer-box">
-    <!-- TODO: разное поведение для preview-mode и expand-depth с большим числом. preview-mode учеличивает производительность -->
+    <!-- разное поведение для preview-mode и expand-depth с большим числом. preview-mode слегка увеличивает производительность -->
     <json-viewer v-if="data" v-bind:value="data" v-bind:expand-depth="expandDepth" v-bind:show-double-quotes="true" v-bind:preview-mode="autoExpand" v-bind:copyable="copyable" v-bind:show-array-index="false" />
   </div>
 </template>

@@ -175,8 +175,6 @@ export function parser(){
         consume(peek());
       }
 
-      // TODO: make regex highlight
-
       // double-dot .. range operator
       if (peek() === '.' && peek(1) === '.') {
         consume('..');
