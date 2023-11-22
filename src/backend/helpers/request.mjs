@@ -4,12 +4,19 @@ import axios from 'axios';
 import yaml from 'yaml';
 import uriTool from './uri.mjs';
 import gitlab from './gitlab.mjs';
+import bitbucket from './bitbucket.mjs';
 import logger from '../utils/logger.mjs';
 
 const REQUEST_TAG = 'request';
 
-// Подключаем интерцептор авторизации GitLab
-axios.interceptors.request.use(gitlab.axiosInterceptor);
+
+if (process.env.VUE_APP_DOCHUB_GITLAB_URL) {
+    // Подключаем интерцептор авторизации GitLab
+    axios.interceptors.request.use(gitlab.axiosInterceptor);
+} else if (process.env.VUE_APP_DOCHUB_BITBUCKET_URL) {
+    // Подключаем интерцептор авторизации BitBucket
+    axios.interceptors.request.use(bitbucket.axiosInterceptor);
+}
 
 // Здесь разбираемся, что к нам вернулось из запроса и преобразуем к формату внутренних данных
 axios.interceptors.response.use(
@@ -99,8 +106,13 @@ async function request(url, baseURI, response) {
             return result;
         } else
             return await axios({ url });
-    } // Если запрос к GitLab
+    }
+    // Если запрос к GitLab
     else if (uri.protocol === 'gitlab:') {
+        return request(uriTool.makeURL(uri).url, baseURI, response);
+    }
+    // Если запрос к BitBucket
+    else if (uri.protocol === 'bitbucket:') {
         return request(uriTool.makeURL(uri).url, baseURI, response);
     }
     // eslint-disable-next-line no-console

@@ -3,7 +3,7 @@ export default function(config) {
 		if (config.bitbucket_server && ((new URL(params.url)).host === (new URL(config.bitbucket_server)).host)) {
 			if (!params.headers) params.headers = {};
 			// eslint-disable-next-line no-undef
-			params.headers['Authorization'] = `Bearer ${config.porsonalToken || Vuex?.state?.access_token}`;
+			params.headers['Authorization'] = `Bearer ${config.personalToken || Vuex?.state?.access_token}`;
 			params.headers['X-Atlassian-Token'] = 'no-check';
 		}
 		return params;

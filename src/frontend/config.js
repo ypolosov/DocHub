@@ -17,7 +17,7 @@ if (env.gitlabUrl) {
 
 	if (env.personalToken) {
 		// Персональный токен генерируемый пользователем
-		config.porsonalToken = env.personalToken;
+		config.personalToken = env.personalToken;
 		config.oauth = false;
 	} else {
 		// Секреты приложения для OAuth авторизации в GitLab
@@ -36,7 +36,7 @@ if (env.gitlabUrl) {
 } else if (env.bitbucketUrl) {
 	if (env.personalToken) {
 		// Персональный токен генерируемый пользователем
-		config.porsonalToken = env.personalToken;
+		config.personalToken = env.personalToken;
 		config.bitbucket_server = env.bitbucketUrl;
 		config.oauth = false;
 	}
