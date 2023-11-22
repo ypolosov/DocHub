@@ -12,11 +12,7 @@ for(const key in env.dochub) {
 
 const config = {};
 
-if(!env.gitlabUrl) {
-	// eslint-disable-next-line no-console
-	console.warn('Not specified the URL of the GitLab (VUE_APP_DOCHUB_GITLAB_URL)');
-	config.oauth = false;
-} else {
+if (env.gitlabUrl) {
 	config.gitlab_server = env.gitlabUrl;
 
 	if (env.personalToken) {
@@ -37,6 +33,17 @@ if(!env.gitlabUrl) {
 			'REQUESTED_SCOPES': 'read_repository+api'
 		};
 	}
+} else if (env.bitbucketUrl) {
+	if (env.personalToken) {
+		// Персональный токен генерируемый пользователем
+		config.porsonalToken = env.personalToken;
+		config.bitbucket_server = env.bitbucketUrl;
+		config.oauth = false;
+	}
+} else {
+	// eslint-disable-next-line no-console
+	console.warn('Not specified the URL of the GitLab (VUE_APP_DOCHUB_GITLAB_URL) or BitBucket(VUE_APP_DOCHUB_BITBUCKET_URL)');
+	config.oauth = false;
 }
 
 export default config;

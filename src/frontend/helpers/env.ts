@@ -98,6 +98,9 @@ export default {
   get gitlabUrl(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_GITLAB_URL;
   },
+  get bitbucketUrl(): TEnvValue {
+    return this.dochub.VUE_APP_DOCHUB_BITBUCKET_URL;
+  },
   get appendDocHubDocs(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS;
   },

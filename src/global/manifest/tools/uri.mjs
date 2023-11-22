@@ -1,7 +1,9 @@
 import gitlabDriver from '../../gitlab/driver.mjs';
+import bitbucketDriver from '../../bitbucket/driver.mjs';
 
 export default function(config) {
 	const gitlab = new gitlabDriver(config);
+	const bitbucket = new bitbucketDriver(config);
 	this.isURL= (url) => {
 		// eslint-disable-next-line no-useless-escape
 		return url && url.match(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.?[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/);
@@ -23,10 +25,10 @@ export default function(config) {
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
 			const protocol = (new URL(baseURI)).protocol;
-			if (protocol === 'gitlab:') {
+			if (protocol === 'gitlab:' || protocol === 'bitbucket:') {
 				const segments = baseURI.split('@');
 				if (segments.length !== 2) {
-					// Не указаны идентификатор проекта и бранч GitLab
+					// Не найден разделитель репозитория+ветка от файла
 					throw `Error in URI ${baseURI}! Not found divider '@'`;
 				}
 				const basePathURL = new URL(`/${segments[1]}`, 'http://nop.none');
@@ -49,16 +51,14 @@ export default function(config) {
 			if (url.protocol === 'gitlab:') {
 				let segments = url.pathname.split('@');
 				if (segments.length !== 2) {
-					// Не указаны идентификатор проекта и бранч GitLab
+					// Не найден разделитель проекта+бранч от файла GitLab
 					// eslint-disable-next-line no-debugger
-					debugger;
 					throw `Error in URI ${uri}! Not found divider '@'`;
 				} else {
 					let gilab_params = segments[0].split(':');
 					if (gilab_params.length !== 2) {
 						// Неверно указаны идентификатор проекта и бранч GitLab
 						// eslint-disable-next-line no-debugger
-						debugger;
 						throw `Error in URI ${uri}! Incorrect project id and branch`;
 					}
 
@@ -73,6 +73,32 @@ export default function(config) {
 						)
 					};
 				}
+			} else if (url.protocol === 'bitbucket:') {
+				let segments = url.pathname.split('@');
+				if (segments.length !== 2) {
+					//  Не найден разделитель проекта+репозиторий+бранч от файла BitBucket
+					// eslint-disable-next-line no-debugger
+					throw `Error in URI ${uri}! Not found divider '@'`;
+				} else {
+					let bitbucket_params = segments[0].split(':');
+					if (bitbucket_params.length !== 3) {
+						// Не верно указаны идентификаторы проекта, репозитория и бранча BitBucket
+						// eslint-disable-next-line no-debugger
+						throw `Error in URI ${uri}! Incorrect project id, repository id and branch`;
+					}
+
+					result = {
+						type: 'bitbucket',
+						projectID: bitbucket_params[0],
+						repositoryID: bitbucket_params[1],
+						url: bitbucket.makeFileURI(
+							bitbucket_params[0], // Project ID
+							bitbucket_params[1], // Repository ID
+							segments[1], // Путь к файлу
+							bitbucket_params[2] // Бранч
+						)
+					};
+				}
 				// В ином случае считаем, что ничего делать не нужно
 			} else {
 				result = {
@@ -84,7 +110,6 @@ export default function(config) {
 			// Если возникла ошибка, считаем путь относительным
 			if (!baseURI) {
 				// eslint-disable-next-line no-debugger
-				debugger;
 				throw `Error in base URI ${uri}! Base URI is empty.`;
 			}
 			result = this.makeURL(baseURI);
