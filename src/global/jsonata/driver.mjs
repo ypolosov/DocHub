@@ -78,6 +78,8 @@ function log(content, tag) {
 }
 
 export default {
+    // Функция должна возвращать коллекцию пользовательских функций JSONata
+    customFunctions: null,
     // Создает объект запроса JSONata
     //  expression - JSONata выражение
     //  self    - объект, который вызывает запрос (доступен по $self в запросе)
@@ -88,6 +90,7 @@ export default {
     expression(expression, self_, params, isTrace, funcs) {
         const obj = {
             expression,
+            customFunctions: this.customFunctions ? this.customFunctions() : {},
             core: null,
             onError: null,  // Событие ошибки выполнения запроса
             store: {},      // Хранилище вспомогательных переменных для запросов
@@ -104,6 +107,9 @@ export default {
                         this.core.registerFunction('jsonschema', jsonSchema);
                         this.core.registerFunction('manifestschema', manifestSchema);
                         this.core.registerFunction('sourcetype', sourceType);
+                        for (const functionId in this.customFunctions) {
+                            this.core.registerFunction(functionId, this.customFunctions[functionId]);
+                        }
                         if (!funcs?.log) {
                             this.core.registerFunction('log', log);
                         }
