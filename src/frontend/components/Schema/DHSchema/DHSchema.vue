@@ -54,7 +54,7 @@
         v-on:track-title-click="onTrackTitleClick(track)"
         v-on:track-leave="onTrackLeave(track)" />
     </template>
-      
+
     <schema-node
       v-bind:offset-x="0"
       v-bind:offset-y="0"
@@ -162,7 +162,9 @@
                 try {
                   md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
                 } catch (e) {
-                  console.log(`Can't cache SA result: ${e}`);
+                  //todo:разобраться с переполнением кэша
+                  // eslint-disable-next-line no-console
+                  console.warn(`Can't cache SA result: ${e}`);
                 }
                 success(message.graph);
               }
