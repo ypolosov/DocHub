@@ -20,6 +20,6 @@ docs:
         type: test
     source: examples/example.html
   dochub.plugins.devtool_new:
-    location: DocHub/Руководство/Плагины/DevTool New
+    location: DocHub/Руководство/Плагины/DevTool
     type: devtool
  

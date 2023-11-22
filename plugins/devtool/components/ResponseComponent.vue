@@ -9,12 +9,13 @@
   import JsonViewer from 'vue-json-viewer';
   import 'vue-json-viewer/style.css';
 
+
   export default {
     name: 'ResponseComponent',
     components: {JsonViewer},
     props: {
       data: {
-        type: Object,
+        type: [Object, Array],
         required: true
       },
       autoExpand: {

@@ -1,10 +1,11 @@
 <template>
   <div class="crutch">
-    <codemirror v-model="cmCode" v-bind:options="cmOptions" />
+    <codemirror ref="codemirror" v-model="cmCode" v-bind:options="cmOptions" />
   </div>
 </template>
 
 <script>
+  // import { ref } from 'vue';
   import { codemirror } from 'vue-codemirror';
   import { CodeMirror } from 'vue-codemirror';
   import 'codemirror/lib/codemirror.css';

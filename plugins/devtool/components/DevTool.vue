@@ -5,7 +5,6 @@
       <v-btn v-show="!autoExec" icon title="Выполнить" v-on:click="manualExec(true)">
         <v-icon>mdi-arrow-right-drop-circle</v-icon>
       </v-btn>
-      <!-- TODO: кнопка "Дублировать панель" (чтобы отлаживать части запроса). А Ещё если часть текста выделить и в отдельную вкладку... -->
       <v-btn icon title="Добавить панель" v-on:click="addTab()">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
@@ -30,9 +29,12 @@
       </v-menu>
       <template #extension>
         <v-tabs v-model="selectedTab" show-arrows>
-          <v-tab v-for="(tab, index) in tabs" v-bind:key="tab.id">
+          <v-tab v-for="(tab, index) in tabs" v-bind:key="tab.id" class="tab">
+            <v-btn icon small title="Клонировать панель" class="btn-copy" v-on:click="cloneTab(index)">
+              <v-icon x-small>mdi-content-copy</v-icon>
+            </v-btn>
             {{ tab.name }}
-            <v-btn v-if="tabs.length >= 2" icon class="ml-2" v-on:click="delTab(index)">
+            <v-btn v-if="tabs.length >= 2" icon small title="Удалить панель" class="btn-del" v-on:click="delTab(index)">
               <v-icon x-small>mdi-close</v-icon>
             </v-btn>
           </v-tab>
@@ -46,7 +48,7 @@
         <code-component v-if="tabs[selectedTab]" v-model="tabs[selectedTab].code" v-bind:change="onChange" />
       </split-area>
       <split-area v-bind:size="60" class="area-space">
-        <div class="response">
+        <div v-if="tabs[selectedTab]" class="response">
           <!-- TODO: loader здорового человека -->
           <div v-if="tabs[selectedTab].loading">Идет загрузка</div>
           <div v-else>
@@ -123,6 +125,9 @@
       },
       selectedTab(value) {
         cookie.set(COOKIE_NAME_SELECTEDTAB, value, 365);
+        if (this.autoExec){
+          this.exec();
+        }
       }
     },
     mounted() {
@@ -153,7 +158,11 @@
         this.tabsCounter += 1;  // кол-во ключей в объекте tabs не получится использовать, т.к. при удалении-создании начнётся каша с нумерацией
         this.tabs.push({'id': id, 'name': `Панель #${this.tabsCounter}`, 'code': '', 'response': {}, 'loading': false, 'error': null, 'unexpectedError': null, 'controller': null, 'emptyData': null});
         localStorage.setItem(LOCALSTORAGE_NAME_TABS, JSON.stringify(this.tabs));
-        return id;
+      },
+      cloneTab(id) {
+        const oldTab = this.tabs[id];
+        this.addTab();
+        this.tabs[this.tabs.length - 1].code = oldTab.code;
       },
       delTab(id) {
         this.tabs.splice(id, 1);
@@ -265,5 +274,11 @@
   }
   .response {
     padding: 1em;
+  }
+  .btn-copy {
+    opacity: 0;
+  }
+  .tab:hover .btn-copy {
+    opacity: 1;
   }
 </style>
