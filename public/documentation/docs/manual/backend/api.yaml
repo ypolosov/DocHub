@@ -142,6 +142,7 @@ paths:
           example: export
         - in: query
           name: id
+          required: true
           description: >
             Параметр передающийся в презентацию. Зависит от самой презентации.
             Будет доступен в презентации в $params.
