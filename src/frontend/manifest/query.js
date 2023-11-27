@@ -89,21 +89,32 @@ const queryDriver = {
     }
 };
 
+const cacheFunction = {
+    moment: null,
+    functions: null
+};
+
 jsonataDriver.customFunctions = () => {
-    const result = {};
-    const functions = window.Vuex?.state?.manifest?.functions || {};
+    const state = window.Vuex?.state || {};
+    if (!state.moment) return {};
+    if (cacheFunction.moment && (cacheFunction.moment === state.moment))
+        return cacheFunction.functions;
+
+    const result = (cacheFunction.functions = {});
+    const functions = state?.manifest?.functions || {};
     for (const funcId in functions) {
         const func = {
             profile: functions[funcId],
             executor: null
         };
-        result[funcId] = async(params) => {
+        result[funcId] = async(...params) => {
             if(!func.executor) {
                 func.executor = queryDriver.expression(func.profile?.code || 'undefined');
             }
             return func.executor.evaluate(params);
         };
     }
+    cacheFunction.moment = state.moment;
     return result;
 };
 
