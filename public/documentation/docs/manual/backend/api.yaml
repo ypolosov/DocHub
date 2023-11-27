@@ -63,7 +63,7 @@ paths:
       - DataLake
       summary: Выполняет запрос перезагрузки данным архитектуры
       parameters:
-        - in: path
+        - in: query
           name: reloadSecret
           description: secret для доступа к запросу. Указывается в .env переменной VUE_APP_DOCHUB_RELOAD_SECRET
           required: true
@@ -142,6 +142,7 @@ paths:
           example: export
         - in: query
           name: id
+          required: true
           description: >
             Параметр передающийся в презентацию. Зависит от самой презентации.
             Будет доступен в презентации в $params.
