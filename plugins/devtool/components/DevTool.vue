@@ -139,7 +139,6 @@
         if (localStorage.getItem(LOCALSTORAGE_NAME_TABS)) {
           try {
             const tabs = JSON.parse(localStorage.getItem(LOCALSTORAGE_NAME_TABS));
-            console.log(tabs);
             this.tabs = tabs.map(tab => ({
               ...tab, ...TAB_DEFAULT
             }));
@@ -227,7 +226,6 @@
         };
 
         if (currentTab.controller && currentTab.controller.abort) {
-          console.log(currentTab.controller);
           currentTab.controller.abort();
         }
 
