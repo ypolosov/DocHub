@@ -3,10 +3,10 @@ export default function(config) {
 		if (config.gitlab_server && ((new URL(params.url)).host === (new URL(config.gitlab_server)).host)) {
 			if (!params.headers) params.headers = {};
 			// eslint-disable-next-line no-undef
-			params.headers['Authorization'] = `Bearer ${config.porsonalToken || Vuex?.state?.access_token}`;
+			params.headers['Authorization'] = `Bearer ${config.personalToken || Vuex?.state?.access_token}`;
 		}
 		return params;
-	},
+	};
 	// Вспомогательные функции
 	this.parseHashParams = (hash) => {
 		let hashParams = {};
@@ -43,25 +43,25 @@ export default function(config) {
 	};
 
 	this.projectLanguagesURI = (ProjectID) => {
-		return new URL(`/api/v4/projects/${ProjectID}/languages`, config.gitlab_server);
+		return new URL(`api/v4/projects/${ProjectID}/languages`, config.gitlab_server);
 	};
 
 	this.projectsListURI = (page) => {
-		return new URL(`/api/v4/projects?simple=1&page=${page}`, config.gitlab_server);
+		return new URL(`api/v4/projects?simple=1&page=${page}`, config.gitlab_server);
 	};
 
 	this.projectSingleURI = (id) => {
-		return new URL(`/api/v4/projects/${id}?simple=1`, config.gitlab_server);
+		return new URL(`api/v4/projects/${id}?simple=1`, config.gitlab_server);
 	};
 
 	this.branchesListURI = (project, page) =>{
-		return new URL(`/api/v4/projects/${project}/repository/branches?pagination=keyset&per_page=100&order_by=name&page=${page}`,
+		return new URL(`api/v4/projects/${project}/repository/branches?pagination=keyset&per_page=100&order_by=name&page=${page}`,
 			config.gitlab_server);
 	};
 
 	this.commitsListURI = (project, branch, page, file, page_limit) => {
 		return new URL(
-			`/api/v4/projects/${project}/repository/commits?pagination=keyset`
+			`api/v4/projects/${project}/repository/commits?pagination=keyset`
             + '&per_page=' + (page_limit ? page_limit : 100) + `&order_by=name&page=${page}&ref_name=${branch}`
             + (file ? '&path=' + encodeURIComponent(file) : '')
 			, config.gitlab_server);
@@ -69,7 +69,7 @@ export default function(config) {
 
 	this.makeFileURI = (projectID, source, branch, view_type) => {
 		return new URL(
-			`/api/v4/projects/${projectID}/repository/files/`
+			`api/v4/projects/${projectID}/repository/files/`
             + encodeURIComponent(source)
             + (view_type ? `/${view_type}` : '')
             + (branch ? `?ref=${branch}` : '')

@@ -54,7 +54,7 @@
         v-on:track-title-click="onTrackTitleClick(track)"
         v-on:track-leave="onTrackLeave(track)" />
     </template>
-      
+
     <schema-node
       v-bind:offset-x="0"
       v-bind:offset-y="0"
@@ -158,8 +158,16 @@
           listeners[queryID] = (message) => {
             try {
               if (message.result === 'OK') {
-                // Кэшируем успешный результат 
-                md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
+                if (message.graph?.warnings?.length === 0) {
+                  // Кэшируем успешный результат
+                  try {
+                    // md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
+                  } catch (e) {
+                    //todo:разобраться с переполнением кэша
+                    // eslint-disable-next-line no-console
+                    console.warn(`Can't cache SA result: ${e}`);
+                  }
+                }
                 success(message.graph);
               }
               else reject(message.error);
