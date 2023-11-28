@@ -36,10 +36,9 @@
         <v-bottom-sheet v-model="sheet">
           <v-card
             class="text-center"
-            height="200"
-          >
+            height="200">
             <v-card-text>
-              <p v-for="warn in warnings">
+              <p v-for="warn in warnings" v-bind:key="warn">
                 {{ warn }}
               </p>
             </v-card-text>
@@ -83,10 +82,10 @@
         ref="schema"
         v-model="status"
         class="schema"
-        v-model:warnings="warnings"
-        @update:warnings="v => warnings = v"
+        v-bind:warnings="warnings"
         v-bind:data="data"
         v-bind:show-links="isShowLinks"
+        v-on:update:warnings="v => warnings = v"
         v-on:playstop="onPlayStop"
         v-on:playstart="onPlayStart"
         v-on:selected-nodes="onSelectedNodes"

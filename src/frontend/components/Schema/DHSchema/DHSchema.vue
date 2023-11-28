@@ -207,7 +207,6 @@
       SchemaDebugNode
     },
     mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin, ZoomAndPan],
-    emits: ['update:warnings'],
     props: {
       // Варнинги генерации диаграммы
       warnings: {
@@ -254,6 +253,7 @@
         }
       }
     },
+    emits: ['update:warnings'],
     data() {
       return {
         isBuilding: 0,
