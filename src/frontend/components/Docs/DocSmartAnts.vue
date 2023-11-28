@@ -29,6 +29,22 @@
         <v-btn v-if="!isShowLinks" icon title="Показать связи" v-on:click="setShowLinks(true)">
           <v-icon>mdi-sitemap</v-icon>
         </v-btn>
+        <v-btn v-if="warnings?.length" icon title="Предупреждения" v-on:click="sheet = !sheet">
+          <v-icon>warning</v-icon>
+        </v-btn>
+
+        <v-bottom-sheet v-model="sheet">
+          <v-card
+            class="text-center"
+            height="200"
+          >
+            <v-card-text>
+              <p v-for="warn in warnings">
+                {{ warn }}
+              </p>
+            </v-card-text>
+          </v-card>
+        </v-bottom-sheet>
 
         <template v-if="scenario">
           <v-select
@@ -67,6 +83,8 @@
         ref="schema"
         v-model="status"
         class="schema"
+        v-model:warnings="warnings"
+        @update:warnings="v => warnings = v"
         v-bind:data="data"
         v-bind:show-links="isShowLinks"
         v-on:playstop="onPlayStop"
@@ -119,6 +137,8 @@
     },
     data() {
       return {
+        warnings: [],
+        sheet: false,
         menu: { // Контекстное меню
           show: false,  // Признак отображения
           x : 0,  // Позиция x

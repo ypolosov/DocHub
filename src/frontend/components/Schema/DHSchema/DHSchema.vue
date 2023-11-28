@@ -207,7 +207,13 @@
       SchemaDebugNode
     },
     mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin, ZoomAndPan],
+    emits: ['update:warnings'],
     props: {
+      // Варнинги генерации диаграммы
+      warnings: {
+        type: Array,
+        default: () => []
+      },
       // Дистанция между объектами на диаграмме
       distance: {
         type: Number,
@@ -560,6 +566,8 @@
           this.debug
         )
           .then((presentation) => {
+            if(presentation.warnings?.length)
+              this.$emit('update:warnings', presentation.warnings);
             this.presentation = presentation;
             this.rebuildViewBox();
             this.cleanSelectedTracks();
