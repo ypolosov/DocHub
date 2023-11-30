@@ -30,7 +30,7 @@
           <v-icon>mdi-sitemap</v-icon>
         </v-btn>
         <v-btn v-if="warnings?.length" icon title="Предупреждения" v-on:click="sheet = !sheet">
-          <v-icon>warning</v-icon>
+          <v-icon style="color: rgb(255, 0, 0);">warning</v-icon>
         </v-btn>
 
         <v-bottom-sheet v-model="sheet">
@@ -38,9 +38,11 @@
             class="text-center"
             height="200">
             <v-card-text>
-              <p v-for="warn in warnings" v-bind:key="warn">
-                {{ warn }}
-              </p>
+              <ul>
+                <li v-for="warn in warnings" v-bind:key="warn">
+                  {{ warn }}
+                </li>
+              </ul>
             </v-card-text>
           </v-card>
         </v-bottom-sheet>
