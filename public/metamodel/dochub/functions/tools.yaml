@@ -4,17 +4,18 @@ functions:
     title: Конвертирует объект в текст для создания поисковых индексов
     # Схема входящих параметров
     params:
-      type: object
-      properties:
-        object:
-          title: Объект конвертации в текст
-      required:
-        - object
+      - alias: object
+        type: object
+        title: Объект конвертации
+      - type: object
+        title: Объект конвертации
+      - type: object
+        title: Объект конвертации
     # Схема результата
-    result:
+    result_:
       type: string
     # Код функции
     code: >
       (
-        $string($)
+        $
       )
