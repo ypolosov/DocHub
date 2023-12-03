@@ -6,6 +6,8 @@ import events from '../helpers/events.mjs';
 import validators from '../helpers/validators.mjs';
 import entities from '../entities/entities.mjs';
 import objectHash from 'object-hash';
+import jsonataDriver from '../../global/jsonata/driver.mjs';
+import jsonataFunctions from '../../global/jsonata/functions.mjs';
 
 const LOG_TAG = 'storage-manager';
 
@@ -26,6 +28,19 @@ manifestParser.onReloaded = (parser) => {
 };
 
 export default {
+	// Кэш для пользовательских функций
+	cacheFunction: null,
+	// Регистрация пользовательских функций
+	resetCustomFunctions(storage) {
+		this.cacheFunction = null;
+
+		jsonataDriver.customFunctions = () => {
+			if (!this.cacheFunction)
+				this.cacheFunction = jsonataFunctions(jsonataDriver, storage.functions || {});
+			return this.cacheFunction;
+		};
+		
+	},
 	// Стек обработчиков события на обновление манифеста
 	onApplyManifest: [],
 	reloadManifest: async function() {
@@ -60,7 +75,6 @@ export default {
 
 		for (const path in manifestParser.mergeMap) {
 			result.mergeMap[path] = manifestParser.mergeMap[path].map((url) => {
-				//const hash = md5(url);
 				const hash = md5(path);
 				result.md5Map[hash] = url;
 				return `backend://${hash}/`;
@@ -72,9 +86,11 @@ export default {
 		app.storage = storage;  // Инициализируем данные хранилища
 		validators(app);        // Выполняет валидаторы
 		Object.freeze(app.storage);
+		this.resetCustomFunctions(storage.manifest);
 		this.onApplyManifest.map((listener) => listener(app));
 	},
 	cleanStorage(app) {
+		this.cacheFunction = null;
 		app.storage = undefined;
 	}
 };

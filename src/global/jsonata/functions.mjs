@@ -1,7 +1,7 @@
 // Создает исполняющие ручки функций
 
 import ajv from 'ajv';
-import ajv_localize from 'ajv-i18n/localize/ru';
+// import ajv_localize from 'ajv-i18n/localize/ru';
 
 // Генерирует валидатор входных параметров
 function makeParamsValidator(handler) {
@@ -69,7 +69,7 @@ function prepareParams(handler, params) {
 
     // Проверяем по схеме
     if (!validator(result)) {
-        ajv_localize(validator.errors);
+        // ajv_localize(validator.errors);
         throw new Error(`Ошибка валидации входных параметров функции [${handler.id}]\n${JSON.stringify(validator.errors, null, 4)}`);
     }
 
@@ -85,7 +85,7 @@ function prepareResult(handler, result) {
 
     // Проверяем по схеме
     if (!validator(result)) {
-        ajv_localize(validator.errors);
+        // ajv_localize(validator.errors);
         throw new Error(`Ошибка валидации результата функции [${handler.id}]\n${JSON.stringify(validator.errors, null, 4)}`);
     }
 

@@ -145,11 +145,11 @@ export default {
                         };
                         this.core.evaluate(context)
                             .then((result) => {
-                                doStat(result);
+                                isTrace && doStat(result);
                                 success(result);
                             })
                             .catch((error) => {
-                                doStat();
+                                isTrace && doStat();
                                 if (reject) reject(error);
                             });
                     });
