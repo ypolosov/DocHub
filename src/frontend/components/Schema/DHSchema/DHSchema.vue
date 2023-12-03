@@ -208,6 +208,11 @@
     },
     mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin, ZoomAndPan],
     props: {
+      // Варнинги генерации диаграммы
+      warnings: {
+        type: Array,
+        default: () => []
+      },
       // Дистанция между объектами на диаграмме
       distance: {
         type: Number,
@@ -248,6 +253,7 @@
         }
       }
     },
+    emits: ['update:warnings'],
     data() {
       return {
         isBuilding: 0,
@@ -560,6 +566,8 @@
           this.debug
         )
           .then((presentation) => {
+            if(presentation.warnings?.length)
+              this.$emit('update:warnings', presentation.warnings);
             this.presentation = presentation;
             this.rebuildViewBox();
             this.cleanSelectedTracks();
