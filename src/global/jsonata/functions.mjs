@@ -13,14 +13,17 @@ function makeParamsValidator(handler) {
 
     const schema = {
         type: 'object',
-        properties: {}
+        properties: {},
+        required: []
     };
     
     handler.profile.params.map((param, index) => {
         const alias = param.alias || `param${index}`;
         const vParam = Object.assign({}, param);
         delete vParam.alias;
+        delete vParam.required;
         schema.properties[alias] = vParam;
+        param.required && schema.required.push(alias);
     });
 
     try {

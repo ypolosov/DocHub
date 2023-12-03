@@ -49,9 +49,14 @@ const queryDriver = {
                         result = await this.expOrigin.evaluate(context || window.Vuex.state.manifest || {});
                     }
                 } catch (e) {
+                    let message = null;
+                    if (env.isBackendMode() && e?.request?.response) {
+                        const content = typeof e?.request?.response === 'object' ? e?.request?.response : JSON.parse(e?.request?.response);
+                        message = content.message;
+                    } else message = e.toString();
                     // eslint-disable-next-line no-console
-                    console.error(e);
-                    throw e;
+                    console.error(message);
+                    throw new Error(message);
                 }
                 return result || def;
             }
