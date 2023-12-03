@@ -47,4 +47,3 @@ $demo_summ([1,2,3,4,5,15])
 
 
 
-[Далее](/docs/dochub.jsonata)

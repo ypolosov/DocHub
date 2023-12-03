@@ -12,14 +12,6 @@ docs:
         subjects:
           - dochub
           - dochub.front
-    dochub.introduction:
-        location: DocHub/Руководство/Введение
-        description: Введение
-        type: markdown
-        subjects:
-          - dochub
-          - dochub.front
-        source: introduction.md
     dochub.imports:
       location: DocHub/Руководство/Импорт
       description: Импорт манифестов

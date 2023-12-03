@@ -45,4 +45,4 @@ components:
 
 ![Карточка компонента](@component/dochub.front)
 
-[Далее](/docs/dochub.contexts)
+

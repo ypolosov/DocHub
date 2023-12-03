@@ -506,4 +506,4 @@ nodes:
 ![Пример сложного запроса к данным](@document/dochub.smartants.examples.complex-query)
 
 
-[Далее](/docs/dochub.templates) 
+
