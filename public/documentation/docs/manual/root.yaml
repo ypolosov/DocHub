@@ -2,6 +2,7 @@ imports:
   - docs/root.yaml
   - rules/root.yaml
   - plugins/root.yaml
+  - functions/root.yaml
 docs:
     dochub.manual:
         location: DocHub/Руководство
@@ -56,14 +57,6 @@ docs:
         - dochub.front.spa.blank
         - dochub.front.spa.blank.aspect
       source: aspects.md
-    dochub.forms:
-      location: DocHub/Руководство/Формы
-      description: Формы
-      type: markdown
-      subjects:
-        - dochub.front
-        - dochub.front.spa
-      source: forms.md
     dochub.technologies:
       location: DocHub/Руководство/Технологии
       description: Технологии
