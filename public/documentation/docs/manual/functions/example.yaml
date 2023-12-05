@@ -12,7 +12,7 @@ functions:
         title: Объект конвертации
         required: true  # Признак обязательности параметра функции
     # JSONSchema схема результата. Не обязательно.
-    result_:
+    result:
       type: number
     # Код функции
     code: >

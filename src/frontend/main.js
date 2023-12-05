@@ -20,5 +20,5 @@ document.addEventListener('DOMContentLoaded', async() => {
     store
   }).$mount('#app');
 
-  window.$PAPI?.loaded();
+  window.$PAPI?.loaded && window.$PAPI.loaded();
 });

@@ -13,7 +13,7 @@ functions:
       - type: object
         title: Объект конвертации
     # Схема результата
-    result_:
+    result:
       type: string
     # Код функции
     code: >
