@@ -37,6 +37,8 @@ export default {
 		access_token: null,
 		// Токен бновления access_token досутпа в GitLab
 		refresh_token: null,
+		// Время обновления данных
+		moment: null,
 		// Обобщенный манифест
 		manifest: {},
 		// Выявленные Проблемы
@@ -69,6 +71,7 @@ export default {
 			state.criticalError = null;
 		},
 		setManifest(state, value) {
+			state.moment = Date.now();
 			state.manifest = value;
 		},
 		setSources(state, value) {
