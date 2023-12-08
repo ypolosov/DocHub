@@ -20,7 +20,7 @@
 		},
 		{
 			"source": "${env:HOME}/DEV/GITS/hardsoftskills-dochub",
-			"target": "/workspaces/DocHub/public/workspace/hardsoftskills-dochub",
+			"target": "/workspaces/my-dochub/public/workspace/hardsoftskills-dochub",
 			"type": "bind"
 		}
 	],
