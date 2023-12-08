@@ -1,5 +1,5 @@
 <template>
-  <svg 
+  <svg
     ref="zoomAndPan"
     class="dochub-schema"
     xmlns="http://www.w3.org/2000/svg"
@@ -12,10 +12,10 @@
     stroke="transparent"
     v-bind:style="style"
     v-on:wheel="zoomAndPanWheelHandler"
-    v-on:mousedown.prevent="(e) => zoomAndPanMouseDown(e) && onClickSpace(e)"
+    v-on:mousedown.prevent="(e) => { zoomAndPanMouseDown(e); onClickSpace(e) }"
     v-on:mousemove.prevent="zoomAndPanMouseMove"
     v-on:mouseup.prevent="zoomAndPanMouseUp"
-    v-on:mouseleave.prevent="zoomAndPanMouseUp"> 
+    v-on:mouseleave.prevent="zoomAndPanMouseUp">
     <template v-if="isFirefox">
       <g class="symbols">
         <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
@@ -26,44 +26,59 @@
         <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
       </defs>
     </template>
-    <text 
+    <text
       v-if="data.header"
       id="title"
       v-bind:x="landscape.viewBox.titleX"
-      v-bind:y="landscape.viewBox.top"
+      v-bind:y="landscape.viewBox.top + 6"
       alignment-baseline="hanging"
       v-bind:style="titleStyle">{{ data.header.title }}
     </text>
-    <schema-node 
+    <schema-node
       v-bind:offset-x="0"
       v-bind:offset-y="0"
-      v-bind:layer="presentation.layers" 
+      mode="area"
+      v-bind:layer="presentation.layers"
+      v-bind:hide-boundary-titles="data.config?.hideBoundaryTitles"
+      v-on:node-dblclick="onNodeClick" />
+
+    <template v-for="track in presentation.tracks">
+      <schema-track
+        v-if="isShowTrack(track)"
+        v-bind:key="track.id"
+        v-bind:track="track"
+        v-bind:line-width-limit="lineWidthLimit"
+        v-bind:thin="lineThin"
+        v-on:track-over="onTrackOver(track)"
+        v-on:track-click="onTrackClick(track)"
+        v-on:track-title-click="onTrackTitleClick(track)"
+        v-on:track-leave="onTrackLeave(track)" />
+    </template>
+
+    <schema-node
+      v-bind:offset-x="0"
+      v-bind:offset-y="0"
+      mode="node"
+      v-bind:layer="presentation.layers"
+      v-bind:hide-leaf-titles="data.config?.hideLeafTitles"
       v-on:node-click="onNodeClick" />
-    <schema-track 
-      v-for="track in presentation.tracks"
-      v-bind:key="track.id"
-      v-bind:track="track" 
-      v-bind:line-width-limit="lineWidthLimit"
-      v-on:track-over="onTrackOver(track)"
-      v-on:track-click="onTrackClick(track)"
-      v-on:track-leave="onTrackLeave(track)" />
 
     <schema-info
       v-show="animation.information"
-      v-bind:x="landscape.viewBox.left + 12" 
-      v-bind:width="landscape.viewBox.width - 24" 
+      v-bind:x="landscape.viewBox.left + 12"
+      v-bind:width="landscape.viewBox.width - 24"
       v-bind:text="animation.information" />
 
-    <schema-debug-node 
+    <schema-debug-node
       v-if="debug"
       v-bind:offset-x="0"
       v-bind:offset-y="0"
-      v-bind:layer="presentation.layers" 
+      v-bind:layer="presentation.layers"
       v-on:node-click="onNodeClick" />
 
 
     <template v-if="isBuilding">
-      <rect 
+      <rect
         fill="#fff"
         opacity="0.8"
         v-bind:x="landscape.viewBox.left"
@@ -72,7 +87,7 @@
         v-bind:height="landscape.viewBox.height" />
       <circle
         v-if="isBuilding"
-        class="spinner" 
+        class="spinner"
         v-bind:cx="landscape.viewBox.left + landscape.viewBox.width * 0.5 - 25"
         v-bind:cy="landscape.viewBox.top + landscape.viewBox.height * 0.5 - 25"
         r="20"
@@ -81,7 +96,7 @@
     </template>
 
     <template v-if="error">
-      <text 
+      <text
         v-bind:x="landscape.viewBox.left"
         v-bind:y="landscape.viewBox.top + 10"
         alignment-baseline="hanging"
@@ -100,9 +115,12 @@
   import SchemaNode from './DHSchemaNode.vue';
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
+  import md5 from 'md5';
 
   import ZoomAndPan from '../zoomAndPan';
-  
+
+  const CACHE_VERSION = 1; //Версия кеша, для контроля совместимости в новых версиях
+
   const Graph = new function() {
     const codeWorker = require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default;
     const scriptBase64 = btoa(unescape(encodeURIComponent(codeWorker)));
@@ -116,24 +134,52 @@
       const queryID = message.data.queryID;
       listeners[queryID] && listeners[queryID](message.data);
     };
-    this.make = (nodes, links, trackWidth, distance, symbols, availableWidth, isDebug) => {
+    this.make = (grid, nodes, links, trackWidth, distance, symbols, availableWidth, isDebug) => {
       return new Promise((success, reject) => {
-        const queryID = uuidv4();
-        listeners[queryID] = (message) => {
-          try {
-            if (message.result === 'OK')
-              success(message.graph);
-            else reject(message.error);
-          } finally {
-            delete listeners[queryID];
-          }
+        const params = {
+          grid, nodes, links, trackWidth, distance, symbols, isDebug
         };
-        worker.postMessage({
-          queryID,
-          params: {
-            nodes, links, trackWidth, distance, symbols, availableWidth, isDebug
-          }
-        });
+        const hash = window.localStorage ? md5(JSON.stringify(params)) : null;
+        const cacheKey = `SmartAnts.cache.v${CACHE_VERSION}.${hash}`;
+
+        // Пытаемся достать результат из кэша
+        let cacheData = null;
+        if (cacheKey) {
+          cacheData = localStorage.getItem(cacheKey);
+          cacheData = cacheData ? JSON.parse(cacheData): null;
+        }
+        // Если кэш есть, отдаем результат из него
+        if (cacheData) {
+          success(cacheData);
+        } else {
+          // Иначе запускаем построение диаграммы
+          const queryID = uuidv4();
+          params.availableWidth = availableWidth;
+          listeners[queryID] = (message) => {
+            try {
+              if (message.result === 'OK') {
+                if (message.graph?.warnings?.length === 0) {
+                  // Кэшируем успешный результат
+                  try {
+                    // md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
+                  } catch (e) {
+                    //todo:разобраться с переполнением кэша
+                    // eslint-disable-next-line no-console
+                    console.warn(`Can't cache SA result: ${e}`);
+                  }
+                }
+                success(message.graph);
+              }
+              else reject(message.error);
+            } finally {
+              delete listeners[queryID];
+            }
+          };
+          worker.postMessage({
+            queryID,
+            params
+          });
+        }
       });
     };
   };
@@ -143,11 +189,11 @@
   import SchemaInfo from './DHSchemaInfo.vue';
 
   // SVG примитивы
-  import SVGSymbolCloud from '!!raw-loader!./symbols/cloud.xml';  
-  import SVGSymbolUser from '!!raw-loader!./symbols/user.xml';  
-  import SVGSymbolSystem from '!!raw-loader!./symbols/system.xml';  
-  import SVGSymbolDatabase from '!!raw-loader!./symbols/database.xml';  
-  import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';  
+  import SVGSymbolCloud from '!!raw-loader!./symbols/cloud.xml';
+  import SVGSymbolUser from '!!raw-loader!./symbols/user.xml';
+  import SVGSymbolSystem from '!!raw-loader!./symbols/system.xml';
+  import SVGSymbolDatabase from '!!raw-loader!./symbols/database.xml';
+  import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';
 
   const OPACITY = 0.3;
   const IS_DEBUG = false;
@@ -162,6 +208,11 @@
     },
     mixins: [ DHSchemaAnimationMixin, DHSchemaExcalidrawMixin, ZoomAndPan],
     props: {
+      // Варнинги генерации диаграммы
+      warnings: {
+        type: Array,
+        default: () => []
+      },
       // Дистанция между объектами на диаграмме
       distance: {
         type: Number,
@@ -172,21 +223,26 @@
         type: Number,
         default: 28
       },
+      // Показывать связи
+      showLinks: {
+        type: Boolean,
+        default: true
+      },
       // Толщина линии дорожки
       trackStrong: {
         type: Number,
         default: 1
       },
-      // 
+      //
       voice: {
         type: Boolean,
         default: true
-      },  
+      },
       data: {
         type: Object,
         default() {
           return {
-            symbols: {}, 
+            symbols: {},
             nodes: {},
             links: [],
             animation: {
@@ -197,12 +253,13 @@
         }
       }
     },
+    emits: ['update:warnings'],
     data() {
       return {
         isBuilding: 0,
         resizer: null,
         debug: IS_DEBUG ? {
-          
+
         } : null,
         selected: {
           links: {},
@@ -233,12 +290,19 @@
       lineWidthLimit() {
         return +this.data.config?.lineWidthLimit || 20;
       },
+      lineThin() {
+        return this.data.config?.lineThin || false;
+      },
+      lineOpacity() {
+        return this.data.config?.lineOpacity || 1.0;
+      },
       titleStyle() {
-        return ({ 
-          'fill': this.data?.header.style['color'], 
-          'font-weight': this.data?.header.style['font-weight'],
-          'font-size': this.data?.header.style['font-size']
-        });
+        const style = this.data?.header?.style || {};
+        const result = {};
+        style.color && (result.fill = style.color);
+        style['font-weight'] && (result['font-weight'] = style['font-weight']);
+        style['font-size'] && (result['font-size'] = style['font-size']);
+        return result;
       },
       // Возвращает определения (defs) примитивов диаграммы
       symbols() {
@@ -319,6 +383,18 @@
           tracks: []
         };
       },
+      // Отчистка выбора
+      clearSelect() {
+        this.cleanSelectedTracks();
+        this.cleanSelectedNodes();
+      },
+      // Проверяет нужно ли выводить трек
+      isShowTrack(track) {
+        return this.showLinks || this.selected?.links[track.id];
+      },
+      isIgnoreClick() {
+        return window?.event?.shiftKey || window?.event?.ctrlKey;
+      },
       // Обновление состояние визуализации нод
       updateNodeView() {
         const map = this.presentation.map;
@@ -328,27 +404,42 @@
           this.$set(node, 'opacity', unselected || this.selected.nodes[id] ? 1 : OPACITY);
         }
       },
-      // Выделяет ноду
-      selectNode(box) {
-        this.selected.nodes[box.node.id] = box;
+      // Выделяет структуру или ноду
+      getSelectNode(box) {
+        const selected = {
+          ...this.selected.nodes,
+          [box.node.id]: box
+        };
+
+        const deepSelection = (parent) => {
+          (parent.node.boxes || []).map((child) => {
+            selected[child.node.id] = child;
+            deepSelection(child);
+          });
+        };
+
+        deepSelection(box);
+
+        return selected;
       },
       // Выделяет ноду и ее соседей со связями
       selectNodeAndNeighbors(box) {
-        this.selectNode(box);
+        const selectedNodes = this.getSelectNode(box);
         this.presentation.tracks.map((track) => {
-          if ((track.link.from === box.node.id) || (track.link.to === box.node.id)) {
+          if ((selectedNodes[track.link.from]) || (selectedNodes[track.link.to])) {
             this.selected.links[track.id] = track;
             this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
             this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
           }
         });
+        this.selected.nodes = {
+          ...selectedNodes,
+          ...this.selected.nodes
+        };
       },
       // Обработка клика по объекту
       onNodeClick(box) {
-        if (!window?.event?.shiftKey) {
-          this.cleanSelectedTracks();
-          this.cleanSelectedNodes();
-        }
+        !this.isIgnoreClick() && this.clearSelect();
         this.selectNodeAndNeighbors(box);
         this.updateNodeView();
         this.updateTracksView();
@@ -358,11 +449,11 @@
         this.presentation.tracks = this.presentation.tracks.map((track) => {
           if (unselected) {
             this.$set(track, 'animate', false);
-            this.$set(track, 'opacity', 1);
+            this.$set(track, 'opacity', this.lineOpacity);
           } else {
             this.$set(track, 'highlight', !!this.selected.links[track.id]);
             this.$set(track, 'animate', track.highlight);
-            this.$set(track, 'opacity', track.animate ? 1 : OPACITY);
+            this.$set(track, 'opacity', track.animate ? this.lineOpacity : OPACITY * this.lineOpacity);
           }
           return track;
         }).sort((track1, track2) => {
@@ -371,20 +462,26 @@
           return 1;
         });
       },
-      // Фиксируем выбор линка  
+      // Фиксируем выбор линка
       onTrackClick(track) {
+        if (!this.isIgnoreClick()) {
+          this.cleanSelectedTracks();
+          this.cleanSelectedNodes();
+        }
+        this.selected.links[track.id] = track;
+        this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
+        this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
+        this.selected.nodes = {...this.selected.nodes};
+        this.updateNodeView();
+        this.updateTracksView();
+      },
+      // Клик по заголовку линка. Если есть переход, переходим,
+      // если нет - стандартное действие для клика по треку
+      onTrackTitleClick(track) {
         if(track.link.link) {
           this.$emit('on-click-link', track.link);
         } else {
-          if (!window?.event?.shiftKey) {
-            this.cleanSelectedTracks();
-            this.cleanSelectedNodes();
-          }
-          this.selected.links[track.id] = track;
-          this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
-          this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
-          this.updateNodeView();
-          this.updateTracksView();
+          this.$emit('track-click', track.link);
         }
       },
       // Обработка событий прохода мышки над связями
@@ -402,7 +499,7 @@
         this.selected.links = {};
         this.presentation.tracks.map((track) => {
           this.$set(track, 'animate', false);
-          this.$set(track, 'opacity', 1);
+          this.$set(track, 'opacity', this.lineOpacity);
           this.$set(track, 'highlight', false);
         });
       },
@@ -412,7 +509,7 @@
       },
       // Обработка клика на свободной области
       onClickSpace(event) {
-        if(event.shiftKey) return;
+        if(this.isIgnoreClick()) return;
         event = event || window.event;
         if (event.which === 1) {
           this.cleanSelectedTracks();
@@ -422,12 +519,12 @@
       },
       // Перестроить viewbox
       rebuildViewBox() {
-        const width = this.presentation.valueBox.dx - this.presentation.valueBox.x;
+        const width = this.presentation.valueBox?.dx - this.presentation.valueBox.x;
         let height = Math.max(this.presentation.valueBox.dy - this.presentation.valueBox.y, 100);
         const clientWidth = this.$el?.clientWidth || 0;
-        const titleWidth = this.$el?.querySelector('#title')?.clientWidth;
+        const titleWidth = this.$el?.querySelector('#title')?.clientWidth || 0;
 
-        this.landscape.viewBox.titleX = this.presentation.valueBox.x + (this.presentation.valueBox.dx - this.presentation.valueBox.x)/2 - titleWidth/2;
+        this.landscape.viewBox.titleX = this.presentation.valueBox.x + (this.presentation.valueBox?.dx - this.presentation.valueBox.x)/2 - titleWidth/2;
 
         this.landscape.viewBox.top = this.presentation.valueBox.y - 48;
 
@@ -455,17 +552,12 @@
         this.recalcSymbols();
         const trackWidth = this.data.config?.trackWidth || this.trackWidth;
         const distance = this.data.config?.distance || this.distance;
-        const hideTitles = this.data.config?.hideTitles;
-        nodes = nodes || this.data.nodes || {};
-        for(let node in nodes) {
-          if(hideTitles || !nodes[node] || !nodes[node]?.title) 
-            nodes[node] = ({...nodes[node], title: ' ' });
-        }
         let availableWidth = this.$el?.clientWidth || 0;
         if (availableWidth < 600) availableWidth = 600;
         this.isBuilding++;
         Graph.make(
-          nodes,
+          this.data.config?.grid || {},
+          nodes || this.data.nodes || {},
           links || this.data.links || [],
           trackWidth,
           distance,
@@ -474,6 +566,8 @@
           this.debug
         )
           .then((presentation) => {
+            if(presentation.warnings?.length)
+              this.$emit('update:warnings', presentation.warnings);
             this.presentation = presentation;
             this.rebuildViewBox();
             this.cleanSelectedTracks();

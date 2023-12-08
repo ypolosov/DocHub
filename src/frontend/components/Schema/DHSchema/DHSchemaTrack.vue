@@ -20,13 +20,13 @@
       v-if="title"
       v-bind:x="title.point.x"
       v-bind:y="title.point.y"
-      v-bind:style="{ opacity: track.opacity, stroke: trackColor }"
+      v-bind:style="{ opacity: track.opacity, fill: trackColor }"
       v-bind:transform="`rotate(${title.rotate}, ${title.point.x}, ${title.point.y})`"
       text-anchor="middle"
       v-bind:class="classesTitle"
       v-on:mouseover="onTrackOver"
       v-on:mouseleave="onTrackLeave"
-      v-on:mousedown.stop.prevent="onTrackClick">
+      v-on:mousedown.stop.prevent="onTrackTitleClick">
       {{ title.text }}
     </text>
   </g>
@@ -49,6 +49,10 @@
       lineWidthLimit: {
         type: Number,
         default: 20
+      },
+      thin: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -59,7 +63,7 @@
       strokeWidth() {
         let width = ((this.isUnwisp || []).length || 1);
         width = width < this.lineWidthLimit ? width : this.lineWidthLimit;
-        return width + 1;
+        return this.thin ? width : width + 1;
       },
       isUnwisp() {
         return this.track.link.contains;
@@ -142,6 +146,7 @@
       arrows() {
         let result = '';
         const track = this.track.path;
+        if (track.length < 2) return '';
         // Расставляем стрелки завершения пути
         [
           { curr : track[track.length - 1], prev: track[track.length - 2], after: true, arrow: this.endArrow},
@@ -184,6 +189,9 @@
       // 
       onTrackClick() {
         this.$emit('track-click', this.track);
+      },
+      onTrackTitleClick() {
+        this.$emit('track-title-click', this.track);
       },
       // Прокидываем события в диаграмму
       onTrackOver() {

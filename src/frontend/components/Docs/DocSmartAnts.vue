@@ -23,6 +23,29 @@
         <v-btn v-if="!isUnwisp" icon title="Свернуть связи в жгуты" v-on:click="setUnwisp(true)">
           <v-icon>mdi-arrow-decision-auto</v-icon>
         </v-btn>
+        <v-btn v-if="isShowLinks" icon title="Показать только структуру" v-on:click="setShowLinks(false)">
+          <v-icon>mdi-monitor-dashboard</v-icon>
+        </v-btn>
+        <v-btn v-if="!isShowLinks" icon title="Показать связи" v-on:click="setShowLinks(true)">
+          <v-icon>mdi-sitemap</v-icon>
+        </v-btn>
+        <v-btn v-if="warnings?.length" icon title="Предупреждения" v-on:click="sheet = !sheet">
+          <v-icon style="color: rgb(255, 0, 0);">warning</v-icon>
+        </v-btn>
+
+        <v-bottom-sheet v-model="sheet">
+          <v-card
+            class="text-center"
+            height="200">
+            <v-card-text>
+              <ul>
+                <li v-for="warn in warnings" v-bind:key="warn">
+                  {{ warn }}
+                </li>
+              </ul>
+            </v-card-text>
+          </v-card>
+        </v-bottom-sheet>
 
         <template v-if="scenario">
           <v-select
@@ -38,7 +61,7 @@
             <v-icon>{{ isPaying ? 'mdi-stop' : 'mdi-play' }}</v-icon>
           </v-btn>
           <!--
-            Имеются проблемы с перемоткой назад. 
+            Имеются проблемы с перемоткой назад.
             Плохо отрабатывают шаги очистки, т.е. отмотать состояние не удается без артефактов
           <v-btn
             v-if="isPaying"
@@ -56,12 +79,15 @@
             <v-icon>mdi-skip-next</v-icon>
           </v-btn>
         </template>
-      </v-system-bar>       
-      <schema 
+      </v-system-bar>
+      <schema
         ref="schema"
         v-model="status"
         class="schema"
+        v-bind:warnings="warnings"
         v-bind:data="data"
+        v-bind:show-links="isShowLinks"
+        v-on:update:warnings="v => warnings = v"
         v-on:playstop="onPlayStop"
         v-on:playstart="onPlayStart"
         v-on:selected-nodes="onSelectedNodes"
@@ -88,7 +114,7 @@
             <v-divider v-else v-bind:key="index" />
           </template>
         </v-list>
-      </v-menu>        
+      </v-menu>
     </v-card>
   </box>
 </template>
@@ -103,8 +129,8 @@
 
   export default {
     name: 'DocHubViewpoint',
-    components: { 
-      Schema 
+    components: {
+      Schema
     },
     mixins: [DocMixin],
     props: {
@@ -112,6 +138,8 @@
     },
     data() {
       return {
+        warnings: [],
+        sheet: false,
         menu: { // Контекстное меню
           show: false,  // Признак отображения
           x : 0,  // Позиция x
@@ -129,7 +157,8 @@
         isPaying: false,        // Признак проигрывания
         selectedNodes: null,    // Выбранные ноды
         focusNodes: null,       // Кадрированные ноды
-        isUnwisp: false         // Признак группировки связей
+        isUnwisp: false,        // Признак группировки связей
+        isShowLinks: true       // Нужно ли показывать связи?
       };
     },
     computed: {
@@ -162,7 +191,16 @@
           });
 
           const nodes = {};
-          this.focusNodes.map((id) => nodes[id] = result.nodes[id]);
+          this.focusNodes.map((id) => {
+            nodes[id] = result.nodes[id];
+            let nodeName = '';
+            id.split('.').forEach(domain => {
+              if(!nodeName.length) nodeName += domain;
+              else nodeName = [nodeName, domain].join('.');
+              if(!nodes[nodeName])
+                nodes[nodeName] = result.nodes[nodeName];
+            });
+          });
 
           result = JSON.parse(JSON.stringify({
             config: result.config,
@@ -207,8 +245,8 @@
             }
           }
         };
-        
-        
+
+
         /*
         const createStyleElementFromCSS = () => {
           // assume index.html loads only one CSS file in <header></header>
@@ -223,7 +261,7 @@
           style.appendChild(document.createTextNode(styleRules.join(' ')));
 
           return style;
-        };        
+        };
         const style = createStyleElementFromCSS();
         svgElement.insertBefore(style, svgElement.firstChild);
         */
@@ -255,7 +293,7 @@
         });
         event.preventDefault();
         event.stopPropagation();
-      },      
+      },
       //Очистка состояния
       clean() {
         this.status = {};
@@ -298,6 +336,10 @@
         });
         return result;
       },
+      // Устанавливает режим отображения структуры
+      setShowLinks(value) {
+        this.isShowLinks = value;
+      },
       // Устанавливает режим сворачивания связей в жгуты
       setUnwisp(value) {
         this.isUnwisp = value;
@@ -337,7 +379,7 @@
         this.$refs.schema.$emit(this.isPaying ? 'stop' : 'play', this.scenario);
       },
       // Команда перейти на предыдущий шаг немедленно
-      // todo нужно доработать возврат 
+      // todo нужно доработать возврат
       playPrev() {
         this.$refs.schema.$emit('prev');
       },

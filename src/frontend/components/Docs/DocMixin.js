@@ -2,6 +2,7 @@ import datasets from '@front/helpers/datasets';
 import gateway from '@idea/gateway';
 import docs from '@front/helpers/docs';
 import uriTool from '@front/helpers/uri';
+import requests from '@front/helpers/requests';
 
 const SOURCE_PENGING = 'pending';
 const SOURCE_READY = 'ready';
@@ -49,6 +50,18 @@ export default {
 		}
 	},
 	methods: {
+		// Сохраняет состояние отображения документа
+		saveState() {
+			this.state.scrollY = window.scrollY;
+			this.state.scrollX = window.scrollX;
+		},
+		// Восстанавливает состояние отображение
+		loadState() {
+            
+			if (this.state.scrollY !== null) {
+				window.scroll(this.state.scrollX, this.state.scrollY);
+			}
+		},
 		makeDataLakeID(path) {
 			return `("${path.slice(1).split('/').join('"."')}")`;
 		},
@@ -75,6 +88,9 @@ export default {
 							this.error = e;
 							this.source.status = SOURCE_ERROR;
 							reject(e);
+						})
+						.finally(() => {
+							this.$nextTick(() => this.loadState());
 						});
 				} else {
 					success(this.source.dataset = null);
@@ -83,8 +99,9 @@ export default {
 		},
 		onChangeSource(data) {
 			if (data) {
+				this.saveState();
 				for (const source in data) {
-					if (source === this.url.split('?')[0]) {
+					if (source === requests.getIndexURL(this.url)) {
 						this.doRefresh();
 					}
 				}
@@ -162,6 +179,10 @@ export default {
 		const provider = datasets();
 		return {
 			error: null,
+			state: {
+				scrollY: null,
+				scrollX: null
+			},
 			menu: {
 				show: false,
 				x: 0,

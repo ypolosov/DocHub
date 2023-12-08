@@ -32,7 +32,7 @@ DocHub.documents.register('html', doc);
 docs:
   ...
   dochub.plugins.example:
-    location: DocHub/Руководство/Плагины/Пример
+    location: DocHub/Руководство/Плагины/Примеры/HTML
     type: html
     source: examples/example.html    
 ```
@@ -42,7 +42,7 @@ docs:
 
 ```json
 {
-    "location": "DocHub/Руководство/Плагины/Пример",
+    "location": "DocHub/Руководство/Плагины/Примеры/HTML",
     "type": "html",
     "source": "examples/example.html"
 }
@@ -66,7 +66,7 @@ props: {
 
 Пример встраивания документа в [markdown](/docs/dochub.markdown):
 
-```Markdown
+```
 ![Пример документа плагина](@document/dochub.plugins.example?param1=foo1&param2=foo2)
 ```
 
@@ -94,7 +94,7 @@ props: {
 docs:
     ...
     dochub.plugins.example:
-        location: DocHub/Руководство/Плагины/Пример
+        location: DocHub/Руководство/Плагины/Примеры/HTML
         type: html
         headers:
         head1:

@@ -105,14 +105,24 @@ export default {
 		}
 	},
 
-	// Фиксируются все обращения для построения карты задействованных русурсов
+	// Возвращает "чистый" URL пригодный для индексирования
+	getIndexURL(url) {
+		return url.toString().split('?')[0].split('#')[0];
+	},
+
+	// Возвращает CRC ссылки
+	crcOfURL(url) {
+		return crc16(this.getIndexURL(url));
+	},
+
+	// Фиксируются все обращения для построения карты задействованных ресурсов
 	trace(url) {
-		tracers[crc16(url)] = Date.now();
+		env.isPlugin() && (tracers[this.crcOfURL(url)] = Date.now());
 	},
 
 	// Возвращает время последнего обращения к ресурсу
 	isUsedURL(url) {
-		return tracers[crc16(url)];
+		return tracers[this.crcOfURL(url)];
 	},
 
 	// Транслирует ссылки на backend в прямые URL
@@ -144,7 +154,7 @@ export default {
 	// 		responseHook - содержит функцию обработки ответа перед работой interceptors
 	//		raw - если true возвращает ответ без обработки
 	request(uri, baseURI, axios_params) {
-		let params = Object.assign({}, axios_params);
+		const params = Object.assign({}, axios_params);
 		params.url = uri;
 		// Если ссылка ведет на backend конвертируем ее
 		let strURI = (uri || '').toString();
@@ -153,7 +163,13 @@ export default {
 		strURI.startsWith('res://') && (strURI = this.expandResourceURI(strURI));
 		baseURI && baseURI.toString().startsWith('res://') && (baseURI = this.expandResourceURI(baseURI));
 		
-		if (strURI.startsWith('backend://')) {
+		if (strURI.startsWith('source:')) {
+			return new Promise((success) => {
+				success({
+					data: JSON.parse(decodeURIComponent((new URL(uri)).pathname))
+				});
+			});
+		} else if (strURI.startsWith('backend://')) {
 			const structURI = strURI.split('/');
 			const origin = `${structURI[0]}//${structURI[2]}/`;
 			const path = this.encodeRelPath(strURI.slice(origin.length));

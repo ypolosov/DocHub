@@ -18,7 +18,6 @@ const ENV_ERROR_TAG = '[env.dochub]';
 
 const DEF_METAMODEL_URI_PORTAL = '/metamodel/root.yaml';
 const DEF_METAMODEL_URI_IDEA = 'plugin:/idea/metamodel/root.yaml';
-const DEF_METAMODEL_URI_VSCODE = 'https://dochub.info/metamodel/root.yaml';
 
 export default {
   dochub: <TProcessEnvValues>{},
@@ -26,16 +25,16 @@ export default {
     const isIdea = !!window.DocHubIDEACodeExt;
     const isVsCode = !!window.DochubVsCodeExt;
 
-    switch(plugin) {
-    case Plugins.idea: {
-      return isIdea;
-    }
-    case Plugins.vscode: {
-      return isVsCode;
-    }
-    default: {
-      return isIdea || isVsCode;
-    }
+    switch (plugin) {
+      case Plugins.idea: {
+        return isIdea;
+      }
+      case Plugins.vscode: {
+        return isVsCode;
+      }
+      default: {
+        return isIdea || isVsCode;
+      }
     }
   },
   // Адрес backend сервере
@@ -98,6 +97,9 @@ export default {
   get gitlabUrl(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_GITLAB_URL;
   },
+  get bitbucketUrl(): TEnvValue {
+    return this.dochub.VUE_APP_DOCHUB_BITBUCKET_URL;
+  },
   get appendDocHubDocs(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS;
   },
@@ -118,16 +120,29 @@ export default {
       return settings?.isEnterprise ? envValue : (
         settings?.render?.external ? settings?.render?.server : null
       );
+    } else if (this.isPlugin(Plugins.vscode)) {
+      const { render } = window.DochubVsCodeExt?.settings;
+      return render.server;
     } else return envValue;
   },
   // Определяет тип запроса к серверу рендеринга
   get plantUmlRequestType(): TEnvValue {
     const settings = (window.DocHubIDEACodeExt || window.DochubVsCodeExt)?.settings;
-    if (this.isPlugin(Plugins.idea) && !settings?.isEnterprise) {
-      return settings?.render?.external ? 'get' : 'plugin';
-    } else if (this.isPlugin(Plugins.vscode)) {
-      return settings?.render?.request_type || 'get';
-    } else return 'get';
+
+    if (!settings?.isEnterprise) {
+      if (this.isPlugin(Plugins.idea)) {
+        return settings?.render?.external ? settings?.render?.request_type || 'get' : 'plugin';
+      } else if (this.isPlugin(Plugins.vscode)) {
+        return settings?.render?.request_type || 'get';
+      }
+    }
+
+    const requestType = this.dochub.VUE_APP_PLANTUML_REQUEST_TYPE?.toLowerCase() || 'get';
+
+    if (['get', 'post', 'post_compressed'].includes(requestType)) {
+      return requestType as TCacheMethods;
+    }
+    throw new Error(`Неправильно указан параметр "VUE_APP_PLANTUML_REQUEST_TYPE=${requestType}" в env!`);
   },
   get isAppendDocHubDocs(): boolean {
     return (this.appendDocHubDocs || 'y').toLowerCase() === 'y';
@@ -135,12 +150,18 @@ export default {
   get uriMetamodel(): string {
     const settings = (window.DocHubIDEACodeExt || window.DochubVsCodeExt)?.settings;
     let result = this.dochub.VUE_APP_DOCHUB_METAMODEL || DEF_METAMODEL_URI_PORTAL;
+    let host = window.location.toString();
     if (this.isPlugin(Plugins.idea)) {
       result = settings?.isEnterprise ? result : DEF_METAMODEL_URI_IDEA;
     } else if (this.isPlugin(Plugins.vscode)) {
-      result = settings?.isEnterprise ? result : DEF_METAMODEL_URI_VSCODE;
-    } 
-    result = (new URL(result, window.location.toString())).toString();
+      if(!settings?.isEnterprise && window.DochubVsCodeExt?.metamodelUri) {
+        const { scheme, path, authority } = window.DochubVsCodeExt?.metamodelUri;
+
+        result = `${path}`;
+        host = `${scheme}://${authority}`;
+      } else host = settings?.enterpriseServer;
+    }
+    result = (new URL(result, host)).toString();
     // eslint-disable-next-line no-console
     console.info('Source of metamodel is ', result);
     return result;

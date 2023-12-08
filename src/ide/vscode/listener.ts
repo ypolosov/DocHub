@@ -2,6 +2,9 @@ import { Store } from 'vuex';
 import YAML from 'yaml';
 import { listeners } from './pipe';
 import config from '@front/config';
+import { Buffer } from 'buffer';
+import router from '@front/router';
+import { Route } from 'vue-router';
 
 enum Files {
   'jpg',
@@ -19,11 +22,14 @@ type TEvent = {
   data?: {
     command?: string,
     content?: {
+      url?: string,
       uri?: string,
       stringifedUri?: string,
       type?: TFiles,
-      uuid?: string
-      value?: string
+      uuid?: string,
+      value?: string,
+      node?: any,
+      route: Route
     },
     error?: any
   }
@@ -64,6 +70,33 @@ const normalizeResponse = (type: TFiles, content: string): any => {
 export default (store: Store<any>): void => {
   window.addEventListener('message', (event: TEvent) => {
     const {command, content, error} = event?.data;
+
+    if(command === 'fetchPlugins') {
+      const plugins = require('../../../plugins.json');
+      window.$PAPI.pluginList({ plugins: plugins.inbuilt });
+    }
+
+    if(command === 'goToRoute') {
+      (window as any).Router.push(content.route);
+    }
+    if(command === 'refresh') {
+      // Костыль. router.go(0) не работает
+      router.go(-1);
+      setTimeout(() => router.go(1), 1);
+    }
+    if(command === 'checkIsEntity') {
+      if(store.state.manifest.entities[content.node.name])
+        window.$PAPI.addLinks(content.node);
+    }
+    if (command === 'navigate') {
+      (window as any).Router.push('/');
+      (window as any).Router.push(content.url);
+    }
+    if(command === 'refresh') {
+      // Костыль. router.go(0) не работает
+      router.go(-1);
+      setTimeout(() => router.go(1), 1);
+    }
 
     if (command === 'response') {
       const {value, type, uuid} = content;

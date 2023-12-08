@@ -37,7 +37,7 @@
           to: system            # Куда
           title: Логин и пароль # Описание маршрута
           style: "->"           # Направление маршрута <- / -> / <->
-          link: "/docs/dochub.plantuml" # Ссылка перехода при клике на надпись
+          link: "/docs/dochub.swagger" # Ссылка перехода при клике на надпись
         - from: system
           to: user
           title: JWT токен
@@ -72,7 +72,7 @@
           to: system            
           title: Логин и пароль 
           style: "-[#ff0000]->"         # Указывается цвет линии через RGB
-          link: "/docs/dochub.plantuml" 
+          link: "/docs/dochub.swagger" 
         - from: system
           to: user
           title: JWT токен
@@ -101,7 +101,9 @@
         trackWidth: 24        
       nodes:
         inside:                      # Определим домены 
-          title: Внутренняя среда    
+          title: Внутренняя среда
+          background: lightgreen     # добавим фон области
+          opacity: 0.3               # и прозрачность фона
         outside:
           title: Внешняя среда
         inside.system:               # Добавим в идентификатор принадлежность к домену "inside"
@@ -150,6 +152,94 @@
 Будут подсвечен и анимирован весь его интеграционный ландшафт.
 
 Удерживайте "SHIFT" и выбирайте другие объекты на диаграмме. Тем самым расширяя поле анализа.
+
+## Управление заголовками областей и элементов
+
+В диаграммах SmartAnts используются svg представление элементов. 
+Поэтому не всегда красиво и функционально использовать текстовые подписи для областей и элементов.
+Для этого используются следующие настройки:
+
+**hideBoundaryTitles** - выключить заголовки у областей:
+```yaml
+...
+config:
+    distance: 80
+    trackWidth: 18
+    hideBoundaryTitles: true
+...
+```
+
+Результат на примере сложной диаграммы:
+![Результат на примере сложной диаграммы](@document/dochub.smartants.examples.complex.hideboundaries)
+
+**hideLeafTitles** - выключить заголовки у элементов:
+```yaml
+...
+config:
+    distance: 80
+    trackWidth: 18
+    hideLeafTitles: true
+...
+```
+
+Результат на примере сложной диаграммы:
+![Результат на примере сложной диаграммы](@document/dochub.smartants.examples.complex.hideleaves)
+
+**hideTitle** - индивидуально выключить заголовок у элемента или области:
+```yaml
+...
+  # Внутренняя среда
+  inside:
+    title: Внутренняя среда
+    hideTitle: true
+...
+  inside.postgres:            # База данных для хранения бизнес-данных
+  title: Основная БД
+  symbol: database
+  hideTitle: true
+...
+```
+
+Результат на примере сложной диаграммы:
+![Результат на примере сложной диаграммы](@document/dochub.smartants.examples.complex.hidetitles)
+
+## Управление сеткой расположения элементов
+
+По умолчанию элементы SmartAnts располагаются на холсте произвольно. 
+Благодаря конфигурации сетки и разметке элементов тегами можно управлять расположением объектов
+Например:
+
+```yaml
+...
+config:
+  grid:
+    - row: 
+      - col: app
+      - col: user
+    - row:
+      - col: default
+...
+nodes:
+  # Первый уровень
+  third-level.second-level.first-level:
+    title: 1-ый уровень
+    tag: default
+  third-level.second-level.first-level.user:
+    title: Пользователь
+    symbol: user
+  third-level.second-level.first-level.application:
+    title: AndroidApp
+    symbol: system
+    tag: app
+
+  # Второй уровень
+  third-level.second-level:
+    title: 2-ой уровень
+    tag: user
+...
+```
+Получаем такую схему:
+![Получаем такую схему](@document/dochub.smartants.examples.gravity)
 
 ## Анимированные сценарии
 
@@ -416,4 +506,4 @@ nodes:
 ![Пример сложного запроса к данным](@document/dochub.smartants.examples.complex-query)
 
 
-[Далее](/docs/dochub.templates) 
+

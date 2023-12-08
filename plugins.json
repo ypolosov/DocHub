@@ -1,5 +1,8 @@
 {
     "inbuilt": [
-        "plugins/html"
+        "plugins/html",
+        "plugins/markaper",
+        "plugins/charts",
+        "plugins/devtool"
     ]
 }

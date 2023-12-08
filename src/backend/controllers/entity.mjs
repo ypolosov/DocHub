@@ -81,7 +81,7 @@ export default function(app) {
         // Получаем данные для генерации ответа
         try {
             const cacheKey = JSON.stringify({entity: entityID, presentation: presentationID, params: entityParams});
-            const data = await cache.pullFromCache(cacheKey, async()=> {
+            const data = await cache.pullFromCache(app.storage.hash, cacheKey, async()=> {
                 return await datasets(app).releaseData(path, entityParams);
             });
 

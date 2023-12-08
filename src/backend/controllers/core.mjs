@@ -3,6 +3,9 @@ import storeManager from '../storage/manager.mjs';
 import cache from '../storage/cache.mjs';
 import queries from '../../global/jsonata/queries.mjs';
 import helpers from './helpers.mjs';
+import compression from '../../global/compress/compress.mjs';
+
+const compressor = compression();
 
 // const LOG_TAG = 'controller-core';
 
@@ -10,7 +13,7 @@ export default (app) => {
 
     // Создает ответ на JSONata запрос и при необходимости кэширует ответ
     function makeJSONataQueryResponse(res, query, params, subject) {
-        cache.pullFromCache(JSON.stringify({query, params, subject}), async()=> {
+        cache.pullFromCache(app.storage.hash, JSON.stringify({ query, params, subject }), async() => {
             return await datasets(app).parseSource(
                 app.storage.manifest,
                 query,
@@ -35,7 +38,7 @@ export default (app) => {
         if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
-        const query = (request.query.length === 36) && queries.QUERIES[request.query] 
+        const query = (request.query.length === 36) && queries.QUERIES[request.query]
             ? `(${queries.makeQuery(queries.QUERIES[request.query], request.params)})`
             : request.query;
 
@@ -44,18 +47,19 @@ export default (app) => {
 
     // Запрос на обновление манифеста
     app.put('/core/storage/reload', function(req, res) {
-      const reloadSecret = req.query.secret;
-      if(reloadSecret !== process.env.VUE_APP_DOCHUB_RELOAD_SECRET) {
-        res.status(403).json({
-          error: `Error reload secret is not valid [${reloadSecret}]`
-        });
-        return;
-      } else {
-        storeManager.reloadManifest()
-          .then((storage) => storeManager.applyManifest(app, storage))
-          .then(cache.clearCache)
-          .then(() => res.json({ message: 'success' }));
-      }
+        const reloadSecret = req.query.secret;
+        if (reloadSecret !== process.env.VUE_APP_DOCHUB_RELOAD_SECRET) {
+            res.status(403).json({
+                error: `Error reload secret is not valid [${reloadSecret}]`
+            });
+            return;
+        } else {
+            const oldHash = app.storage.hash;
+            storeManager.reloadManifest()
+                .then((storage) => storeManager.applyManifest(app, storage))
+                .then(() => cache.clearCache(oldHash))
+                .then(() => res.json({ message: 'success' }));
+        }
     });
 
     // Выполняет произвольные запросы 
@@ -63,12 +67,18 @@ export default (app) => {
         if (!helpers.isServiceReady(app, res)) return;
 
         const request = parseRequest(req);
-        cache.pullFromCache(JSON.stringify({path: request.query, params: request.params}), async()=> {
-            if (request.query.startsWith('/')) 
+        cache.pullFromCache(app.storage.hash, JSON.stringify({ path: request.query, params: request.params }), async() => {
+            if (request.query.startsWith('/'))
                 return await datasets(app).releaseData(request.query, request.params);
-            else if (request.query.startsWith('{')) {
+            else {
+                let profile = null;
+                const params = request.params;
+                if (request.query.startsWith('{'))
+                    profile = JSON.parse(request.query);
+                else
+                    profile = JSON.parse(await compressor.decodeBase64(request.query));
+
                 const ds = datasets(app);
-                const profile = JSON.parse(request.query);
                 if (profile.$base) {
                     const path = ds.pathResolver(profile.$base);
                     if (!path) {
@@ -77,12 +87,11 @@ export default (app) => {
                         });
                         return;
                     }
-                    return await ds.getData(path.context, profile, request.params, path.baseURI);
+                    return await ds.getData(path.context, profile, params, path.baseURI);
                 } else {
-                    return await ds.getData(app.storage.manifest, profile, request.params);
+                    return await ds.getData(app.storage.manifest, profile, params);
                 }
-            } else 
-                throw `Error query param [${request.query}]`;
+            } 
         }, res);
     });
 

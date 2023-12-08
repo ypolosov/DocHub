@@ -39,6 +39,7 @@ import 'vuetify/dist/vuetify.min.css';
 
 window.Vue = Vue;
 window.Router = router;
+window.EventBus = new Vue();
 
 Vue.use(Vuex);
 Vue.use(Vuetify);
